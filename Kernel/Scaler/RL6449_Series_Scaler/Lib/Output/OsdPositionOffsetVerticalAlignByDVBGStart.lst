@@ -1,0 +1,145 @@
+C51 COMPILER V8.12   OSDPOSITIONOFFSETVERTICALALIGNBYDVBGSTART                             03/11/2025 19:55:52 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE OSDPOSITIONOFFSETVERTICALALIGNBYDVBGSTART
+OBJECT MODULE PLACED IN .\Output\OsdPositionOffsetVerticalAlignByDVBGStart.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerFunction\Lib\Code\ScalerOSD\Function\OsdPositionOffsetVerticalA
+                    -lignByDVBGStart.c LARGE OPTIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\.
+                    -.\ScalerFunction\Header;..\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Comm
+                    -on\Lib\Header;..\..\RL6449_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJE
+                    -CTEXTEND PRINT(.\Output\OsdPositionOffsetVerticalAlignByDVBGStart.lst) OBJECT(.\Output\OsdPositionOffsetVerticalAlignByD
+                    -VBGStart.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : OsdPositionOffsetVerticalAlignByDVBGStart.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "ScalerOSDLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          #define _OSD_V_OFFSET_MIN                               (1)
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          BYTE ScalerOsdPositionOffsetVerticalAlignByDVBGStart(BYTE ucVOffset);
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Description  : Align vertical offset by DVBGStart
+  49          // Input Value  : ucVOffset           -> Vertical offset base on DVBGStart 6
+  50          // Output Value : Vertical offset compensation depend on DVBGStart
+C51 COMPILER V8.12   OSDPOSITIONOFFSETVERTICALALIGNBYDVBGSTART                             03/11/2025 19:55:52 PAGE 2   
+
+  51          //--------------------------------------------------
+  52          BYTE ScalerOsdPositionOffsetVerticalAlignByDVBGStart(BYTE ucVOffset)
+  53          {
+  54   1          WORD usDVBGStart = 0;
+  55   1      
+  56   1          ScalerGetDataPortByte(P0_2A_DISPLAY_FORMAT_ADDR_PORT, _P0_2B_PT_0E_DISPLAY_VER_BG_STA_H, 2, &pData[0],
+             - _AUTOINC);
+  57   1          usDVBGStart = ((pData[0] & 0x1F) << 8) | (pData[1]);
+  58   1      
+  59   1          if((ScalerOsdGetDoubleFunctionH() == _TRUE) && (ScalerOsdGetDoubleFunctionV() == _TRUE))
+  60   1          {
+  61   2              if(usDVBGStart > 6)
+  62   2              {
+  63   3                  ucVOffset = ucVOffset + ((usDVBGStart - 6) / 2);
+  64   3              }
+  65   2              else
+  66   2              {
+  67   3                  if(ucVOffset >= ((6 - usDVBGStart + 1) / 2))
+  68   3                  {
+  69   4                      ucVOffset = ucVOffset - ((6 - usDVBGStart + 1) / 2);
+  70   4                  }
+  71   3                  else
+  72   3                  {
+  73   4                      ucVOffset = 0;
+  74   4                  }
+  75   3              }
+  76   2          }
+  77   1          else
+  78   1          {
+  79   2              if(usDVBGStart > 6)
+  80   2              {
+  81   3                  ucVOffset = ucVOffset + usDVBGStart - 6;
+  82   3              }
+  83   2              else
+  84   2              {
+  85   3                  if(ucVOffset >= (6 - usDVBGStart))
+  86   3                  {
+  87   4                      ucVOffset = ucVOffset - (6 - usDVBGStart);
+  88   4                  }
+  89   3                  else
+  90   3                  {
+  91   4                      ucVOffset = 0;
+  92   4                  }
+  93   3              }
+  94   2          }
+  95   1      
+  96   1          // Check OSD V offset minimum
+  97   1          if(ucVOffset < _OSD_V_OFFSET_MIN)
+  98   1          {
+  99   2              return _OSD_V_OFFSET_MIN;
+ 100   2          }
+ 101   1          else
+ 102   1          {
+ 103   2              return ucVOffset;
+ 104   2          }
+ 105   1      }
+ 106          
+ 107          /*
+ 108          //--------------------------------------------------
+ 109          // example
+ 110          //--------------------------------------------------
+ 111              ScalerOsdPositionOffsetVerticalAlignByDVBGStart(6);
+C51 COMPILER V8.12   OSDPOSITIONOFFSETVERTICALALIGNBYDVBGSTART                             03/11/2025 19:55:52 PAGE 3   
+
+ 112          */
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    211    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       3
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

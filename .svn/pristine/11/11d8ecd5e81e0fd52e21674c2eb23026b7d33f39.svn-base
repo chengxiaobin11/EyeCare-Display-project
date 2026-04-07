@@ -1,0 +1,1459 @@
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERSYNCPROC
+OBJECT MODULE PLACED IN .\Output\RL6463\ScalerSyncProc.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerSyncProc.c LARGE OPTIMIZE(9,
+                    -SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Head
+                    -er;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\
+                    -Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler\RL646
+                    -3_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Seri
+                    -es\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;
+                    -.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(.\Outp
+                    -ut\RL6463\ScalerSyncProc.lst) OBJECT(.\Output\RL6463\ScalerSyncProc.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerSyncProc.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_SYNCPROC__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          #if(_VGA_SUPPORT == _ON)
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          
+  26          //--------------------------------------------------
+  27          // Definitions of V-Sync width & total limitations
+  28          //--------------------------------------------------
+  29          #define _MAX_VSYNC_HIGH_PERIOD                      12 // Unit capture window
+  30          
+  31          //--------------------------------------------------
+  32          // Definitions of Debounce Width And High Pulse Width Counter
+  33          //--------------------------------------------------
+  34          #define _MIN_SYNC_HIGHPULSE_WIDTH                   173 // Unit ns, Represent the shortest high pulse widt
+             -h
+  35          #define _MIN_SYNC_HIGHPULSE_CNT                     (((WORD)((DWORD)_MIN_SYNC_HIGHPULSE_WIDTH * _SYNC_PROC
+             -_CLK / 1000000)) & 0x7FF)
+  36          #define _MIN_SYNC_HIGHPULSE_CNT_PS                  (((WORD)((DWORD)_MIN_SYNC_HIGHPULSE_WIDTH * _INTERNAL_
+             -OSC_XTAL / (0x01 << _IOSC_DIV) / 1000000)) & 0x7FF)
+  37          
+  38          //--------------------------------------------------
+  39          // Definitions Of Capture window initial width tolerance
+  40          //--------------------------------------------------
+  41          #define _CAP_WINDOW_WIDTH_TOR                       2 // Unit: sync processor clock
+  42          
+  43          //--------------------------------------------------
+  44          // Definitions Of Sync Processor Auto Run Polling Time, Target 120ms
+  45          // Auto Run Typer Time Out Base Counter(0x200000) Reference 27M Crystal About 80ms:                       
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 2   
+
+             -                                                     //
+  46          // 120 = 80 + 40(Tolerance), _XTAL27000K / _MCU_XTAL Is Linear Operator
+  47          //--------------------------------------------------
+  48          #define _AUTO_RUN_POLLING_TIME                      ((WORD)((DWORD)120 * _XTAL27000K / _SYNC_PROC_CLK))
+  49          
+  50          //--------------------------------------------------
+  51          // Definitions Of Two frame times
+  52          //--------------------------------------------------
+  53          #define _WAIT_TWO_FRAME_TIME                        90 // Reference 24 Hz, (1/24) * 2 = 83ms, give 7ms tol
+             -erance
+  54          
+  55          //--------------------------------------------------
+  56          // Definitions Of Clamp Position in Pixel clock unit
+  57          //--------------------------------------------------
+  58          #define _CLAMP_POSITION_START                       0x04
+  59          #define _CLAMP_POSITION_END                         0x10
+  60          
+  61          //--------------------------------------------------
+  62          // Definitions Of Min/Max H-Sync Freq, Normal Range (15.625, 112.5) Unit:KHz
+  63          //--------------------------------------------------
+  64          #define _SUPPORT_HSYNC_MIN_FREQ                     10  // + Torlerance
+  65          #define _SUPPORT_HSYNC_MAX_FREQ                     150 // + Torlerance
+  66          
+  67          //--------------------------------------------------
+  68          // Definitions Of SOG middle compare level & shift range
+  69          //--------------------------------------------------
+  70          #define _SOG_MID_COMPARE_LEVEL                      (0x16)
+  71          #define _SOG_MID_COMPARE_RANGE                      (0x02)
+  72          
+  73          //--------------------------------------------------
+  74          // Definitions Of Sync type autorun result
+  75          //--------------------------------------------------
+  76          #define GET_SYNCPROC_AUTORUN_RESULT()               (ScalerGetBit(P0_4C_VSYNC_COUNTER_LEVEL_MSB, (_BIT6 | 
+             -_BIT5 | _BIT4)) >> 4)
+  77          
+  78          
+  79          //****************************************************************************
+  80          // STRUCT / TYPE / ENUM DEFINITTIONS
+  81          //****************************************************************************
+  82          
+  83          //--------------------------------------------------
+  84          // Enumerations of Hsync Type Detection Auto Run Result
+  85          //--------------------------------------------------
+  86          typedef enum
+  87          {
+  88              _NO_SIGNAL = 0,
+  89              _NOT_SUPPORT = 1,
+  90              _YPBPR_SYNC = 2,
+  91              _SERRATION_CS = 3,
+  92              _XOR_OR_TYPE_CS_WITH_EQR = 4,
+  93              _XOR_OR_TYPE_CS_WITHOUT_EQR = 5,
+  94              _SEPARATE_HSYNC = 6,
+  95              _HSYNC_WITHOUT_VS = 7,
+  96          } EnumAutoRunResult;
+  97          
+  98          #if(_SOG_SUPPORT == _ON)
+  99          //--------------------------------------------------
+ 100          // Enumerations of SyncProc/AutoFunc Measure Mode
+ 101          //--------------------------------------------------
+ 102          typedef enum
+ 103          {
+ 104              _SOG_LEVEL_VALID,
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 3   
+
+ 105              _SOG_LEVEL_INVALID,
+ 106              _SOG_LEVEL_FAIL,
+ 107          } EnumSogLevelSearchResult;
+ 108          #endif
+ 109          
+ 110          //****************************************************************************
+ 111          // CODE TABLES
+ 112          //****************************************************************************
+ 113          
+ 114          //****************************************************************************
+ 115          // VARIABLE DECLARATIONS
+ 116          //****************************************************************************
+ 117          WORD g_usAdcClockLimit = _ADC_PIXEL_WIDTH_LIMIT;
+ 118          
+ 119          #if(_SOG_SUPPORT == _ON)
+ 120          BYTE g_ucSogMidLevel = _SOG_MID_COMPARE_LEVEL;
+ 121          #endif
+ 122          
+ 123          //****************************************************************************
+ 124          // FUNCTION DECLARATIONS
+ 125          //****************************************************************************
+ 126          void ScalerSyncProcScanInitial(void);
+ 127          bit ScalerSyncProcPreDetect(BYTE ucInputPort);
+ 128          bit ScalerSyncProcStableDetect(void);
+ 129          bit ScalerSyncProcGetSyncPad(void);
+ 130          void ScalerSyncProcAdcInitial(void);
+ 131          void ScalerSyncProcInitial(void);
+ 132          bit ScalerSyncProcHSSyncStableDetect(void);
+ 133          bit ScalerSyncProcStableCheck(void);
+ 134          WORD ScalerSyncProcGetDeVsyncWidth(void);
+ 135          bit ScalerSyncProcIsSeparate(void);
+ 136          BYTE ScalerSyncProcTypeAutoRun(void);
+ 137          bit ScalerSyncProcAdcClkInitial(void);
+ 138          bit ScalerSyncProcAdcClkSetting(void);
+ 139          
+ 140          void ScalerSyncProcClampPosCheck(BYTE ucVideoModeFlg);
+ 141          void ScalerSyncProcClampPosSetting(WORD usClampPosStart, WORD usClampPosEnd);
+ 142          WORD ScalerSyncProcGetClampEndPosition(void);
+ 143          void ScalerSyncProcClearSyncChangeStatus(void);
+ 144          WORD ScalerSyncProcMeasureIHFreqByStableMeasure(void);
+ 145          void ScalerSyncProcPulseDetectEnable(BYTE ucEnable);
+ 146          void ScalerSyncProcSetDebounce(BYTE ucDebounce);
+ 147          
+ 148          #if(_VGA_CHROMA_PATTERN12_SUPPORT == _ON)
+              void ScalerSyncProcSetPorchVoltage(void);
+              bit ScalerSyncProcCheckPorchChange(void);
+              #endif
+ 152          
+ 153          void ScalerSyncProcDownCounterSetting(void);
+ 154          DWORD ScalerSyncProcGetCurrentClockFreq(void);
+ 155          
+ 156          #if(_SOG_SUPPORT == _ON)
+ 157          EnumSogLevelSearchResult ScalerSyncProcSogCheckFlag(void);
+ 158          EnumSogLevelSearchResult ScalerSyncProcSogCheckHs(StructMeasureSyncData *pstMeasureSyncHV);
+ 159          EnumSogLevelSearchResult ScalerSyncProcSogCheckVs(StructMeasureSyncData *pstMeasureSyncHV);
+ 160          EnumSogLevelSearchResult ScalerSyncProcSogCheckSyncType(void);
+ 161          void ScalerSyncProcSetSogCompareLevel(BYTE *pucLevels);
+ 162          bit ScalerSyncProcSogSyncCheck(void);
+ 163          bit ScalerSyncProcRecheckSOGSyncStable(void);
+ 164          #endif
+ 165          
+ 166          //****************************************************************************
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 4   
+
+ 167          // FUNCTION DEFINITIONS
+ 168          //****************************************************************************
+ 169          
+ 170          //--------------------------------------------------
+ 171          // Description  : Initial Setting for VGA Scanning Port(Power Normal)
+ 172          // Input Value  : None
+ 173          // Output Value : None
+ 174          //--------------------------------------------------
+ 175          void ScalerSyncProcScanInitial(void)
+ 176          {
+ 177   1          // ADC Initial Setting
+ 178   1          ScalerSyncProcAdcInitial();
+ 179   1      
+ 180   1          // Sync Processor Initial Setting
+ 181   1          ScalerSyncProcInitial();
+ 182   1      
+ 183   1          // ADC Schmitt Trigger Setting
+ 184   1          ScalerADCSchmittTriggerSetting();
+ 185   1      
+ 186   1          // Initial ADC data to VGIP path swap setting.
+ 187   1          g_stRegVgaCapture.b1_06_6_ADC_G_B_SWAP = _VGA_INPUT_SWAP_GB;
+ 188   1          g_stRegVgaCapture.b1_06_5_ADC_R_B_SWAP = _VGA_INPUT_SWAP_RB;
+ 189   1          g_stRegVgaCapture.b1_06_4_ADC_R_G_SWAP = _VGA_INPUT_SWAP_RG;
+ 190   1      }
+ 191          
+ 192          //--------------------------------------------------
+ 193          // Description  : Signal PreDetection for VGA(Power Normal)
+ 194          // Input Value  : ucInputPort
+ 195          // Output Value : True : VGA Signal Detected
+ 196          //              : False : No Signal
+ 197          //--------------------------------------------------
+ 198          bit ScalerSyncProcPreDetect(BYTE ucInputPort)
+ 199          {
+ 200   1          // Vcck for power on
+ 201   1          ScalerSetBit(P0_C7_ADC_VOLT_SEL, ~_BIT2, 0x00);
+ 202   1      
+ 203   1          // Debounce counter reference 14.318MHz sync process clock, minimum pulse width is 171ns
+ 204   1          // n / 14.318 / 1000 = 171 => n = 2
+ 205   1          ScalerSyncProcSetDebounce(0x02);
+ 206   1      
+ 207   1          // Enable sync pulse detect
+ 208   1          ScalerSyncProcPulseDetectEnable(_ENABLE);
+ 209   1      
+ 210   1          // Clamp trigger edge and clamp setting for initial setting
+ 211   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_04_CLAMP_CTRL0, 0x02);
+ 212   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_05_CLAMP_CTRL1, 0x01);
+ 213   1      
+ 214   1          pData[0] = _TRUE;
+ 215   1      
+ 216   1          if(ucInputPort == _A0_INPUT_PORT)
+ 217   1          {
+ 218   2      #if(_A0_VGA_CONNECTOR_TYPE == _VGA_CONNECTOR_YPBPR)
+                      pData[0] = _FALSE;
+              #endif
+ 221   2          }
+ 222   1          else if(ucInputPort == _A1_INPUT_PORT)
+ 223   1          {
+ 224   2      #if(_A1_VGA_CONNECTOR_TYPE == _VGA_CONNECTOR_YPBPR)
+                      pData[0] = _FALSE;
+              #endif
+ 227   2          }
+ 228   1          else if(ucInputPort == _A2_INPUT_PORT)
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 5   
+
+ 229   1          {
+ 230   2      #if(_A2_VGA_CONNECTOR_TYPE == _VGA_CONNECTOR_YPBPR)
+                      pData[0] = _FALSE;
+              #endif
+ 233   2          }
+ 234   1      
+ 235   1          if(pData[0] == _TRUE)
+ 236   1          {
+ 237   2              if(ScalerSyncProcHSSyncStableDetect() == _TRUE)
+ 238   2              {
+ 239   3                  if(ScalerSyncProcStableCheck() == _TRUE)
+ 240   3                  {
+ 241   4                      return _TRUE;
+ 242   4                  }
+ 243   3              }
+ 244   2              else
+ 245   2              {
+ 246   3                  // Inverse CS_RAW signal for repeat check status
+ 247   3                  ScalerSetBit(P0_48_SYNC_INVERT, ~_BIT3, ((~(ScalerGetBit(P0_48_SYNC_INVERT, _BIT3))) & _BIT3))
+             -;
+ 248   3      
+ 249   3                  if(ScalerSyncProcHSSyncStableDetect() == _TRUE)
+ 250   3                  {
+ 251   4                      if(ScalerSyncProcStableCheck() == _TRUE)
+ 252   4                      {
+ 253   5                          return _TRUE;
+ 254   5                      }
+ 255   4                  }
+ 256   3              }
+ 257   2          }
+ 258   1      
+ 259   1      #if(_SOG_SUPPORT == _ON)
+ 260   1          // Enable DC Restore
+ 261   1          ScalerADCDCRestoreEn(_ENABLE);
+ 262   1      
+ 263   1          // SOG power up
+ 264   1          ScalerSetBit(P0_C6_ADC_POWER, ~_BIT5, _BIT5);
+ 265   1      
+ 266   1          // Wait for SOG Stable
+ 267   1          ScalerTimerDelayXms(5);
+ 268   1      
+ 269   1          if(ScalerSyncProcSogSyncCheck() == _TRUE)
+ 270   1          {
+ 271   2              if(ScalerSyncProcStableCheck() == _TRUE)
+ 272   2              {
+ 273   3                  if(ScalerSyncProcRecheckSOGSyncStable() == _TRUE)
+ 274   3                  {
+ 275   4                      // Sync is valid
+ 276   4                      return _TRUE;
+ 277   4                  }
+ 278   3              }
+ 279   2          }
+ 280   1      
+ 281   1          // Disable DC Restore
+ 282   1          ScalerADCDCRestoreEn(_DISABLE);
+ 283   1      
+ 284   1          // SOG power down
+ 285   1          ScalerSetBit(P0_C6_ADC_POWER, ~_BIT5, 0x00);
+ 286   1      
+ 287   1          // Disable De-composite circuit
+ 288   1          ScalerSetBit(P0_47_SYNC_SELECT, ~_BIT5, 0x00);
+ 289   1      
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 6   
+
+ 290   1      #endif // End of #if(_SOG_SUPPORT == _ON)
+ 291   1      
+ 292   1          // Disable sync pulse detect
+ 293   1          ScalerSyncProcPulseDetectEnable(_DISABLE);
+ 294   1      
+ 295   1          // Disable SyncProc Clock
+ 296   1          ScalerSetBit(P0_47_SYNC_SELECT, ~_BIT7, _BIT7);
+ 297   1      
+ 298   1          return _FALSE;
+ 299   1      }
+ 300          
+ 301          //--------------------------------------------------
+ 302          // Description  : On Line Check VGA sync stability
+ 303          // Input Value  : None
+ 304          // Output Value : True --> VGA Sync Stable
+ 305          //                False --> VGA Sync Unstable
+ 306          //--------------------------------------------------
+ 307          bit ScalerSyncProcStableDetect(void)
+ 308          {
+ 309   1          ScalerSetBit(P0_47_SYNC_SELECT, ~_BIT7, 0x00);
+ 310   1      
+ 311   1          if(ScalerGetBit(P0_4E_HSYNC_TYPE_DETECTION_FLAG, (_BIT7 | _BIT6 | _BIT5 | _BIT3)) != 0x00)
+ 312   1          {
+ 313   2              return _FALSE;
+ 314   2          }
+ 315   1          else
+ 316   1          {
+ 317   2      #if(_VGA_CHROMA_PATTERN12_SUPPORT == _ON)
+                      // Check porch voltage level change for chroma pattern 12
+                      if(ScalerSyncProcCheckPorchChange() == _TRUE)
+                      {
+                          // Toggle "Clamp-to-Top" status
+                          ScalerADCSetClampToTopStatus(~(ScalerADCGetClampToTopStatus()));
+              
+                          DebugMessageAnalog("Toggle clamp-to-top status", ScalerADCGetClampToTopStatus());
+                      }
+              #endif
+ 327   2              return _TRUE;
+ 328   2          }
+ 329   1      }
+ 330          
+ 331          //--------------------------------------------------
+ 332          // Description  : Get VGA Sync Pad
+ 333          // Input Value  : None
+ 334          // Output Value : None
+ 335          //--------------------------------------------------
+ 336          bit ScalerSyncProcGetSyncPad(void)
+ 337          {
+ 338   1          return (bit)(ScalerGetBit(P0_47_SYNC_SELECT, _BIT4));
+ 339   1      }
+ 340          
+ 341          //--------------------------------------------------
+ 342          // Description  : ADC Initial Setting
+ 343          // Input Value  : None
+ 344          // Output Value : None
+ 345          //--------------------------------------------------
+ 346          void ScalerSyncProcAdcInitial(void)
+ 347          {
+ 348   1          // Adc output clock setting
+ 349   1          ScalerADCOutputClkSetting();
+ 350   1      
+ 351   1          // ADC Power control setting
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 7   
+
+ 352   1          ScalerADCPowerSetting();
+ 353   1      
+ 354   1          // ADC bias current setting
+ 355   1          ScalerADCBiasCurrentSetting();
+ 356   1      
+ 357   1          // ADC select differential signal
+ 358   1          ScalerSetBit(P0_BB_ADC_CK_IN_CTRL, ~_BIT7, _BIT7);
+ 359   1      
+ 360   1          // ADC offset Depend On Gain, Red Clamp Voltage 400mV
+ 361   1          ScalerSetBit(P0_CF_ADC_CTL_RED, ~(_BIT6 | _BIT5 | _BIT4 | _BIT3), _BIT6);
+ 362   1      
+ 363   1          // ADC offset Depend On Gain, Green Clamp Voltage 400mV
+ 364   1          ScalerSetBit(P0_D0_ADC_CTL_GRN, ~(_BIT6 | _BIT5 | _BIT4 | _BIT3), _BIT6);
+ 365   1      
+ 366   1          // ADC offset Depend On Gain, Blue Clamp Voltage 400mV
+ 367   1          ScalerSetBit(P0_D1_ADC_CTL_BLU, ~(_BIT6 | _BIT5 | _BIT4 | _BIT3), _BIT6);
+ 368   1      
+ 369   1          // Enable DC Restore
+ 370   1          ScalerADCDCRestoreEn(_ON);
+ 371   1      
+ 372   1          // Disable SOG Clamp
+ 373   1          ScalerADCSOGClampEn(_OFF);
+ 374   1      
+ 375   1      #if(_VGA_CHROMA_PATTERN12_SUPPORT == _ON)
+                  // Disable Clamp to Top
+                  ScalerSetBit(P0_D6_ADC_CLAMP_TOP, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+              #endif
+ 379   1      
+ 380   1          // Nit7~Bit6: SOG DC restore resister is 1M
+ 381   1          // Bit3: SOG0 Bias Current from ADC BandGap
+ 382   1          // Bit0: Bias Current of SOG normal
+ 383   1          ScalerSetBit(P0_D4_ADC_SOG_CTRL, ~(_BIT7 | _BIT6 | _BIT3 | _BIT0), (_BIT7 | _BIT3));
+ 384   1      
+ 385   1          // Vcck for power on
+ 386   1          ScalerSetBit(P0_C7_ADC_VOLT_SEL, ~_BIT2, 0x00);
+ 387   1      
+ 388   1      #if(_LC_TANK_SUPPORT == _ON)
+ 389   1      #if(_XTALESS_SUPPORT == _ON)
+                  ScalerSetBit(P66_B6_APLL_CLK_SEL, ~_BIT0, _BIT0);
+              #else
+ 392   1          ScalerSetBit(P66_B6_APLL_CLK_SEL, ~_BIT0, 0x00);
+ 393   1      #endif
+ 394   1          ScalerSetBit(P1_F3_APLL_STATUS, ~_BIT2, _BIT2);
+ 395   1      #endif
+ 396   1      }
+ 397          
+ 398          //--------------------------------------------------
+ 399          // Description  : ADC Initial Setting
+ 400          // Input Value  : None
+ 401          // Output Value : None
+ 402          //--------------------------------------------------
+ 403          void ScalerSyncProcInitial(void)
+ 404          {
+ 405   1          // SOG Source Select to SOG0, VGA-ADC HS/VS Source Select to Original HS/VS of ADC Source
+ 406   1          ScalerSetBit(P0_47_SYNC_SELECT, ~(_BIT3 | _BIT2), 0x00);
+ 407   1      
+ 408   1          // G Clamp Position default Setting
+ 409   1          ScalerSyncProcClampPosSetting(_CLAMP_POSITION_START, _CLAMP_POSITION_END);
+ 410   1      
+ 411   1          // Clamp position unit: Single ADC clock
+ 412   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_06_CLAMP_CTRL2, 0x30);
+ 413   1      
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 8   
+
+ 414   1          // Coast Setting for Front porch default condition: +2/-1
+ 415   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_07_COAST_CTRL, 0x21);
+ 416   1      
+ 417   1          // Capture window max missing times & Capture auto increase step & Capture window initial width.
+ 418   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_08_CAPTURE_WINDOW_SETTING, 0x00);
+ 419   1      
+ 420   1          // Bit6: Measure Time Clock = 4096 Xtal, Measure source select capture window
+ 421   1          ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_18_SYNC_PROCESSOR_TEST_MODE, ~(_BIT6 | _BIT3
+             -), (_BIT6 | _BIT3));
+ 422   1      }
+ 423          
+ 424          //--------------------------------------------------
+ 425          // Description  : Sync Processor Detect H/V Sync Stable for SS/CS
+ 426          // Input Value  : None
+ 427          // Output Value : True --> HV Stable
+ 428          //                False --> HV Not Stable
+ 429          //--------------------------------------------------
+ 430          bit ScalerSyncProcHSSyncStableDetect(void)
+ 431          {
+ 432   1          BYTE ucCirCleCnt = 5;
+ 433   1          WORD usHSyncPeriod = 0;
+ 434   1          WORD usHSyncPulseCount = 0;
+ 435   1      
+ 436   1          do
+ 437   1          {
+ 438   2              ucCirCleCnt--;
+ 439   2      
+ 440   2              // Clear flag
+ 441   2              ScalerSetBit(P0_5B_HS_DETECT, ~_BIT7, _BIT7);
+ 442   2      
+ 443   2              // For SOG Power Stable, Refernce H-Freq = 15.63k, Delay time about 4 H-Sync Period, 300us include
+             - margin
+ 444   2              DELAY_XUS(300); /* Delay time us [300, x] */
+ 445   2      
+ 446   2              if(ScalerGetBit(P0_5B_HS_DETECT, _BIT7) == _BIT7)
+ 447   2              {
+ 448   3                  continue;
+ 449   3              }
+ 450   2              else
+ 451   2              {
+ 452   3                  break;
+ 453   3              }
+ 454   2          }
+ 455   1          while(ucCirCleCnt > 0);
+ 456   1      
+ 457   1          if(ucCirCleCnt != 0)
+ 458   1          {
+ 459   2              return _FALSE;
+ 460   2          }
+ 461   1      
+ 462   1          // Enable Sync Processor Clock
+ 463   1          ScalerSetBit(P0_47_SYNC_SELECT, ~(_BIT7 | _BIT6 | _BIT5 | _BIT3 | _BIT2 | _BIT0), 0x00);
+ 464   1      
+ 465   1          // HS_OUT Signal Output Enable, HS Out not invert
+ 466   1          ScalerSetBit(P0_48_SYNC_INVERT, ~(_BIT5 | _BIT4), _BIT4);
+ 467   1      
+ 468   1          // HS_OUT by pass mode, Measure Source is ADC_HS1/ADC_VS, H Sync measure source is original hs
+ 469   1          ScalerSetByte(P0_49_SYNC_CTRL, 0x06);
+ 470   1      
+ 471   1          // Sync from HS Pad
+ 472   1          ScalerSetBit(P0_47_SYNC_SELECT, ~_BIT4, 0x00);
+ 473   1      
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 9   
+
+ 474   1          // Start Stable Period Measure
+ 475   1          ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT0, 0x00);
+ 476   1          ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT0, _BIT0);
+ 477   1      
+ 478   1          if(ScalerTimerPollingFlagProc(12, P0_4F_STABLE_MEASURE, _BIT7, _TRUE) == _FALSE)
+ 479   1          {
+ 480   2              return _FALSE;
+ 481   2          }
+ 482   1      
+ 483   1          // Pop up stable result
+ 484   1          ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT1, _BIT1);
+ 485   1      
+ 486   1          usHSyncPeriod = ((WORD)(ScalerGetByte(P0_50_STABLE_PERIOD_H) & 0x07) << 8) | ScalerGetByte(P0_51_STABL
+             -E_PERIOD_L);
+ 487   1          usHSyncPulseCount = ((WORD)(ScalerGetByte(P0_4A_STABLE_HIGH_PERIOD_H) & 0x07) << 8) | ScalerGetByte(P0
+             -_4B_STABLE_HIGH_PERIOD_L);
+ 488   1      
+ 489   1          if(ScalerGetBit(P0_4F_STABLE_MEASURE, _BIT6) == 0x00) // HS Negative
+ 490   1          {
+ 491   2              usHSyncPulseCount = (usHSyncPeriod - usHSyncPulseCount);
+ 492   2          }
+ 493   1      
+ 494   1          if(((usHSyncPulseCount * 7) < usHSyncPeriod) && (usHSyncPulseCount >= _MIN_SYNC_HIGHPULSE_CNT_PS))
+ 495   1          {
+ 496   2              if(ScalerTimerPollingFlagProc(_WAIT_TWO_FRAME_TIME, P0_4E_HSYNC_TYPE_DETECTION_FLAG, _BIT4, _TRUE)
+             - == _TRUE) // Saperate signal
+ 497   2              {
+ 498   3                  return _TRUE;
+ 499   3              }
+ 500   2      
+ 501   2      #if(_VGA_COMPOSITE_SUPPORT == _ON)
+ 502   2              if(ScalerGetBit(P0_4E_HSYNC_TYPE_DETECTION_FLAG, _BIT1) == _BIT1) // Composite signal, this bit ne
+             -ed waitting for one frame
+ 503   2              {
+ 504   3                  return _TRUE;
+ 505   3              }
+ 506   2      #endif // End of #if(_VGA_COMPOSITE_SUPPORT == _ON)
+ 507   2          }
+ 508   1      
+ 509   1          return _FALSE;
+ 510   1      }
+ 511          
+ 512          
+ 513          //--------------------------------------------------
+ 514          // Description  : VGA Sync Stable Measure Check 3 times
+ 515          // Input Value  : None
+ 516          // Output Value : True --> Sync Stable
+ 517          //                False --> Sync Unstable
+ 518          //--------------------------------------------------
+ 519          bit ScalerSyncProcStableCheck(void)
+ 520          {
+ 521   1          BYTE ucCheckTimes = 3;
+ 522   1      
+ 523   1          do
+ 524   1          {
+ 525   2              ucCheckTimes--;
+ 526   2      
+ 527   2              // Start Stable Period Measure
+ 528   2              ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT0, 0x00);
+ 529   2              ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT0, _BIT0);
+ 530   2      
+ 531   2              if(ScalerTimerPollingFlagProc(12, P0_4F_STABLE_MEASURE, _BIT7, _TRUE) == _TRUE)
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 10  
+
+ 532   2              {
+ 533   3                  continue;
+ 534   3              }
+ 535   2              else
+ 536   2              {
+ 537   3                  return _FALSE;
+ 538   3              }
+ 539   2          }
+ 540   1          while(ucCheckTimes > 0);
+ 541   1      
+ 542   1          // Down Counter Setting
+ 543   1          ScalerSyncProcDownCounterSetting();
+ 544   1      
+ 545   1          return _TRUE;
+ 546   1      }
+ 547          
+ 548          //--------------------------------------------------
+ 549          // Description  : Get DeVS Width
+ 550          // Input Value  : None
+ 551          // Output Value : DeVs Width (unit : line)
+ 552          //--------------------------------------------------
+ 553          WORD ScalerSyncProcGetDeVsyncWidth(void)
+ 554          {
+ 555   1          // Pop Up De-VS High Pulse Width
+ 556   1          ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_0A_DEVS_CAP_NUM_H, ~_BIT7, _BIT7);
+ 557   1      
+ 558   1          ScalerSetByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_0A_DEVS_CAP_NUM_H);
+ 559   1          PDATA_WORD(7) = ((ScalerGetByte(P0_5D_SYNC_PROC_PORT_DATA) & 0x0F) << 8) | ScalerGetByte(P0_5D_SYNC_PR
+             -OC_PORT_DATA);
+ 560   1      
+ 561   1          DebugMessageAnalog("DeVS high Pulse Width Check =", PDATA_WORD(7));
+ 562   1      
+ 563   1          return PDATA_WORD(7);
+ 564   1      }
+ 565          
+ 566          //--------------------------------------------------
+ 567          // Description  : Check if VGA Sync Type is separate
+ 568          // Input Value  : None
+ 569          // Output Value : _TRUE or _FALSE
+ 570          //--------------------------------------------------
+ 571          bit ScalerSyncProcIsSeparate(void)
+ 572          {
+ 573   1          return (GET_SYNCPROC_AUTORUN_RESULT() == _SEPARATE_HSYNC);
+ 574   1      }
+ 575          
+ 576          //--------------------------------------------------
+ 577          // Description  : VGA Sync Type Detect AutoRun
+ 578          // Input Value  : None
+ 579          // Output Value : Sync Type
+ 580          //--------------------------------------------------
+ 581          BYTE ScalerSyncProcTypeAutoRun(void)
+ 582          {
+ 583   1          BYTE ucSyncTemp = _NO_SYNC_STATE;
+ 584   1      
+ 585   1          if(ScalerGetBit(P0_47_SYNC_SELECT, _BIT7) == _BIT7)
+ 586   1          {
+ 587   2              return ucSyncTemp;
+ 588   2          }
+ 589   1      
+ 590   1          // Stop Stable Measure
+ 591   1          ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT0, 0x00);
+ 592   1      
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 11  
+
+ 593   1          // Disable Hsync Type Detection Auto Run, Disable De-Composite
+ 594   1          ScalerSetBit(P0_47_SYNC_SELECT, ~(_BIT6 | _BIT5), 0x00);
+ 595   1      
+ 596   1          // Enable Hsync Type Detection Auto Run
+ 597   1          ScalerSetBit(P0_47_SYNC_SELECT, ~_BIT6, _BIT6);
+ 598   1      
+ 599   1          // Check the result of Auto Run
+ 600   1          // 120ms need change by current clock in future, by macro
+ 601   1          if(ScalerTimerPollingFlagProc(_AUTO_RUN_POLLING_TIME, P0_4C_VSYNC_COUNTER_LEVEL_MSB, _BIT7, _TRUE) == 
+             -_FALSE)
+ 602   1          {
+ 603   2              return ucSyncTemp;
+ 604   2          }
+ 605   1      
+ 606   1          if(ScalerSyncProcIsSeparate() == _TRUE)
+ 607   1          {
+ 608   2              // Disable Coast Output in separate sync type.
+ 609   2              ScalerSetBit(P0_48_SYNC_INVERT, ~_BIT6, 0x00);
+ 610   2      
+ 611   2              ucSyncTemp = _SS_STATE;
+ 612   2          }
+ 613   1          else
+ 614   1          {
+ 615   2              // Check composite sync type
+ 616   2              switch(GET_SYNCPROC_AUTORUN_RESULT())
+ 617   2              {
+ 618   3                  case _NO_SIGNAL: // No Signal
+ 619   3                  case _NOT_SUPPORT: // Not Support
+ 620   3                  case _HSYNC_WITHOUT_VS: // Hsync only
+ 621   3                      ucSyncTemp = _NO_SYNC_STATE;
+ 622   3      
+ 623   3                      break;
+ 624   3      
+ 625   3      #if (_YPBPR_SUPPORT == _ON)
+ 626   3                  case _YPBPR_SYNC: // YPbPr-Type CS
+ 627   3                      ucSyncTemp = _SOY_STATE;
+ 628   3      
+ 629   3                      break;
+ 630   3      #endif // End of #if (_YPBPR_SUPPORT == _ON)
+ 631   3      
+ 632   3                  case _SERRATION_CS: // Serration-Type CS
+ 633   3                      ucSyncTemp = _CS_STATE;
+ 634   3      
+ 635   3                      break;
+ 636   3      
+ 637   3                  case _XOR_OR_TYPE_CS_WITH_EQR: // CS with Equalizer
+ 638   3                  case _XOR_OR_TYPE_CS_WITHOUT_EQR: // OR-Type & XOR-Type CS
+ 639   3      
+ 640   3                      // Pop Up Stable Value
+ 641   3                      ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT1, _BIT1);
+ 642   3      
+ 643   3                      PDATA_WORD(1) = ((((WORD)(ScalerGetByte(P0_4A_STABLE_HIGH_PERIOD_H) & 0x07) << 8) | Scaler
+             -GetByte(P0_4B_STABLE_HIGH_PERIOD_L)) + 1);
+ 644   3      
+ 645   3                      PDATA_WORD(1) += _CAP_WINDOW_WIDTH_TOR;
+ 646   3      
+ 647   3                      if(PDATA_WORD(1) <= 0x1F)
+ 648   3                      {
+ 649   4                          ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_08_CAPTURE_WINDOW_SETTING, ~
+             -(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), PDATA_WORD(1));
+ 650   4                      }
+ 651   3      
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 12  
+
+ 652   3                      ucSyncTemp = _CS_STATE;
+ 653   3      
+ 654   3                      break;
+ 655   3      
+ 656   3                  default:
+ 657   3                      ucSyncTemp = _NO_SYNC_STATE;
+ 658   3      
+ 659   3                      break;
+ 660   3              }
+ 661   2          }
+ 662   1      
+ 663   1          if(ucSyncTemp == _SOY_STATE)
+ 664   1          {
+ 665   2              SET_COLOR_SPACE(_COLOR_SPACE_YPBPR);
+ 666   2          }
+ 667   1          else
+ 668   1          {
+ 669   2              SET_COLOR_SPACE(_COLOR_SPACE_RGB);
+ 670   2              SET_COLOR_RGB_QUANTIZATION_RANGE(_RGB_QUANTIZATION_FULL_RANGE);
+ 671   2          }
+ 672   1      
+ 673   1          if(ucSyncTemp != _NO_SYNC_STATE)
+ 674   1          {
+ 675   2              // Fix color depth to 8 bit mode under vga source
+ 676   2              SET_COLOR_DEPTH(_COLOR_DEPTH_8_BITS);
+ 677   2          }
+ 678   1      
+ 679   1          return ucSyncTemp;
+ 680   1      }
+ 681          
+ 682          //--------------------------------------------------
+ 683          // Description  : ADC Clock Initial before mode search
+ 684          // Input Value  : None
+ 685          // Output Value : True --> Success
+ 686          //                False --> Error
+ 687          //--------------------------------------------------
+ 688          bit ScalerSyncProcAdcClkInitial(void)
+ 689          {
+ 690   1          WORD usIHFreq = 0;
+ 691   1          WORD usIHTotal = 0;
+ 692   1      
+ 693   1          // APLL & ADC Path thermal Compensation Setting
+ 694   1          ScalerADCThermalCompensationSetting();
+ 695   1      
+ 696   1          usIHFreq = ((WORD)((_SYNC_PROC_CLK * 10 * 2 / (((WORD)(ScalerGetByte(P0_50_STABLE_PERIOD_H) & 0x07) <<
+             - 8) | ScalerGetByte(P0_51_STABLE_PERIOD_L)) + 1) / 2));
+ 697   1      
+ 698   1          usIHTotal = (WORD)(((DWORD)_ADC_SAMPLE_CLOCK_LIMIT / usIHFreq / 4) * 4);
+ 699   1      
+ 700   1          if(usIHTotal > _ADC_PIXEL_WIDTH_LIMIT)
+ 701   1          {
+ 702   2              usIHTotal = _ADC_PIXEL_WIDTH_LIMIT;
+ 703   2          }
+ 704   1      
+ 705   1          g_usAdcClockLimit = usIHTotal;
+ 706   1      
+ 707   1          ScalerADCBandWidthSetting(((DWORD)usIHFreq * (DWORD)usIHTotal) / 10000);
+ 708   1      
+ 709   1          if(ScalerAPLLAdjust(usIHTotal, usIHFreq) == _FALSE)
+ 710   1          {
+ 711   2              return _FALSE;
+ 712   2          }
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 13  
+
+ 713   1      
+ 714   1          return _TRUE;
+ 715   1      }
+ 716          
+ 717          //--------------------------------------------------
+ 718          // Description  : ADC Clock Setting After mode search
+ 719          // Input Value  : None
+ 720          // Output Value : True --> Success
+ 721          //                False --> Error
+ 722          //--------------------------------------------------
+ 723          bit ScalerSyncProcAdcClkSetting(void)
+ 724          {
+ 725   1          ScalerADCBandWidthSetting(((DWORD)GET_INPUT_TIMING_HFREQ() * (DWORD)GET_INPUT_TIMING_HTOTAL()) / 10000
+             -);
+ 726   1      
+ 727   1          if(ScalerAPLLAdjust(GET_INPUT_TIMING_HTOTAL(), GET_INPUT_TIMING_HFREQ()) == _FALSE)
+ 728   1          {
+ 729   2              return _FALSE;
+ 730   2          }
+ 731   1      
+ 732   1          // Coast Setting for progressive mode: +1/-1
+ 733   1          if(GET_INPUT_TIMING_INTERLACE_FLG() == _FALSE)
+ 734   1          {
+ 735   2              ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_07_COAST_CTRL, 0x11);
+ 736   2          }
+ 737   1      
+ 738   1          return _TRUE;
+ 739   1      }
+ 740          
+ 741          //--------------------------------------------------
+ 742          // Description  : Clamp Position Check avoid BP too short.
+ 743          // Input Value  : ucVideoModeFlg --> Video Mode flag type
+ 744          // Output Value : None
+ 745          //--------------------------------------------------
+ 746          void ScalerSyncProcClampPosCheck(BYTE ucVideoModeFlg)
+ 747          {
+ 748   1          WORD usClampPosStart = 0;
+ 749   1          WORD usClampPosEnd = 0;
+ 750   1      
+ 751   1          switch(ucVideoModeFlg)
+ 752   1          {
+ 753   2              case 0x10: // _VIDEO_MODE_GROUP1:
+ 754   2      
+ 755   2                  usClampPosStart = 0x08;
+ 756   2                  usClampPosEnd = 0x16;
+ 757   2      
+ 758   2      #if (_YPBPR_SUPPORT == _ON)
+ 759   2                  SET_COLOR_SPACE(_COLOR_SPACE_YPBPR);
+ 760   2      #endif
+ 761   2                  break;
+ 762   2      
+ 763   2              case 0x20: // _VIDEO_MODE_GROUP2:
+ 764   2      
+ 765   2                  usClampPosStart = 0x30;
+ 766   2                  usClampPosEnd = 0x38;
+ 767   2      
+ 768   2      #if (_YPBPR_SUPPORT == _ON)
+ 769   2                  SET_COLOR_SPACE(_COLOR_SPACE_YPBPR);
+ 770   2      #endif
+ 771   2                  break;
+ 772   2      
+ 773   2              case 0x80: // _VIDEO_MODE_GROUP3:
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 14  
+
+ 774   2      
+ 775   2                  usClampPosStart = 0x28;
+ 776   2                  usClampPosEnd = 0x50;
+ 777   2      
+ 778   2      #if (_YPBPR_SUPPORT == _ON)
+ 779   2                  SET_COLOR_SPACE(_COLOR_SPACE_YPBPR);
+ 780   2      #endif
+ 781   2                  break;
+ 782   2      
+ 783   2              default:
+ 784   2      
+ 785   2                  // Convert H start/HS width to current resolution
+ 786   2                  PDATA_WORD(0) = (DWORD)GET_ACTIVE_H_START() * GET_INPUT_TIMING_HTOTAL() / g_usAdcClockLimit;
+ 787   2                  PDATA_WORD(1) = (DWORD)GET_INPUT_TIMING_HTOTAL() * GET_INPUT_TIMING_HSYNCWIDTH() / GET_SYNC_H_
+             -PERIOD();
+ 788   2      
+ 789   2                  // Check H start position
+ 790   2                  if(PDATA_WORD(0) <= PDATA_WORD(1))
+ 791   2                  {
+ 792   3                      // Invalid measure; Set default clamp position
+ 793   3                      usClampPosStart = 0x04;
+ 794   3                      usClampPosEnd = 0x0A;
+ 795   3                  }
+ 796   2                  else
+ 797   2                  {
+ 798   3                      // Calculate back porch size
+ 799   3                      PDATA_WORD(2) = PDATA_WORD(0) - PDATA_WORD(1);
+ 800   3      
+ 801   3                      // Check auto-function result for clamp position
+ 802   3                      if(PDATA_WORD(2) > 0x12)
+ 803   3                      {
+ 804   4                          // Clamp to back porch
+ 805   4                          usClampPosStart = 0x04;
+ 806   4                          usClampPosEnd = 0x10;
+ 807   4                      }
+ 808   3                      else
+ 809   3                      {
+ 810   4                          // Clamp to back porch with shortened length
+ 811   4                          usClampPosEnd = ((PDATA_WORD(2) >= 9) ? (PDATA_WORD(2) - 0x02) : 0x07);
+ 812   4                          usClampPosStart = ((usClampPosEnd >= 0x07) ? (usClampPosEnd - 0x06) : 0x01);
+ 813   4                      }
+ 814   3                  }
+ 815   2      
+ 816   2                  break;
+ 817   2          }
+ 818   1      
+ 819   1          // Clamp position apply
+ 820   1          ScalerSyncProcClampPosSetting(usClampPosStart, usClampPosEnd);
+ 821   1      }
+ 822          
+ 823          //--------------------------------------------------
+ 824          // Description  : Clamp Position setting
+ 825          // Input Value  : usClampPosStart --> Clamp Position Start
+ 826          //                  usClampPosEnd --> Clamp Position End
+ 827          // Output Value : None
+ 828          //--------------------------------------------------
+ 829          void ScalerSyncProcClampPosSetting(WORD usClampPosStart, WORD usClampPosEnd)
+ 830          {
+ 831   1          // Y/G Clamp Position LSB
+ 832   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_00_G_CLAMP_START, LOBYTE(usClampPosStart));
+ 833   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_01_G_CLAMP_END, LOBYTE(usClampPosEnd));
+ 834   1      
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 15  
+
+ 835   1          // Pb/B Clamp Position LSB
+ 836   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_02_BR_CLAMP_START, LOBYTE(usClampPosStart))
+             -;
+ 837   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_03_BR_CLAMP_END, LOBYTE(usClampPosEnd));
+ 838   1      
+ 839   1          // Y/G Clamp Position MSB
+ 840   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_0D_G_CLAMP_START_H, (((HIBYTE(usClampPosSta
+             -rt) << 4) & 0xF0) | (HIBYTE(usClampPosEnd) & 0x0F)));
+ 841   1      
+ 842   1          // Pb/B Clamp Position MSB
+ 843   1          ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_0E_BR_CLAMP_START_H, (((HIBYTE(usClampPosSt
+             -art) << 4) & 0xF0) | (HIBYTE(usClampPosEnd) & 0x0F)));
+ 844   1      }
+ 845          
+ 846          //--------------------------------------------------
+ 847          // Description  : Get Clamp End Position
+ 848          // Input Value  : None
+ 849          // Output Value : Clamp Position End
+ 850          //--------------------------------------------------
+ 851          WORD ScalerSyncProcGetClampEndPosition(void)
+ 852          {
+ 853   1          // Get Y/G clamp end position
+ 854   1          pData[0] = ScalerGetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_0D_G_CLAMP_START_H, (_BIT3 | _BIT
+             -2 | _BIT1 | _BIT0));
+ 855   1          ScalerGetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_01_G_CLAMP_END, 1, &pData[1], _NON_AUTOINC)
+             -;
+ 856   1      
+ 857   1          // Get BR/PbPr clamp end position
+ 858   1          pData[2] = ScalerGetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_0E_BR_CLAMP_START_H, (_BIT3 | _BI
+             -T2 | _BIT1 | _BIT0));
+ 859   1          ScalerGetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_03_BR_CLAMP_END, 1, &pData[3], _NON_AUTOINC
+             -);
+ 860   1      
+ 861   1          // Return the larger clamp end
+ 862   1          if(PDATA_WORD(0) > PDATA_WORD(1))
+ 863   1          {
+ 864   2              return PDATA_WORD(0);
+ 865   2          }
+ 866   1          else
+ 867   1          {
+ 868   2              return PDATA_WORD(1);
+ 869   2          }
+ 870   1      }
+ 871          
+ 872          //-------------------------------------------------------------------
+ 873          // Description  : Clear Sync change status
+ 874          // Input Value  : None
+ 875          // Output Value : None
+ 876          //-------------------------------------------------------------------
+ 877          void ScalerSyncProcClearSyncChangeStatus(void)
+ 878          {
+ 879   1          ScalerSetBit(P0_4E_HSYNC_TYPE_DETECTION_FLAG, ~(_BIT7 | _BIT6 | _BIT5), (_BIT7 | _BIT6 | _BIT5));
+ 880   1      }
+ 881          
+ 882          //-------------------------------------------------------------------
+ 883          // Description  : Calculate H freq by stable measure
+ 884          // Input Value  : None
+ 885          // Output Value : H Freq
+ 886          //-------------------------------------------------------------------
+ 887          WORD ScalerSyncProcMeasureIHFreqByStableMeasure(void)
+ 888          {
+ 889   1          // Calculate input H-Sync Frequency
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 16  
+
+ 890   1          return (WORD)((_SYNC_PROC_CLK * 10 * 2 / (((WORD)(ScalerGetByte(P0_50_STABLE_PERIOD_H) & 0x07) << 8) |
+             - ScalerGetByte(P0_51_STABLE_PERIOD_L)) + 1) / 2);
+ 891   1      }
+ 892          
+ 893          //-------------------------------------------------------------------
+ 894          // Description  : Enable / disable sync pulse detect
+ 895          // Input Value  : Enbale or disable detect
+ 896          // Output Value : None
+ 897          //-------------------------------------------------------------------
+ 898          void ScalerSyncProcPulseDetectEnable(BYTE ucEnable)
+ 899          {
+ 900   1          if(ucEnable == _ENABLE)
+ 901   1          {
+ 902   2              ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_19_HS_DETECT_SETTING, ~(_BIT7 | _BIT6), 
+             -(_BIT7 | _BIT6));
+ 903   2          }
+ 904   1          else
+ 905   1          {
+ 906   2              ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_19_HS_DETECT_SETTING, ~(_BIT7 | _BIT6), 
+             -0x00);
+ 907   2          }
+ 908   1      }
+ 909          
+ 910          //-------------------------------------------------------------------
+ 911          // Description  : Set sync detect debounce
+ 912          // Input Value  : Debounce width
+ 913          // Output Value : None
+ 914          //-------------------------------------------------------------------
+ 915          void ScalerSyncProcSetDebounce(BYTE ucDebounce)
+ 916          {
+ 917   1          // Set input H-Sync Debounce width for decomposite & stable measure & auto run block
+ 918   1          ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_09_DETECTION_TOLERANCE_SETTING, ~(_BIT4 | _B
+             -IT3 | _BIT2 | _BIT1 | _BIT0), ucDebounce & 0x1F);
+ 919   1      
+ 920   1          // Set input H-Sync debounce for predetect
+ 921   1          ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_19_HS_DETECT_SETTING, ~(_BIT3 | _BIT2 | _BIT
+             -1 | _BIT0), ucDebounce & 0x0F);
+ 922   1      }
+ 923          
+ 924          #if(_VGA_CHROMA_PATTERN12_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Initial porch voltage check for non-SOG sync type
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerSyncProcSetPorchVoltage(void)
+              {
+                  // NOP for sync type SOG
+                  if(ScalerGetBit(P0_47_SYNC_SELECT, _BIT4) != _BIT4)
+                  {
+                      // Power up SOG
+                      ScalerSetBit(P0_C6_ADC_POWER, ~_BIT5, _BIT5);
+              
+                      // Set SOG detect debounce to 0x0F; Enable SOG detect
+                      ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_19_HS_DETECT_SETTING, ~(_BIT6 | _BIT3 | 
+             -_BIT2 | _BIT1 | _BIT0), (_BIT6 | _BIT3 | _BIT2 | _BIT1 | _BIT0));
+              
+                      // Set SOG compare level to 0
+                      ScalerSetByte(P0_D7_ADC_SOG_DAC, 0x00);
+              
+                      // Clear SOG detect flag
+                      ScalerSetBit(P0_5B_HS_DETECT, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 17  
+
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Monitor porch voltage status change
+              // Input Value  : None
+              // Output Value : _TRUE or _FALSE
+              //--------------------------------------------------
+              bit ScalerSyncProcCheckPorchChange(void)
+              {
+                  BYTE ucIndex = 3;
+              
+                  // Check SOG detect flag only for non-SOG cases
+                  if(ScalerGetBit(P0_47_SYNC_SELECT, _BIT4) == 0x00)
+                  {
+                      do
+                      {
+                          // Check if clamp-to-top status is inline with SOG detect flag
+                          if(((ScalerGetBit(P0_5B_HS_DETECT, _BIT6) == 0x00) ^ (ScalerGetBit(P0_D6_ADC_CLAMP_TOP, (_BIT2
+             - | _BIT1 | _BIT0)) == 0x00)) == _TRUE)
+                          {
+                              // Clear SOG detect flag
+                              ScalerSetBit(P0_5B_HS_DETECT, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+              
+                              --ucIndex;
+              
+                              if(ucIndex == 0x00)
+                              {
+                                  break;
+                              }
+              
+                              // Wait for some time;
+                              ScalerTimerDelayXms(2);
+                          }
+                          else
+                          {
+                              break;
+                          }
+                      }
+                      while(ucIndex != 0x00);
+              
+                      // Clear SOG detect flag
+                      ScalerSetBit(P0_5B_HS_DETECT, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+                  }
+              
+                  return (ucIndex == 0x00);
+              }
+              #endif
+ 993          
+ 994          //--------------------------------------------------
+ 995          // Description  : Down counter Setting
+ 996          // Input Value  : None
+ 997          // Output Value : None
+ 998          //--------------------------------------------------
+ 999          void ScalerSyncProcDownCounterSetting(void)
+1000          {
+1001   1          // Down Counter reference  CR4C[2:0] + CR4D[7:0]
+1002   1          ScalerSetBit(P0_5B_HS_DETECT, ~(_BIT1 | _BIT0), (_BIT1 | _BIT0));
+1003   1      
+1004   1          // Pop Up Stable Value
+1005   1          ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT1, _BIT1);
+1006   1      
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 18  
+
+1007   1          // Get 1/3 stable period
+1008   1          PDATA_WORD(0) = ((((WORD)(ScalerGetByte(P0_50_STABLE_PERIOD_H) & 0x07) << 8) | ScalerGetByte(P0_51_STA
+             -BLE_PERIOD_L)) + 1) / 3;
+1009   1      
+1010   1          // Set VSync Counter level
+1011   1          ScalerSetBit(P0_4C_VSYNC_COUNTER_LEVEL_MSB, ~(_BIT2 | _BIT1 | _BIT0), (BYTE)(PDATA_WORD(0) >> 8) & 0x0
+             -7);
+1012   1          ScalerSetByte(P0_4D_VSYNC_COUNTER_LEVEL_LSB, (BYTE)(PDATA_WORD(0)));
+1013   1      }
+1014          
+1015          //--------------------------------------------------
+1016          // Description  : Get Current Sync Proc Clock Frequency
+1017          // Input Value  : None
+1018          // Output Value : Return Current Sync Proc Clock
+1019          //--------------------------------------------------
+1020          DWORD ScalerSyncProcGetCurrentClockFreq(void)
+1021          {
+1022   1          return _SYNC_PROC_CLK;
+1023   1      }
+1024          
+1025          #if(_SOG_SUPPORT == _ON)
+1026          //--------------------------------------------------
+1027          // Description  : Polling for SOG detected flag
+1028          // Input Value  : None
+1029          // Output Value : _TRUE or _FALSE
+1030          //--------------------------------------------------
+1031          EnumSogLevelSearchResult ScalerSyncProcSogCheckFlag(void)
+1032          {
+1033   1          for(pData[0] = 5; pData[0] > 0; --pData[0])
+1034   1          {
+1035   2              // Clear SOG detected flag
+1036   2              ScalerSetBit(P0_5B_HS_DETECT, ~_BIT6, _BIT6);
+1037   2      
+1038   2              // For SOG Power Stable, Refernce H-Freq = 15.63k, Delay Time about 4 H-Sync Period, 300us include
+             - margin
+1039   2              DELAY_XUS(300); /* Delay time us [300, x] */
+1040   2      
+1041   2              // Check SOG detect flag
+1042   2              if(ScalerGetBit(P0_5B_HS_DETECT, _BIT6) != _BIT6)
+1043   2              {
+1044   3                  return _SOG_LEVEL_FAIL;
+1045   3              }
+1046   2          }
+1047   1      
+1048   1          // SOG flag is valid
+1049   1          return _SOG_LEVEL_VALID;
+1050   1      }
+1051          
+1052          //--------------------------------------------------
+1053          // Description  : Check for SOG HS result
+1054          // Input Value  : stMeasureSyncHV --> structure for detected HS info
+1055          // Output Value : _TRUE or _FALSE
+1056          //--------------------------------------------------
+1057          EnumSogLevelSearchResult ScalerSyncProcSogCheckHs(StructMeasureSyncData *pstMeasureSyncHV)
+1058          {
+1059   1          WORD usHSyncPeriod = 0;
+1060   1          WORD usHSyncPulseCount = 0;
+1061   1      
+1062   1          // Enable Sync Processor Clock
+1063   1          ScalerSetBit(P0_47_SYNC_SELECT, ~(_BIT7 | _BIT6 | _BIT5 | _BIT3 | _BIT2 | _BIT0), 0x00);
+1064   1      
+1065   1          // HS_OUT Signal Output Enable
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 19  
+
+1066   1          ScalerSetByte(P0_48_SYNC_INVERT, 0x10);
+1067   1      
+1068   1          // HS_OUT by pass mode, Measure Source is ADC_HS1/ADC_VS, H Sync measure source is original hs
+1069   1          ScalerSetByte(P0_49_SYNC_CTRL, 0x06);
+1070   1      
+1071   1          // Sync from SOG Pad
+1072   1          ScalerSetBit(P0_47_SYNC_SELECT, ~_BIT4, _BIT4);
+1073   1      
+1074   1          // Start Stable Period Measure
+1075   1          ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT0, 0x00);
+1076   1          ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT0, _BIT0);
+1077   1      
+1078   1          if(ScalerTimerPollingFlagProc(12, P0_4F_STABLE_MEASURE, _BIT7, _TRUE) == _TRUE)
+1079   1          {
+1080   2              // Pop up stable result
+1081   2              ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT1, _BIT1);
+1082   2      
+1083   2              usHSyncPeriod = ((WORD)(ScalerGetByte(P0_50_STABLE_PERIOD_H) & 0x07) << 8) | ScalerGetByte(P0_51_S
+             -TABLE_PERIOD_L);
+1084   2              usHSyncPulseCount = ((WORD)(ScalerGetByte(P0_4A_STABLE_HIGH_PERIOD_H) & 0x07) << 8) | ScalerGetByt
+             -e(P0_4B_STABLE_HIGH_PERIOD_L);
+1085   2      
+1086   2              // Check HS width / HS period ratio
+1087   2              if(((usHSyncPulseCount * 7) >= usHSyncPeriod) ||
+1088   2                 (usHSyncPulseCount < _MIN_SYNC_HIGHPULSE_CNT_PS))
+1089   2              {
+1090   3                  return _SOG_LEVEL_INVALID;
+1091   3              }
+1092   2      
+1093   2              // De-bounce check for stable measure
+1094   2              if((pstMeasureSyncHV->usHSPeriod != 0) || (pstMeasureSyncHV->usHSWidth != 0))
+1095   2              {
+1096   3                  if((abs(pstMeasureSyncHV->usHSPeriod - usHSyncPeriod) > ((pstMeasureSyncHV->usHSPeriod <= 1) ?
+             - 1 : (pstMeasureSyncHV->usHSPeriod >> 1))) ||
+1097   3                     (abs(pstMeasureSyncHV->usHSWidth - usHSyncPulseCount) > ((pstMeasureSyncHV->usHSWidth <= 1)
+             - ? 1 : (pstMeasureSyncHV->usHSWidth >> 1))))
+1098   3                  {
+1099   4                      return _SOG_LEVEL_INVALID;
+1100   4                  }
+1101   3              }
+1102   2              else
+1103   2              {
+1104   3                  // Store measure HS info
+1105   3                  pstMeasureSyncHV->usHSPeriod = usHSyncPeriod;
+1106   3                  pstMeasureSyncHV->usHSWidth = usHSyncPulseCount;
+1107   3      
+1108   3                  // Set VS down-counter
+1109   3                  ScalerSyncProcDownCounterSetting();
+1110   3              }
+1111   2      
+1112   2              // Rough check H-Sync Freq Range
+1113   2              usHSyncPeriod = (_SYNC_PROC_CLK / usHSyncPeriod);
+1114   2      
+1115   2              if((_SUPPORT_HSYNC_MIN_FREQ > usHSyncPeriod) || (usHSyncPeriod > _SUPPORT_HSYNC_MAX_FREQ))
+1116   2              {
+1117   3                  return _SOG_LEVEL_INVALID;
+1118   3              }
+1119   2      
+1120   2              // SOG HS is valid
+1121   2              return _SOG_LEVEL_VALID;
+1122   2          }
+1123   1      
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 20  
+
+1124   1          return _SOG_LEVEL_FAIL;
+1125   1      }
+1126          
+1127          //--------------------------------------------------
+1128          // Description  : Check for SOG VS result
+1129          // Input Value  : stMeasureSyncHV --> structure for detected VS info
+1130          // Output Value : _TRUE or _FALSE
+1131          //--------------------------------------------------
+1132          EnumSogLevelSearchResult ScalerSyncProcSogCheckVs(StructMeasureSyncData *pstMeasureSyncHV)
+1133          {
+1134   1          BYTE ucLoopCounter = 0;
+1135   1          BYTE ucTimeoutCounter = ((_WAIT_TWO_FRAME_TIME >> 2) + 1);
+1136   1      
+1137   1          // Enable De-composite circuit; Set to analog measure
+1138   1          ScalerSetBit(P0_47_SYNC_SELECT, ~(_BIT5 | _BIT0), _BIT5);
+1139   1      
+1140   1          // Select DE-VS/HS
+1141   1          ScalerSetBit(P0_49_SYNC_CTRL, ~(_BIT6 | _BIT5), (_BIT6 | _BIT5));
+1142   1      
+1143   1          // Waitting for de-composite circuit decode one frame.
+1144   1          while(ucLoopCounter < ucTimeoutCounter)
+1145   1          {
+1146   2              ++ucLoopCounter;
+1147   2              ScalerTimerDelayXms(4);
+1148   2      
+1149   2              // Check HS stability
+1150   2              if(ScalerGetBit(P0_4E_HSYNC_TYPE_DETECTION_FLAG, _BIT7) != 0x00)
+1151   2              {
+1152   3                  return _SOG_LEVEL_FAIL;
+1153   3              }
+1154   2          }
+1155   1      
+1156   1          // Check maximum VS width
+1157   1          if((pstMeasureSyncHV->usVSWidth = ScalerSyncProcGetDeVsyncWidth()) >= _MAX_VSYNC_HIGH_PERIOD)
+1158   1          {
+1159   2              return _SOG_LEVEL_INVALID;
+1160   2          }
+1161   1      
+1162   1          return _SOG_LEVEL_VALID;
+1163   1      }
+1164          
+1165          //--------------------------------------------------
+1166          // Description  : Check for SOG Sync Type result
+1167          // Input Value  : None
+1168          // Output Value : _SOG_LEVEL_VALID or _SOG_LEVEL_FAIL
+1169          //--------------------------------------------------
+1170          EnumSogLevelSearchResult ScalerSyncProcSogCheckSyncType(void)
+1171          {
+1172   1          // Perform recheck only under PS condition
+1173   1          if(ScalerGetBit(P0_C6_ADC_POWER, _BIT3) == 0x00)
+1174   1          {
+1175   2              // Check false active for SOG compare level within range
+1176   2              if((ScalerGetBit(P0_D7_ADC_SOG_DAC, 0x3F) >= (_SOG_MID_COMPARE_LEVEL - _SOG_MID_COMPARE_RANGE)) &&
+1177   2                 (ScalerGetBit(P0_D7_ADC_SOG_DAC, 0x3F) <= (_SOG_MID_COMPARE_LEVEL + _SOG_MID_COMPARE_RANGE)))
+1178   2              {
+1179   3                  if(ScalerSyncProcTypeAutoRun() == _NO_SYNC_STATE)
+1180   3                  {
+1181   4                      // Change SOG middle compare level within range
+1182   4                      if(g_ucSogMidLevel >= (_SOG_MID_COMPARE_LEVEL + _SOG_MID_COMPARE_RANGE))
+1183   4                      {
+1184   5                          g_ucSogMidLevel = (_SOG_MID_COMPARE_LEVEL - _SOG_MID_COMPARE_RANGE);
+1185   5                      }
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 21  
+
+1186   4                      else
+1187   4                      {
+1188   5                          ++g_ucSogMidLevel;
+1189   5                      }
+1190   4      
+1191   4                      DebugMessageAnalog("SOG mid-lv change", g_ucSogMidLevel);
+1192   4                      return _SOG_LEVEL_FAIL;
+1193   4                  }
+1194   3              }
+1195   2          }
+1196   1      
+1197   1          return _SOG_LEVEL_VALID;
+1198   1      }
+1199          
+1200          //--------------------------------------------------
+1201          // Description  : Recheck SOG Sync Stable Condtion avioding mistacke wake up
+1202          // Input Value  : Input array
+1203          // Output Value : None
+1204          //--------------------------------------------------
+1205          void ScalerSyncProcSetSogCompareLevel(BYTE *pucLevels)
+1206          {
+1207   1          // Reset SOG mid compare level in power normal
+1208   1          if(ScalerGetBit(P0_C6_ADC_POWER, _BIT3) != 0x00)
+1209   1          {
+1210   2              g_ucSogMidLevel = _SOG_MID_COMPARE_LEVEL;
+1211   2          }
+1212   1      
+1213   1          // Set pre-set SOG compare levels
+1214   1          pucLevels[0] = 0x10;
+1215   1          pucLevels[1] = g_ucSogMidLevel;
+1216   1          pucLevels[2] = 0x1C;
+1217   1      }
+1218          
+1219          //-------------------------------------------------------------------
+1220          // Description  : Check SOG Sync Status
+1221          // Input Value  : None
+1222          // Output Value : _TRUE: SOG Sync Checked OK  _FALSE: SOG Sync Checked Fail
+1223          //-------------------------------------------------------------------
+1224          bit ScalerSyncProcSogSyncCheck(void)
+1225          {
+1226   1          BYTE ucLevelCounter = 0x00;
+1227   1          BYTE ucLevelTarget = 0x00;
+1228   1          bit bResetSearch = _FALSE;
+1229   1          StructMeasureSyncData stMeasureSyncHV;
+1230   1          BYTE pucSOYCompareLelArr[3];
+1231   1          memset(pucSOYCompareLelArr, 0, sizeof(pucSOYCompareLelArr));
+1232   1          memset(&stMeasureSyncHV, 0, sizeof(StructMeasureSyncData));
+1233   1      
+1234   1          // Initialize SOG compare levels
+1235   1          ScalerSyncProcSetSogCompareLevel(pucSOYCompareLelArr);
+1236   1      
+1237   1          // Search pre-set SOG compare levels
+1238   1          while(ucLevelCounter < sizeof(pucSOYCompareLelArr))
+1239   1          {
+1240   2              // Set current SOG compare level
+1241   2              ScalerSetBit(P0_D7_ADC_SOG_DAC, ~(0x3F), pucSOYCompareLelArr[ucLevelCounter]);
+1242   2              ++ucLevelCounter;
+1243   2      
+1244   2              // Check SOG flag and HS result
+1245   2              if(((pData[0] = ScalerSyncProcSogCheckFlag()) != _SOG_LEVEL_VALID) ||
+1246   2                 ((pData[0] = ScalerSyncProcSogCheckHs(&stMeasureSyncHV)) != _SOG_LEVEL_VALID) ||
+1247   2                 ((pData[0] = ScalerSyncProcSogCheckVs(&stMeasureSyncHV)) != _SOG_LEVEL_VALID) ||
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 22  
+
+1248   2                 ((pData[0] = ScalerSyncProcSogCheckSyncType()) != _SOG_LEVEL_VALID))
+1249   2              {
+1250   3                  // Stop searching up if target level already being found, or invald result detected
+1251   3                  if((ucLevelTarget != 0x00) || (pData[0] == _SOG_LEVEL_INVALID))
+1252   3                  {
+1253   4                      break;
+1254   4                  }
+1255   3      
+1256   3                  continue;
+1257   3              }
+1258   2      
+1259   2              if(ucLevelTarget != 0x00)
+1260   2              {
+1261   3                  // Second level found. Set average SOG compare level.
+1262   3                  ucLevelTarget = (ucLevelTarget + ScalerGetBit(P0_D7_ADC_SOG_DAC, 0x3F)) / 2;
+1263   3                  break;
+1264   3              }
+1265   2              else if((bResetSearch == _FALSE) && (ucLevelCounter != 1))
+1266   2              {
+1267   3                  // Reset search process to avoid the case when sync become available during searching
+1268   3                  bResetSearch = _TRUE;
+1269   3                  ucLevelCounter = 0;
+1270   3                  ucLevelTarget = 0;
+1271   3                  memset(&stMeasureSyncHV, 0x00, sizeof(StructMeasureSyncData));
+1272   3      
+1273   3                  continue;
+1274   3              }
+1275   2      
+1276   2              // Store current compare level
+1277   2              ucLevelTarget = ScalerGetBit(P0_D7_ADC_SOG_DAC, 0x3F);
+1278   2          }
+1279   1      
+1280   1          if(ucLevelTarget != 0x00)
+1281   1          {
+1282   2              // Resume target compare level
+1283   2              ScalerSetBit(P0_D7_ADC_SOG_DAC, ~(0x3F), ucLevelTarget);
+1284   2      
+1285   2              if(stMeasureSyncHV.usVSWidth <= 1)
+1286   2              {
+1287   3                  // Enable Clamp Mask and select clamp mask signal as DeVS
+1288   3                  ScalerSetDataPortByte(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_05_CLAMP_CTRL1, 0xC2);
+1289   3      
+1290   3                  // Align the rising edge of Clamp Mask to DeVS rising edge
+1291   3                  ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_04_CLAMP_CTRL0, ~(_BIT5 | _BIT4 | _B
+             -IT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+1292   3              }
+1293   2          }
+1294   1      
+1295   1          return (ucLevelTarget != 0x00);
+1296   1      }
+1297          
+1298          //--------------------------------------------------
+1299          // Description  : Recheck SOG Sync Stable Condtion avioding mistacke wake up
+1300          // Input Value  : None
+1301          // Output Value : True --> Sync is realy stable
+1302          //                False --> Sync is fake stable before
+1303          //--------------------------------------------------
+1304          bit ScalerSyncProcRecheckSOGSyncStable(void)
+1305          {
+1306   1          bit bStatus = _TRUE;
+1307   1      
+1308   1          if(ScalerGetBit(P0_C6_ADC_POWER, _BIT3) == 0x00) // Check Current Mode is PS Mode
+C51 COMPILER V8.12   SCALERSYNCPROC                                                        03/10/2025 13:50:28 PAGE 23  
+
+1309   1          {
+1310   2              // Clamp position unit: Single Crystal clock
+1311   2              ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_06_CLAMP_CTRL2, ~_BIT7, _BIT7);
+1312   2      
+1313   2              // G Clamp Position default Setting, Reference Crystal, Back port lenth Min = 11.69 cnt (1920x1440
+             - @59.9Hz -R 184.75M, back port = 80)
+1314   2              ScalerSyncProcClampPosSetting(0x01, 0x0B);
+1315   2      
+1316   2              // Disable DC Restore circut & Enable SOG Clamp
+1317   2              ScalerSetBit(P0_D4_ADC_SOG_CTRL, ~(_BIT5 | _BIT4), _BIT5);
+1318   2      
+1319   2              // Waitting for SOG floating voltage Rising to 400 V
+1320   2              ScalerTimerDelayXms(3);
+1321   2      
+1322   2              // Recheck H-Sync Status
+1323   2              if(ScalerSyncProcStableCheck() == _FALSE)
+1324   2              {
+1325   3                  bStatus = _FALSE;
+1326   3              }
+1327   2      
+1328   2              // Restore G Clamp Position default Setting
+1329   2              ScalerSyncProcClampPosSetting(_CLAMP_POSITION_START, _CLAMP_POSITION_END);
+1330   2      
+1331   2              // Restore Clamp position unit: ADC clock
+1332   2              ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_06_CLAMP_CTRL2, ~_BIT7, 0x00);
+1333   2      
+1334   2              // Enable DC Restore circut & Disable SOG Clamp
+1335   2              ScalerSetBit(P0_D4_ADC_SOG_CTRL, ~(_BIT5 | _BIT4), _BIT4);
+1336   2          }
+1337   1      
+1338   1          return bStatus;
+1339   1      }
+1340          #endif // #if(_SOG_SUPPORT == _ON)
+1341          
+1342          #endif // End of #if(_VGA_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3369    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      3      52
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

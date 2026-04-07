@@ -1,0 +1,161 @@
+C51 COMPILER V8.12   RL6449_SERIES_OSDHARDWARECOMPRESSION                                  03/11/2025 19:56:19 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_OSDHARDWARECOMPRESSION
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_OsdHardwareCompression.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_OSD\SRAM\RL6449_Series_OsdHardwareCompression.c LARGE OP
+                    -TIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..
+                    -\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449
+                    -_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL
+                    -6449_Series_OsdHardwareCompression.lst) OBJECT(.\Output\RL6449_Series_OsdHardwareCompression.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_OsdHardwareCompression.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_OSDLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerOsdHardwareCompression(BYTE *pucArray, WORD usVLCTableSize, BYTE ucBankNum, WORD usOffset, WORD
+             - usFontTableStart, EnumOsdRotateType enumOsdRotateType, bit bTableLocation);
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Description  : Osd Load Hardware VLC
+  49          // Input Value  : *pArray          -> VLC table
+  50          //                usVLCTableSize   -> Use VLC_TABLE_SIZE(VLC table)
+C51 COMPILER V8.12   RL6449_SERIES_OSDHARDWARECOMPRESSION                                  03/11/2025 19:56:19 PAGE 2   
+
+  51          //                ucBankNum        -> Bank number (GET_CURRENT_BANK_NUMBER())
+  52          //                usOffset         -> Font address
+  53          //                usFontTableStart -> Font base address
+  54          //                ucOsdRotateType  -> _OSD_ROTATE_DEGREE_0 or _OSD_ROTATE_DEGREE_90 or _OSD_ROTATE_DEGREE_
+             -270 or _OSD_ROTATE_DEGREE_180
+  55          //                bTableLocation   ->
+  56          // Output Value :
+  57          //--------------------------------------------------
+  58          void ScalerOsdHardwareCompression(BYTE *pucArray, WORD usVLCTableSize, BYTE ucBankNum, WORD usOffset, WORD
+             - usFontTableStart, EnumOsdRotateType enumOsdRotateType, bit bTableLocation)
+  59          {
+  60   1          BYTE ucVlcType = 0x00;
+  61   1          BYTE ucFFF1Backup = MCU_FFF1_SCA_WR_INTRVL;
+  62   1      
+  63   1          if(enumOsdRotateType == _OSD_ROTATE_DEGREE_90)
+  64   1          {
+  65   2              ucVlcType = _OSD_ROTATE_CW | _OSD_ROTATE_HARDWARE_ROTATION_ENABLE | _OSD_ROTATE_ROTATION;
+  66   2          }
+  67   1          else if(enumOsdRotateType == _OSD_ROTATE_DEGREE_270)
+  68   1          {
+  69   2              ucVlcType = _OSD_ROTATE_CCW | _OSD_ROTATE_HARDWARE_ROTATION_ENABLE | _OSD_ROTATE_ROTATION;
+  70   2          }
+  71   1          else if(enumOsdRotateType == _OSD_ROTATE_DEGREE_180)
+  72   1          {
+  73   2              ucVlcType = _OSD_ROTATE_CW180 | _OSD_ROTATE_HARDWARE_ROTATION_ENABLE | _OSD_ROTATE_NORMAL;
+  74   2          }
+  75   1          else
+  76   1          {
+  77   2              ucVlcType = _OSD_ROTATE_NO_SWAP;
+  78   2          }
+  79   1      
+  80   1          // rotation
+  81   1          ScalerSetBit(P3A_0B_FRAME_CTRL_0B, ~(_BIT7 | _BIT6 | _BIT2 | _BIT0), ucVlcType);
+  82   1      
+  83   1          // osd compression enable
+  84   1          if(enumOsdRotateType != _OSD_ROTATE_DEGREE_0)
+  85   1          {
+  86   2              ScalerSetBit(P3A_17_FRAME_CTRL_17, ~(_BIT1 | _BIT0), (_OSD_DECODE_NON_COMPRESSED | _OSD_COMPRESSIO
+             -N_ENABLE));
+  87   2          }
+  88   1          else
+  89   1          {
+  90   2              ScalerSetBit(P3A_17_FRAME_CTRL_17, ~(_BIT1 | _BIT0), (_OSD_DECODE_NON_COMPRESSED | _OSD_COMPRESSIO
+             -N_DISABLE));
+  91   2          }
+  92   1      
+  93   1          usFontTableStart = usFontTableStart + usOffset * 9;
+  94   1      
+  95   1          ScalerOsdSramAddressSet(usFontTableStart, _OSD_BYTEALL);
+  96   1      
+  97   1          MCU_FFF1_SCA_WR_INTRVL = ((ucFFF1Backup & (~(0x8F))) | (_BIT7 | _BIT1));
+  98   1      
+  99   1          ScalerOsdBurstWriteDataPort(pucArray, usVLCTableSize, ucBankNum, _BURSTWRITE_DATA_OSD, bTableLocation)
+             -;
+ 100   1      
+ 101   1          // OSD HW needs time to process it and then write decompressed data into SRAM.
+ 102   1          // The value 1ms is enough at all.
+ 103   1          ScalerTimerDelayXms(2);
+ 104   1      
+ 105   1          MCU_FFF1_SCA_WR_INTRVL = ucFFF1Backup;
+ 106   1      
+ 107   1          // osd compression disable
+C51 COMPILER V8.12   RL6449_SERIES_OSDHARDWARECOMPRESSION                                  03/11/2025 19:56:19 PAGE 3   
+
+ 108   1          ScalerSetBit(P3A_17_FRAME_CTRL_17, ~(_BIT1 | _BIT0), (_OSD_DECODE_COMPRESSED | _OSD_COMPRESSION_DISABL
+             -E));
+ 109   1      
+ 110   1          switch(enumOsdRotateType)
+ 111   1          {
+ 112   2              case _OSD_ROTATE_DEGREE_90:
+ 113   2              case _OSD_ROTATE_DEGREE_270:
+ 114   2                  ScalerSetBit(P3A_0B_FRAME_CTRL_0B, ~(_BIT7 | _BIT6 | _BIT2 | _BIT0), _OSD_ROTATE_ROTATION);
+ 115   2                  break;
+ 116   2      
+ 117   2              default:
+ 118   2              case _OSD_ROTATE_DEGREE_180:
+ 119   2                  ScalerSetBit(P3A_0B_FRAME_CTRL_0B, ~(_BIT7 | _BIT6 | _BIT2 | _BIT0), _OSD_ROTATE_NORMAL);
+ 120   2                  break;
+ 121   2          }
+ 122   1      }
+ 123          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    218    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      12
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

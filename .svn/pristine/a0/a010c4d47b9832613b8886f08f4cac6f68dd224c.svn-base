@@ -1,0 +1,325 @@
+C51 COMPILER V8.12   RL6463_SERIES_OSD                                                     03/10/2025 13:50:47 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_OSD
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_Osd.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_Osd.c LARGE OP
+                    -TIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Sy
+                    -stem\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunc
+                    -tion\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Sca
+                    -ler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User
+                    -\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOs
+                    -d\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRI
+                    -NT(.\Output\RL6463\RL6463_Series_Osd.lst) OBJECT(.\Output\RL6463\RL6463_Series_Osd.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_Osd.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RL6463_SERIES_OSD__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          
+  25          
+  26          //****************************************************************************
+  27          // STRUCT / TYPE / ENUM DEFINITTIONS
+  28          //****************************************************************************
+  29          
+  30          
+  31          //****************************************************************************
+  32          // CODE TABLES
+  33          //****************************************************************************
+  34          
+  35          
+  36          //****************************************************************************
+  37          // VARIABLE DECLARATIONS
+  38          //****************************************************************************
+  39          
+  40          
+  41          //****************************************************************************
+  42          // FUNCTION DECLARATIONS
+  43          //****************************************************************************
+  44          void ScalerOsdDoubleFunction(EnumOsdDoubleWidthType enumOsdDoubleWidthType, EnumOsdDoubleHeightType enumOs
+             -dDoubleHeightType);
+  45          void ScalerOsdMapRotation(EnumOsdRotateType enumOsdRotateType, EnumOsdRotateMapA enumOsdRotateMapA, BYTE u
+             -cMapARowSize, EnumOsdRotateMapB enumOsdRotateMapB, BYTE ucMapBRowSize, EnumOsdRotateFontLib enumOsdRotateFontLib);
+  46          
+C51 COMPILER V8.12   RL6463_SERIES_OSD                                                     03/10/2025 13:50:47 PAGE 2   
+
+  47          //****************************************************************************
+  48          // FUNCTION DEFINITIONS
+  49          //****************************************************************************
+  50          //--------------------------------------------------
+  51          // Description  : Osd double function
+  52          // Input Value  : enumOsdDoubleWidthType  -> _OSD_DOUBLE_WIDTH_DISABLE or _OSD_DOUBLE_WIDTH_ENABLE
+  53          //              : enumOsdDoubleHeightType -> _OSD_DOUBLE_HEIGHT_DISABLE or _OSD_DOUBLE_HEIGHT_ENABLE
+  54          // Output Value : None
+  55          // Example      : ScalerOsdDoubleFunction(_OSD_DOUBLE_WIDTH_ENABLE, _OSD_DOUBLE_HEIGHT_ENABLE);
+  56          //--------------------------------------------------
+  57          void ScalerOsdDoubleFunction(EnumOsdDoubleWidthType enumOsdDoubleWidthType, EnumOsdDoubleHeightType enumOs
+             -dDoubleHeightType)
+  58          {
+  59   1          // Set Double Height Enable/Disable (For All OSD Including Windows And Characters)
+  60   1          ScalerSetBit(P3A_0A_FRAME_CTRL_0A, ~(_BIT0), enumOsdDoubleHeightType);
+  61   1      
+  62   1          // Set Double Width Enable/Disable (For All OSD Including Windows And Characters)
+  63   1          ScalerSetBit(P3A_0A_FRAME_CTRL_0A, ~(_BIT1), (enumOsdDoubleWidthType << 1));
+  64   1      
+  65   1      #if(_OSD_POSITION_OFFSET_CORRECTION == _OFF)
+                  if((enumOsdDoubleWidthType == _OSD_DOUBLE_WIDTH_ENABLE) && (enumOsdDoubleHeightType == _OSD_DOUBLE_HEI
+             -GHT_ENABLE))
+                  {
+                      ScalerOsdPositionOffset(_OSD_POSITION_OFFSET_GLOBAL, X_POS(_OSD_DOUBLE_POSITION_OFFSET_H), Y_POS(_
+             -OSD_DOUBLE_POSITION_OFFSET_V));
+              
+                      ScalerSetBit(P3A_1E_FRAME_CTRL_1E, ~(_BIT7 | _BIT3), (_BIT7 | _BIT3));
+                  }
+                  else
+                  {
+                      ScalerOsdPositionOffset(_OSD_POSITION_OFFSET_GLOBAL, X_POS(_OSD_POSITION_OFFSET_H), Y_POS(_OSD_POS
+             -ITION_OFFSET_V));
+              
+                      ScalerSetBit(P3A_1E_FRAME_CTRL_1E, ~(_BIT7 | _BIT3), 0x00);
+                  }
+              #else
+  79   1          ScalerOsdPositionOffsetCorrection();
+  80   1      #endif
+  81   1      }
+  82          
+  83          //--------------------------------------------------
+  84          // Description  : Set Osd rotation
+  85          // Input Value  : ucRotateFlage -> Rotate status (now)
+  86          //                enumOsdRotateType    -> _OSD_ROTATE_DEGREE_0 or _OSD_ROTATE_DEGREE_90 or _OSD_ROTATE_DEG
+             -REE_270 or _OSD_ROTATE_DEGREE_180
+  87          //                enumOsdRotateMapA    -> _OSD_MAP_A_REMAPPING_DISABLE or _OSD_MAP_A_REMAPPING_ENABLE
+  88          //                ucMapARowSize        -> MapA Row size
+  89          //                enumOsdRotateMapB    -> _OSD_MAP_B_REMAPPING_DISABLE or _OSD_MAP_B_REMAPPING_ENABLE
+  90          //                ucMapBRowSize        -> MapB Row size
+  91          //                enumOsdRotateFontLib -> _OSD_FONT_LIB_ROTATION_DISABLE or _OSD_FONT_LIB_ROTATION_ENABLE
+  92          // Output Value : None
+  93          // Note         : Font Scale up, Double Width/Height, and Auto Rotation&Remap. These three features cannot
+             - be open at the same time.
+  94          //--------------------------------------------------
+  95          void ScalerOsdMapRotation(EnumOsdRotateType enumOsdRotateType, EnumOsdRotateMapA enumOsdRotateMapA, BYTE u
+             -cMapARowSize, EnumOsdRotateMapB enumOsdRotateMapB, BYTE ucMapBRowSize, EnumOsdRotateFontLib enumOsdRotateFontLib)
+  96          {
+  97   1          BYTE ucTemp = 0;
+  98   1      
+  99   1          ucTemp = ScalerGetByte(P3A_41_FRAME_CTRL_41);
+ 100   1      
+ 101   1          // _BIT2 : Enable Font A Remapping, _BIT1 : Enable Font B Remapping.
+C51 COMPILER V8.12   RL6463_SERIES_OSD                                                     03/10/2025 13:50:47 PAGE 3   
+
+ 102   1          ScalerSetBit(P3A_41_FRAME_CTRL_41, ~(_BIT2 | _BIT1), ((enumOsdRotateMapA << 2) | (enumOsdRotateMapB <<
+             - 1)));
+ 103   1      
+ 104   1          if((ucTemp & _BIT0) == _BIT0) // OSD Auto Rotation Enable
+ 105   1          {
+ 106   2              if((ucTemp & _BIT4) == _BIT4)  // OSD Auto Rotation Direction
+ 107   2              {
+ 108   3                  ucTemp = _OSD_ROTATE_DEGREE_90;     // CW
+ 109   3              }
+ 110   2              else
+ 111   2              {
+ 112   3                  ucTemp = _OSD_ROTATE_DEGREE_270;    // CCW
+ 113   3              }
+ 114   2          }
+ 115   1          else
+ 116   1          {
+ 117   2              ucTemp = _OSD_ROTATE_DEGREE_0;
+ 118   2          }
+ 119   1      
+ 120   1          // Set Row Total Number
+ 121   1          ScalerSetByte(P3A_3E_FRAME_CTRL_3E, ucMapARowSize);
+ 122   1      
+ 123   1          // Set Font A Row Total Number
+ 124   1          ScalerSetByte(P3A_3F_FRAME_CTRL_3F, ucMapARowSize);
+ 125   1      
+ 126   1          // Set Font B Row Total Number
+ 127   1          ScalerSetByte(P3A_40_FRAME_CTRL_40, ucMapBRowSize);
+ 128   1      
+ 129   1      #if(_OSD_POSITION_OFFSET_CORRECTION == _ON)
+ 130   1      
+ 131   1          if(ucTemp != enumOsdRotateType)
+ 132   1          {
+ 133   2              // rotate to 0 degree
+ 134   2              switch(ucTemp)
+ 135   2              {
+ 136   3                  case _OSD_ROTATE_DEGREE_0:
+ 137   3                      break;
+ 138   3      
+ 139   3                  case _OSD_ROTATE_DEGREE_90:
+ 140   3                      ScalerSetByte(P3A_0B_FRAME_CTRL_0B, 0x00);
+ 141   3                      ScalerSetByte(P3A_41_FRAME_CTRL_41, (_BIT4 | _BIT3)); // _OSD_ROTATE_CW
+ 142   3                      ScalerOsdFontLibraryRotation();
+ 143   3                      break;
+ 144   3      
+ 145   3                  case _OSD_ROTATE_DEGREE_270:
+ 146   3                      ScalerSetByte(P3A_0B_FRAME_CTRL_0B, 0x00);
+ 147   3                      ScalerSetByte(P3A_41_FRAME_CTRL_41, (_BIT3)); // _OSD_ROTATE_CW
+ 148   3                      ScalerOsdFontLibraryRotation();
+ 149   3                      break;
+ 150   3      
+ 151   3                  default:
+ 152   3                      break;
+ 153   3              }
+ 154   2      
+ 155   2              if(ScalerGetBit(P3A_02_FRAME_CTRL_02, _BIT0) != _BIT0)
+ 156   2              {
+ 157   3                  ScalerOsdCircuitActivated(_ENABLE);
+ 158   3                  ScalerTimerWaitForEvent(_EVENT_DVS);
+ 159   3              }
+ 160   2      
+ 161   2              // rotate to target direction
+ 162   2              switch(enumOsdRotateType)
+C51 COMPILER V8.12   RL6463_SERIES_OSD                                                     03/10/2025 13:50:47 PAGE 4   
+
+ 163   2              {
+ 164   3                  case _OSD_ROTATE_DEGREE_0:
+ 165   3                      break;
+ 166   3      
+ 167   3                  case _OSD_ROTATE_DEGREE_90:
+ 168   3                      ScalerSetByte(P3A_0B_FRAME_CTRL_0B, 0x01);
+ 169   3                      ScalerSetByte(P3A_41_FRAME_CTRL_41, ((_BIT4 | (BYTE)enumOsdRotateFontLib << 3 | (BYTE)enum
+             -OsdRotateMapA << 2 | (BYTE)enumOsdRotateMapB << 1) | _BIT0));       // _OSD_ROTATE_CW
+ 170   3                      ScalerOsdFontLibraryRotation();
+ 171   3                      break;
+ 172   3      
+ 173   3                  case _OSD_ROTATE_DEGREE_270:
+ 174   3                      ScalerSetByte(P3A_0B_FRAME_CTRL_0B, 0x01);
+ 175   3                      ScalerSetByte(P3A_41_FRAME_CTRL_41, (((BYTE)enumOsdRotateFontLib << 3 | (BYTE)enumOsdRotat
+             -eMapA << 2 | (BYTE)enumOsdRotateMapB << 1) | _BIT0));               // _OSD_ROTATE_CCW
+ 176   3                      ScalerOsdFontLibraryRotation();
+ 177   3                      break;
+ 178   3      
+ 179   3                  default:
+ 180   3                      break;
+ 181   3              }
+ 182   2          }
+ 183   1      
+ 184   1          // align window & font
+ 185   1          ScalerOsdFontWindowVericalAlignemnt(_ENABLE);
+ 186   1          if((enumOsdRotateType == _OSD_ROTATE_DEGREE_90) || (enumOsdRotateType == _OSD_ROTATE_DEGREE_270))
+ 187   1          {
+ 188   2              ScalerOsdPositionOffset(_OSD_POSITION_OFFSET_WINDOW, X_POS(11), Y_POS(0));
+ 189   2          }
+ 190   1          else
+ 191   1          {
+ 192   2              ScalerOsdPositionOffset(_OSD_POSITION_OFFSET_WINDOW, X_POS(10), Y_POS(0));
+ 193   2          }
+ 194   1      
+ 195   1          // correct offset
+ 196   1          ScalerOsdPositionOffsetCorrection();
+ 197   1      
+ 198   1      #else
+                  if(ucTemp == enumOsdRotateType)
+                  {
+                      return;
+                  }
+              
+                  if(ucTemp == _OSD_ROTATE_DEGREE_90)
+                  {
+                      ScalerSetByte(P3A_0B_FRAME_CTRL_0B, 0x00);
+                      ScalerSetByte(P3A_41_FRAME_CTRL_41, (_BIT4 | _BIT3)); // _OSD_ROTATE_CW
+              
+                      ScalerOsdFontLibraryRotation();
+                  }
+                  else if(ucTemp == _OSD_ROTATE_DEGREE_270)
+                  {
+                      ScalerSetByte(P3A_0B_FRAME_CTRL_0B, 0x00);
+                      ScalerSetByte(P3A_41_FRAME_CTRL_41, (_BIT3)); // _OSD_ROTATE_CW
+              
+                      ScalerOsdFontLibraryRotation();
+                  }
+              
+                  if(ScalerGetBit(P3A_02_FRAME_CTRL_02, _BIT0) != _BIT0)
+                  {
+                      ScalerOsdCircuitActivated(_ENABLE);
+                      ScalerTimerWaitForEvent(_EVENT_DVS);
+C51 COMPILER V8.12   RL6463_SERIES_OSD                                                     03/10/2025 13:50:47 PAGE 5   
+
+                  }
+              
+                  if((ScalerGetBit(P3A_0A_FRAME_CTRL_0A, _BIT0) == _BIT0) && (ScalerGetBit(P3A_0A_FRAME_CTRL_0A, _BIT1) 
+             -== _BIT1))
+                  {
+                      if((enumOsdRotateType == _OSD_ROTATE_DEGREE_90) || (enumOsdRotateType == _OSD_ROTATE_DEGREE_270))
+                      {
+                          ScalerOsdPositionOffset(_OSD_POSITION_OFFSET_GLOBAL, X_POS(_OSD_DOUBLE_POSITION_OFFSET_H - 1),
+             - Y_POS(_OSD_DOUBLE_POSITION_OFFSET_V));
+                      }
+                      else
+                      {
+                          ScalerOsdPositionOffset(_OSD_POSITION_OFFSET_GLOBAL, X_POS(_OSD_DOUBLE_POSITION_OFFSET_H), Y_P
+             -OS(_OSD_DOUBLE_POSITION_OFFSET_V));
+                      }
+                  }
+                  else
+                  {
+                      if((enumOsdRotateType == _OSD_ROTATE_DEGREE_90) || (enumOsdRotateType == _OSD_ROTATE_DEGREE_270))
+                      {
+                          ScalerOsdPositionOffset(_OSD_POSITION_OFFSET_GLOBAL, X_POS(_OSD_POSITION_OFFSET_H - 1), Y_POS(
+             -_OSD_POSITION_OFFSET_V));
+                      }
+                      else
+                      {
+                          ScalerOsdPositionOffset(_OSD_POSITION_OFFSET_GLOBAL, X_POS(_OSD_POSITION_OFFSET_H), Y_POS(_OSD
+             -_POSITION_OFFSET_V));
+                      }
+                  }
+              
+                  if(enumOsdRotateType == _OSD_ROTATE_DEGREE_0)
+                  {
+                      return;
+                  }
+                  else if(enumOsdRotateType == _OSD_ROTATE_DEGREE_90)
+                  {
+                      ScalerSetByte(P3A_0B_FRAME_CTRL_0B, 0x01);
+                      ScalerSetByte(P3A_41_FRAME_CTRL_41, ((_BIT4 | (BYTE)enumOsdRotateFontLib << 3 | (BYTE)enumOsdRotat
+             -eMapA << 2 | (BYTE)enumOsdRotateMapB << 1) | _BIT0));       // _OSD_ROTATE_CW
+                  }
+                  else if(enumOsdRotateType == _OSD_ROTATE_DEGREE_270)
+                  {
+                      ScalerSetByte(P3A_0B_FRAME_CTRL_0B, 0x01);
+                      ScalerSetByte(P3A_41_FRAME_CTRL_41, (((BYTE)enumOsdRotateFontLib << 3 | (BYTE)enumOsdRotateMapA <<
+             - 2 | (BYTE)enumOsdRotateMapB << 1) | _BIT0));               // _OSD_ROTATE_CCW
+                  }
+              
+                  ScalerOsdFontLibraryRotation();
+              #endif
+ 265   1      }
+ 266          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    275    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       6
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V8.12   RL6463_SERIES_OSD                                                     03/10/2025 13:50:47 PAGE 6   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,115 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6851_Series_OsdHardwareCompression.c
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+#include "RL6851_Series_OSDLibInternalInclude.h"
+
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// CODE TABLES
+//****************************************************************************
+
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+void ScalerOsdHardwareCompression(BYTE *pucArray, WORD usVLCTableSize, BYTE ucBankNum, WORD usOffset, WORD usFontTableStart, EnumOsdRotateType enumOsdRotateType, bit bTableLocation);
+
+
+//****************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+//--------------------------------------------------
+// Description  : Osd Load Hardware VLC
+// Input Value  : *pArray          -> VLC table
+//                usVLCTableSize   -> Use VLC_TABLE_SIZE(VLC table)
+//                ucBankNum        -> Bank number (GET_CURRENT_BANK_NUMBER())
+//                usOffset         -> Font address
+//                usFontTableStart -> Font base address
+//                ucOsdRotateType  -> _OSD_ROTATE_DEGREE_0 or _OSD_ROTATE_DEGREE_90 or _OSD_ROTATE_DEGREE_270
+//                bTableLocation   ->
+// Output Value :
+//--------------------------------------------------
+void ScalerOsdHardwareCompression(BYTE *pucArray, WORD usVLCTableSize, BYTE ucBankNum, WORD usOffset, WORD usFontTableStart, EnumOsdRotateType enumOsdRotateType, bit bTableLocation)
+{
+    BYTE ucVlcType = 0x00;
+    BYTE ucFFF1Backup = MCU_FFF1_SCA_WR_INTRVL;
+
+    if(enumOsdRotateType == _OSD_ROTATE_DEGREE_90)
+    {
+        ucVlcType = _OSD_ROTATE_CW | _OSD_ROTATE_HARDWARE_ROTATION_ENABLE | _OSD_ROTATE_ROTATION;
+    }
+    else if(enumOsdRotateType == _OSD_ROTATE_DEGREE_270)
+    {
+        ucVlcType = _OSD_ROTATE_CCW | _OSD_ROTATE_HARDWARE_ROTATION_ENABLE | _OSD_ROTATE_ROTATION;
+    }
+    else
+    {
+        ucVlcType = _OSD_ROTATE_NO_SWAP;
+    }
+
+    // rotation
+    ScalerSetBit(P3A_0B_FRAME_CTRL_0B, ~(_BIT7 | _BIT6 | _BIT2 | _BIT0), ucVlcType);
+
+    // osd compression enable
+    if(enumOsdRotateType != _OSD_ROTATE_DEGREE_0)
+    {
+        ScalerSetBit(P3A_17_FRAME_CTRL_17, ~(_BIT1 | _BIT0), (_OSD_DECODE_NON_COMPRESSED | _OSD_COMPRESSION_ENABLE));
+    }
+    else
+    {
+        ScalerSetBit(P3A_17_FRAME_CTRL_17, ~(_BIT1 | _BIT0), (_OSD_DECODE_NON_COMPRESSED | _OSD_COMPRESSION_DISABLE));
+    }
+
+    usFontTableStart = usFontTableStart + usOffset * 9;
+
+    ScalerOsdSramAddressSet(usFontTableStart, _OSD_BYTEALL);
+
+    MCU_FFF1_SCA_WR_INTRVL = ((ucFFF1Backup & (~(0x8F))) | (_BIT7 | _BIT1));
+
+    ScalerOsdBurstWriteDataPort(pucArray, usVLCTableSize, ucBankNum, _BURSTWRITE_DATA_OSD, bTableLocation);
+
+    // OSD HW needs time to process it and then write decompressed data into SRAM.
+    // The value 1ms is enough at all.
+    ScalerTimerDelayXms(2);
+
+    MCU_FFF1_SCA_WR_INTRVL = ucFFF1Backup;
+
+    // osd compression disable
+    ScalerSetBit(P3A_17_FRAME_CTRL_17, ~(_BIT1 | _BIT0), (_OSD_DECODE_COMPRESSED | _OSD_COMPRESSION_DISABLE));
+
+    if(enumOsdRotateType != _OSD_ROTATE_DEGREE_0)
+    {
+        ScalerSetBit(P3A_0B_FRAME_CTRL_0B, ~(_BIT7 | _BIT6 | _BIT2 | _BIT0), _OSD_ROTATE_ROTATION);
+    }
+    else
+    {
+        ScalerSetBit(P3A_0B_FRAME_CTRL_0B, ~(_BIT7 | _BIT6 | _BIT2 | _BIT0), _OSD_ROTATE_NORMAL);
+    }
+}
+

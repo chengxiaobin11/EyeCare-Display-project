@@ -1,0 +1,144 @@
+C51 COMPILER V8.12   SCALERCOLORSCALING                                                    03/11/2025 19:55:47 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERCOLORSCALING
+OBJECT MODULE PLACED IN .\Output\ScalerColorScaling.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerFunction\Lib\Code\ScalerColor\ScalerColorScaling.c LARGE OPTIMI
+                    -ZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\
+                    -ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Ser
+                    -ies_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\Scaler
+                    -ColorScaling.lst) OBJECT(.\Output\ScalerColorScaling.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerColorScaling.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "ScalerColorLibInternalInclude.h"
+  17          
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          bit ScalerColorScalingByPassTableSel(void);
+  42          bit ScalerColorScalingGetScalingUpBypassStatus(void);
+  43          bit ScalerColorScalingGetScalingDownBypassStatus(void);
+  44          
+  45          //****************************************************************************
+  46          // FUNCTION DEFINITIONS
+  47          //****************************************************************************
+  48          //--------------------------------------------------
+  49          // Description  : Get Scaling By pass
+  50          // Input Value  : none
+  51          // Output Value : _TRUE or _FALSE
+C51 COMPILER V8.12   SCALERCOLORSCALING                                                    03/11/2025 19:55:47 PAGE 2   
+
+  52          //--------------------------------------------------
+  53          bit ScalerColorScalingByPassTableSel(void)
+  54          {
+  55   1          if((ScalerColorScalingGetScalingUpBypassStatus() == _TRUE) && (ScalerColorScalingGetScalingDownBypassS
+             -tatus() == _TRUE))
+  56   1          {
+  57   2              return _TRUE;
+  58   2          }
+  59   1          return _FALSE;
+  60   1      }
+  61          
+  62          //--------------------------------------------------
+  63          // Description  : Get Scaling By pass
+  64          // Input Value  : enumSelRegion
+  65          // Output Value : _TRUE or _FALSE
+  66          //--------------------------------------------------
+  67          bit ScalerColorScalingGetScalingUpBypassStatus(void)
+  68          {
+  69   1          ScalerGetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_03_VER_SCALE_FACTOR_H, 3, &pData[0], _AUTOINC);
+  70   1          ScalerGetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_00_HOR_SCALE_FACTOR_H, 3, &pData[3], _AUTOINC);
+  71   1      
+  72   1          if(((pData[0] & 0x0F) == 0x0F) && (pData[1] == 0xFF) && (pData[2] == 0xFF) &&
+  73   1             ((pData[3] & 0x0F) == 0x0F) && (pData[4] == 0xFF) && (pData[5] == 0xFF))
+  74   1          {
+  75   2              return _TRUE;
+  76   2          }
+  77   1          else
+  78   1          {
+  79   2              return _FALSE;
+  80   2          }
+  81   1      }
+  82          
+  83          //--------------------------------------------------
+  84          // Description  : Get Scale Down Bypass Status
+  85          // Input Value  : enumSelRegion
+  86          // Output Value : TRUE, FALSE
+  87          //--------------------------------------------------
+  88          bit ScalerColorScalingGetScalingDownBypassStatus(void)
+  89          {
+  90   1          ScalerGetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_05_H_SD_FACTOR_H_M1, 3, &pData[0], _AUTOINC)
+             -;
+  91   1          ScalerGetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_01_V_SD_FACTOR_H_M1, 3, &pData[3], _AUTOINC)
+             -;
+  92   1      
+  93   1          if((pData[0] != 0x10) || (pData[1] != 0x00) || (pData[2] != 0x00) ||
+  94   1             (pData[3] != 0x02) || (pData[4] != 0x00) || (pData[5] != 0x00))
+  95   1          {
+  96   2              return _FALSE;
+  97   2          }
+  98   1      
+  99   1      #if(_SCALING_DOWN_VSD_TYPE == _SD_VSD_GEN_0)
+ 100   1          ScalerGetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_42_V_SD_FACTOR_L1_M1, 1, &pData[6], _AUTOINC
+             -);
+ 101   1      
+ 102   1          if((pData[6] & 0xE0) != 0x00)
+ 103   1          {
+ 104   2              return _FALSE;
+ 105   2          }
+ 106   1      #endif
+ 107   1      
+ 108   1          return _TRUE;
+ 109   1      }
+C51 COMPILER V8.12   SCALERCOLORSCALING                                                    03/11/2025 19:55:47 PAGE 3   
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    207    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

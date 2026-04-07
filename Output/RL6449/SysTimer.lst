@@ -1,0 +1,677 @@
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SYSTIMER
+OBJECT MODULE PLACED IN .\Output\RL6449\SysTimer.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\System\Code\SysTimer.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL644
+                    -9;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kernel\Scaler\ScalerFun
+                    -ction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\Kernel\Scaler\Scale
+                    -rCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Lib\Header;.
+                    -\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Common\Lib\Header;.\Kernel\User Common Function
+                    -\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\No
+                    -ne Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6449_PROJ
+                    -ECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449\SysTimer.lst) OBJECT(.\Output\RL6449\SysTimer.
+                    -obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : SysTimer.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SYSTEM_TIMER__
+  18          
+  19          #include "SysInclude.h"
+  20          
+  21          #if(_SYSTEM_TIMER_QUARTER_RESOLUTION == _ON)
+              #warning "NOTE: UserInterfaceTimer2InstantAccess_EXINT And Its Calls Should Be Moved To Common Bank!!"
+              #endif
+  24          
+  25          //****************************************************************************
+  26          // DEFINITIONS / MACROS
+  27          //****************************************************************************
+  28          
+  29          
+  30          //****************************************************************************
+  31          // STRUCT / TYPE / ENUM DEFINITTIONS
+  32          //****************************************************************************
+  33          
+  34          
+  35          //****************************************************************************
+  36          // CODE TABLES
+  37          //****************************************************************************
+  38          
+  39          
+  40          //****************************************************************************
+  41          // VARIABLE DECLARATIONS
+  42          //****************************************************************************
+  43          // Backup for Burst Write Bug
+  44          BYTE g_ucBackup_TIMER0;
+  45          BYTE g_ucBackup_TIMER1;
+  46          BYTE g_ucBackup_TIMER2;
+  47          BYTE g_ucBackup_WDTIMER;
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 2   
+
+  48          
+  49          //****************************************************************************
+  50          // FUNCTION DECLARATIONS
+  51          //****************************************************************************
+  52          void SysTimerHandler(void);
+  53          void SysTimerEventProc(EnumScalerTimerEventID enumEventID);
+  54          #if(_FW_UPDATE_FOREGROUND_SUPPORT == _ON)
+              void SysTimerFwUpdateForegroundHandler(void);
+              #endif
+  57          void SysTimerIntProc0(void);
+  58          void SysTimerIntProc1(void);
+  59          void SysTimerIntProc2(void);
+  60          void SysTimerWDIntProc(void);
+  61          //****************************************************************************
+  62          // FUNCTION DEFINITIONS
+  63          //****************************************************************************
+  64          //--------------------------------------------------
+  65          // Description  : Timer Handler
+  66          // Input Value  : None
+  67          // Output Value : None
+  68          //--------------------------------------------------
+  69          void SysTimerHandler(void)
+  70          {
+  71   1          BYTE ucTimerEventIndex = 0;
+  72   1          BYTE ucTimerEventID = 0;
+  73   1      
+  74   1          for(ucTimerEventIndex = 0; ucTimerEventIndex < _TIMER_EVENT_COUNT; ucTimerEventIndex++)
+  75   1          {
+  76   2              if((ScalerTimerCheckEventValid(ucTimerEventIndex) == _TRUE) &&
+  77   2                 (ScalerTimerGetTimerCounter() > ScalerTimerGetEventTime(ucTimerEventIndex)))
+  78   2              {
+  79   3                  ucTimerEventID = ScalerTimerGetEventID(ucTimerEventIndex);
+  80   3                  ScalerTimerClrEventValid(ucTimerEventIndex);
+  81   3      
+  82   3                  if(ucTimerEventID < _USER_TIMER_EVENT_END)
+  83   3                  {
+  84   4                      UserCommonInterfaceTimerEventProc(ucTimerEventID);
+  85   4                  }
+  86   3                  else if(ucTimerEventID < _SYSTEM_TIMER_EVENT_END)
+  87   3                  {
+  88   4                      SysTimerEventProc(ucTimerEventID);
+  89   4                  }
+  90   3                  else
+  91   3                  {
+  92   4                      ScalerTimerEventProc(ucTimerEventID);
+  93   4                  }
+  94   3              }
+  95   2          }
+  96   1      }
+  97          
+  98          //--------------------------------------------------
+  99          // Description  : Timer Event Process
+ 100          // Input Value  : enumEventID --> Event to be processed
+ 101          // Output Value : None
+ 102          //--------------------------------------------------
+ 103          void SysTimerEventProc(EnumScalerTimerEventID enumEventID)
+ 104          {
+ 105   1          switch(enumEventID)
+ 106   1          {
+ 107   2              case _SYSTEM_TIMER_EVENT_SOURCE_CLEAR_DETECTING:
+ 108   2                  SysSourceClearDetectingEvent();
+ 109   2                  break;
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 3   
+
+ 110   2      
+ 111   2              case _SYSTEM_TIMER_EVENT_JUDGE_ACTIVE_STATE:
+ 112   2                  SET_MODE_ACTIVE_READY();
+ 113   2                  break;
+ 114   2      
+ 115   2              case _SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STATE:
+ 116   2                  SET_MODE_RESET_TARGET(_MODE_ACTION_RESET_TO_NOSUPPORT);
+ 117   2                  break;
+ 118   2      
+ 119   2              case _SYSTEM_TIMER_EVENT_JUDGE_NOSIGNAL_STATE:
+ 120   2                  SET_MODE_RESET_TARGET(_MODE_ACTION_RESET_TO_NOSIGNAL);
+ 121   2                  break;
+ 122   2      
+ 123   2              case _SYSTEM_TIMER_EVENT_POWER_FAKE_OFF_TO_OFF:
+ 124   2      
+ 125   2      #if(_DP_MST_SUPPORT == _ON)
+                          ScalerDpMstFakeOffDoneProc();
+              #endif
+ 128   2                  SET_TARGET_POWER_STATUS(_POWER_STATUS_OFF);
+ 129   2                  break;
+ 130   2      
+ 131   2      #if(_EMBEDDED_DAC_SUPPORT == _ON)
+ 132   2              case _SYSTEM_TIMER_EVENT_AUDIO_DAC_WAIT_VCM_INITIAL:
+ 133   2                  ScalerAudioDACSetState(_AUDIO_DAC_CHARGE);
+ 134   2                  break;
+ 135   2      
+ 136   2              case _SYSTEM_TIMER_EVENT_AUDIO_DAC_WAIT_VCM_CHARGE:
+ 137   2                  ScalerAudioDACSetState(_AUDIO_DAC_DEPOP);
+ 138   2                  break;
+ 139   2      
+ 140   2              case _SYSTEM_TIMER_EVENT_AUDIO_DAC_WAIT_DEPOP_TO_NORMAL:
+ 141   2                  ScalerAudioDACDepopToNormal();
+ 142   2                  break;
+ 143   2      #endif // End of #if(_EMBEDDED_DAC_SUPPORT == _ON)
+ 144   2      
+ 145   2      #if(_HP_SOURCE_SCAN_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_SOURCE_HP_CANCEL_MANUAL_SWITCH_PORT:
+                          SET_SOURCE_HP_PORT_SWITCH_TARGET((_INPUT_PORT_VALID + 1));
+                          break;
+              #endif
+ 150   2      
+ 151   2      #if(_SOURCE_AUTO_SEARCH_STYLE == _SOURCE_POLLING_ASUS_STYLE)
+                      case _SYSTEM_TIMER_EVENT_SOURCE_ASUS_START_AUTO:
+                          SET_SOURCE_ASUS_START_AUTO();
+                          SET_SOURCE_ASUS_FIRST_START_AUTO();
+                          break;
+              #endif
+ 157   2      
+ 158   2      #if(_SOURCE_AUTO_SEARCH_STYLE == _SOURCE_POLLING_EIZO_STYLE)
+                      case _SYSTEM_TIMER_EVENT_SOURCE_EIZO_SEARCH_FINISH:
+                          if(UserInterfaceAdjustOsdCheckTotalSearchFinish() == _TRUE)
+                          {
+                              SET_SOURCE_SWITCH_FINISH();
+                              CLR_SOURCE_DETECTING();
+                              ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_SOURCE_CLEAR_DETECTING);
+                          }
+                          break;
+              #endif
+ 168   2      
+ 169   2      #if(((_D6_INPUT_PORT_TYPE != _D6_NO_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0)) || (_DP_EMBE
+             -DDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP))
+                      case _SYSTEM_TIMER_EVENT_SOURCE_DP_SWITCH_TIMEOUT:
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 4   
+
+                          SET_SOURCE_DP_SWITCH_TIMEOUT();
+                          break;
+              #endif
+ 174   2      
+ 175   2      #if((_D12_INPUT_PORT_TYPE == _D12_HDMI_PORT) && (_D12_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D3))
+                      case _SYSTEM_TIMER_EVENT_SOURCE_HDMI_SWITCH_TIMEOUT:
+                          SET_SOURCE_HDMI_SWITCH_TIMEOUT();
+                          break;
+              #endif
+ 180   2      
+ 181   2      #if(_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_LOCAL_POWER_DETECT:
+              
+                          SysTypeCSetLocalPowerDetection();
+              
+                          break;
+              #endif
+ 188   2      
+ 189   2      #if(_D0_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+              #if(_D0_DP_TYPE_C_DISCRETE_PORT_CTRL_LINK == _DISCRETE_PORT_CTRL_USE_SMBUS)
+                      case _SYSTEM_TIMER_EVENT_D0_TYPE_C_CABLE_DETECT:
+              
+                          UserCommonPortControllerSetD0I2CDetection();
+              
+                          break;
+              #else
+                      case _SYSTEM_TIMER_EVENT_D0_TYPE_C_UNATTACH:
+              
+                          SysTypeCSwitchToUnattachState(_D0_INPUT_PORT);
+              
+                          break;
+              #endif
+              
+              #if((_TYPE_C_PORT_CTRL_MODAL_OPERATION_SUPPORT == _ON) && (_TYPE_C_VENDOR_ALT_MODE == _TYPE_C_LENOVO_ALT_M
+             -ODE))
+                      case _SYSTEM_TIMER_EVENT_D0_TYPE_C_LENOVO_RCV_DEVICE_TYPE_TIMEOUT:
+              
+                          SysTypeCSetLenovoRcvDeviceTypeTimeout(_D0_INPUT_PORT);
+              
+                          break;
+              #endif
+              
+              #if(_D0_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_RTS5400_SERIES)
+                      case _SYSTEM_TIMER_EVENT_D0_TYPE_C_STATUS_DETECT:
+              
+                          UserCommonPortControllerSet5400StatusDetection(_D0_INPUT_PORT);
+              
+                          break;
+              
+              #if((_TYPE_C_PORT_CTRL_MODAL_OPERATION_SUPPORT == _ON) && (_TYPE_C_VENDOR_ALT_MODE == _TYPE_C_LENOVO_ALT_M
+             -ODE))
+                      case _SYSTEM_TIMER_EVENT_D0_TYPE_C_LENOVO_ALT_MODE_DETECT:
+              
+                          UserCommonPortControllerSet5400LenovoAltModeDetection(_D0_INPUT_PORT);
+              
+                          break;
+              
+                      case _SYSTEM_TIMER_EVENT_D0_TYPE_C_LENOVO_DEVICE_TYPE_DETECT:
+              
+                          UserCommonPortControllerSet5400LenovoDeviceTypeDetection(_D0_INPUT_PORT);
+              
+                          break;
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 5   
+
+              #endif
+              #endif // End of #if(_D0_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_RTS5400_SERIES)
+              
+              #if(_D0_DP_TYPE_C_HUB_COMMUNICATION_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_D0_USBHUB_DETECT:
+                          SET_D0_USB_HUB_SS_DEVICE_DETECT_FLG();
+                          break;
+              #endif
+              
+              #if(_D0_BILLBOARD_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_D0_ENABLE_BILLBOARD:
+                          SysTypeCBillboardControl(_D0_INPUT_PORT, _TYPE_C_BB_ENABLE);
+                          break;
+              #endif
+              #endif // End of #if(_D0_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+ 246   2      
+ 247   2      #if(_D1_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+              #if(_D1_DP_TYPE_C_DISCRETE_PORT_CTRL_LINK == _DISCRETE_PORT_CTRL_USE_SMBUS)
+                      case _SYSTEM_TIMER_EVENT_D1_TYPE_C_CABLE_DETECT:
+              
+                          UserCommonPortControllerSetD1I2CDetection();
+              
+                          break;
+              #else
+                      case _SYSTEM_TIMER_EVENT_D1_TYPE_C_UNATTACH:
+              
+                          SysTypeCSwitchToUnattachState(_D1_INPUT_PORT);
+              
+                          break;
+              #endif
+              
+              #if((_TYPE_C_PORT_CTRL_MODAL_OPERATION_SUPPORT == _ON) && (_TYPE_C_VENDOR_ALT_MODE == _TYPE_C_LENOVO_ALT_M
+             -ODE))
+                      case _SYSTEM_TIMER_EVENT_D1_TYPE_C_LENOVO_RCV_DEVICE_TYPE_TIMEOUT:
+              
+                          SysTypeCSetLenovoRcvDeviceTypeTimeout(_D1_INPUT_PORT);
+              
+                          break;
+              #endif
+              
+              #if(_D1_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_RTS5400_SERIES)
+                      case _SYSTEM_TIMER_EVENT_D1_TYPE_C_STATUS_DETECT:
+              
+                          UserCommonPortControllerSet5400StatusDetection(_D1_INPUT_PORT);
+              
+                          break;
+              
+              #if((_TYPE_C_PORT_CTRL_MODAL_OPERATION_SUPPORT == _ON) && (_TYPE_C_VENDOR_ALT_MODE == _TYPE_C_LENOVO_ALT_M
+             -ODE))
+                      case _SYSTEM_TIMER_EVENT_D1_TYPE_C_LENOVO_ALT_MODE_DETECT:
+              
+                          UserCommonPortControllerSet5400LenovoAltModeDetection(_D1_INPUT_PORT);
+              
+                          break;
+              
+                      case _SYSTEM_TIMER_EVENT_D1_TYPE_C_LENOVO_DEVICE_TYPE_DETECT:
+              
+                          UserCommonPortControllerSet5400LenovoDeviceTypeDetection(_D1_INPUT_PORT);
+              
+                          break;
+              #endif
+              #endif // End of #if(_D1_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_RTS5400_SERIES)
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 6   
+
+              
+              #if(_D1_DP_TYPE_C_HUB_COMMUNICATION_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_D1_USBHUB_DETECT:
+                          SET_D1_USB_HUB_SS_DEVICE_DETECT_FLG();
+                          break;
+              #endif
+              
+              #if(_D1_BILLBOARD_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_D1_ENABLE_BILLBOARD:
+                          SysTypeCBillboardControl(_D1_INPUT_PORT, _TYPE_C_BB_ENABLE);
+                          break;
+              #endif
+              #endif // End of #if(_D1_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+ 304   2      
+ 305   2      #if(_D6_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+              #if(_D6_DP_TYPE_C_DISCRETE_PORT_CTRL_LINK == _DISCRETE_PORT_CTRL_USE_SMBUS)
+                      case _SYSTEM_TIMER_EVENT_D6_TYPE_C_CABLE_DETECT:
+              
+                          UserCommonPortControllerSetD6I2CDetection();
+              
+                          break;
+              #else
+                      case _SYSTEM_TIMER_EVENT_D6_TYPE_C_UNATTACH:
+              
+                          SysTypeCSwitchToUnattachState(_D6_INPUT_PORT);
+              
+                          break;
+              #endif
+              
+              #if((_TYPE_C_PORT_CTRL_MODAL_OPERATION_SUPPORT == _ON) && (_TYPE_C_VENDOR_ALT_MODE == _TYPE_C_LENOVO_ALT_M
+             -ODE))
+                      case _SYSTEM_TIMER_EVENT_D6_TYPE_C_LENOVO_RCV_DEVICE_TYPE_TIMEOUT:
+              
+                          SysTypeCSetLenovoRcvDeviceTypeTimeout(_D6_INPUT_PORT);
+              
+                          break;
+              #endif
+              
+              #if(_D6_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_RTS5400_SERIES)
+                      case _SYSTEM_TIMER_EVENT_D6_TYPE_C_STATUS_DETECT:
+              
+                          UserCommonPortControllerSet5400StatusDetection(_D6_INPUT_PORT);
+              
+                          break;
+              
+              #if((_TYPE_C_PORT_CTRL_MODAL_OPERATION_SUPPORT == _ON) && (_TYPE_C_VENDOR_ALT_MODE == _TYPE_C_LENOVO_ALT_M
+             -ODE))
+                      case _SYSTEM_TIMER_EVENT_D6_TYPE_C_LENOVO_ALT_MODE_DETECT:
+              
+                          UserCommonPortControllerSet5400LenovoAltModeDetection(_D6_INPUT_PORT);
+              
+                          break;
+              
+                      case _SYSTEM_TIMER_EVENT_D6_TYPE_C_LENOVO_DEVICE_TYPE_DETECT:
+              
+                          UserCommonPortControllerSet5400LenovoDeviceTypeDetection(_D6_INPUT_PORT);
+              
+                          break;
+              #endif
+              #endif // End of #if(_D6_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_RTS5400_SERIES)
+              
+              #if(_D6_DP_TYPE_C_HUB_COMMUNICATION_SUPPORT == _ON)
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 7   
+
+                      case _SYSTEM_TIMER_EVENT_D6_USBHUB_DETECT:
+                          SET_D6_USB_HUB_SS_DEVICE_DETECT_FLG();
+                          break;
+              #endif
+              
+              #if(_D6_BILLBOARD_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_D6_ENABLE_BILLBOARD:
+                          SysTypeCBillboardControl(_D6_INPUT_PORT, _TYPE_C_BB_ENABLE);
+                          break;
+              #endif
+              #endif // End of #if(_D6_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+ 362   2      
+ 363   2      #if(_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+              #if(_PORT_CONTROLLER_RTS5400_SERIES_SUPPORT == _ON)
+              #if((_TYPE_C_PORT_CTRL_MODAL_OPERATION_SUPPORT == _ON) && (_TYPE_C_VENDOR_ALT_MODE == _TYPE_C_LENOVO_ALT_M
+             -ODE))
+                      case _SYSTEM_TIMER_EVENT_TYPE_C_LENOVO_ALT_MODE_URGENT_EVENT_TIMEOUT:
+                          CLR_TYPE_C_5400_LENOVO_ALT_MODE_URGENT_EVENT();
+                          break;
+              #endif
+              #endif
+              #endif
+ 372   2      
+ 373   2      #if(_AUTO_TEST_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_AUTO_TEST_OSD_SWITCH_CTRL:
+                          SysAutotestOSDSwitchCtrl();
+                          break;
+              #endif
+ 378   2      
+ 379   2      #if(_AIO_MODERN_STANDBY_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_AIO_MODERN_STANDBY_MODE_TIMEOUT:
+                          CLR_AIO_MODERN_STANDBY_MODE();
+                          break;
+              #endif
+ 384   2      
+ 385   2      #if(_DDCCI_AUTO_SWITCH_SUPPORT == _ON)
+ 386   2              case _SYSTEM_TIMER_EVENT_CLR_DDCCI_RECEIVE_COMMAND_NOT_FINISH:
+ 387   2                  CLR_RECEIVE_DDCCI_CMD_NOT_FINISH();
+ 388   2                  break;
+ 389   2      #endif
+ 390   2      
+ 391   2      #if(_FW_UPDATE_FOREGROUND_SUPPORT == _ON)
+                      case _SYSTEM_TIMER_EVENT_FW_UPDATE_FOREGROUND_EXIT:
+                          UserCommonFwUpdateForegroundTimeoutExit();
+                          break;
+              #endif
+ 396   2      
+ 397   2              default:
+ 398   2                  break;
+ 399   2          }
+ 400   1      }
+ 401          
+ 402          #if(_FW_UPDATE_FOREGROUND_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Fw Update Foreground Timer Event Process
+              // Input Value  : enumEventID --> Event to be processed
+              // Output Value : None
+              //--------------------------------------------------
+              void SysTimerFwUpdateForegroundHandler(void)
+              {
+                  BYTE ucTimerEventIndex = 0;
+                  BYTE ucTimerEventID = 0;
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 8   
+
+              
+                  for(ucTimerEventIndex = 0; ucTimerEventIndex < _TIMER_EVENT_COUNT; ucTimerEventIndex++)
+                  {
+                      ucTimerEventID = ScalerTimerGetEventID(ucTimerEventIndex);
+                      if(ucTimerEventID == _SYSTEM_TIMER_EVENT_FW_UPDATE_FOREGROUND_EXIT)
+                      {
+                          if((ScalerTimerCheckEventValid(ucTimerEventIndex) == _TRUE) &&
+                             (ScalerTimerGetTimerCounter() > ScalerTimerGetEventTime(ucTimerEventIndex)))
+                          {
+                              ScalerTimerClrEventValid(ucTimerEventIndex);
+              
+                              SysTimerEventProc(ucTimerEventID);
+                          }
+                          break;
+                      }
+                  }
+              }
+              #endif
+ 430          
+ 431          //--------------------------------------------------
+ 432          // Description  : Timer0 Int Function
+ 433          // Input Value  : None
+ 434          // Output Value : None
+ 435          //--------------------------------------------------
+ 436          #pragma save
+ 437          #pragma OT(8)
+ 438          void SysTimerIntProc0(void) interrupt 1
+ 439          {
+ 440   1          // Backup for Burst Write Bug
+ 441   1          g_ucBackup_TIMER0 = MCU_FFF4_SCA_INF_ADDR;
+ 442   1      
+ 443   1      #if(_INSTANT_TIMER_EVENT_0 == _ON)
+ 444   1          // Clear Timer0 flag
+ 445   1          TF0 = 0;
+ 446   1      
+ 447   1          TL0 = g_ucTimerCountLByte0;
+ 448   1          TH0 = g_ucTimerCountHByte0;
+ 449   1      
+ 450   1          TR0 = _ON;
+ 451   1      
+ 452   1          if(++g_usTimerAxisCnt0 == g_usTimerEventPeriod0)
+ 453   1          {
+ 454   2              g_usTimerAxisCnt0 = 0;
+ 455   2              UserInterfaceTimer0InstantAccess_EXINT();
+ 456   2          }
+ 457   1      #endif
+ 458   1      
+ 459   1          // Reload Backup for Burst Write Bug
+ 460   1          MCU_FFF4_SCA_INF_ADDR = g_ucBackup_TIMER0;
+ 461   1      }
+ 462          #pragma restore
+ 463          
+ 464          //--------------------------------------------------
+ 465          // Description  : Timer1 Int Function
+ 466          // Input Value  : None
+ 467          // Output Value : None
+ 468          //--------------------------------------------------
+ 469          #pragma save
+ 470          #pragma OT(8)
+ 471          void SysTimerIntProc1(void) interrupt 3
+ 472          {
+ 473   1          // Backup for Burst Write Bug
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 9   
+
+ 474   1          g_ucBackup_TIMER1 = MCU_FFF4_SCA_INF_ADDR;
+ 475   1      
+ 476   1      #if(_INSTANT_TIMER_EVENT_1 == _ON)
+                  // Clear Timer1 flag
+                  TF1 = 0;
+              
+                  TL1 = g_ucTimerCountLByte1;
+                  TH1 = g_ucTimerCountHByte1;
+              
+                  TR1 = _ON;
+              
+                  if(++g_usTimerAxisCnt1 == g_usTimerEventPeriod1)
+                  {
+                      g_usTimerAxisCnt1 = 0;
+                      UserInterfaceTimer1InstantAccess_EXINT();
+                  }
+              #endif
+ 491   1      
+ 492   1      #if(_UART_SUPPORT == _ON)
+              #if(_UART_LOW_BAUD_RATE_SUPPORT == _ON)
+                  // Clear Timer1 flag
+                  TF1 = 0;
+              
+                  TL1 = g_ucTimerCountLByte1_Uart;
+                  TH1 = g_ucTimerCountHByte1_Uart;
+              
+                  TR1 = _ON;
+              #endif
+              #endif
+ 503   1      
+ 504   1          // Reload Backup for Burst Write Bug
+ 505   1          MCU_FFF4_SCA_INF_ADDR = g_ucBackup_TIMER1;
+ 506   1      }
+ 507          #pragma restore
+ 508          
+ 509          //--------------------------------------------------
+ 510          // Description  : Timer2 Int Function
+ 511          // Input Value  : None
+ 512          // Output Value : None
+ 513          //--------------------------------------------------
+ 514          #pragma save
+ 515          #pragma OT(8)
+ 516          void SysTimerIntProc2(void) interrupt 5
+ 517          {
+ 518   1          // Backup for Burst Write Bug
+ 519   1          g_ucBackup_TIMER2 = MCU_FFF4_SCA_INF_ADDR;
+ 520   1      
+ 521   1          // Clear Timer2 flag
+ 522   1          TF2 = 0;
+ 523   1      
+ 524   1      #if(_WD_TIMER_INT_SUPPORT == _OFF)
+                  // Clear watchdog
+                  CLR_MCU_WATCH_DOG();
+              #else
+ 528   1          // Latch Current Counter and not clear any WD timer counter
+ 529   1          MCU_FFEB_WDT_TEST = (MCU_FFEB_WDT_TEST & (~_BIT7)) | _BIT3;
+ 530   1      
+ 531   1          g_bWDTimer2Update = _TRUE;
+ 532   1      
+ 533   1          // Add to Prevent INT Lock Reset
+ 534   1          if((MCU_FFAD_WATCHDOG_CNT1_VALUE & 0x07) > 0x04)
+ 535   1          {
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 10  
+
+ 536   2              // Clear watchdog
+ 537   2              CLR_MCU_WATCH_DOG();
+ 538   2          }
+ 539   1      #endif
+ 540   1      
+ 541   1      #if(_SYSTEM_TIMER_QUARTER_RESOLUTION == _OFF)
+ 542   1      
+ 543   1          g_bNotifyTimer2Int = _TRUE;
+ 544   1      
+ 545   1          // Timer Counter
+ 546   1          g_usTimerCounter += 1;
+ 547   1      
+ 548   1      #if(_DEBUG_MESSAGE_SUPPORT == _ON)
+ 549   1          g_usMeasureCounter += 1;
+ 550   1      #endif
+ 551   1      
+ 552   1      #else
+              
+                  if(g_ucTimerQuarterCount >= 3)
+                  {
+                      g_ucTimerQuarterCount = 0;
+              
+                      g_bNotifyTimer2Int = _TRUE;
+              
+                      // Timer Counter
+                      g_usTimerCounter += 1;
+              
+              #if(_DEBUG_MESSAGE_SUPPORT == _ON)
+                      g_usMeasureCounter += 1;
+              #endif
+                  }
+                  else
+                  {
+                      g_ucTimerQuarterCount++;
+                  }
+              
+                  UserInterfaceTimer2InstantAccess_EXINT();
+              
+              #endif
+ 575   1      
+ 576   1      #if(_DP_SUPPORT == _ON)
+ 577   1      #if(_DP_AUX_RX_DPCD_EXT_CAP_WILDCARD_SUPPORT == _ON)
+ 578   1          ScalerDpRxAuxTimer2PreIntHandler_EXINT();
+ 579   1      #endif
+ 580   1      
+ 581   1      #if(_DP_IRQ_HPD_MODE == _DP_IRQ_HPD_T2_MODE)
+ 582   1          ScalerSyncDpHpdIrqAssertTimer2EventProc_EXINT();
+ 583   1      #endif
+ 584   1      #endif
+ 585   1      
+ 586   1          // Reload Backup for Burst Write Bug
+ 587   1          MCU_FFF4_SCA_INF_ADDR = g_ucBackup_TIMER2;
+ 588   1      }
+ 589          #pragma restore
+ 590          
+ 591          //--------------------------------------------------
+ 592          // Description  : WD Timer Int Function
+ 593          // Input Value  : None
+ 594          // Output Value : None
+ 595          //--------------------------------------------------
+ 596          #pragma save
+ 597          #pragma OT(8)
+C51 COMPILER V9.01   SYSTIMER                                                              05/24/2025 15:50:57 PAGE 11  
+
+ 598          void SysTimerWDIntProc(void) interrupt 8 using 3
+ 599          {
+ 600   1          // Backup for Burst Write Bug
+ 601   1          g_ucBackup_WDTIMER = MCU_FFF4_SCA_INF_ADDR;
+ 602   1      
+ 603   1          // Clear Flag
+ 604   1          EXIF &= ~_BIT4;
+ 605   1      
+ 606   1      #if(_WD_TIMER_INT_SUPPORT == _ON)
+ 607   1          ScalerTimerWDEventProc_WDINT();
+ 608   1      #endif
+ 609   1      
+ 610   1          if(((MCU_FFEB_WDT_TEST & _BIT7) == _BIT7) && ((EXIF & _BIT4) == 0x00))
+ 611   1          {
+ 612   2              EXIF = (EXIF & (~_BIT4)) | _BIT4;
+ 613   2          }
+ 614   1      
+ 615   1          // Reload Backup for Burst Write Bug
+ 616   1          MCU_FFF4_SCA_INF_ADDR = g_ucBackup_WDTIMER;
+ 617   1      }
+ 618          #pragma restore
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    569    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      4       2
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

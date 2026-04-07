@@ -1,0 +1,1563 @@
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERVGATOP
+OBJECT MODULE PLACED IN .\Output\RL6463\ScalerVGATop.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerVGATop.c LARGE OPTIMIZE(9,SP
+                    -EED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header
+                    -;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\He
+                    -ader;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler\RL6463_
+                    -Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series
+                    -\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\
+                    -User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output
+                    -\RL6463\ScalerVGATop.lst) OBJECT(.\Output\RL6463\ScalerVGATop.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerVGATop.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_VGATOP__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          #if(_VGA_SUPPORT == _ON)
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          
+  26          //--------------------------------------------------
+  27          // Definitions Of VGA noise margin
+  28          //--------------------------------------------------
+  29          #define _VGA_NOISE_MARGIN                               (0x40)
+  30          
+  31          //--------------------------------------------------
+  32          // Noise width definitions
+  33          //--------------------------------------------------
+  34          #define _NOISE_WIDTH_AFTER_HSYNC                        (0x3C)
+  35          #define _NOISE_WIDTH_AFTER_VSYNC                        (0x01)
+  36          
+  37          //--------------------------------------------------
+  38          // Noise Delay before hs definitions, Unit: ns
+  39          //--------------------------------------------------
+  40          #define _NOISE_DELAY_BEFORE_HSYNC_POSITIVE              (80) // Unit: ns
+  41          #define _NOISE_DELAY_BEFORE_HSYNC_NEGTIVE               (100) // Unit: ns
+  42          
+  43          //****************************************************************************
+  44          // STRUCT / TYPE / ENUM DEFINITTIONS
+  45          //****************************************************************************
+  46          
+  47          
+  48          //****************************************************************************
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 2   
+
+  49          // CODE TABLES
+  50          //****************************************************************************
+  51          
+  52          
+  53          //****************************************************************************
+  54          // VARIABLE DECLARATIONS
+  55          //****************************************************************************
+  56          volatile StructRegVgaCapture xdata g_stRegVgaCapture           _at_     _VGATOP_CAPTURE_ADDRESS;
+  57          volatile StructRegVgaAuto xdata g_stRegVgaAuto                 _at_     _VGATOP_AUTO_ADDRESS;
+  58          
+  59          
+  60          WORD g_usPhaseDelayTimeShortPath;
+  61          WORD g_usPhaseDelayTimeLongPath;
+  62          
+  63          WORD g_usVgaModeHstart;
+  64          WORD g_usVgaModeVstart;
+  65          
+  66          //****************************************************************************
+  67          // FUNCTION DECLARATIONS
+  68          //****************************************************************************
+  69          
+  70          #if(_VGA_CAPTURE_SUPPORT == _ON)
+              void ScalerVgaTopInputInitial(void);
+              void ScalerVgaTopModifyPolarity(void);
+              #endif
+  74          
+  75          void ScalerVgaTopSetCapture(void);
+  76          bit ScalerVgaTopModifyVsLatchEdge(bit bWait);
+  77          
+  78          void ScalerVgaTopAutoFuncHBoundInitial(WORD usHBoundStart, WORD usHBoundEnd);
+  79          void ScalerVgaTopAutoFuncVBoundInitial(WORD usVBoundStart, WORD usVBoundEnd);
+  80          void ScalerVgaTopSetAuto(EnumMeasureFieldSelect enumFieldSelect, EnumMeasureBoundType enumBoundType, WORD 
+             -usHTotal);
+  81          bit ScalerVgaTopGetAutoResult(StructAutoActiveData *pstActiveRegion, bit bWait);
+  82          bit ScalerVgaTopHWAutoPhaseSearch(EnumAutoPhaseSearchStep enumPhaseStep, BYTE *pucPhaseResult, DWORD *pulS
+             -ODMax, DWORD *pulSODMin, EnumAutoPhaseSearchSODMethod enumSODMethod, BYTE ucSODThreshold);
+  83          bit ScalerVgaTopAutoPhaseGetSOD(DWORD *pulSODValue);
+  84          bit ScalerVgaTopMeasureActiveRegion(EnumMeasureFieldSelect enumFieldSelect, EnumMeasureBoundType enumBound
+             -Type, WORD usHTotal);
+  85          
+  86          bit ScalerVgaTopAutoFuncWaitFinish(void);
+  87          bit ScalerVgaTopWaitForEvent(EnumVgaTopWaitEventType enumEvent);
+  88          
+  89          void ScalerVgaTopDoubleBufferApply(void);
+  90          void ScalerVgaTopDoubleBufferEnable(bit bEn);
+  91          WORD ScalerVgaTopGetCaptureVStartPosition(void);
+  92          void ScalerVgaTopSetCaptureVStartPosition(WORD usIVstart);
+  93          WORD ScalerVgaTopGetCaptureVHeight(void);
+  94          void ScalerVgaTopSetCaptureVHeight(WORD usIVheight);
+  95          WORD ScalerVgaTopGetCaptureVDelay(void);
+  96          void ScalerVgaTopSetCaptureVDelay(WORD usIVSDelay);
+  97          WORD ScalerVgaTopGetCaptureHStartPosition(void);
+  98          void ScalerVgaTopSetCaptureHStartPosition(WORD usIHstart);
+  99          WORD ScalerVgaTopGetCaptureHWidth(void);
+ 100          void ScalerVgaTopSetCaptureHWidth(WORD usIHwidth);
+ 101          void ScalerVgaTopSetCaptureHDelay(WORD usIHSDelay);
+ 102          WORD ScalerVgaTopGetCaptureHDelay(void);
+ 103          
+ 104          WORD ScalerVgaTopSearchHsEdge(void);
+ 105          void ScalerVgaTopModifyHsLatchEdgeDelay(void);
+ 106          
+ 107          //****************************************************************************
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 3   
+
+ 108          // FUNCTION DEFINITIONS
+ 109          //****************************************************************************
+ 110          
+ 111          #if(_VGA_CAPTURE_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Initial for VGIP Input
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerVgaTopInputInitial(void)
+              {
+                  // Set Input Pixel Format, Disable Double buffer, Analog Capture, and Start generate DE
+                  ScalerSetBit(P30_A0_VGATOP_VGIP_CTRL, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), _BIT0);
+              
+                  // Reset field detect edge
+                  ScalerSetBit(P30_A1_VGATOP_VGIP_SIGINV, ~(_BIT6 | _BIT5 | _BIT3), 0x00);
+              
+                  // HS Sync Edge select to Positive, Disable 1 clock Delay Mode
+                  ScalerSetBit(P30_A2_VGATOP_VGIP_DELAY_CTRL, ~(_BIT4 | _BIT3 | _BIT2), 0x00);
+              
+                  // Initial IVS/IHS Delay for Capture and Auto
+                  ScalerSetByte(P30_AC_VGATOP_IVS_DELAY, 0x00);
+                  ScalerSetByte(P30_AD_VGATOP_IHS_DELAY, 0x00);
+                  ScalerSetBit(P30_AE_VGATOP_VGIP_HV_DELAY, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Initial H Boundary for Auto Function Measure
+              // Input Value  : H Boundary Start/End
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerVgaTopModifyPolarity(void)
+              {
+                  if(GET_SYNC_V_POLARITY() == _POSITIVE)
+                  {
+                      ScalerSetBit(P30_A1_VGATOP_VGIP_SIGINV, ~_BIT3, 0x00);
+                  }
+                  else
+                  {
+                      ScalerSetBit(P30_A1_VGATOP_VGIP_SIGINV, ~_BIT3, _BIT3);
+                  }
+              
+                  if(GET_SYNC_H_POLARITY() == _POSITIVE)
+                  {
+                      ScalerSetBit(P30_A1_VGATOP_VGIP_SIGINV, ~_BIT2, 0x00);
+                  }
+                  else
+                  {
+                      ScalerSetBit(P30_A1_VGATOP_VGIP_SIGINV, ~_BIT2, _BIT2);
+                  }
+              }
+              #endif // End of #if(_VGA_CAPTURE_SUPPORT == _ON)
+ 160          
+ 161          //--------------------------------------------------
+ 162          // Description  : Set VGATOP capture start & size
+ 163          // Input Value  : None
+ 164          // Output Value : None
+ 165          //--------------------------------------------------
+ 166          void ScalerVgaTopSetCapture(void)
+ 167          {
+ 168   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+                  WORD usVgaTopVstartLimit = (DWORD)_PANEL_DV_START * GET_INPUT_TIMING_VHEIGHT() / _PANEL_DV_HEIGHT + 2;
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 4   
+
+              
+                  if(usVgaTopVstartLimit < _VGIP_IV_CAPTURE_MIN_VALUE)
+                  {
+                      usVgaTopVstartLimit = _VGIP_IV_CAPTURE_MIN_VALUE;
+                  }
+              #endif
+ 176   1      
+ 177   1          // Store mode table H/V start
+ 178   1          SET_VGA_MODE_HSTART(GET_INPUT_TIMING_HSTART());
+ 179   1          SET_VGA_MODE_VSTART(GET_INPUT_TIMING_VSTART());
+ 180   1      
+ 181   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+                  SET_INPUT_TIMING_HSTART(_VGIP_IH_CAPTURE_MIN_VALUE + 2);
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      SET_INPUT_TIMING_VSTART(usVgaTopVstartLimit);
+                  }
+                  else
+              #endif
+                  {
+                      SET_INPUT_TIMING_VSTART(usVgaTopVstartLimit + 2);
+                  }
+              
+                  ScalerVgaTopSetCaptureHWidth(GET_INPUT_TIMING_HWIDTH());
+                  ScalerVgaTopSetCaptureVHeight(GET_INPUT_TIMING_VHEIGHT());
+                  ScalerVgaTopSetCaptureHStartPosition(_VGIP_IH_CAPTURE_MIN_VALUE + 2);
+                  ScalerVgaTopSetCaptureVStartPosition(usVgaTopVstartLimit);
+              
+              #endif // End of #if(_VGA_CAPTURE_SUPPORT == _ON)
+ 202   1      }
+ 203          
+ 204          //--------------------------------------------------
+ 205          // Description  : Modify VS latch edge
+ 206          // Input Value  : Input Source Type
+ 207          // Output Value : None
+ 208          //--------------------------------------------------
+ 209          bit ScalerVgaTopModifyVsLatchEdge(bit bWait)
+ 210          {
+ 211   1          if(bWait == _WAIT)
+ 212   1          {
+ 213   2              ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS);
+ 214   2          }
+ 215   1      
+ 216   1          pData[0] = g_stRegVgaCapture.b3_02_5_DELAYVSLATCH_VSLATCHHSM_VSLATCH_DELAY;
+ 217   1      
+ 218   1          // Wait One More Frame in case of Interlaced Mode
+ 219   1          if(pData[0] == 0x00)
+ 220   1          {
+ 221   2              ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS);
+ 222   2              pData[0] = g_stRegVgaCapture.b3_02_5_DELAYVSLATCH_VSLATCHHSM_VSLATCH_DELAY;
+ 223   2          }
+ 224   1      
+ 225   1          // If the edge between H-Sync and V-Sync is too close.
+ 226   1          switch(pData[0])
+ 227   1          {
+ 228   2              case 0x00:
+ 229   2              case 0x04:
+ 230   2              case 0x06:
+ 231   2              case 0x07:
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 5   
+
+ 232   2                  // Field detection by hs positive edge
+ 233   2                  g_stRegVgaCapture.b1_01_5_FIELD_HS_INV = _TRUE;
+ 234   2      
+ 235   2                  // V-Sync latched by H-Sync positive edge
+ 236   2                  g_stRegVgaCapture.b1_02_2_VS_SYNCEDGE = _TRUE;
+ 237   2      
+ 238   2                  return _TRUE;
+ 239   2      
+ 240   2              default:
+ 241   2                  // Field detection by hs negative edge
+ 242   2                  g_stRegVgaCapture.b1_01_5_FIELD_HS_INV = _FALSE;
+ 243   2      
+ 244   2                  // V-Sync latched by H-Sync negative edge
+ 245   2                  g_stRegVgaCapture.b1_02_2_VS_SYNCEDGE = _FALSE;
+ 246   2      
+ 247   2                  return _FALSE;
+ 248   2          }
+ 249   1      }
+ 250          
+ 251          //--------------------------------------------------
+ 252          // Description  : Initial H Boundary for Auto Function Measure
+ 253          // Input Value  : H Boundary Start/End
+ 254          // Output Value : None
+ 255          //--------------------------------------------------
+ 256          void ScalerVgaTopAutoFuncHBoundInitial(WORD usHBoundStart, WORD usHBoundEnd)
+ 257          {
+ 258   1          // Set H boundary
+ 259   1          g_stRegVgaAuto.b4_00_4_HB_STA_HI = HIBYTE(usHBoundStart) & 0x0F;
+ 260   1          g_stRegVgaAuto.uc_01_HB_STA_LO = LOBYTE(usHBoundStart);
+ 261   1      
+ 262   1          g_stRegVgaAuto.b4_00_0_HB_END_HI = HIBYTE(usHBoundEnd) & 0x0F;
+ 263   1          g_stRegVgaAuto.uc_02_HB_END_LO = LOBYTE(usHBoundEnd);
+ 264   1      }
+ 265          
+ 266          //--------------------------------------------------
+ 267          // Description  : Initial V Boundary for Auto Function Measure
+ 268          // Input Value  : V Boundary Start/End
+ 269          // Output Value : None
+ 270          //--------------------------------------------------
+ 271          void ScalerVgaTopAutoFuncVBoundInitial(WORD usVBoundStart, WORD usVBoundEnd)
+ 272          {
+ 273   1          // Set V boundary
+ 274   1          g_stRegVgaAuto.b4_03_4_VB_STA_HI = HIBYTE(usVBoundStart) & 0x0F;
+ 275   1          g_stRegVgaAuto.uc_04_VB_STA_LO = LOBYTE(usVBoundStart);
+ 276   1      
+ 277   1          g_stRegVgaAuto.b4_03_0_VB_END_HI = HIBYTE(usVBoundEnd) & 0x0F;
+ 278   1          g_stRegVgaAuto.uc_05_VB_END_LO = LOBYTE(usVBoundEnd);
+ 279   1      }
+ 280          
+ 281          //--------------------------------------------------
+ 282          // Description  : Initialization for Picture Position <easure by Auto Function Measure
+ 283          // Input Value  : EnumMeasureFieldSelect --> Measure for Even or Odd Field
+ 284          //                EnumMeasureBoundType --> OverScan Boundary or Normal Boundary
+ 285          //                usHTotal --> H Total
+ 286          // Output Value : None
+ 287          //--------------------------------------------------
+ 288          void ScalerVgaTopSetAuto(EnumMeasureFieldSelect enumFieldSelect, EnumMeasureBoundType enumBoundType, WORD 
+             -usHTotal)
+ 289          {
+ 290   1          WORD usHLbound = 0;
+ 291   1          WORD usHRbound = 0;
+ 292   1          WORD usHSWidth = 0;
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 6   
+
+ 293   1          WORD usVSWidth = 0;
+ 294   1      
+ 295   1          // Disable auto-function
+ 296   1          g_stRegVgaAuto.b1_0D_0_NOW_AF = 0;
+ 297   1      
+ 298   1          // Set active measured V-Sync delay 3 lines for auto function
+ 299   1          g_stRegVgaCapture.b2_0E_4_AUTO_IVS_DLY = 0x01;
+ 300   1      
+ 301   1          // Disable LPF, Disable Accelecration Mode, Vertical Boundary Search 1 pixel, Select B channel
+ 302   1          g_stRegVgaAuto.b1_0A_5_FILTER_SEL = _FALSE;
+ 303   1          g_stRegVgaAuto.b1_0A_4_RGB_IN_ONE_EN = _FALSE;
+ 304   1          g_stRegVgaAuto.b2_0A_2_VB_TH = 0;
+ 305   1          g_stRegVgaAuto.b2_0A_0_COLOR_SEL = 0;
+ 306   1      
+ 307   1          if(enumFieldSelect == _EVEN_FIELD_MEASURE)
+ 308   1          {
+ 309   2              // Field Select to Even
+ 310   2              g_stRegVgaAuto.b1_0A_7_ODD_SEL_EN = _TRUE;
+ 311   2              g_stRegVgaAuto.b1_0A_6_ODD_SEL = _FALSE;
+ 312   2          }
+ 313   1          else if(enumFieldSelect == _ODD_FIELD_MEASURE)
+ 314   1          {
+ 315   2              // Field Select to Odd
+ 316   2              g_stRegVgaAuto.b1_0A_7_ODD_SEL_EN = _TRUE;
+ 317   2              g_stRegVgaAuto.b1_0A_6_ODD_SEL = _TRUE;
+ 318   2          }
+ 319   1          else
+ 320   1          {
+ 321   2              // Disable Field Select
+ 322   2              g_stRegVgaAuto.b1_0A_7_ODD_SEL_EN = _FALSE;
+ 323   2              g_stRegVgaAuto.b1_0A_6_ODD_SEL = _FALSE;
+ 324   2          }
+ 325   1      
+ 326   1          // Convert to positive if input sync is negative.
+ 327   1          usHSWidth = GET_INPUT_TIMING_HSYNCWIDTH();
+ 328   1      
+ 329   1          // Sync Pulse should be smaller than 1/2 period.
+ 330   1          usVSWidth = GET_INPUT_TIMING_VSYNCWIDTH();
+ 331   1      
+ 332   1          // L Boundary position reference clamp signal end position add 0x05 tolerance
+ 333   1          // Notice: clamp signal start position reference HS trailing edge
+ 334   1          usHLbound = ScalerSyncProcGetClampEndPosition() + 0x05;
+ 335   1      
+ 336   1          // Calculate left boundary.
+ 337   1          // Unit Conversion Formula: Left Boundary = HPeriod Pixel Clock * (H-Sync Pulse Didth / H-Sync Period)
+             - + Clamp End
+ 338   1          usHLbound += (((DWORD)usHTotal * usHSWidth) / GET_SYNC_H_PERIOD());
+ 339   1      
+ 340   1          // Input signal is positive polarity
+ 341   1          if((bit)GET_INPUT_TIMING_H_POLARITY() == _TRUE)
+ 342   1          {
+ 343   2              usHRbound = (((DWORD)_NOISE_DELAY_BEFORE_HSYNC_POSITIVE * GET_INPUT_PIXEL_CLK()) / 10000) + 1;
+ 344   2          }
+ 345   1          else
+ 346   1          {
+ 347   2              usHRbound = (((DWORD)_NOISE_DELAY_BEFORE_HSYNC_NEGTIVE * GET_INPUT_PIXEL_CLK()) / 10000) + 1;
+ 348   2          }
+ 349   1      
+ 350   1          usHRbound = usHTotal - usHRbound;
+ 351   1      
+ 352   1          // Set H boundary
+ 353   1          ScalerVgaTopAutoFuncHBoundInitial(usHLbound, usHRbound);
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 7   
+
+ 354   1      
+ 355   1          // Set V Boundary
+ 356   1          if((enumBoundType == _OVERSCAN_BOUNDARY) &&
+ 357   1             (GET_INPUT_TIMING_VHEIGHT() >= ScalerVgaTopGetCaptureVHeight()))
+ 358   1          {
+ 359   2              ScalerVgaTopAutoFuncVBoundInitial((usVSWidth + _NOISE_WIDTH_AFTER_VSYNC + ((GET_INPUT_TIMING_VHEIG
+             -HT() - ScalerVgaTopGetCaptureVHeight()) / 2)), (GET_INPUT_TIMING_VTOTAL() - 2 - ((GET_INPUT_TIMING_VHEIGHT() - ScalerVga
+             -TopGetCaptureVHeight()) / 2)));
+ 360   2          }
+ 361   1          else
+ 362   1          {
+ 363   2              ScalerVgaTopAutoFuncVBoundInitial((usVSWidth + _NOISE_WIDTH_AFTER_VSYNC), (GET_INPUT_TIMING_VTOTAL
+             -() - 2));
+ 364   2          }
+ 365   1      
+ 366   1          // Set noice margin according to current clamp type for VGA
+ 367   1          ScalerRead(P0_CF_ADC_CTL_RED, 3, pData, _AUTOINC);
+ 368   1      
+ 369   1          if(((pData[0] & _BIT7) == _BIT7) && ((pData[2] & _BIT7) == _BIT7) && ((pData[1] & _BIT7) == 0x00))
+ 370   1          {
+ 371   2              // Set Noise Margin
+ 372   2              g_stRegVgaAuto.b6_06_2_RED_NM = (0xFC >> 2);
+ 373   2              g_stRegVgaAuto.b6_07_2_GRN_NM = (_VGA_NOISE_MARGIN >> 2);
+ 374   2              g_stRegVgaAuto.b6_08_2_BLU_NM = (0xFC >> 2);
+ 375   2          }
+ 376   1          else
+ 377   1          {
+ 378   2              // Set Noise Margin
+ 379   2              g_stRegVgaAuto.b6_06_2_RED_NM = (_VGA_NOISE_MARGIN >> 2);
+ 380   2              g_stRegVgaAuto.b6_07_2_GRN_NM = (_VGA_NOISE_MARGIN >> 2);
+ 381   2              g_stRegVgaAuto.b6_08_2_BLU_NM = (_VGA_NOISE_MARGIN >> 2);
+ 382   2          }
+ 383   1      
+ 384   1          // Analog Measure Mode, Select Software Mode, Select Auto Balance, Start Auto Function Measure
+ 385   1          g_stRegVgaAuto.b1_0D_7_M_VGEN_EN = _FALSE;
+ 386   1          g_stRegVgaAuto.b1_0D_6_AUTOPHASE_EN = _FALSE;
+ 387   1          g_stRegVgaAuto.b1_0D_1_DIFF_EN = _FALSE;
+ 388   1      
+ 389   1          if(enumBoundType == _OVERSCAN_BOUNDARY)
+ 390   1          {
+ 391   2              if(GET_INPUT_TIMING_VHEIGHT() >= ScalerVgipGetCaptureVHeight())
+ 392   2              {
+ 393   3                  // Set V Boundary
+ 394   3                  ScalerVgaTopAutoFuncVBoundInitial((usVSWidth + _NOISE_WIDTH_AFTER_VSYNC + ((GET_INPUT_TIMING_V
+             -HEIGHT() - ScalerVgaTopGetCaptureVHeight()) / 2)), (GET_INPUT_TIMING_VTOTAL() - 2 - ((GET_INPUT_TIMING_VHEIGHT() - Scale
+             -rVgaTopGetCaptureVHeight()) / 2)));
+ 395   3      
+ 396   3                  // Analog Measure Mode, Select Software Mode, Select Software Mode, Select Auto Balance, Start
+             - Auto Function Measure
+ 397   3                  g_stRegVgaAuto.b1_0D_7_M_VGEN_EN = _FALSE;
+ 398   3                  g_stRegVgaAuto.b1_0D_6_AUTOPHASE_EN = _FALSE;
+ 399   3                  g_stRegVgaAuto.b1_0D_1_DIFF_EN = _FALSE;
+ 400   3              }
+ 401   2          }
+ 402   1      
+ 403   1          // Start auto-function measure
+ 404   1          g_stRegVgaAuto.b1_0D_0_NOW_AF = _TRUE;
+ 405   1      }
+ 406          
+ 407          //--------------------------------------------------
+ 408          // Description  : Pop Up Auto-Function Result
+ 409          // Input Value  : stActiveRegion --> measure result
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 8   
+
+ 410          //                bWait --> wait auto-function stop or not
+ 411          // Output Value : _TRUE or _FALSE
+ 412          //--------------------------------------------------
+ 413          bit ScalerVgaTopGetAutoResult(StructAutoActiveData *pstActiveRegion, bit bWait)
+ 414          {
+ 415   1          BYTE ucVdelayCount = 0;
+ 416   1          BYTE ucRepeatCount = 0;
+ 417   1      
+ 418   1          while(ucRepeatCount < 2) // Maximum Measure Time is 2 times
+ 419   1          {
+ 420   2              if((bWait == _WAIT) || (g_stRegVgaAuto.b1_0D_6_AUTOPHASE_EN == _FALSE))
+ 421   2              {
+ 422   3                  if(ScalerVgaTopAutoFuncWaitFinish() == _FALSE)
+ 423   3                  {
+ 424   4                      return _FALSE;
+ 425   4                  }
+ 426   3              }
+ 427   2      
+ 428   2              // Calculate delay for auto-function VS
+ 429   2              switch(g_stRegVgaCapture.b2_0E_4_AUTO_IVS_DLY)
+ 430   2              {
+ 431   3                  default:
+ 432   3                  case 0x00:
+ 433   3                      ucVdelayCount = 0;
+ 434   3                      break;
+ 435   3      
+ 436   3                  case _BIT0:
+ 437   3                      ucVdelayCount = 3;
+ 438   3                      break;
+ 439   3      
+ 440   3                  case _BIT1:
+ 441   3                      ucVdelayCount = 7;
+ 442   3                      break;
+ 443   3      
+ 444   3                  case (_BIT1 | _BIT0):
+ 445   3                      ucVdelayCount = 15;
+ 446   3                      break;
+ 447   3              }
+ 448   2      
+ 449   2              pstActiveRegion->usVActiveStart = (((WORD)g_stRegVgaAuto.b4_0E_4_VX_STA_HI << 8) | g_stRegVgaAuto.
+             -uc_0F_VX_STA_LO) + ucVdelayCount;
+ 450   2              pstActiveRegion->usVActiveEnd = (((WORD)g_stRegVgaAuto.b4_0E_0_VX_END_HI << 8) | g_stRegVgaAuto.uc
+             -_10_VX_END_LO) + ucVdelayCount;
+ 451   2      
+ 452   2              // Add offset for V start/end
+ 453   2              pstActiveRegion->usVActiveStart += _VGATOP_VSTART_OFFSET;
+ 454   2              pstActiveRegion->usVActiveEnd += _VGATOP_VSTART_OFFSET;
+ 455   2      
+ 456   2              DebugMessageAnalog("5.Active Measure H-ActiveStart", pstActiveRegion->usHActiveStart);
+ 457   2              DebugMessageAnalog("5.Active Measure H-VActiveEnd", pstActiveRegion->usHActiveEnd);
+ 458   2              DebugMessageAnalog("5.Active Measure V-ActiveStart", pstActiveRegion->usVActiveStart);
+ 459   2              DebugMessageAnalog("5.Active Measure V-VActiveEnd", pstActiveRegion->usVActiveEnd);
+ 460   2      
+ 461   2              pstActiveRegion->usHActiveStart = (((WORD)g_stRegVgaAuto.b4_11_4_HX_STA_HI << 8) | g_stRegVgaAuto.
+             -uc_12_HX_STA_LO);
+ 462   2              pstActiveRegion->usHActiveEnd = (((WORD)g_stRegVgaAuto.b4_11_0_HX_END_HI << 8) | g_stRegVgaAuto.uc
+             -_13_HX_END_LO);
+ 463   2      
+ 464   2              if(g_stRegVgaAuto.b1_0D_7_M_VGEN_EN == _TRUE)
+ 465   2              {
+ 466   3                  pstActiveRegion->usHActiveStart += 1;
+ 467   3                  pstActiveRegion->usHActiveEnd += 1;
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 9   
+
+ 468   3              }
+ 469   2      
+ 470   2              // Check auto-function measure result
+ 471   2              if((pstActiveRegion->usVActiveStart == ucVdelayCount) ||
+ 472   2                 (pstActiveRegion->usVActiveEnd == ucVdelayCount) ||
+ 473   2                 (pstActiveRegion->usHActiveStart == 0x00) ||
+ 474   2                 (pstActiveRegion->usHActiveEnd == 0x00))
+ 475   2              {
+ 476   3                  pstActiveRegion->usHActiveStart = 0x00;
+ 477   3                  pstActiveRegion->usHActiveEnd = 0x00;
+ 478   3                  pstActiveRegion->usVActiveStart = 0x00;
+ 479   3                  pstActiveRegion->usVActiveEnd = 0x00;
+ 480   3      
+ 481   3                  // Return fail for digital measure
+ 482   3                  if(g_stRegVgaAuto.b1_0D_7_M_VGEN_EN == _TRUE)
+ 483   3                  {
+ 484   4                      return _FALSE;
+ 485   4                  }
+ 486   3              }
+ 487   2      
+ 488   2              // Check auto-function boundary setting for analog measure
+ 489   2              if((g_stRegVgaAuto.b1_0D_7_M_VGEN_EN == _FALSE) &&
+ 490   2                 (ucRepeatCount == 0))
+ 491   2              {
+ 492   3                  // Clear wait flag
+ 493   3                  bWait = _NOT_WAIT;
+ 494   3      
+ 495   3                  // Get current auto-function boundories
+ 496   3                  PDATA_WORD(0) = ((WORD)g_stRegVgaAuto.b4_00_4_HB_STA_HI << 8) + g_stRegVgaAuto.uc_01_HB_STA_LO
+             -; // H start
+ 497   3                  PDATA_WORD(1) = ((WORD)g_stRegVgaAuto.b4_00_0_HB_END_HI << 8) + g_stRegVgaAuto.uc_02_HB_END_LO
+             -; // H end
+ 498   3                  PDATA_WORD(2) = ((WORD)g_stRegVgaAuto.b4_03_4_VB_STA_HI << 8) + g_stRegVgaAuto.uc_04_VB_STA_LO
+             - + ucVdelayCount; // V start
+ 499   3      
+ 500   3                  // Check auto-boundary H start
+ 501   3                  if(pstActiveRegion->usHActiveStart == PDATA_WORD(0))
+ 502   3                  {
+ 503   4                      // Set H start = H_width + H_clamp_end + 2
+ 504   4                      PDATA_WORD(0) -= 3;
+ 505   4      
+ 506   4                      bWait = _WAIT;
+ 507   4                  }
+ 508   3      
+ 509   3                  // Check auto-boundary H end
+ 510   3                  if(pstActiveRegion->usHActiveEnd == PDATA_WORD(1))
+ 511   3                  {
+ 512   4                      // Enlarge H R-Bounday delta = 1/2 noise margin width
+ 513   4                      if(GET_INPUT_TIMING_H_POLARITY() == _TRUE)
+ 514   4                      {
+ 515   5                          PDATA_WORD(1) += (((DWORD)_NOISE_DELAY_BEFORE_HSYNC_POSITIVE * GET_INPUT_PIXEL_CLK()) 
+             -/ 20000);
+ 516   5                      }
+ 517   4                      else
+ 518   4                      {
+ 519   5                          PDATA_WORD(1) += (((DWORD)_NOISE_DELAY_BEFORE_HSYNC_NEGTIVE * GET_INPUT_PIXEL_CLK()) /
+             - 20000);
+ 520   5                      }
+ 521   4      
+ 522   4                      bWait = _WAIT;
+ 523   4                  }
+ 524   3      
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 10  
+
+ 525   3                  // Check auto-boundary V start
+ 526   3                  if(pstActiveRegion->usVActiveStart == PDATA_WORD(2))
+ 527   3                  {
+ 528   4                      if(g_stRegVgaCapture.b2_0E_4_AUTO_IVS_DLY != 0x00)
+ 529   4                      {
+ 530   5                          // Disable IVS delay when V porch region is too short
+ 531   5                          g_stRegVgaCapture.b2_0E_4_AUTO_IVS_DLY = 0x00;
+ 532   5                          bWait = _WAIT;
+ 533   5                      }
+ 534   4                  }
+ 535   3      
+ 536   3                  // Restart auto-function measure
+ 537   3                  if(bWait == _WAIT)
+ 538   3                  {
+ 539   4                      // Adjust auto-function H boundary
+ 540   4                      ScalerVgaTopAutoFuncHBoundInitial(PDATA_WORD(0), PDATA_WORD(1));
+ 541   4      
+ 542   4                      // Restart auto-function measure
+ 543   4                      g_stRegVgaAuto.b1_0D_0_NOW_AF = _FALSE;
+ 544   4                      g_stRegVgaAuto.b1_0D_0_NOW_AF = _TRUE;
+ 545   4      
+ 546   4                      ++ucRepeatCount;
+ 547   4                      continue;
+ 548   4                  }
+ 549   3                  else
+ 550   3                  {
+ 551   4                      break;
+ 552   4                  }
+ 553   3              }
+ 554   2      
+ 555   2              break;
+ 556   2          }
+ 557   1      
+ 558   1          return _TRUE;
+ 559   1      }
+ 560          
+ 561          //--------------------------------------------------
+ 562          // Description  : Phase, MaxSOD, MinSOD Search
+ 563          // Input Value  : enumPhaseStep --> Hardware Auto Search Phase Step
+ 564          //                ucPhaseResult --> Best Phase(with Max SOD)
+ 565          //                ulSODMax --> Max SOD Value
+ 566          //                ulSODMin --> Min SOD Value
+ 567          //                enumSODMethod --> SOD or WSOD Selection
+ 568          // Output Value : True --> SOD Measurement ok, False --> SOD Measurement Fail
+ 569          //--------------------------------------------------
+ 570          bit ScalerVgaTopHWAutoPhaseSearch(EnumAutoPhaseSearchStep enumPhaseStep, BYTE *pucPhaseResult, DWORD *pulS
+             -ODMax, DWORD *pulSODMin, EnumAutoPhaseSearchSODMethod enumSODMethod, BYTE ucSODThreshold)
+ 571          {
+ 572   1          BYTE ucTargetPhase = 0;
+ 573   1          BYTE ucBestPhase = 0;
+ 574   1          BYTE ucPhaseStepNum = 0;
+ 575   1          DWORD ulSOD1st = 0;
+ 576   1          DWORD ulSOD2nd = 0;
+ 577   1      
+ 578   1          *pulSODMax = 0;
+ 579   1      
+ 580   1          *pulSODMin = 0xffffffff;
+ 581   1      
+ 582   1          // Set Difference Threshold
+ 583   1          g_stRegVgaAuto.uc_09_DIFF_TH = ucSODThreshold;
+ 584   1      
+ 585   1          // Hardware Auto Measure Trigger Select to IVS, Initial Phase --> 0.
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 11  
+
+ 586   1          g_stRegVgaAuto.b1_0C_7_AUTOPHASE_SEL_TRI = _FALSE;
+ 587   1          g_stRegVgaAuto.b7_0C_0_INIT_PHASE = 0;
+ 588   1      
+ 589   1          // Field Select Disable, LPF Disable, 1 pixel over Threshold, Enable Accelaration Mode, Select R or G 
+             -or B Channel
+ 590   1          g_stRegVgaAuto.b1_0A_7_ODD_SEL_EN = _FALSE;
+ 591   1          g_stRegVgaAuto.b1_0A_6_ODD_SEL = _FALSE;
+ 592   1          g_stRegVgaAuto.b1_0A_5_FILTER_SEL = _FALSE;
+ 593   1          g_stRegVgaAuto.b1_0A_4_RGB_IN_ONE_EN = _TRUE;
+ 594   1          g_stRegVgaAuto.b2_0A_2_VB_TH = (1 - 1);
+ 595   1          g_stRegVgaAuto.b2_0A_0_COLOR_SEL = 0;
+ 596   1      
+ 597   1          ucPhaseStepNum = (64 / (1 << enumPhaseStep));
+ 598   1      
+ 599   1          if(ScalerGetBit(P1_B1_PLLDIV_H, _BIT4) == _BIT4)
+ 600   1          {
+ 601   2              enumPhaseStep = enumPhaseStep + 1;
+ 602   2          }
+ 603   1      
+ 604   1          // Set Phase Step and Number
+ 605   1          g_stRegVgaAuto.b3_0B_0_AUTOPHASE_STEP = enumPhaseStep;
+ 606   1          g_stRegVgaAuto.b5_0B_3_AUTOSOD_STEP_NUM = (ucPhaseStepNum - 1);
+ 607   1      
+ 608   1          enumPhaseStep = (1 << enumPhaseStep);
+ 609   1      
+ 610   1          ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS);
+ 611   1      
+ 612   1          // Hardware Auto Measure Setting, and stop Auto-Function Measure Function, Start Measure
+ 613   1          g_stRegVgaAuto.b1_0D_7_M_VGEN_EN = _FALSE;
+ 614   1          g_stRegVgaAuto.b1_0D_6_AUTOPHASE_EN = _TRUE;
+ 615   1          g_stRegVgaAuto.b1_0D_5_FORCE_FLIP = _TRUE;
+ 616   1          g_stRegVgaAuto.b1_0D_4_SUM_MAX = _TRUE;
+ 617   1          g_stRegVgaAuto.b1_0D_3_PULSE_DET_EN = _TRUE;
+ 618   1          g_stRegVgaAuto.b1_0D_2_SQUARE_EN = _FALSE;
+ 619   1          g_stRegVgaAuto.b1_0D_1_DIFF_EN = _TRUE;
+ 620   1          g_stRegVgaAuto.b1_0D_0_NOW_AF = _TRUE;
+ 621   1      
+ 622   1          ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS);
+ 623   1      
+ 624   1          if(enumSODMethod == _PHASE_SEARCH_SOD)
+ 625   1          {
+ 626   2              do
+ 627   2              {
+ 628   3                  if(ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS) == _FALSE)
+ 629   3                  {
+ 630   4                      return _FALSE;
+ 631   4                  }
+ 632   3      
+ 633   3                  PDATA_DWORD(0) = GET_AUTO_RESULT_DWORD();
+ 634   3      
+ 635   3                  if(PDATA_DWORD(0) > *pulSODMax)
+ 636   3                  {
+ 637   4                      *pulSODMax = PDATA_DWORD(0);
+ 638   4                      ucBestPhase = ucTargetPhase;
+ 639   4                  }
+ 640   3      
+ 641   3                  if(PDATA_DWORD(0) < *pulSODMin)
+ 642   3                  {
+ 643   4                      *pulSODMin = PDATA_DWORD(0);
+ 644   4                  }
+ 645   3      
+ 646   3                  ucTargetPhase += enumPhaseStep;
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 12  
+
+ 647   3      
+ 648   3                  ucPhaseStepNum--;
+ 649   3              }
+ 650   2              while(ucPhaseStepNum > 0);
+ 651   2          }
+ 652   1          else
+ 653   1          {
+ 654   2              ucPhaseStepNum = ucPhaseStepNum + 2;
+ 655   2      
+ 656   2              PDATA_DWORD(1) = 0;
+ 657   2              PDATA_DWORD(2) = 0;
+ 658   2              PDATA_DWORD(3) = 0;
+ 659   2      
+ 660   2              do
+ 661   2              {
+ 662   3                  PDATA_DWORD(3) = PDATA_DWORD(2);
+ 663   3      
+ 664   3                  PDATA_DWORD(2) = PDATA_DWORD(1);
+ 665   3      
+ 666   3                  if(ucPhaseStepNum == 2)
+ 667   3                  {
+ 668   4                      PDATA_DWORD(1) = ulSOD1st;
+ 669   4                  }
+ 670   3                  else if(ucPhaseStepNum == 1)
+ 671   3                  {
+ 672   4                      PDATA_DWORD(1) = ulSOD2nd;
+ 673   4                  }
+ 674   3                  else
+ 675   3                  {
+ 676   4                      if(ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS) == _FALSE)
+ 677   4                      {
+ 678   5                          return _FALSE;
+ 679   5                      }
+ 680   4      
+ 681   4                      PDATA_DWORD(0) = GET_AUTO_RESULT_DWORD();
+ 682   4                      PDATA_DWORD(1) = PDATA_DWORD(0);
+ 683   4      
+ 684   4                      if(ucTargetPhase == 0x00)
+ 685   4                      {
+ 686   5                          ulSOD1st = PDATA_DWORD(0);
+ 687   5                      }
+ 688   4      
+ 689   4                      if(ucTargetPhase == enumPhaseStep)
+ 690   4                      {
+ 691   5                          ulSOD2nd = PDATA_DWORD(0);
+ 692   5                      }
+ 693   4                  }
+ 694   3      
+ 695   3                  if(PDATA_DWORD(2) > (ABSDWORD(PDATA_DWORD(3), PDATA_DWORD(2)) + ABSDWORD(PDATA_DWORD(1), PDATA
+             -_DWORD(2))))
+ 696   3                  {
+ 697   4                      PDATA_DWORD(0) = PDATA_DWORD(2) - ((ABSDWORD(PDATA_DWORD(3), PDATA_DWORD(2)) + ABSDWORD(PD
+             -ATA_DWORD(1), PDATA_DWORD(2))));
+ 698   4      
+ 699   4                      if(PDATA_DWORD(0) > *pulSODMax)
+ 700   4                      {
+ 701   5                          *pulSODMax = PDATA_DWORD(0);
+ 702   5      
+ 703   5                          ucBestPhase = ucTargetPhase - enumPhaseStep;
+ 704   5                      }
+ 705   4                  }
+ 706   3      
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 13  
+
+ 707   3                  ucTargetPhase += enumPhaseStep;
+ 708   3      
+ 709   3                  ucPhaseStepNum--;
+ 710   3              }
+ 711   2              while(ucPhaseStepNum > 0);
+ 712   2          }
+ 713   1      
+ 714   1          // Stop Hardware Auto-Function Measure
+ 715   1          g_stRegVgaAuto.b1_0D_0_NOW_AF = _FALSE;
+ 716   1          g_stRegVgaAuto.b1_0D_6_AUTOPHASE_EN = _FALSE;
+ 717   1      
+ 718   1          if(ScalerGetBit(P1_B1_PLLDIV_H, _BIT4) != 0x00) // DotClock < _APLL_VCO_DEVIDER_4_2_THERSHOLD
+ 719   1          {
+ 720   2              *pucPhaseResult = ((ucBestPhase / 2) % 64);
+ 721   2          }
+ 722   1          else
+ 723   1          {
+ 724   2              *pucPhaseResult = (ucBestPhase % 64);
+ 725   2          }
+ 726   1      
+ 727   1          return _TRUE;
+ 728   1      }
+ 729          
+ 730          //--------------------------------------------------
+ 731          // Description  :
+ 732          // Input Value  : Firmware Auto Measure SOD Value
+ 733          // Output Value : True --> Measure Success
+ 734          //                False --> Measure Fail
+ 735          //--------------------------------------------------
+ 736          bit ScalerVgaTopAutoPhaseGetSOD(DWORD *pulSODValue)
+ 737          {
+ 738   1          // Firmware Measure Setting, and stop Auto-Function Measure Function, Start Measure
+ 739   1          g_stRegVgaAuto.b1_0D_7_M_VGEN_EN = _FALSE;
+ 740   1          g_stRegVgaAuto.b1_0D_6_AUTOPHASE_EN = _FALSE;
+ 741   1          g_stRegVgaAuto.b1_0D_5_FORCE_FLIP = _TRUE;
+ 742   1          g_stRegVgaAuto.b1_0D_4_SUM_MAX = _TRUE;
+ 743   1          g_stRegVgaAuto.b1_0D_3_PULSE_DET_EN = _TRUE;
+ 744   1          g_stRegVgaAuto.b1_0D_2_SQUARE_EN = _FALSE;
+ 745   1          g_stRegVgaAuto.b1_0D_1_DIFF_EN = _TRUE;
+ 746   1          g_stRegVgaAuto.b1_0D_0_NOW_AF = _TRUE;
+ 747   1      
+ 748   1          if(ScalerVgaTopAutoFuncWaitFinish() == _FALSE)
+ 749   1          {
+ 750   2              // Hw Auto Status Initial
+ 751   2              g_stRegVgaAuto.b1_0D_0_NOW_AF = _FALSE;
+ 752   2              g_stRegVgaAuto.b1_0D_7_M_VGEN_EN = _FALSE;
+ 753   2              g_stRegVgaAuto.b1_0D_6_AUTOPHASE_EN = _FALSE;
+ 754   2              g_stRegVgaAuto.b1_0D_5_FORCE_FLIP = _FALSE;
+ 755   2              g_stRegVgaAuto.b1_0D_4_SUM_MAX = _FALSE;
+ 756   2              g_stRegVgaAuto.b1_0D_3_PULSE_DET_EN = _FALSE;
+ 757   2              g_stRegVgaAuto.b1_0D_2_SQUARE_EN = _FALSE;
+ 758   2              g_stRegVgaAuto.b1_0D_1_DIFF_EN = _FALSE;
+ 759   2      
+ 760   2              return _FALSE;
+ 761   2          }
+ 762   1      
+ 763   1          // Get Phase Result
+ 764   1          *pulSODValue = GET_AUTO_RESULT_DWORD();
+ 765   1      
+ 766   1          return _TRUE;
+ 767   1      }
+ 768          
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 14  
+
+ 769          //--------------------------------------------------
+ 770          // Description  : Measure Active Start / End using auto-funcgion
+ 771          // Input Value  : EnumMeasureModeType --> Analog or Digital Mode Measure
+ 772          //                EnumMeasureFieldSelect --> Measure for Even or Odd Field
+ 773          //                EnumMeasureBoundType --> OverScan Boundary or Normal Boundary
+ 774          //                usHTotal --> H Total
+ 775          // Output Value : _TRUE or _FALSE
+ 776          //--------------------------------------------------
+ 777          bit ScalerVgaTopMeasureActiveRegion(EnumMeasureFieldSelect enumFieldSelect, EnumMeasureBoundType enumBound
+             -Type, WORD usHTotal)
+ 778          {
+ 779   1          ScalerVgaTopSetAuto(enumFieldSelect, enumBoundType, usHTotal);
+ 780   1      
+ 781   1          return (ScalerVgaTopGetAutoResult(&g_stActiveRegion, _WAIT));
+ 782   1      }
+ 783          
+ 784          //--------------------------------------------------
+ 785          // Description  : Waiting for Auto Function Measure Finish
+ 786          // Input Value  : None
+ 787          // Output Value : True --> Measure Finish
+ 788          //                False --> Measure Timeout or Fail
+ 789          //--------------------------------------------------
+ 790          bit ScalerVgaTopAutoFuncWaitFinish(void)
+ 791          {
+ 792   1          BYTE ucIvsCnt = (g_stRegVgaAuto.b2_0A_0_COLOR_SEL == 0x03) ? 3 : 1;
+ 793   1      
+ 794   1          if(g_stRegVgaAuto.b1_0A_7_ODD_SEL_EN == _TRUE)
+ 795   1          {
+ 796   2              ucIvsCnt *= 2;
+ 797   2          }
+ 798   1          ucIvsCnt += 2;
+ 799   1      
+ 800   1          do
+ 801   1          {
+ 802   2              if(ScalerGetBit(P0_4E_HSYNC_TYPE_DETECTION_FLAG, (_BIT7 | _BIT6 | _BIT5 | _BIT3)) != 0x00)
+ 803   2              {
+ 804   3                  // Sync is changing
+ 805   3                  return _FALSE;
+ 806   3              }
+ 807   2      
+ 808   2              if(ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS) == _FALSE)
+ 809   2              {
+ 810   3                  return _FALSE;
+ 811   3              }
+ 812   2      
+ 813   2              if(g_stRegVgaAuto.b1_0D_0_NOW_AF == _FALSE)
+ 814   2              {
+ 815   3                  return _TRUE;
+ 816   3              }
+ 817   2          }
+ 818   1          while(--ucIvsCnt);
+ 819   1      
+ 820   1          if(ucIvsCnt == 0)
+ 821   1          {
+ 822   2              return _FALSE;
+ 823   2          }
+ 824   1      
+ 825   1          return _TRUE;
+ 826   1      }
+ 827          
+ 828          //--------------------------------------------------
+ 829          // Description  : Hold until the specified event occurs
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 15  
+
+ 830          // Input Value  : enumEvent   --> Specified event
+ 831          // Output Value : Return _TRUE if event occurs
+ 832          //--------------------------------------------------
+ 833          bit ScalerVgaTopWaitForEvent(EnumVgaTopWaitEventType enumEvent)
+ 834          {
+ 835   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+                  // Clear VGATOP event status
+                  ScalerSetBit(P30_E4_VGATOP_IRQ_CTRL, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), (_BIT6 | _BIT5 | _BIT4));
+                  return (ScalerTimerPollingFlagProc(60, P30_E4_VGATOP_IRQ_CTRL, enumEvent, _TRUE));
+              
+              #else
+ 842   1      
+ 843   1          switch(enumEvent)
+ 844   1          {
+ 845   2              case _EVENT_VGA_IVS:
+ 846   2                  return ScalerTimerWaitForEvent(_EVENT_IVS);
+ 847   2      
+ 848   2              case _EVENT_VGA_IEN_START:
+ 849   2                  return ScalerTimerWaitForEvent(_EVENT_IEN_START);
+ 850   2      
+ 851   2              case _EVENT_VGA_IEN_STOP:
+ 852   2                  return ScalerTimerWaitForEvent(_EVENT_IEN_STOP);
+ 853   2      
+ 854   2              default:
+ 855   2                  return _FALSE;
+ 856   2          }
+ 857   1      #endif
+ 858   1      }
+ 859          
+ 860          //--------------------------------------------------
+ 861          // Description  : Apply double buffer
+ 862          // Input Value  : None
+ 863          // Output Value : None
+ 864          //--------------------------------------------------
+ 865          void ScalerVgaTopDoubleBufferApply(void)
+ 866          {
+ 867   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+                  if(ScalerGetBit(P30_A0_VGATOP_VGIP_CTRL, _BIT4) != 0x00)
+                  {
+                      ScalerSetBit(P30_A0_VGATOP_VGIP_CTRL, ~_BIT5, _BIT5);
+              
+                      ScalerTimerPollingFlagProc(60, P30_A0_VGATOP_VGIP_CTRL, _BIT5, _FALSE);
+                  }
+              
+              #else
+ 877   1      
+ 878   1          ScalerGlobalIDomainDBApply(_DB_APPLY_POLLING);
+ 879   1      
+ 880   1      #endif
+ 881   1      }
+ 882          
+ 883          //--------------------------------------------------
+ 884          // Description  : Disable double buffer
+ 885          // Input Value  : bEn --> _ENABLE or _DISABLE
+ 886          // Output Value : None
+ 887          //--------------------------------------------------
+ 888          void ScalerVgaTopDoubleBufferEnable(bit bEn)
+ 889          {
+ 890   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 16  
+
+                  if(bEn == _ENABLE)
+                  {
+                      ScalerSetBit(P30_A0_VGATOP_VGIP_CTRL, ~_BIT4, _BIT4);
+                  }
+                  else
+                  {
+                      ScalerSetBit(P30_A0_VGATOP_VGIP_CTRL, ~_BIT4, 0x00);
+                  }
+              
+              #else
+ 902   1      
+ 903   1          ScalerVgipDoubleBufferEnable(bEn);
+ 904   1      
+ 905   1      #endif
+ 906   1      }
+ 907          
+ 908          //--------------------------------------------------
+ 909          // Description  : Get VGATOP Capture V Start
+ 910          // Input Value  : None
+ 911          // Output Value : V start
+ 912          //--------------------------------------------------
+ 913          WORD ScalerVgaTopGetCaptureVStartPosition(void)
+ 914          {
+ 915   1          return (((WORD)g_stRegVgaCapture.b4_08_0_IV_ACT_STA_HI << 8) | g_stRegVgaCapture.uc_09_IV_ACT_STA_LO);
+ 916   1      }
+ 917          
+ 918          //--------------------------------------------------
+ 919          // Description  : Set VGATOP Capture V start
+ 920          // Input Value  : usIVstart --> V start
+ 921          // Output Value : None
+ 922          //--------------------------------------------------
+ 923          void ScalerVgaTopSetCaptureVStartPosition(WORD usIVstart)
+ 924          {
+ 925   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+                  usIVstart += 3;
+              
+                  // Set VGATOP V capture start
+                  ScalerSetBit(P30_A8_VGATOP_IPV_ACT_STA_H, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (HIBYTE(usIVstart) & 0x0F)
+             -);
+                  ScalerSetByte(P30_A9_VGATOP_IPV_ACT_STA_L, LOBYTE(usIVstart));
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  ScalerFmtCnvFtoPSetFifo(ScalerVgaTopGetCaptureHWidth(), (ScalerVgaTopGetCaptureVStartPosition() + 1));
+              #endif
+              
+              #else
+ 938   1      
+ 939   1          // Set VGIP V capture start
+ 940   1          ScalerVgipSetCaptureVStartPosition(usIVstart);
+ 941   1      
+ 942   1      #endif
+ 943   1      }
+ 944          
+ 945          //--------------------------------------------------
+ 946          // Description  : Get VGATOP Capture V Height
+ 947          // Input Value  : None
+ 948          // Output Value : Capture V Height
+ 949          //--------------------------------------------------
+ 950          WORD ScalerVgaTopGetCaptureVHeight(void)
+ 951          {
+ 952   1          return (((WORD)g_stRegVgaCapture.b4_08_4_IV_ACT_LEN_HI << 8) | g_stRegVgaCapture.uc_0B_IV_ACT_LEN_LO);
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 17  
+
+ 953   1      }
+ 954          
+ 955          //--------------------------------------------------
+ 956          // Description  : Get VGATOP Capture V height
+ 957          // Input Value  : usIVheight --> V height
+ 958          // Output Value : None
+ 959          //--------------------------------------------------
+ 960          void ScalerVgaTopSetCaptureVHeight(WORD usIVheight)
+ 961          {
+ 962   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+                  // Set M1 V capture height
+                  ScalerSetBit(P30_A8_VGATOP_IPV_ACT_STA_H, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), ((HIBYTE(usIVheight) & 0x0
+             -F) << 4));
+                  ScalerSetByte(P30_AB_VGATOP_IPV_ACT_LEN_L, LOBYTE(usIVheight));
+              
+              #else
+ 969   1      
+ 970   1          ScalerVgipSetCaptureVHeight(usIVheight);
+ 971   1      
+ 972   1      #endif
+ 973   1      }
+ 974          
+ 975          //--------------------------------------------------
+ 976          // Description  : Get VGATOP Capture V Delay
+ 977          // Input Value  : None
+ 978          // Output Value : Capture V Delay
+ 979          //--------------------------------------------------
+ 980          WORD ScalerVgaTopGetCaptureVDelay(void)
+ 981          {
+ 982   1          return (((WORD)g_stRegVgaCapture.b1_0E_1_IVS_DLY_8 << 8) | g_stRegVgaCapture.uc_0C_IVS_DLY_LO);
+ 983   1      }
+ 984          
+ 985          //--------------------------------------------------
+ 986          // Description  : Set VGATOP Capture V Delay
+ 987          // Input Value  : usIVSDelay --> V Delay
+ 988          // Output Value : None
+ 989          //--------------------------------------------------
+ 990          void ScalerVgaTopSetCaptureVDelay(WORD usIVSDelay)
+ 991          {
+ 992   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+                  // Set M1 capture V delay
+                  ScalerSetBit(P30_AE_VGATOP_VGIP_HV_DELAY, ~_BIT1, ((HIBYTE(usIVSDelay) & _BIT0) << 1));
+                  ScalerSetByte(P30_AC_VGATOP_IVS_DELAY, LOBYTE(usIVSDelay));
+              
+              #else
+ 999   1      
+1000   1          ScalerVgipSetCaptureVDelay(usIVSDelay);
+1001   1      
+1002   1      #endif
+1003   1      }
+1004          
+1005          //--------------------------------------------------
+1006          // Description  : Get VGATOP Capture H-Start Position
+1007          // Input Value  : None
+1008          // Output Value : Capture H Start
+1009          //--------------------------------------------------
+1010          WORD ScalerVgaTopGetCaptureHStartPosition(void)
+1011          {
+1012   1          return (((WORD)g_stRegVgaCapture.b4_04_0_IH_ACT_STA_HI << 8) | g_stRegVgaCapture.uc_05_IH_ACT_STA_LO) 
+             -+ 2;
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 18  
+
+1013   1      }
+1014          
+1015          //--------------------------------------------------
+1016          // Description  : Set VGATOP Capture H start
+1017          // Input Value  : usIHstart --> H start
+1018          // Output Value : None
+1019          //--------------------------------------------------
+1020          void ScalerVgaTopSetCaptureHStartPosition(WORD usIHstart)
+1021          {
+1022   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+                  usIHstart -= 2;
+              
+                  // Set M1 H capture start
+                  ScalerSetBit(P30_A4_VGATOP_IPH_ACT_STA_H, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (HIBYTE(usIHstart) & 0x0F)
+             -);
+                  ScalerSetByte(P30_A5_VGATOP_IPH_ACT_STA_L, LOBYTE(usIHstart));
+              
+              #else
+1031   1      
+1032   1          ScalerVgipSetCaptureHStartPosition(usIHstart);
+1033   1      
+1034   1      #endif
+1035   1      }
+1036          
+1037          //--------------------------------------------------
+1038          // Description  : Get VGATOP Capture H width
+1039          // Input Value  : None
+1040          // Output Value : VGATOP H width
+1041          //--------------------------------------------------
+1042          WORD ScalerVgaTopGetCaptureHWidth(void)
+1043          {
+1044   1          return (((WORD)g_stRegVgaCapture.b4_04_4_IH_ACT_WID_HI << 8) | g_stRegVgaCapture.uc_07_IH_ACT_WID_LO);
+1045   1      }
+1046          
+1047          //--------------------------------------------------
+1048          // Description  : Set VGATOP Capture H width
+1049          // Input Value  : usIHwidth --> H width
+1050          // Output Value : None
+1051          //--------------------------------------------------
+1052          void ScalerVgaTopSetCaptureHWidth(WORD usIHwidth)
+1053          {
+1054   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+                  // Set M1 H capture width
+                  ScalerSetBit(P30_A4_VGATOP_IPH_ACT_STA_H, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), ((HIBYTE(usIHwidth) & 0x0F
+             -) << 4));
+                  ScalerSetByte(P30_A7_VGATOP_IPH_ACT_WID_L, LOBYTE(usIHwidth));
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  // Set main F-to-P FIFO
+                  ScalerFmtCnvFtoPSetFifo(usIHwidth, (ScalerVgaTopGetCaptureVStartPosition() + 1));
+              #endif
+              
+              #else
+1066   1      
+1067   1          ScalerVgipSetCaptureHWidth(usIHwidth);
+1068   1      
+1069   1      #endif
+1070   1      }
+1071          
+1072          //--------------------------------------------------
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 19  
+
+1073          // Description  : Set VGATOP Capture V Delay
+1074          // Input Value  : usIHSDelay --> H Delay
+1075          // Output Value : None
+1076          //--------------------------------------------------
+1077          void ScalerVgaTopSetCaptureHDelay(WORD usIHSDelay)
+1078          {
+1079   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+              
+                  ScalerSetBit(P30_AE_VGATOP_VGIP_HV_DELAY, ~(_BIT2 | _BIT0), (((HIBYTE(usIHSDelay) & _BIT1) << 1) | (HI
+             -BYTE(usIHSDelay) & _BIT0)));
+                  ScalerSetByte(P30_AD_VGATOP_IHS_DELAY, LOBYTE(usIHSDelay));
+              
+              #else
+1085   1      
+1086   1          ScalerVgipSetCaptureHDelay(usIHSDelay);
+1087   1      
+1088   1      #endif
+1089   1      }
+1090          
+1091          //--------------------------------------------------
+1092          // Description  : Get VGATOP Capture H Delay
+1093          // Input Value  : None
+1094          // Output Value : H Delay
+1095          //--------------------------------------------------
+1096          WORD ScalerVgaTopGetCaptureHDelay(void)
+1097          {
+1098   1          return (((WORD)g_stRegVgaCapture.b1_0E_2_IHS_DLY_9 << 9) |
+1099   1                  ((WORD)g_stRegVgaCapture.b1_0E_0_IHS_DLY_8 << 8) |
+1100   1                  g_stRegVgaCapture.uc_0D_IHS_DLY_LO);
+1101   1      }
+1102          
+1103          //--------------------------------------------------
+1104          // Description  : Find metastable phase for current APLL rate
+1105          // Input Value  : None
+1106          // Output Value : current HS delay value (0.01ns * 64)
+1107          //--------------------------------------------------
+1108          WORD ScalerVgaTopSearchHsEdge(void)
+1109          {
+1110   1          BYTE ucCurrPhase = 0;
+1111   1          BYTE ucTargetPhase = 0xFF;
+1112   1          DWORD ulMax = 0;
+1113   1      
+1114   1          // Stop auto-function; HW auto; Measure min; Accumulation
+1115   1          g_stRegVgaAuto.b1_0D_0_NOW_AF = _FALSE;
+1116   1          g_stRegVgaAuto.b1_0D_4_SUM_MAX = _TRUE;
+1117   1          g_stRegVgaAuto.b1_0D_6_AUTOPHASE_EN = _TRUE;
+1118   1      
+1119   1          // Set VGIP latch edge
+1120   1          SET_HS_DELAY_LATCH_EDGE();
+1121   1      
+1122   1          if(g_stRegVgaCapture.b1_00_4_DOUBLE_ENABLE == _TRUE)
+1123   1          {
+1124   2              g_stRegVgaCapture.b1_00_5_DOUBLE_READY = _TRUE;
+1125   2          }
+1126   1      
+1127   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+                  // Enable VGATOP pattern gen to output 0;
+                  ScalerSetByte(P30_DF_VGATOP_PAT_GEN_RED_INI_L, 0x00);
+                  ScalerSetByte(P30_E0_VGATOP_PAT_GEN_GRN_INI_L, 0x00);
+                  ScalerSetByte(P30_E1_VGATOP_PAT_GEN_BLU_INI_L, 0x00);
+                  ScalerSetByte(P30_E2_VGATOP_PAT_GEN_INI_H, 0x00);
+              #endif
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 20  
+
+1134   1      
+1135   1          // Set auto-balance old mode
+1136   1          g_stRegVgaAuto.b1_06_0_NEW_RESULT_MODE = _FALSE;
+1137   1          g_stRegVgaAuto.b6_06_2_RED_NM = 16;
+1138   1      
+1139   1          // Set phase step = 32
+1140   1          g_stRegVgaAuto.b5_0B_3_AUTOSOD_STEP_NUM = (32 - 1);
+1141   1      
+1142   1          if(ScalerGetBit(P1_B1_PLLDIV_H, _BIT4) == _BIT4)
+1143   1          {
+1144   2              // step size = 2
+1145   2              g_stRegVgaAuto.b3_0B_0_AUTOPHASE_STEP = (0x02 - 1);
+1146   2          }
+1147   1          else
+1148   1          {
+1149   2              // step size = 1
+1150   2              g_stRegVgaAuto.b3_0B_0_AUTOPHASE_STEP = (0x01 - 1);
+1151   2          }
+1152   1      
+1153   1          // Set auto function boundary to max
+1154   1          ScalerVgaTopAutoFuncHBoundInitial((ScalerGetWord(P1_B1_PLLDIV_H) & 0x0FFF), 0x0FFF);
+1155   1          ScalerVgaTopAutoFuncVBoundInitial(0x0000, 0x0FFF);
+1156   1      
+1157   1          // for each phase
+1158   1          for(ucCurrPhase = 0; ucCurrPhase < 64; ++ucCurrPhase)
+1159   1          {
+1160   2              if((ucCurrPhase == 0) || (ucCurrPhase == 32))
+1161   2              {
+1162   3                  // Stop auto-function
+1163   3                  g_stRegVgaAuto.b1_0D_0_NOW_AF = _FALSE;
+1164   3      
+1165   3                  if(ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS) == _FALSE)
+1166   3                  {
+1167   4                      break;
+1168   4                  }
+1169   3      
+1170   3                  // Set initial phase
+1171   3                  if(ScalerGetBit(P1_B1_PLLDIV_H, _BIT4) == _BIT4)
+1172   3                  {
+1173   4                      g_stRegVgaAuto.b7_0C_0_INIT_PHASE = (ucCurrPhase << 1);
+1174   4                  }
+1175   3                  else
+1176   3                  {
+1177   4                      g_stRegVgaAuto.b7_0C_0_INIT_PHASE = ucCurrPhase;
+1178   4                  }
+1179   3      
+1180   3                  // Start auto-function
+1181   3                  g_stRegVgaAuto.b1_0D_0_NOW_AF = _TRUE;
+1182   3      
+1183   3                  if(ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS) == _FALSE)
+1184   3                  {
+1185   4                      break;
+1186   4                  }
+1187   3              }
+1188   2      
+1189   2              if(ScalerVgaTopWaitForEvent(_EVENT_VGA_IVS) == _FALSE)
+1190   2              {
+1191   3                  break;
+1192   3              }
+1193   2      
+1194   2              // Pop out result
+1195   2              PDATA_DWORD(0) = GET_AUTO_RESULT_DWORD();
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 21  
+
+1196   2      
+1197   2              if(PDATA_DWORD(0) > ulMax)
+1198   2              {
+1199   3                  ulMax = PDATA_DWORD(0);
+1200   3                  ucTargetPhase = ucCurrPhase;
+1201   3              }
+1202   2          }
+1203   1      
+1204   1          // Stop auto-function; Disable HW auto
+1205   1          g_stRegVgaAuto.b1_0D_0_NOW_AF = _FALSE;
+1206   1          g_stRegVgaAuto.b1_0D_6_AUTOPHASE_EN = _FALSE;
+1207   1      
+1208   1          ucTargetPhase = (ucTargetPhase + _PHASE_DELAY_HALF_PERIOD_SHIFT) % 64;
+1209   1      
+1210   1          // Calculate HS delay (unit: 1/64 ns)
+1211   1          if(ulMax == 0x00)
+1212   1          {
+1213   2              DebugMessageAnalog("meta edge not found", 0);
+1214   2              return ~0;
+1215   2          }
+1216   1          else
+1217   1          {
+1218   2              DebugMessageAnalog("meta edge", ucTargetPhase);
+1219   2              return (WORD)((DWORD)10000 * ucTargetPhase / GET_INPUT_PIXEL_CLK());
+1220   2          }
+1221   1      }
+1222          
+1223          //--------------------------------------------------
+1224          // Description  : HS delay Calibration
+1225          // Input Value  : None
+1226          // Output Value : None
+1227          //--------------------------------------------------
+1228          void ScalerVgaTopModifyHsLatchEdgeDelay(void)
+1229          {
+1230   1          BYTE pucBackup[8] = {0};
+1231   1          BYTE ucLoop = 0;
+1232   1          BYTE ucCount = 0;
+1233   1          WORD usCurrentPhaseDelayTime = 0;
+1234   1      
+1235   1          if(g_usPhaseDelayTimeShortPath != 0x00)
+1236   1          {
+1237   2              // HS delay already calibrated
+1238   2              DebugMessageAnalog("HS Short Path Delay Value", g_usPhaseDelayTimeShortPath);
+1239   2              DebugMessageAnalog("HS Long Path Delay Value", g_usPhaseDelayTimeLongPath);
+1240   2              return;
+1241   2          }
+1242   1      
+1243   1          /////////////////////////////////////////////////////////////////////////
+1244   1          // 1. Initial Display format/APLL/VGIP
+1245   1          /////////////////////////////////////////////////////////////////////////
+1246   1      
+1247   1          // Backup Display format gen setting
+1248   1          SAVE_HS_DELAY_SETTING(pucBackup);
+1249   1      
+1250   1          // Disable DPLL spread spectrum if enabled
+1251   1          ScalerPLLSetDPLLSSC(_DCLK_SPREAD_SPEED, _OFF);
+1252   1      
+1253   1          // Set new DVtotal
+1254   1          SET_FREE_RUN_DVTOTAL((WORD)_HS_DELAY_DVTOTAL);
+1255   1      
+1256   1          // Update last line = DHtotal
+1257   1          SET_FREE_RUN_LAST_LINE(_HS_DELAY_DHTOTAL);
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 22  
+
+1258   1      
+1259   1          // Set new DHtotal
+1260   1          SET_DIS_TIMING_GEN_H_TOTAL(_HS_DELAY_DHTOTAL);
+1261   1      
+1262   1          ScalerSetDataPortByte(P0_2A_DISPLAY_FORMAT_ADDR_PORT, _P0_2B_PT_02_DISPLAY_HOR_SYNC_END, 0x08);
+1263   1      
+1264   1          // ADC LDO Power On, ADC Clock Power On, SOG_ADC0 Power On, R/G/B ADC Power On
+1265   1          // ADC ldo Output Not Short to Ground
+1266   1          ScalerSetBit(P0_C6_ADC_POWER, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT2 | _BIT1 | _BIT0), (_BIT7 | _BIT6
+             - | _BIT5 | _BIT2 | _BIT1 | _BIT0));
+1267   1      
+1268   1          // Disable ADC power saving mode
+1269   1          ScalerSetBit(P0_C7_ADC_VOLT_SEL, ~_BIT2, 0x00);
+1270   1      
+1271   1          // Reset ADC clock delay
+1272   1          ScalerSetBit(P0_BC_ADC_CK_OUT_CTRL, ~(_BIT4 | _BIT3), 0x00);
+1273   1      
+1274   1          // Adc output clock setting
+1275   1          ScalerADCOutputClkSetting();
+1276   1      
+1277   1          // Switch sync-processor HS/VS source from D-domain; Bypass HS output
+1278   1          ScalerSetBit(P0_0B_POWER_CTRL, ~_BIT1, _BIT1);
+1279   1          ScalerSetByte(P0_47_SYNC_SELECT, _BIT2);
+1280   1          ScalerSetByte(P0_48_SYNC_INVERT, _BIT4);
+1281   1          ScalerSetByte(P0_49_SYNC_CTRL, (_BIT2 | _BIT1));
+1282   1      
+1283   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+                  // Enable I-domain pattern gen;
+                  g_stRegVgaCapture.b1_00_7_RAMDOM_EN = _TRUE;
+              #else
+1287   1          // Enable ADC calibration
+1288   1          ScalerSetBit(P0_D2_ADC_GAIN_CALI, ~_BIT4, _BIT4);
+1289   1      #endif
+1290   1      
+1291   1          // Disable double buffer; Enable ADC input;
+1292   1          g_stRegVgaCapture.b1_00_4_DOUBLE_ENABLE = _FALSE;
+1293   1          g_stRegVgaCapture.b1_00_0_IVRUN_EN = _TRUE;
+1294   1      
+1295   1          // Set VGATOP capture to max
+1296   1          ScalerVgaTopSetCaptureHStartPosition(0x0001);
+1297   1          ScalerVgaTopSetCaptureVStartPosition(0x0001);
+1298   1          ScalerVgaTopSetCaptureHWidth(0x0FFF);
+1299   1          ScalerVgaTopSetCaptureVHeight(0x0FFF);
+1300   1      
+1301   1          // Load default value for short path
+1302   1      #if(_PHASE_DELAY_TIME_VALUE_SHORT_PATH >= 0)
+1303   1          g_usPhaseDelayTimeShortPath = _PHASE_DELAY_TIME_VALUE_SHORT_PATH;
+1304   1      #else
+                  g_usPhaseDelayTimeShortPath = -(_PHASE_DELAY_TIME_VALUE_SHORT_PATH);
+              #endif
+1307   1          // Load default value for long path
+1308   1      #if(_PHASE_DELAY_TIME_VALUE_LONG_PATH >= 0)
+1309   1          g_usPhaseDelayTimeLongPath = _PHASE_DELAY_TIME_VALUE_LONG_PATH;
+1310   1      #else
+                  g_usPhaseDelayTimeLongPath = -(_PHASE_DELAY_TIME_VALUE_LONG_PATH);
+              #endif
+1313   1      
+1314   1          /////////////////////////////////////////////////////////////////////////
+1315   1          // 2. Detect HS/clock meta-stability
+1316   1          /////////////////////////////////////////////////////////////////////////
+1317   1      
+1318   1          // Set APLL clock to target freq. by calculating IHtotal
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 23  
+
+1319   1          if(ScalerAPLLAdjust(_HS_DELAY_IHTOTAL, _HS_DELAY_REAL_DHFREQ) == _TRUE)
+1320   1          {
+1321   2              for(ucCount = 0; ucCount <= 1; ucCount++)
+1322   2              {
+1323   3                  ucLoop = 0;
+1324   3                  if(ucCount != 0)
+1325   3                  {
+1326   4                      // Detect HS meta-stable for long path
+1327   4                      SET_THERMO_LONG_PATH_STATUS();
+1328   4                  }
+1329   3      
+1330   3                  ScalerSetBit(P0_BC_ADC_CK_OUT_CTRL, ~(_BIT4 | _BIT3), (ucLoop << 3));
+1331   3                  while((ucLoop++) <= 3)
+1332   3                  {
+1333   4                      if((PDATA_WORD(0) = ScalerVgaTopSearchHsEdge()) != ~0)
+1334   4                      {
+1335   5                          usCurrentPhaseDelayTime = PDATA_WORD(0);
+1336   5      
+1337   5                          DebugMessageAnalog("HS edge found", usCurrentPhaseDelayTime);
+1338   5                          // Calculate current pixel clock period
+1339   5                          PDATA_WORD(0) = (WORD)((DWORD)640000 / GET_INPUT_PIXEL_CLK()); // 1T
+1340   5      
+1341   5                          if(ucCount == 0)
+1342   5                          {
+1343   6      #if(_PHASE_DELAY_TIME_VALUE_SHORT_PATH >= 0)
+1344   6      
+1345   6                              // Check whether HS delay over 1T
+1346   6                              if(abs(PDATA_WORD(0) + usCurrentPhaseDelayTime - _PHASE_DELAY_TIME_VALUE_SHORT_PAT
+             -H) < abs(usCurrentPhaseDelayTime - _PHASE_DELAY_TIME_VALUE_SHORT_PATH))
+1347   6                              {
+1348   7                                  usCurrentPhaseDelayTime += PDATA_WORD(0);
+1349   7                              }
+1350   6      
+1351   6      #else
+              
+                                      // Calculate negative HS delay
+                                      usCurrentPhaseDelayTime = PDATA_WORD(0) - usCurrentPhaseDelayTime;
+              
+                                      // Check whether HS delay over 1T
+                                      if(abs(PDATA_WORD(0) + usCurrentPhaseDelayTime - (-(_PHASE_DELAY_TIME_VALUE_SHORT_
+             -PATH))) < abs(usCurrentPhaseDelayTime - (-(_PHASE_DELAY_TIME_VALUE_SHORT_PATH))))
+                                      {
+                                          usCurrentPhaseDelayTime += PDATA_WORD(0);
+                                      }
+              
+              #endif
+1363   6                              g_usPhaseDelayTimeShortPath = usCurrentPhaseDelayTime;
+1364   6                          }
+1365   5                          else
+1366   5                          {
+1367   6      #if(_PHASE_DELAY_TIME_VALUE_LONG_PATH >= 0)
+1368   6      
+1369   6                              // Check whether HS delay over 1T
+1370   6                              if(abs(PDATA_WORD(0) + usCurrentPhaseDelayTime - _PHASE_DELAY_TIME_VALUE_LONG_PATH
+             -) < abs(usCurrentPhaseDelayTime - _PHASE_DELAY_TIME_VALUE_LONG_PATH))
+1371   6                              {
+1372   7                                  usCurrentPhaseDelayTime += PDATA_WORD(0);
+1373   7                              }
+1374   6      
+1375   6      #else
+              
+                                      // Calculate negative HS delay
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 24  
+
+                                      usCurrentPhaseDelayTime = PDATA_WORD(0) - usCurrentPhaseDelayTime;
+              
+                                      // Check whether HS delay over 1T
+                                      if(abs(PDATA_WORD(0) + usCurrentPhaseDelayTime - (-(_PHASE_DELAY_TIME_VALUE_LONG_P
+             -ATH))) < abs(usCurrentPhaseDelayTime - (-(_PHASE_DELAY_TIME_VALUE_LONG_PATH))))
+                                      {
+                                          usCurrentPhaseDelayTime += PDATA_WORD(0);
+                                      }
+              
+              #endif
+1387   6                              g_usPhaseDelayTimeLongPath = usCurrentPhaseDelayTime;
+1388   6                          }
+1389   5      
+1390   5                          break;
+1391   5                      }
+1392   4      
+1393   4                      // Adjust ADC clock delay
+1394   4                      ScalerSetBit(P0_BC_ADC_CK_OUT_CTRL, ~(_BIT4 | _BIT3), (ucLoop << 3));
+1395   4                  }
+1396   3              }
+1397   2          }
+1398   1      
+1399   1          /////////////////////////////////////////////////////////////////////////
+1400   1          // 3. Restore default setting
+1401   1          /////////////////////////////////////////////////////////////////////////
+1402   1      
+1403   1          // Disable VGIP
+1404   1          g_stRegVgaCapture.b1_00_0_IVRUN_EN = _FALSE;
+1405   1      
+1406   1      #if(_VGA_CAPTURE_SUPPORT == _ON)
+                  // Disable I-domain pattern gen;
+                  g_stRegVgaCapture.b1_00_7_RAMDOM_EN = _FALSE;
+              #else
+1410   1          // Disable ADC calibration
+1411   1          ScalerSetBit(P0_D2_ADC_GAIN_CALI, ~_BIT4, 0x00);
+1412   1      #endif
+1413   1      
+1414   1          // Reset thermo path
+1415   1          CLR_THERMO_LONG_PATH_STATUS();
+1416   1      
+1417   1          // Set sync processsor HS/VS source from ADC
+1418   1          ScalerSetBit(P0_47_SYNC_SELECT, ~_BIT2, 0x00);
+1419   1          ScalerSetBit(P0_0B_POWER_CTRL, ~_BIT1, 0x00);
+1420   1      
+1421   1          // Reset ADC power saving mode
+1422   1          ScalerSetBit(P0_C7_ADC_VOLT_SEL, ~_BIT2, _BIT2);
+1423   1      
+1424   1          // Power down ADC VCM/ADC clock/SOG Power/RGB Channel
+1425   1          ScalerSetBit(P0_C6_ADC_POWER, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT2 | _BIT1 | _BIT0), 0x00);
+1426   1      
+1427   1          // Reset ADC clock delay
+1428   1          ScalerSetBit(P0_BC_ADC_CK_OUT_CTRL, ~(_BIT4 | _BIT3), 0x00);
+1429   1      
+1430   1          // Power down APLL
+1431   1          ScalerSetBit(P1_AF_PLL_WD, ~_BIT0, _BIT0);
+1432   1      
+1433   1          // Load DPLL setting
+1434   1          LOAD_HS_DELAY_SETTING(pucBackup);
+1435   1      
+1436   1      #if(_PHASE_DELAY_TIME_VALUE_SHORT_PATH >= 0)
+1437   1          DebugMessageAnalog("Positive Short Path HS Delay Calibrated", g_usPhaseDelayTimeShortPath);
+1438   1      #else
+C51 COMPILER V8.12   SCALERVGATOP                                                          03/10/2025 13:50:29 PAGE 25  
+
+                  DebugMessageAnalog("Negative Short Path HS Delay Calibrated", g_usPhaseDelayTimeShortPath);
+              #endif
+1441   1      
+1442   1      #if(_PHASE_DELAY_TIME_VALUE_LONG_PATH >= 0)
+1443   1          DebugMessageAnalog("Positive Long Path HS Delay Calibrated", g_usPhaseDelayTimeLongPath);
+1444   1      #else
+                  DebugMessageAnalog("Negative Long Path HS Delay Calibrated", g_usPhaseDelayTimeLongPath);
+              #endif
+1447   1      }
+1448          
+1449          #endif // End of #if(_VGA_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3878    ----
+   CONSTANT SIZE    =      8    ----
+   XDATA SIZE       =      8      63
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       3
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

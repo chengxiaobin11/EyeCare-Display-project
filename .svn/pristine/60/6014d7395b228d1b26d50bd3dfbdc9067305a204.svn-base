@@ -1,0 +1,224 @@
+C51 COMPILER V9.60.0.0   SYSCOLOR                                                          09/09/2025 18:16:56 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SYSCOLOR
+OBJECT MODULE PLACED IN .\Output\RL6432\SysColor.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\System\Code\SysColor.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL
+                    -6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kernel\Scaler\Scaler
+                    -Function\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\Kernel\Scaler\Sc
+                    -alerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Series_Common\Header;.\
+                    -Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kernel\User Common Funct
+                    -ion\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User
+                    -\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6432_P
+                    -ROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\SysColor.lst) TABS(2) OBJECT(.\Output\RL643
+                    -2\SysColor.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : SysColor.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SYSTEM_COLOR__
+  18          
+  19          #include "SysInclude.h"
+  20          #if(_MT3212_CT_SUPPORT == _ON)
+  21          #include _OSD_INCLUDE
+  22          extern void UserAdjustContrast(WORD usContrast);
+  23          #endif
+  24          //****************************************************************************
+  25          // DEFINITIONS / MACROS
+  26          //****************************************************************************
+  27          
+  28          
+  29          //****************************************************************************
+  30          // STRUCT / TYPE / ENUM DEFINITTIONS
+  31          //****************************************************************************
+  32          
+  33          
+  34          //****************************************************************************
+  35          // CODE TABLES
+  36          //****************************************************************************
+  37          
+  38          
+  39          //****************************************************************************
+  40          // VARIABLE DECLARATIONS
+  41          //****************************************************************************
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DECLARATIONS
+  46          //****************************************************************************
+  47          void SysColorHandler(void);
+C51 COMPILER V9.60.0.0   SYSCOLOR                                                          09/09/2025 18:16:56 PAGE 2   
+
+  48          #if(_COLOR_IP_DCC_HISTOGRAM == _ON)
+  49          void SysColorDCCHistogramHandler(void);
+  50          #endif
+  51          #if(_COLOR_IP_DCR == _ON)
+  52          void SysColorDCRHandler(void);
+  53          #endif
+  54          
+  55          //****************************************************************************
+  56          // FUNCTION DEFINITIONS
+  57          //****************************************************************************
+  58          //--------------------------------------------------
+  59          // Description  : Color Handler
+  60          // Input Value  : None
+  61          // Output Value : None
+  62          //--------------------------------------------------
+  63          void SysColorHandler(void)
+  64          {
+  65   1          switch(GET_MODE_STATE())
+  66   1          {
+  67   2              case _MODE_STATUS_ACTIVE:
+  68   2      
+  69   2      #if(_COLOR_IP_DCC_HISTOGRAM == _ON)
+  70   2                  SysColorDCCHistogramHandler();
+  71   2      #endif
+  72   2      
+  73   2      #if(_COLOR_IP_DCR == _ON)
+  74   2                  SysColorDCRHandler();
+  75   2      #endif
+  76   2      
+  77   2      #if(_COLORIMETRY_SEAMLESS_CHANGE_SUPPORT == _ON)
+                          UserCommonSeamlessChgHandler();
+              #endif
+  80   2      
+  81   2      #if((_MOTION_BLUR_REDUCTION_SUPPORT == _ON) && (_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON))
+                          UserCommonInterfaceMbrDrrHandler();
+              #endif
+  84   2      #if(_SW_IIC_SUPPORT == _ON)
+  85   2      #if(_MT3212_CT_SUPPORT == _ON)
+  86   2                  SET_COLOR_TEMP_TYPE(_CT_USER);
+  87   2                  ScalerMcuGetMt3212CtData();
+*** WARNING C206 IN LINE 87 OF Kernel\System\Code\SysColor.c: 'ScalerMcuGetMt3212CtData': missing function-prototype
+  88   2                  UserAdjustContrast(GET_OSD_CONTRAST());
+  89   2      #endif
+  90   2      #if(_LS_PS_SUPPORT == _ON)
+  91   2                  ScalerMcuGetLSPSData();
+*** WARNING C206 IN LINE 91 OF Kernel\System\Code\SysColor.c: 'ScalerMcuGetLSPSData': missing function-prototype
+  92   2      #endif
+  93   2      #endif
+  94   2                  break;
+  95   2      
+  96   2              default:
+  97   2                  break;
+  98   2          }
+  99   1      }
+ 100          
+ 101          #if(_COLOR_IP_DCC_HISTOGRAM == _ON)
+ 102          //--------------------------------------------------
+ 103          // Description  : Color DCC Histogram Handler
+ 104          // Input Value  : None
+ 105          // Output Value : None
+ 106          //--------------------------------------------------
+ 107          void SysColorDCCHistogramHandler(void)
+C51 COMPILER V9.60.0.0   SYSCOLOR                                                          09/09/2025 18:16:56 PAGE 3   
+
+ 108          {
+ 109   1          if(ScalerColorDCCGetDataReadyStatus() == _TRUE)
+ 110   1          {
+ 111   2              // Clear DCC data ready status.
+ 112   2              ScalerColorDCCClrDataReadyStatus();
+ 113   2      
+ 114   2              SET_DCC_READY_STATUS();
+ 115   2          }
+ 116   1      
+ 117   1          if(GET_DCC_READY_STATUS() == _TRUE)
+ 118   1          {
+ 119   2      #if(_DCC_HISTOGRM_INFO == _ON)
+                      UserInterfaceDCCHistogramHandler();
+              #endif
+ 122   2      
+ 123   2      #if(_ULTRA_HDR_SUPPORT == _ON)
+ 124   2              UserCommonHDRHandler();
+ 125   2      #endif
+ 126   2          }
+ 127   1      
+ 128   1          CLR_DCC_READY_STATUS();
+ 129   1      }
+ 130          #endif
+ 131          
+ 132          #if(_COLOR_IP_DCR == _ON)
+ 133          //--------------------------------------------------
+ 134          // Description  : Color DCR Handler
+ 135          // Input Value  : None
+ 136          // Output Value : None
+ 137          //--------------------------------------------------
+ 138          void SysColorDCRHandler(void)
+ 139          {
+ 140   1          if(ScalerColorDCRGetDataReadyStatus() == _TRUE)
+ 141   1          {
+ 142   2              // Clear DCR data ready status.
+ 143   2              ScalerColorDCRClrDataReadyStatus();
+ 144   2      
+ 145   2              SET_DCR_READY_STATUS();
+ 146   2      
+ 147   2              // freeze DCR data
+ 148   2              ScalerColorDCRDataRefreshControl(_DISABLE);
+ 149   2      
+ 150   2      #if(_LOCAL_DIMMING_SUPPORT == _ON)
+                      if(ScalerColorDCRGetLocalDimmingHistoEnable() == _TRUE)
+                      {
+                          ScalerColorDCRLocalDimmingStoreResult();
+              
+                          // release DCR data
+                          ScalerColorDCRDataRefreshControl(_ENABLE);
+                      }
+              #endif
+ 159   2          }
+ 160   1          if(GET_DCR_READY_STATUS() == _TRUE)
+ 161   1          {
+ 162   2      #if(_DCR_SUPPORT == _ON)
+ 163   2              UserInterfaceAdjustDCRHandler();
+ 164   2      #endif
+ 165   2      
+ 166   2      #if(_IAPS_SUPPORT == _ON)
+                      UserInterfaceAdjustIAPSHandler();
+              #endif
+ 169   2      
+C51 COMPILER V9.60.0.0   SYSCOLOR                                                          09/09/2025 18:16:56 PAGE 4   
+
+ 170   2      #if(_LOCAL_DIMMING_SUPPORT == _ON)
+                      UserCommonLocalDimmingHandler();
+              #endif
+ 173   2      
+ 174   2      #if(_GLOBAL_DIMMING_SUPPORT == _ON)
+                      UserCommonGlobalDimmingHandler();
+              #endif
+ 177   2          }
+ 178   1      
+ 179   1          CLR_DCR_READY_STATUS();
+ 180   1      
+ 181   1          // release DCR data
+ 182   1          ScalerColorDCRDataRefreshControl(_ENABLE);
+ 183   1      }
+ 184          #endif
+ 185          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     90    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  0 ERROR(S)

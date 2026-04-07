@@ -1,0 +1,210 @@
+C51 COMPILER V9.00   RL6432_SERIES_ROTATION                                                02/26/2026 13:42:59 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE RL6432_SERIES_ROTATION
+OBJECT MODULE PLACED IN .\Output\RL6432\RL6432_Series_Rotation.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE Kernel\Scaler\RL6432_Series_Scaler\Code\RL6432_Series_Rotation.c LARGE OPTI
+                    -MIZE(9,SPEED) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Syst
+                    -em\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFuncti
+                    -on\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scale
+                    -r\RL6432_Series_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\H
+                    -eader;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;
+                    -.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\H
+                    -eader) DEFINE(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\RL6432_Seri
+                    -es_Rotation.lst) OBJECT(.\Output\RL6432\RL6432_Series_Rotation.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6432_Series_Rotation.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+  20          //****************************************************************************
+  21          // DEFINITIONS / MACROS
+  22          //****************************************************************************
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          //****************************************************************************
+  33          // VARIABLE DECLARATIONS
+  34          //****************************************************************************
+  35          
+  36          //****************************************************************************
+  37          // FUNCTION DECLARATIONS
+  38          //****************************************************************************
+  39          void ScalerRotationControl(const StructSDRAMDataInfo *pstFIFOSize);
+  40          void ScalerRotationReset(void);
+  41          void ScalerRotationSetRotInputSlowerFasterStyle(bit bInputFasterStatus);
+  42          void ScalerRotationSetEnable(bit bEn);
+  43          void ScalerRotationResetProc(void);
+  44          
+  45          //****************************************************************************
+  46          // FUNCTION DEFINITIONS
+  47          //****************************************************************************
+C51 COMPILER V9.00   RL6432_SERIES_ROTATION                                                02/26/2026 13:42:59 PAGE 2   
+
+  48          //--------------------------------------------------
+  49          // Description  : Rotation control
+  50          // Input Value  : stFIFOSize --> FIFO Size
+  51          // Output Value : None
+  52          //--------------------------------------------------
+  53          void ScalerRotationControl(const StructSDRAMDataInfo *pstFIFOSize)
+  54          {
+  55   1          switch(GET_ROT_TYPE())
+  56   1          {
+  57   2              case _ROT_CW180:
+  58   2      #if(_DISPLAY_HOR_MIRROR_SUPPORT == _ON)
+                      case _ROT_HOR_MIRROR:
+              #endif
+  61   2                  DebugMessageFRC("R_Type", GET_ROT_TYPE());
+  62   2                  DebugMessageFRC("R_Size", GET_ROT_DISP_SIZE());
+  63   2                  DebugMessageFRC("R-IH", pstFIFOSize->usInputHWidth);
+  64   2                  DebugMessageFRC("R_IV", pstFIFOSize->usInputVHeight);
+  65   2                  DebugMessageFRC("R-OH", pstFIFOSize->usOutputHWidth);
+  66   2                  DebugMessageFRC("R_OV", pstFIFOSize->usOutputVHeight);
+  67   2      
+  68   2                  // Set Roation Enable
+  69   2                  ScalerRotationSetEnable(_ENABLE);
+  70   2      
+  71   2                  // Set Rotation Source Pixel Number
+  72   2                  ScalerSetBit(P20_F1_ROTATION_IN_WID_H, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (pstFIFOSize->usInput
+             -HWidth >> 8) & 0x0F);
+  73   2                  ScalerSetByte(P20_F2_ROTATION_IN_WID_L, (pstFIFOSize->usInputHWidth & 0xFF));
+  74   2      
+  75   2                  ScalerFRCControl(pstFIFOSize);
+  76   2      
+  77   2                  break;
+  78   2      
+  79   2      #if(_DISPLAY_VER_MIRROR_SUPPORT == _ON)
+                      case _ROT_VER_MIRROR:
+              
+                          ScalerFRCControl(pstFIFOSize);
+              
+                          break;
+              #endif
+  86   2      
+  87   2              default:
+  88   2                  break;
+  89   2          }
+  90   1      }
+  91          
+  92          //--------------------------------------------------
+  93          // Description  : Rotation Reset
+  94          // Input Value  : None
+  95          // Output Value : None
+  96          //--------------------------------------------------
+  97          void ScalerRotationReset(void)
+  98          {
+  99   1          switch(GET_ROT_TYPE())
+ 100   1          {
+ 101   2              case _ROT_CW180:
+ 102   2      #if(_DISPLAY_VER_MIRROR_SUPPORT == _ON)
+                      case _ROT_VER_MIRROR:
+              #endif
+ 105   2      
+ 106   2                  if(GET_MEMORY_FRAME_BUFFER() != _MEMORY_3_FRAME_BUFFER)
+ 107   2                  {
+ 108   3                      // Set CW180 reset
+C51 COMPILER V9.00   RL6432_SERIES_ROTATION                                                02/26/2026 13:42:59 PAGE 3   
+
+ 109   3                      ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~_BIT0, 0x00);
+ 110   3                      ScalerTimerWaitForEvent(_EVENT_IVS);
+ 111   3                      ScalerTimerWaitForEvent(_EVENT_IVS);
+ 112   3                      ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~_BIT0, _BIT0);
+ 113   3                  }
+ 114   2      
+ 115   2                  break;
+ 116   2      
+ 117   2              default:
+ 118   2                  break;
+ 119   2          }
+ 120   1      }
+ 121          
+ 122          //--------------------------------------------------
+ 123          // Description  : Set Rotation double switch style
+ 124          // Input Value  : bInputFasterStatus
+ 125          // Output Value : None
+ 126          //--------------------------------------------------
+ 127          void ScalerRotationSetRotInputSlowerFasterStyle(bit bInputFasterStatus)
+ 128          {
+ 129   1          // Rotation double switch style
+ 130   1          if(bInputFasterStatus == _FALSE)
+ 131   1          {
+ 132   2              // input slower than display
+ 133   2              ScalerSetBit(P5_F3_MN_TEST, ~_BIT1, 0x00);
+ 134   2          }
+ 135   1          else
+ 136   1          {
+ 137   2              // input faster than display
+ 138   2              ScalerSetBit(P5_F3_MN_TEST, ~_BIT1, _BIT1);
+ 139   2          }
+ 140   1      }
+ 141          
+ 142          //--------------------------------------------------
+ 143          // Description  : Set Rotation Enable/Disable
+ 144          // Input Value  : bEn --> Enable/Disable
+ 145          // Output Value : None
+ 146          //--------------------------------------------------
+ 147          void ScalerRotationSetEnable(bit bEn)
+ 148          {
+ 149   1          if(bEn == _DISABLE)
+ 150   1          {
+ 151   2              // Set Rotation Disable
+ 152   2              ScalerSetBit(P20_F0_ROTATION_CTRL0, ~(_BIT7), 0x00);
+ 153   2          }
+ 154   1          else
+ 155   1          {
+ 156   2              if(ScalerGetBit(P20_F0_ROTATION_CTRL0, _BIT7) == 0x00)
+ 157   2              {
+ 158   3                  // Set Rotation Enable
+ 159   3                  ScalerSetBit(P20_F0_ROTATION_CTRL0, ~(_BIT7), _BIT7);
+ 160   3              }
+ 161   2          }
+ 162   1      }
+ 163          
+ 164          //--------------------------------------------------
+ 165          // Description  : Reset function related to rotation
+ 166          // Input Value  : None
+ 167          // Output Value : None
+ 168          //--------------------------------------------------
+ 169          void ScalerRotationResetProc(void)
+ 170          {
+C51 COMPILER V9.00   RL6432_SERIES_ROTATION                                                02/26/2026 13:42:59 PAGE 4   
+
+ 171   1      }
+ 172          #endif // End of #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    151    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       3
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

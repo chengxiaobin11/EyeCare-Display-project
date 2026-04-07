@@ -1,0 +1,1134 @@
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERSYNC
+OBJECT MODULE PLACED IN .\Output\RL6449_Projecr\ScalerSync.obj
+COMPILER INVOKED BY: D:\ToolSort\KeilC51V812_\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerSync.c LARGE OPTIM
+                    -IZE(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Syste
+                    -m\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunctio
+                    -n\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kernel\Scaler
+                    -\RL6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Common\Lib\He
+                    -ader;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.
+                    -\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\He
+                    -ader) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_Projecr\Scal
+                    -erSync.lst) OBJECT(.\Output\RL6449_Projecr\ScalerSync.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerSync.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_SYNC__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          
+  25          //****************************************************************************
+  26          // STRUCT / TYPE / ENUM DEFINITTIONS
+  27          //****************************************************************************
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          #if(_FREESYNC_SUPPORT == _ON)
+  33          // unit: Hz (field unit)
+  34          BYTE code tVIC_VFREQ_TABLE[256] =
+  35          {
+  36              60, 60, 60, 60, 60, 60, 60, 60, 60, 60,                         // Vic 1~10
+  37              60, 60, 60, 60, 60, 60, 50, 50, 50, 50,                         // Vic 11~20
+  38              50, 50, 50, 50, 50, 50, 50, 50, 50, 50,                         // Vic 21~30
+  39              50, 24, 25, 30, 60, 60, 50, 50, 50, 100,                        // Vic 31~40
+  40              100, 100, 100, 100, 100, 120, 120, 120, 120, 120,              // Vic 41~50
+  41              120, 200, 200, 200, 200, 240, 240, 240, 240, 24,               // Vic 51~60
+  42              25, 30, 120, 100, 24, 25, 30, 50, 60, 100,                      // Vic 61~70
+  43              120, 24, 25, 30, 50, 60, 100, 120, 24, 25,                      // Vic 71~80
+  44              30, 50, 60, 100, 120, 24, 25, 30, 50, 60,                       // Vic 81~90
+  45              100, 120, 24, 25, 30, 50, 60, 24, 25, 30,                       // Vic 91~100
+  46              50, 60, 24, 25, 30, 50, 60, 48, 48, 48,                         // Vic 101~110
+  47              48, 48, 48, 48, 48, 48, 100, 120, 100, 120,                     // Vic 111~120
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 2   
+
+  48              24, 25, 30, 48, 50, 60, 100, 0, 0, 0,                           // Vic 121~130
+  49              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                    // Vic 131~140
+  50              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                    // Vic 141~150
+  51              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                    // Vic 151~160
+  52              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                    // Vic 161~170
+  53              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                    // Vic 171~180
+  54              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                    // Vic 181~190
+  55              0, 0, 120, 24, 25, 30, 48, 50, 60, 100,                         // Vic 191~200
+  56              120, 24, 25, 30, 48, 50, 60, 100, 120, 24,                     // Vic 201~210
+  57              25, 30, 48, 50, 60, 100, 120, 100, 120, 0,                     // Vic 211~220
+  58          };
+  59          
+  60          WORD code tVIC_HACTIVE_TABLE[256] =
+  61          {
+  62              640, 720, 720, 1280, 1920, 1440, 1440, 1440, 1440, 2880,        // Vic 1~10
+  63              2880, 2880, 2880, 1440, 1440, 1920, 720, 720, 1280, 1920,       // Vic 11~20
+  64              1440, 1440, 1440, 1440, 2880, 2880, 2880, 2880, 1440, 1440,     // Vic 21~30
+  65              1920, 1920, 1920, 1920, 2880, 2880, 2880, 2880, 1920, 1920,     // Vic 31~40
+  66              1280, 720, 720, 1440, 1440, 1920, 1280, 720, 720, 1440,         // Vic 41~50
+  67              1440, 720, 720, 1440, 1440, 720, 720, 1440, 1440, 1280,         // Vic 51~60
+  68              1280, 1280, 1920, 1920, 1280, 1280, 1280, 1280, 1280, 1280,    // Vic 61~70
+  69              1280, 1920, 1920, 1920, 1920, 1920, 1920, 1920, 1680, 1680,    // Vic 71~80
+  70              1680, 1680, 1680, 1680, 1680, 2560, 2560, 2560, 2560, 2560,    // Vic 81~90
+  71              2560, 2560, 3840, 3840, 3840, 3840, 3840, 4096, 4096, 4096,    // Vic 91~100
+  72              4096, 4096, 3840, 3840, 3840, 3840, 3840, 1280, 1280, 1680,    // Vic 101~110
+  73              1920, 1920, 2560, 3840, 4096, 3840, 3840, 3840, 3840, 3840,    // Vic 111~120
+  74              5120, 5120, 5120, 5120, 5120, 5120, 5120, 0, 0, 0,              // Vic 121~130
+  75              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 131~140
+  76              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 141~150
+  77              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 151~160
+  78              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 161~170
+  79              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 171~180
+  80              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 181~190
+  81              0, 0, 5120, 7680, 7680, 7680, 7680, 7680, 7680, 7680,          // Vic 191~200
+  82              7680, 7680, 7680, 7690, 7690, 7680, 7680, 7680, 7680, 10240,  // Vic 201~210
+  83              10240, 10240, 10240, 10240, 10240, 1080, 10240, 4096, 4096, 0, // Vic 211~220
+  84          };
+  85          
+  86          WORD code tVIC_HBLANK_TABLE[256] =
+  87          {
+  88              160, 138, 138, 370, 280, 276, 276, 276, 276, 552,               // Vic 1~10
+  89              552, 552, 552, 276, 276, 280, 144, 144, 700, 720,               // Vic 11~20
+  90              288, 288, 288, 288, 576, 576, 576, 576, 288, 288,               // Vic 21~30
+  91              720, 830, 720, 280, 552, 552, 576, 576, 384, 720,               // Vic 31~40
+  92              700, 144, 144, 288, 288, 280, 370, 138, 138, 276,               // Vic 41~50
+  93              276, 144, 144, 288, 288, 138, 138, 276, 276, 2020,             // Vic 51~60
+  94              2680, 2020, 280, 720, 2020, 2680, 2020, 700, 370, 700,         // Vic 61~70
+  95              370, 830, 720, 280, 720, 280, 720, 280, 1620, 1488,            // Vic 71~80
+  96              960, 520, 520, 320, 320, 1190, 640, 960, 740, 440,             // Vic 81~90
+  97              410, 740, 1660, 1440, 560, 1440, 560, 1404, 1184, 304,         // Vic 91~100
+  98              1184, 304, 1660, 1440, 560, 1440, 560, 1220, 1220, 1070,       // Vic 101~110
+  99              830, 830, 1190, 1660, 1404, 1660, 1440, 560, 1440, 560,        // Vic 111~120
+ 100              2380, 2080, 880, 1130, 1480, 380, 1480, 0, 0, 0,                // Vic 121~130
+ 101              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 131~140
+ 102              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 141~150
+ 103              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 151~160
+ 104              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 161~170
+ 105              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 171~180
+ 106              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 181~190
+ 107              0, 0, 380, 3320, 3120, 1320, 3320, 3120, 1320, 2880,           // Vic 191~200
+ 108              1120, 3320, 3120, 1320, 3320, 3120, 1320, 2880, 1120, 2260,   // Vic 201~210
+ 109              3260, 760, 2260, 3260, 760, 2960, 760, 1184, 304, 0,           // Vic 211~220
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 3   
+
+ 110          };
+ 111          
+ 112          // unit: 0.1 MHz (frame unit)
+ 113          WORD code tVIC_VACTIVE_TABLE[256] =
+ 114          {
+ 115              480, 480, 480, 720, 1080, 480, 480, 240, 240, 480,              // Vic 1~10
+ 116              480, 240, 240, 480, 480, 1080, 576, 576, 1280, 1080,            // Vic 11~20
+ 117              576, 576, 288, 288, 576, 576, 288, 288, 576, 576,               // Vic 21~30
+ 118              1080, 1080, 1080, 1080, 480, 480, 576, 576, 1080, 1080,        // Vic 31~40
+ 119              720, 576, 576, 576, 576, 1080, 720, 480, 480, 480,              // Vic 41~50
+ 120              480, 576, 576, 576, 576, 576, 576, 480, 480, 720,               // Vic 51~60
+ 121              720, 720, 1080, 1080, 720, 720, 720, 1280, 720, 720,            // Vic 61~70
+ 122              720, 1080, 1080, 1080, 1080, 1080, 1080, 1080, 720, 720,        // Vic 71~80
+ 123              720, 720, 720, 720, 720, 1080, 1080, 1080, 1080, 1080,          // Vic 81~90
+ 124              1080, 1080, 2160, 2160, 2160, 2160, 2160, 2160, 2160, 2160,    // Vic 91~100
+ 125              2160, 2160, 2160, 2160, 2160, 2160, 2160, 720, 720, 720,        // Vic 101~110
+ 126              1080, 1080, 1080, 2160, 2160, 2160, 2160, 2160, 2160, 2160,    // Vic 111~120
+ 127              2160, 2160, 2160, 2160, 2160, 2160, 2160, 0, 0, 0,              // Vic 121~130
+ 128              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 131~140
+ 129              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 141~150
+ 130              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 151~160
+ 131              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 161~170
+ 132              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 171~180
+ 133              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                     // Vic 181~190
+ 134              0, 0, 2160, 4320, 4320, 4320, 4320, 4320, 4320, 4320,          // Vic 191~200
+ 135              4320, 4320, 4320, 4320, 4320, 4320, 4320, 4320, 4320, 4320,   // Vic 201~210
+ 136              4320, 4320, 4320, 4320, 4320, 4320, 4320, 2160, 2160, 0,      // Vic 211~220
+ 137          };
+ 138          
+ 139          // unit: 0.1 MHz (field unit)
+ 140          WORD code tVIC_PIXEL_RATE_TABLE[256] =
+ 141          {
+ 142              252, 270, 270, 743, 743, 270, 270, 270, 270, 540,                            // Vic 1~10
+ 143              540, 540, 540, 540, 540, 1485, 270, 270, 743, 743,                           // Vic 11~20
+ 144              270, 270, 270, 270, 540, 540, 540, 540, 540, 540,                            // Vic 21~30
+ 145              1485, 743, 743, 743, 1080, 1080, 1080, 1080, 720, 1485,                     // Vic 31~40
+ 146              1485, 540, 540, 540, 540, 1485, 1485, 540, 540, 540,                        // Vic 41~50
+ 147              540, 1080, 1080, 1080, 1080, 1080, 1080, 1080, 1080, 594,                   // Vic 51~60
+ 148              743, 743, 2970, 2970, 594, 743, 743, 743, 743, 1485,                        // Vic 61~70
+ 149              1485, 743, 743, 743, 1485, 1485, 2970, 2970, 594, 594,                      // Vic 71~80
+ 150              594, 825, 990, 1650, 1980, 990, 990, 1188, 1856, 1980,                      // Vic 81~90
+ 151              3713, 4950, 2970, 2970, 2970, 5940, 5940, 2970, 2970, 2970,                 // Vic 91~100
+ 152              5940, 5940, 2970, 2970, 2970, 5940, 5940, 900, 900, 990,                    // Vic 101~110
+ 153              1485, 1485, 1980, 5940, 5940, 5940, 11880, 11880, 11880, 11880,             // Vic 111~120
+ 154              3960, 3960, 3960, 7425, 7425, 7425, 14850, 0, 0, 0,                          // Vic 121~130
+ 155              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                                   // Vic 131~140
+ 156              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                                    // Vic 141~150
+ 157              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                                   // Vic 151~160
+ 158              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                                   // Vic 161~170
+ 159              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                                   // Vic 171~180
+ 160              0, 0, 0, 0, 0, 0, 0, 0, 0, 0,                                                    // Vic 181~190
+ 161              0, 0, 14850, 11880, 11880, 11880, 23760, 23760, 23760, 47520,               // Vic 191~200
+ 162              47520, 11880, 11880, 11880, 23760, 23760, 23760, 47520, 47520, 14850,      // Vic 201~210
+ 163              14850, 14850, 29700, 29700, 29700, 59400, 59400, 11880, 11880, 0,           // Vic 211~220
+ 164          };
+ 165          
+ 166          BYTE code tInterlaceVic[] =
+ 167          {
+ 168              20, 21, 22, 25, 26, 39, 5, 6, 7, 10, 11, 40, 44, 45, 46, 50, 51, 54, 55, 58, 59,
+ 169          };
+ 170          #endif
+ 171          
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 4   
+
+ 172          //****************************************************************************
+ 173          // VARIABLE DECLARATIONS
+ 174          //****************************************************************************
+ 175          #if(_DDR_BURN_IN_TEST == _ON)
+              bit g_bDDRDdomainGetGlobalCrc = _FALSE;
+              BYTE g_pucDDRDDomainM1CRCValue[6];
+              BYTE g_pucDDRDDomainM2CRCValue[6];
+              #endif
+ 180          
+ 181          #if(_DP_SUPPORT == _ON)
+ 182          #if(_HW_DIGITAL_PORT_COMBO_PHY_TYPE != _DIGITAL_PORT_COMBO_PHY_ALL)
+ 183          WORD g_usSyncDpVcoTargetCount1000RBR;
+ 184          WORD g_usSyncDpVcoTargetCount1000HBR;
+ 185          WORD g_usSyncDpVcoTargetCount1000HBR2;
+ 186          
+ 187          WORD g_usSyncDpVcoTargetCount2000RBR;
+ 188          WORD g_usSyncDpVcoTargetCount2000HBR;
+ 189          WORD g_usSyncDpVcoTargetCount2000HBR2;
+ 190          
+ 191          WORD g_usSyncDpCountSSTUpperBound2000RBR;
+ 192          WORD g_usSyncDpCountSSTUpperBound2000HBR;
+ 193          WORD g_usSyncDpCountSSTUpperBound2000HBR2;
+ 194          
+ 195          WORD g_usSyncDpCountSSTLowerBound2000RBR;
+ 196          WORD g_usSyncDpCountSSTLowerBound2000HBR;
+ 197          WORD g_usSyncDpCountSSTLowerBound2000HBR2;
+ 198          
+ 199          WORD g_usSyncDpCountMSTUpperBound2000RBR;
+ 200          WORD g_usSyncDpCountMSTUpperBound2000HBR;
+ 201          WORD g_usSyncDpCountMSTUpperBound2000HBR2;
+ 202          
+ 203          WORD g_usSyncDpCountMSTLowerBound2000RBR;
+ 204          WORD g_usSyncDpCountMSTLowerBound2000HBR;
+ 205          WORD g_usSyncDpCountMSTLowerBound2000HBR2;
+ 206          
+ 207          WORD g_usSyncDpCountD10P2UpperBound1000RBR;
+ 208          WORD g_usSyncDpCountD10P2UpperBound1000HBR;
+ 209          WORD g_usSyncDpCountD10P2UpperBound1000HBR2;
+ 210          
+ 211          WORD g_usSyncDpCountD10P2LowerBound1000RBR;
+ 212          WORD g_usSyncDpCountD10P2LowerBound1000HBR;
+ 213          WORD g_usSyncDpCountD10P2LowerBound1000HBR2;
+ 214          #endif
+ 215          #endif
+ 216          
+ 217          //****************************************************************************
+ 218          // FUNCTION DECLARATIONS
+ 219          //****************************************************************************
+ 220          #if((_FREESYNC_SUPPORT == _ON) || (_EMBEDDED_EDID_SUPPORT == _ON) || (_DP_TX_EDID_MODIFY_REMOVE_HDR_FS2_SU
+             -PPORT == _ON))
+ 221          void ScalerSyncGetCtaExtDbAddress(WORD *pusCtaDataBlockAddr, BYTE *pucDdcRamAddr);
+ 222          void ScalerSyncGetDidExtDbAddress(WORD *pusDidDataBlockAddr, BYTE *pucDdcRamAddr);
+ 223          void ScalerSyncGetDidCtaExtDbAddress(WORD *pusDidDataBlockAddr, BYTE *pucDdcRamAddr);
+ 224          #endif
+ 225          
+ 226          #if(_DP_SUPPORT == _ON)
+ 227          #if(_HW_DIGITAL_PORT_COMBO_PHY_TYPE != _DIGITAL_PORT_COMBO_PHY_ALL)
+ 228          void ScalerSyncDpMeasureCountInitial(void);
+ 229          #endif
+ 230          
+ 231          WORD ScalerSyncGetDpRxPortEdidBw(EnumDpEdidPort enumDpEdidPort);
+ 232          #endif
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 5   
+
+ 233          
+ 234          #if(_ADC_SUPPORT == _ON)
+ 235          void ScalerSyncAdcApllPowerDown(void);
+ 236          void ScalerSyncAdcPowerProc(EnumPowerAction enumPowerAction);
+ 237          #endif
+ 238          
+ 239          #if(_DDR_BURN_IN_TEST == _ON)
+              void ScalerSyncDDRBurnInCRCTest(void);
+              BYTE ScalerSyncDDRResultCRC(void);
+              void ScalerSyncDDREnableCRCFunction(bit bEnable);
+              #endif
+ 244          
+ 245          //****************************************************************************
+ 246          // FUNCTION DEFINITIONS
+ 247          //****************************************************************************
+ 248          #if((_FREESYNC_SUPPORT == _ON) || (_EMBEDDED_EDID_SUPPORT == _ON) || (_DP_TX_EDID_MODIFY_REMOVE_HDR_FS2_SU
+             -PPORT == _ON))
+ 249          //--------------------------------------------------
+ 250          // Description  : Get DPF Edid Extersion Data Block Start Address
+ 251          // Input Value  : enumOutputPort (Px), Cta Ext DB Addr Arrary
+ 252          // Output Value :
+ 253          //--------------------------------------------------
+ 254          void ScalerSyncGetCtaExtDbAddress(WORD *pusCtaDataBlockAddr, BYTE *pucDdcRamAddr)
+ 255          {
+ 256   1          WORD usEDIDDataBlockStartAddress = 0x84;
+ 257   1          WORD usCtaBlockDtdStartAddr = 0x84;
+ 258   1      
+ 259   1          BYTE ucReadVSDBDataBlockNum = 0x00;
+ 260   1          BYTE ucEDIDBlockBytesNum = 0x00;
+ 261   1          EnumEdidCtaDbTagCode enumTag = _CTA_DBTAG_NONE;
+ 262   1      
+ 263   1          // With Extension Block
+ 264   1          if(pucDdcRamAddr[0x7E] != 0x00)
+ 265   1          {
+ 266   2              WORD usIndex = 0;
+ 267   2              BYTE ucExtBlockNum = 0;
+ 268   2      
+ 269   2              // Check HF EEODB
+ 270   2              if(((pucDdcRamAddr[0x84] & 0xE0) == 0xE0) && (pucDdcRamAddr[0x85] == 0x78))
+ 271   2              {
+ 272   3                  ucExtBlockNum = pucDdcRamAddr[0x86];
+ 273   3              }
+ 274   2              else
+ 275   2              {
+ 276   3                  ucExtBlockNum = pucDdcRamAddr[0x7E];
+ 277   3              }
+ 278   2      
+ 279   2              for(usIndex = 0; usIndex < ucExtBlockNum; usIndex++)
+ 280   2              {
+ 281   3                  // Stop Extension Analysis if Not CEA Type, Check tag = 0x02
+ 282   3                  if(pucDdcRamAddr[(usIndex + 1) * 0x80] == _CTA_EXTENSION_TAG)
+ 283   3                  {
+ 284   4                      usEDIDDataBlockStartAddress = ((usIndex + 1) * 0x80) + 0x04;
+ 285   4      
+ 286   4                      usCtaBlockDtdStartAddr = pucDdcRamAddr[((usIndex + 1) * 0x80) + 0x02] + ((usIndex + 1) * 0
+             -x80);
+ 287   4      
+ 288   4                      if((pucDdcRamAddr[((usIndex + 1) * 0x80) + 0x02] == 4) || (pucDdcRamAddr[((usIndex + 1) * 
+             -0x80) + 0x02] == 0))
+ 289   4                      {
+ 290   5                          // No Data Block Situation => d = 4, Record Cta Extend Block 1st DTD Start Addr, Searc
+             -h other Block.
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 6   
+
+ 291   5                          // No DTD & No Data Block Situation => d = 0, Record Cta Extend Block 1st DTD Start Ad
+             -dr, Search other Block.
+ 292   5                          // Generally, the _FIRST_EXT_DTD_ADDR also meaning the last Data Block + 1.
+ 293   5                          pusCtaDataBlockAddr[_FIRST_EXT_DTD_ADDR] = usEDIDDataBlockStartAddress;
+ 294   5                          continue;
+ 295   5                      }
+ 296   4      
+ 297   4                      // Data Block Address Scan
+ 298   4                      while((usEDIDDataBlockStartAddress < usCtaBlockDtdStartAddr) && (ucReadVSDBDataBlockNum <=
+             - 0x0F))
+ 299   4                      {
+ 300   5                          ucReadVSDBDataBlockNum = (ucReadVSDBDataBlockNum + 1);
+ 301   5                          enumTag = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0xE0) >> 5;
+ 302   5      
+ 303   5                          switch(enumTag)
+ 304   5                          {
+ 305   6                              // Extension Data Block, Check Tag Code
+ 306   6                              case _CTA_DBTAG_EXTTAG:
+ 307   6      
+ 308   6                                  ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 309   6      
+ 310   6                                  // Check Tag Code of Extension Data Block
+ 311   6                                  switch(pucDdcRamAddr[usEDIDDataBlockStartAddress + 1])
+ 312   6                                  {
+ 313   7                                      case _CTA_EXTDBTAG_VCDB:
+ 314   7                                          pusCtaDataBlockAddr[_CTA_VCDB] = usEDIDDataBlockStartAddress;
+ 315   7                                          break;
+ 316   7      
+ 317   7                                      case _CTA_EXTDBTAG_COLORDB:
+ 318   7      
+ 319   7                                          pusCtaDataBlockAddr[_CTA_CDB] = usEDIDDataBlockStartAddress;
+ 320   7                                          break;
+ 321   7      
+ 322   7                                      case _CTA_EXTDBTAG_SHDR_DB:
+ 323   7      
+ 324   7                                          pusCtaDataBlockAddr[_CTA_SHDR_DB] = usEDIDDataBlockStartAddress;
+ 325   7                                          break;
+ 326   7      
+ 327   7                                      case _CTA_EXTDBTAG_420VDB:
+ 328   7      
+ 329   7                                          pusCtaDataBlockAddr[_CTA_420VDB] = usEDIDDataBlockStartAddress;
+ 330   7                                          break;
+ 331   7      
+ 332   7                                      case _CTA_EXTDBTAG_420CMDB:
+ 333   7      
+ 334   7                                          pusCtaDataBlockAddr[_CTA_420CMDB] = usEDIDDataBlockStartAddress;
+ 335   7                                          break;
+ 336   7      
+ 337   7                                      case _CTA_EXTDBTAG_HFEEODB:
+ 338   7      
+ 339   7                                          pusCtaDataBlockAddr[_CTA_HF_EEODB] = usEDIDDataBlockStartAddress;
+ 340   7                                          break;
+ 341   7      
+ 342   7                                      // HF-SCDB (same as HF-VSDB)
+ 343   7                                      case _CTA_EXTDBTAG_HFSCDB:
+ 344   7      
+ 345   7                                          pusCtaDataBlockAddr[_CTA_HF_VSDB] = usEDIDDataBlockStartAddress;
+ 346   7                                          break;
+ 347   7      
+ 348   7                                      case _CTA_EXTDBTAG_T7_VTDB:
+ 349   7      
+ 350   7                                          pusCtaDataBlockAddr[_CTA_T7_VTDB] = usEDIDDataBlockStartAddress;
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 7   
+
+ 351   7                                          break;
+ 352   7      
+ 353   7                                      default:
+ 354   7                                          break;
+ 355   7                                  }
+ 356   6      
+ 357   6                                  usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlockBy
+             -tesNum);
+ 358   6      
+ 359   6                                  break;
+ 360   6      
+ 361   6                              // Vender-Specific Data Block
+ 362   6                              case _CTA_DBTAG_VSDB:
+ 363   6      
+ 364   6                                  ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 365   6      
+ 366   6                                  // HF-VSDB Analysis
+ 367   6                                  if((pucDdcRamAddr[usEDIDDataBlockStartAddress + 1] == 0xD8) &&
+ 368   6                                     (pucDdcRamAddr[usEDIDDataBlockStartAddress + 2] == 0x5D) &&
+ 369   6                                     (pucDdcRamAddr[usEDIDDataBlockStartAddress + 3] == 0xC4))
+ 370   6                                  {
+ 371   7                                      pusCtaDataBlockAddr[_CTA_HF_VSDB] = usEDIDDataBlockStartAddress;
+ 372   7                                  }
+ 373   6                                  else  if((pucDdcRamAddr[usEDIDDataBlockStartAddress + 1] == 0x03) &&
+ 374   6                                          (pucDdcRamAddr[usEDIDDataBlockStartAddress + 2] == 0x0C) &&
+ 375   6                                          (pucDdcRamAddr[usEDIDDataBlockStartAddress + 3] == 0x00))
+ 376   6                                  {
+ 377   7                                      pusCtaDataBlockAddr[_CTA_HDMI_VSDB] = usEDIDDataBlockStartAddress;
+ 378   7                                  }
+ 379   6                                  else  if((pucDdcRamAddr[usEDIDDataBlockStartAddress + 1] == 0x1A) &&
+ 380   6                                          (pucDdcRamAddr[usEDIDDataBlockStartAddress + 2] == 0x00) &&
+ 381   6                                          (pucDdcRamAddr[usEDIDDataBlockStartAddress + 3] == 0x00))
+ 382   6                                  {
+ 383   7                                      pusCtaDataBlockAddr[_CTA_FS_DB] = usEDIDDataBlockStartAddress;
+ 384   7                                  }
+ 385   6      
+ 386   6                                  usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlockBy
+             -tesNum);
+ 387   6      
+ 388   6                                  break;
+ 389   6      
+ 390   6                              // Video Data Block
+ 391   6                              case _CTA_DBTAG_VDB:
+ 392   6      
+ 393   6                                  ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 394   6      
+ 395   6                                  pusCtaDataBlockAddr[_CTA_VDB] = usEDIDDataBlockStartAddress;
+ 396   6                                  usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlockBy
+             -tesNum);
+ 397   6      
+ 398   6                                  break;
+ 399   6      
+ 400   6                              // Audio Data Block
+ 401   6                              case _CTA_DBTAG_ADB:
+ 402   6                                  ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 403   6      
+ 404   6                                  pusCtaDataBlockAddr[_CTA_ADB] = usEDIDDataBlockStartAddress;
+ 405   6                                  usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlockBy
+             -tesNum);
+ 406   6      
+ 407   6                                  break;
+ 408   6      
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 8   
+
+ 409   6                              default:
+ 410   6      
+ 411   6                                  ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 412   6                                  // Not Data Block
+ 413   6                                  if(ucEDIDBlockBytesNum == 0)
+ 414   6                                  {
+ 415   7                                      // Set value to end while
+ 416   7                                      ucReadVSDBDataBlockNum = 0x10;
+ 417   7                                  }
+ 418   6                                  else
+ 419   6                                  {
+ 420   7                                      usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlo
+             -ckBytesNum);
+ 421   7                                  }
+ 422   6      
+ 423   6                                  break;
+ 424   6                          }
+ 425   5                      }
+ 426   4      
+ 427   4                      // Record first Cta Block DTD Start Addr
+ 428   4                      pusCtaDataBlockAddr[_FIRST_EXT_DTD_ADDR] = usEDIDDataBlockStartAddress;
+ 429   4                  }
+ 430   3              } // End of Extension Block Analysis For Loop
+ 431   2          }
+ 432   1      }
+ 433          
+ 434          //--------------------------------------------------
+ 435          // Description  : Get DPF Edid Extersion Data Block Start Address
+ 436          // Input Value  : enumOutputPort (Px), Cta Ext DB Addr Arrary
+ 437          // Output Value :
+ 438          //--------------------------------------------------
+ 439          void ScalerSyncGetDidExtDbAddress(WORD *pusDidDataBlockAddr, BYTE *pucDdcRamAddr)
+ 440          {
+ 441   1          WORD usEDIDDataBlockStartAddress = 0x00;
+ 442   1          WORD usEDIDDidChecksumAddress = 0x00;
+ 443   1          BYTE ucReadVSDBDataBlockNum = 0x00;
+ 444   1          BYTE ucEDIDBlockBytesNum = 0x00;
+ 445   1      
+ 446   1          // With Extension Block
+ 447   1          if(pucDdcRamAddr[0x7E] != 0x00)
+ 448   1          {
+ 449   2              BYTE ucIndex = 0;
+ 450   2              BYTE ucExtBlockNum = 0;
+ 451   2      
+ 452   2              // Check HF EEODB
+ 453   2              if(((pucDdcRamAddr[0x84] & 0xE0) == 0xE0) && (pucDdcRamAddr[0x85] == 0x78))
+ 454   2              {
+ 455   3                  ucExtBlockNum = pucDdcRamAddr[0x86];
+ 456   3              }
+ 457   2              else
+ 458   2              {
+ 459   3                  ucExtBlockNum = pucDdcRamAddr[0x7E];
+ 460   3              }
+ 461   2      
+ 462   2              for(ucIndex = 0; ucIndex < ucExtBlockNum; ucIndex++)
+ 463   2              {
+ 464   3                  // Stop Extension Analysis if Not DID Type, Check tag = 0x70
+ 465   3                  if(pucDdcRamAddr[((WORD)ucIndex + 1) * 0x80] == _DID_EXTENSION_TAG)
+ 466   3                  {
+ 467   4                      bit bEndOfDidExt = _FALSE;
+ 468   4      
+ 469   4                      usEDIDDataBlockStartAddress = 0x85 + ((WORD)(ucIndex) * 0x80);
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 9   
+
+ 470   4                      usEDIDDidChecksumAddress = 0x85 + pucDdcRamAddr[(WORD)ucIndex * 0x80 + 0x82] + ((WORD)(ucI
+             -ndex) * 0x80);
+ 471   4      
+ 472   4                      // Data Block Address Scan
+ 473   4                      while((usEDIDDataBlockStartAddress < usEDIDDidChecksumAddress) && (ucReadVSDBDataBlockNum 
+             -<= 0x0F))
+ 474   4                      {
+ 475   5                          ucReadVSDBDataBlockNum = (ucReadVSDBDataBlockNum + 1);
+ 476   5      
+ 477   5                          switch(pucDdcRamAddr[usEDIDDataBlockStartAddress])
+ 478   5                          {
+ 479   6                              // Timing 1 DB (20B, Detail)
+ 480   6                              case _DID13_TAG_T1DB:
+ 481   6      
+ 482   6                                  ucEDIDBlockBytesNum = pucDdcRamAddr[usEDIDDataBlockStartAddress + 2];
+ 483   6      
+ 484   6                                  pusDidDataBlockAddr[_DID_T1_DB] = usEDIDDataBlockStartAddress;
+ 485   6                                  usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 3 + ucEDIDBlockBy
+             -tesNum);
+ 486   6      
+ 487   6                                  break;
+ 488   6      
+ 489   6                              // Timing 7 DB (20B, Detail)
+ 490   6                              case _DID2_TAG_T7DB:
+ 491   6      
+ 492   6                                  ucEDIDBlockBytesNum = pucDdcRamAddr[usEDIDDataBlockStartAddress + 2];
+ 493   6      
+ 494   6                                  pusDidDataBlockAddr[_DID_T7_DB] = usEDIDDataBlockStartAddress;
+ 495   6                                  usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 3 + ucEDIDBlockBy
+             -tesNum);
+ 496   6      
+ 497   6                                  break;
+ 498   6      
+ 499   6                              // Timing 10 DTD (CVT3)
+ 500   6                              case _DID2_TAG_T10DB:
+ 501   6      
+ 502   6                                  ucEDIDBlockBytesNum = pucDdcRamAddr[usEDIDDataBlockStartAddress + 2];
+ 503   6      
+ 504   6                                  pusDidDataBlockAddr[_DID_T10_DB] = usEDIDDataBlockStartAddress;
+ 505   6                                  usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 3 + ucEDIDBlockBy
+             -tesNum);
+ 506   6      
+ 507   6                                  break;
+ 508   6      
+ 509   6                              // Timing AS DTD
+ 510   6                              case _DID2_TAG_ASDB:
+ 511   6      
+ 512   6                                  ucEDIDBlockBytesNum = pucDdcRamAddr[usEDIDDataBlockStartAddress + 2];
+ 513   6      
+ 514   6                                  pusDidDataBlockAddr[_DID_AS_DB] = usEDIDDataBlockStartAddress;
+ 515   6                                  usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 3 + ucEDIDBlockBy
+             -tesNum);
+ 516   6      
+ 517   6                                  break;
+ 518   6      
+ 519   6                              // Timing CTA DTD
+ 520   6                              case _DID_TAG_CTADB:
+ 521   6      
+ 522   6                                  ucEDIDBlockBytesNum = pucDdcRamAddr[usEDIDDataBlockStartAddress + 2];
+ 523   6      
+ 524   6                                  pusDidDataBlockAddr[_DID_CTA_DB] = usEDIDDataBlockStartAddress;
+ 525   6      
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 10  
+
+ 526   6                                  // Scan CTA Data Block in DID Ext Data Block
+ 527   6                                  ScalerSyncGetDidCtaExtDbAddress(pusDidDataBlockAddr, pucDdcRamAddr);
+ 528   6      
+ 529   6                                  usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 3 + ucEDIDBlockBy
+             -tesNum);
+ 530   6      
+ 531   6                                  break;
+ 532   6      
+ 533   6                              default:
+ 534   6      
+ 535   6                                  ucEDIDBlockBytesNum = pucDdcRamAddr[usEDIDDataBlockStartAddress + 2];
+ 536   6      
+ 537   6                                  if(((pucDdcRamAddr[usEDIDDataBlockStartAddress]) == 0x00) && (ucEDIDBlockBytes
+             -Num == 0x00))
+ 538   6                                  {
+ 539   7                                      // End of DB Area
+ 540   7                                      bEndOfDidExt = _TRUE;
+ 541   7                                  }
+ 542   6                                  else
+ 543   6                                  {
+ 544   7                                      usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 3 + ucEDIDBlo
+             -ckBytesNum);
+ 545   7                                  }
+ 546   6                                  break;
+ 547   6                          }
+ 548   5      
+ 549   5                          if(bEndOfDidExt == _TRUE)
+ 550   5                          {
+ 551   6                              break;
+ 552   6                          }
+ 553   5                      }
+ 554   4                  }
+ 555   3              } // End of Extension Block Analysis For Loop
+ 556   2          }
+ 557   1      }
+ 558          
+ 559          //--------------------------------------------------
+ 560          // Description  : Get DPF Edid Extersion Data Block Start Address
+ 561          // Input Value  : enumOutputPort (Px), Cta Ext DB Addr Arrary
+ 562          // Output Value :
+ 563          //--------------------------------------------------
+ 564          void ScalerSyncGetDidCtaExtDbAddress(WORD *pusDidDataBlockAddr, BYTE *pucDdcRamAddr)
+ 565          {
+ 566   1          WORD usEDIDDataBlockStartAddress = 0x00;
+ 567   1          WORD usEDIDDataBlockEndAddress = 0x00;
+ 568   1      
+ 569   1          BYTE ucReadVSDBDataBlockNum = 0x00;
+ 570   1          BYTE ucEDIDBlockBytesNum = 0x00;
+ 571   1          EnumEdidCtaDbTagCode enumTag = _CTA_DBTAG_NONE;
+ 572   1      
+ 573   1          usEDIDDataBlockStartAddress = pusDidDataBlockAddr[_DID_CTA_DB] + 0x03;
+ 574   1          usEDIDDataBlockEndAddress = usEDIDDataBlockStartAddress + pucDdcRamAddr[pusDidDataBlockAddr[_DID_CTA_D
+             -B] + 0x02];
+ 575   1      
+ 576   1          // Data Block Address Scan
+ 577   1          while((usEDIDDataBlockStartAddress < usEDIDDataBlockEndAddress) && (ucReadVSDBDataBlockNum <= 0x0F))
+ 578   1          {
+ 579   2              ucReadVSDBDataBlockNum = (ucReadVSDBDataBlockNum + 1);
+ 580   2              enumTag = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0xE0) >> 5;
+ 581   2      
+ 582   2              switch(enumTag)
+ 583   2              {
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 11  
+
+ 584   3                  // Extension Data Block, Check Tag Code
+ 585   3                  case _CTA_DBTAG_EXTTAG:
+ 586   3      
+ 587   3                      DebugMessageMst("EDID DID CTA EXT", usEDIDDataBlockStartAddress);
+ 588   3      
+ 589   3                      ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 590   3      
+ 591   3                      // Check Tag Code of Extension Data Block
+ 592   3                      switch(pucDdcRamAddr[usEDIDDataBlockStartAddress + 1])
+ 593   3                      {
+ 594   4                          case _CTA_EXTDBTAG_SHDR_DB:
+ 595   4      
+ 596   4                              pusDidDataBlockAddr[_DID_CTA_SHDR_DB] = usEDIDDataBlockStartAddress;
+ 597   4                              break;
+ 598   4      
+ 599   4                          default:
+ 600   4                              break;
+ 601   4                      }
+ 602   3      
+ 603   3                      usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlockBytesNum);
+ 604   3      
+ 605   3                      break;
+ 606   3      
+ 607   3                  // Vender-Specific Data Block
+ 608   3                  case _CTA_DBTAG_VSDB:
+ 609   3                      DebugMessageMst("EDID DID CTA _CTA_DBTAG_VSDB", usEDIDDataBlockStartAddress);
+ 610   3      
+ 611   3                      ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 612   3      
+ 613   3                      // HF-VSDB Analysis
+ 614   3                      if((pucDdcRamAddr[usEDIDDataBlockStartAddress + 1] == 0x1A) &&
+ 615   3                         (pucDdcRamAddr[usEDIDDataBlockStartAddress + 2] == 0x00) &&
+ 616   3                         (pucDdcRamAddr[usEDIDDataBlockStartAddress + 3] == 0x00))
+ 617   3                      {
+ 618   4                          pusDidDataBlockAddr[_DID_CTA_FS_DB] = usEDIDDataBlockStartAddress;
+ 619   4                      }
+ 620   3      
+ 621   3                      usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlockBytesNum);
+ 622   3      
+ 623   3                      break;
+ 624   3      
+ 625   3                  // Video Data Block
+ 626   3                  case _CTA_DBTAG_VDB:
+ 627   3                      DebugMessageMst("EDID DID CTA _CTA_DBTAG_VDB", usEDIDDataBlockStartAddress);
+ 628   3                      ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 629   3                      usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlockBytesNum);
+ 630   3      
+ 631   3                      break;
+ 632   3      
+ 633   3                  // Audio Data Block
+ 634   3                  case _CTA_DBTAG_ADB:
+ 635   3                      DebugMessageMst("EDID DID CTA _CTA_DBTAG_ADB", usEDIDDataBlockStartAddress);
+ 636   3                      ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 637   3                      usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlockBytesNum);
+ 638   3      
+ 639   3                      break;
+ 640   3      
+ 641   3                  default:
+ 642   3      
+ 643   3                      ucEDIDBlockBytesNum = (pucDdcRamAddr[usEDIDDataBlockStartAddress] & 0x1F);
+ 644   3                      // Not Data Block
+ 645   3                      if(ucEDIDBlockBytesNum == 0)
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 12  
+
+ 646   3                      {
+ 647   4                          // Set value to end while
+ 648   4                          ucReadVSDBDataBlockNum = 0x10;
+ 649   4                      }
+ 650   3                      else
+ 651   3                      {
+ 652   4                          DebugMessageMst("EDID DID CTA default", usEDIDDataBlockStartAddress);
+ 653   4      
+ 654   4                          usEDIDDataBlockStartAddress = (usEDIDDataBlockStartAddress + 1 + ucEDIDBlockBytesNum);
+ 655   4                      }
+ 656   3      
+ 657   3                      break;
+ 658   3              }
+ 659   2          }
+ 660   1      }
+ 661          #endif
+ 662          
+ 663          #if(_DP_SUPPORT == _ON)
+ 664          #if(_HW_DIGITAL_PORT_COMBO_PHY_TYPE != _DIGITAL_PORT_COMBO_PHY_ALL)
+ 665          //--------------------------------------------------
+ 666          // Description  : DP Global Parameter MeasureCount Initial
+ 667          // Input Value  : None
+ 668          // Output Value : None
+ 669          //--------------------------------------------------
+ 670          void ScalerSyncDpMeasureCountInitial(void)
+ 671          {
+ 672   1          g_usSyncDpVcoTargetCount1000RBR = _DP_VCO_TARGET_COUNT_1000_RBR;
+ 673   1          g_usSyncDpVcoTargetCount1000HBR = _DP_VCO_TARGET_COUNT_1000_HBR;
+ 674   1          g_usSyncDpVcoTargetCount1000HBR2 = _DP_VCO_TARGET_COUNT_1000_HBR2;
+ 675   1      
+ 676   1          g_usSyncDpVcoTargetCount2000RBR = _DP_VCO_TARGET_COUNT_2000_RBR;
+ 677   1          g_usSyncDpVcoTargetCount2000HBR = _DP_VCO_TARGET_COUNT_2000_HBR;
+ 678   1          g_usSyncDpVcoTargetCount2000HBR2 = _DP_VCO_TARGET_COUNT_2000_HBR2;
+ 679   1      
+ 680   1          g_usSyncDpCountSSTUpperBound2000RBR = _DP_RAWDATA_COUNT_SST_UPPER_BOUND_2000_RBR;
+ 681   1          g_usSyncDpCountSSTUpperBound2000HBR = _DP_RAWDATA_COUNT_SST_UPPER_BOUND_2000_HBR;
+ 682   1          g_usSyncDpCountSSTUpperBound2000HBR2 = _DP_RAWDATA_COUNT_SST_UPPER_BOUND_2000_HBR2;
+ 683   1      
+ 684   1          g_usSyncDpCountSSTLowerBound2000RBR = _DP_RAWDATA_COUNT_SST_LOWER_BOUND_2000_RBR;
+ 685   1          g_usSyncDpCountSSTLowerBound2000HBR = _DP_RAWDATA_COUNT_SST_LOWER_BOUND_2000_HBR;
+ 686   1          g_usSyncDpCountSSTLowerBound2000HBR2 = _DP_RAWDATA_COUNT_SST_LOWER_BOUND_2000_HBR2;
+ 687   1      
+ 688   1          g_usSyncDpCountMSTUpperBound2000RBR = _DP_RAWDATA_COUNT_MST_UPPER_BOUND_2000_RBR;
+ 689   1          g_usSyncDpCountMSTUpperBound2000HBR = _DP_RAWDATA_COUNT_MST_UPPER_BOUND_2000_HBR;
+ 690   1          g_usSyncDpCountMSTUpperBound2000HBR2 = _DP_RAWDATA_COUNT_MST_UPPER_BOUND_2000_HBR2;
+ 691   1      
+ 692   1          g_usSyncDpCountMSTLowerBound2000RBR = _DP_RAWDATA_COUNT_MST_LOWER_BOUND_2000_RBR;
+ 693   1          g_usSyncDpCountMSTLowerBound2000HBR = _DP_RAWDATA_COUNT_MST_LOWER_BOUND_2000_HBR;
+ 694   1          g_usSyncDpCountMSTLowerBound2000HBR2 = _DP_RAWDATA_COUNT_MST_LOWER_BOUND_2000_HBR2;
+ 695   1      
+ 696   1          g_usSyncDpCountD10P2UpperBound1000RBR = _DP_RAWDATA_COUNT_D10P2_UPPER_BOUND_1000_RBR;
+ 697   1          g_usSyncDpCountD10P2UpperBound1000HBR = _DP_RAWDATA_COUNT_D10P2_UPPER_BOUND_1000_HBR;
+ 698   1          g_usSyncDpCountD10P2UpperBound1000HBR2 = _DP_RAWDATA_COUNT_D10P2_UPPER_BOUND_1000_HBR2;
+ 699   1      
+ 700   1          g_usSyncDpCountD10P2LowerBound1000RBR = _DP_RAWDATA_COUNT_D10P2_LOWER_BOUND_1000_RBR;
+ 701   1          g_usSyncDpCountD10P2LowerBound1000HBR = _DP_RAWDATA_COUNT_D10P2_LOWER_BOUND_1000_HBR;
+ 702   1          g_usSyncDpCountD10P2LowerBound1000HBR2 = _DP_RAWDATA_COUNT_D10P2_LOWER_BOUND_1000_HBR2;
+ 703   1      }
+ 704          #endif
+ 705          
+ 706          //--------------------------------------------------
+ 707          // Description  : Get Dp Rx Port Edid Bw
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 13  
+
+ 708          // Input Value  : enumDpEdidPort --> Dp Rx EDID port
+ 709          // Output Value : Edid Native Bw, Unit: 0.01M
+ 710          //--------------------------------------------------
+ 711          WORD ScalerSyncGetDpRxPortEdidBw(EnumDpEdidPort enumDpEdidPort)
+ 712          {
+ 713   1          switch(enumDpEdidPort)
+ 714   1          {
+ 715   2              case _D0_DP_EDID:
+ 716   2      
+ 717   2      #if((_D0_DDC_CHANNEL_SEL == _DDC0) && (_D0_EMBEDDED_DDCRAM_MAX_SIZE != _EDID_SIZE_NONE))
+                          return (((WORD)MCU_DDCRAM_D0[0x37] << 8) | MCU_DDCRAM_D0[0x36]);
+              #endif
+ 720   2      
+ 721   2              case _D1_DP_EDID:
+ 722   2      
+ 723   2      #if((_D1_DDC_CHANNEL_SEL == _DDC1) && (_D1_EMBEDDED_DDCRAM_MAX_SIZE != _EDID_SIZE_NONE))
+ 724   2                  return (((WORD)MCU_DDCRAM_D1[0x37] << 8) | MCU_DDCRAM_D1[0x36]);
+ 725   2      #endif
+ 726   2      
+ 727   2              default:
+ 728   2                  break;
+ 729   2          }
+ 730   1      
+ 731   1          return 0;
+ 732   1      }
+ 733          
+ 734          #endif
+ 735          
+ 736          #if(_ADC_SUPPORT == _ON)
+ 737          //--------------------------------------------------
+ 738          // Description  : Power Down VGA Function
+ 739          // Input Value  : None
+ 740          // Output Value : None
+ 741          //--------------------------------------------------
+ 742          void ScalerSyncAdcApllPowerDown(void)
+ 743          {
+ 744   1          // Power down APLL
+ 745   1          ScalerSetBit(P1_AF_PLL_WD, ~_BIT0, _BIT0);
+ 746   1      
+ 747   1          // Power down APLL by Misc Control
+ 748   1          ScalerSetBit(P1_F2_APLL_MISC, ~_BIT7, _BIT7);
+ 749   1      
+ 750   1          // Power down ADC VCM/ADC clock/SOG Power/RGB Channel
+ 751   1          ScalerSetBit(P0_C6_ADC_POWER, ~(_BIT7 | _BIT6 | _BIT5 | _BIT2 | _BIT1 | _BIT0), 0x00);
+ 752   1      }
+ 753          
+ 754          //--------------------------------------------------
+ 755          // Description  : VGA Power Proc
+ 756          // Input Value  : enumPowerAction --> Power Action
+ 757          // Output Value : None
+ 758          //--------------------------------------------------
+ 759          void ScalerSyncAdcPowerProc(EnumPowerAction enumPowerAction)
+ 760          {
+ 761   1          switch(enumPowerAction)
+ 762   1          {
+ 763   2              case _POWER_ACTION_AC_ON_TO_NORMAL:
+ 764   2              case _POWER_ACTION_OFF_TO_NORMAL:
+ 765   2              case _POWER_ACTION_PS_TO_NORMAL:
+ 766   2              case _POWER_ACTION_OFF_TO_FAKE_OFF:
+ 767   2      
+ 768   2                  // ADC Bandgap Enable
+ 769   2                  ScalerADCBandgap(_ON);
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 14  
+
+ 770   2      
+ 771   2      #if(_VGA_SUPPORT == _ON)
+                          // _BIT3: H-Sync Stable Debounce Tolerance, 0 --> +-2 Crystal Cycle, 1: +- 4 Crytal Cycle
+                          // Current Set P0_4F[3] = 1 In PS and Set P0_4F[3] = 0 in Normal,
+                          // In order to solve H-Sync not stable when worked on some 6463 PCB Version
+                          ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT3, 0x00);
+              #endif
+ 777   2      
+ 778   2                  break;
+ 779   2      
+ 780   2              case _POWER_ACTION_NORMAL_TO_PS:
+ 781   2      
+ 782   2                  // Power down ADC/APLL
+ 783   2                  ScalerSyncAdcApllPowerDown();
+ 784   2      
+ 785   2                  // ADC Bandgap Disable
+ 786   2                  ScalerADCBandgap(_OFF);
+ 787   2      
+ 788   2      #if(_VGA_SUPPORT == _ON)
+                          // Schmitt trigger setting old mode in power saving.
+                          ScalerSetByte(P0_F4_HS_SCHMITT_TRIGGE_CTRL, 0xC2);
+              
+                          // _BIT3: H-Sync Stable Debounce Tolerance, 0 --> +-2 Crystal Cycle, 1: +- 4 Crytal Cycle
+                          // Current Set P0_4F[3] = 1 In PS and Set P0_4F[3] = 0 in Normal,
+                          // In order to solve H-Sync not stable when worked on some 6463 PCB Version
+                          ScalerSetBit(P0_4F_STABLE_MEASURE, ~_BIT3, _BIT3);
+              
+                          // Disable Sync proc clock
+                          ScalerSetBit(P0_47_SYNC_SELECT, ~_BIT7, _BIT7);
+              #endif
+ 800   2      
+ 801   2                  break;
+ 802   2      
+ 803   2              case _POWER_ACTION_NORMAL_TO_OFF:
+ 804   2              case _POWER_ACTION_AC_ON_TO_OFF:
+ 805   2              case _POWER_ACTION_PS_TO_OFF:
+ 806   2      
+ 807   2                  // Power down ADC/APLL
+ 808   2                  ScalerSyncAdcApllPowerDown();
+ 809   2      
+ 810   2                  // ADC Bandgap Disable
+ 811   2                  ScalerADCBandgap(_OFF);
+ 812   2      
+ 813   2      #if(_VGA_SUPPORT == _ON)
+                          // Schmitt trigger setting old mode in power saving.
+                          ScalerSetByte(P0_F4_HS_SCHMITT_TRIGGE_CTRL, 0x42);
+              
+                          // Disable sync pulse detect
+                          ScalerSyncProcPulseDetectEnable(_DISABLE);
+              
+                          // Disable Sync proc clock
+                          ScalerSetBit(P0_47_SYNC_SELECT, ~_BIT7, _BIT7);
+              #endif
+ 823   2      
+ 824   2                  break;
+ 825   2      
+ 826   2              default:
+ 827   2                  break;
+ 828   2          }
+ 829   1      }
+ 830          #endif
+ 831          
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 15  
+
+ 832          #if(_DDR_BURN_IN_TEST == _ON)
+              //--------------------------------------------------
+              // Description  : ScalerDDR3BurnInCRCTest
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerSyncDDRBurnInCRCTest(void)
+              {
+                  // Disable Global Double
+                  ScalerGlobalDoubleBufferEnable(_DISABLE);
+              
+                  // Disable Watch Dog
+                  ScalerGlobalWatchDog(_DISABLE);
+              
+                  // Disabe I/D dither
+                  ScalerColorIDitherEnable(_FUNCTION_OFF);
+                  ScalerColorDDitherEnable(_FUNCTION_OFF);
+              
+                  PCB_LED_ACTIVE();
+              
+                  while(_TRUE)
+                  {
+                      BYTE ucResultCRC = ScalerSyncDDRResultCRC();
+              
+                      if(ucResultCRC == _SUCCESS)
+                      {
+                          DebugMessageMemoryPhaseCal("CRC PASS", ucResultCRC);
+                      }
+                      else
+                      {
+                          DebugMessageMemoryPhaseCal("CRC FAIL", ucResultCRC);
+              
+                          switch(ucResultCRC)
+                          {
+                              case (_BIT7 | _BIT3):
+                                  // I/M/D M1 + M2 CRC fail
+                                  PCB_LED_OFF();
+                                  break;
+              
+                              case _BIT3:
+                                  // I/M/D M1 CRC fail
+                                  PCB_LED_ON();
+                                  break;
+              
+                              case _BIT7:
+                                  // I/M/D M2 CRC fail
+                                  PCB_LED_IDLE();
+                                  break;
+              
+                              default:
+                                  break;
+                          }
+              
+                          while(_TRUE)
+                          {
+                              ScalerDebug();
+                          }
+                      }
+              
+                      ScalerDebug();
+                  }
+              }
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 16  
+
+              
+              //--------------------------------------------------
+              // Description  : ScalerDDR3ResultCRC
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              BYTE ScalerSyncDDRResultCRC(void)
+              {
+                  BYTE ucCRCRegOffset = 0;
+                  BYTE ucResult = 0;
+                  BYTE pucIDomainM1CRCValue[6] = {0};
+                  BYTE pucMDomainM1CRCValue[6] = {0};
+                  BYTE pucDDomainM1CRCValue[6] = {0};
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  BYTE pucIDomainM2CRCValue[6] = {0};
+                  BYTE pucMDomainM2CRCValue[6] = {0};
+                  BYTE pucDDomainM2CRCValue[6] = {0};
+              #endif
+              
+                  ScalerSyncDDREnableCRCFunction(_ON);
+              
+                  //===========================================
+                  // Get I-domain CRC
+                  //===========================================
+                  // Wait until IVS_START
+                  ScalerTimerWaitForEvent(_EVENT_IVS);
+                  ScalerTimerWaitForEvent(_EVENT_IVS);
+              
+                  // Read I-domain CRC (First 6 Bytes of M1 and M2 CRC)
+                  for(ucCRCRegOffset = 0; ucCRCRegOffset < sizeof(pucIDomainM1CRCValue); ucCRCRegOffset++)
+                  {
+                      pucIDomainM1CRCValue[ucCRCRegOffset] = ScalerGetByte(P36_01_I_MAIN1_CRC_1 + ucCRCRegOffset);
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      pucIDomainM2CRCValue[ucCRCRegOffset] = ScalerGetByte(P36_07_I_MAIN2_CRC_1 + ucCRCRegOffset);
+              #endif
+                  }
+              
+                  //===========================================
+                  // Get M-domain CRC
+                  //===========================================
+                  // Wait until DVS_START
+                  ScalerTimerWaitForEvent(_EVENT_DVS);
+                  ScalerTimerWaitForEvent(_EVENT_DVS);
+              
+                  // Read M-domain CRC (First 6 Bytes of M1 and M2 CRC)
+                  for(ucCRCRegOffset = 0; ucCRCRegOffset < sizeof(pucMDomainM1CRCValue); ucCRCRegOffset++)
+                  {
+                      pucMDomainM1CRCValue[ucCRCRegOffset] = ScalerGetByte(P36_41_M_M1_CRC_1 + ucCRCRegOffset);
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      pucMDomainM2CRCValue[ucCRCRegOffset] = ScalerGetByte(P36_47_M_M2_CRC_1 + ucCRCRegOffset);
+              #endif
+                  }
+              
+                  //===========================================
+                  // Get D-domain CRC
+                  //===========================================
+                  // Wait until DVS_START
+                  ScalerTimerWaitForEvent(_EVENT_DVS);
+                  ScalerTimerWaitForEvent(_EVENT_DVS);
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 17  
+
+              
+                  if(g_bDDRDdomainGetGlobalCrc == _FALSE)
+                  {
+                      // Read First D-domain CRC (First 6 Bytes of M1 and M2 CRC)
+                      for(ucCRCRegOffset = 0; ucCRCRegOffset < sizeof(g_pucDDRDDomainM1CRCValue); ucCRCRegOffset++)
+                      {
+                          g_pucDDRDDomainM1CRCValue[ucCRCRegOffset] = ScalerGetByte(P36_2D_D_MAIN1_CRC_1 + ucCRCRegOffse
+             -t);
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                          g_pucDDRDDomainM2CRCValue[ucCRCRegOffset] = ScalerGetByte(P36_33_D_MAIN2_CRC_1 + ucCRCRegOffse
+             -t);
+              #endif
+                      }
+              
+                      g_bDDRDdomainGetGlobalCrc = _TRUE;
+                  }
+              
+                  // Read D-domain CRC (First 3 Bytes of M1 and M2 CRC)
+                  for(ucCRCRegOffset = 0; ucCRCRegOffset < sizeof(pucDDomainM1CRCValue); ucCRCRegOffset++)
+                  {
+                      pucDDomainM1CRCValue[ucCRCRegOffset] = ScalerGetByte(P36_2D_D_MAIN1_CRC_1 + ucCRCRegOffset);
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      pucDDomainM2CRCValue[ucCRCRegOffset] = ScalerGetByte(P36_33_D_MAIN2_CRC_1 + ucCRCRegOffset);
+              #endif
+                  }
+              
+                  //===========================================
+                  // Compare I/M/D-domain CRC with  M-domain CRC
+                  //===========================================
+                  // I/M/D M1 CRC
+                  if((memcmp(pucIDomainM1CRCValue, pucMDomainM1CRCValue, sizeof(pucIDomainM1CRCValue)) != 0) ||
+                     (memcmp(pucDDomainM1CRCValue, g_pucDDRDDomainM1CRCValue, sizeof(pucIDomainM1CRCValue)) != 0))
+                  {
+                      ucResult |= _BIT3;
+                  }
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  // I/M/D M2 CRC
+                  if((memcmp(pucIDomainM2CRCValue, pucMDomainM2CRCValue, sizeof(pucIDomainM2CRCValue)) != 0) ||
+                     (memcmp(pucDDomainM2CRCValue, g_pucDDRDDomainM2CRCValue, sizeof(pucIDomainM2CRCValue)) != 0))
+                  {
+                      ucResult |= _BIT7;
+                  }
+              #endif
+              
+                  ScalerSyncDDREnableCRCFunction(_OFF);
+              
+                  if(ucResult == 0x00)
+                  {
+                      return _SUCCESS;
+                  }
+                  else
+                  {
+                      return ucResult;
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : ScalerDDR3EnableCRCFunction
+              // Input Value  : None
+C51 COMPILER V8.12   SCALERSYNC                                                            01/02/2025 16:30:41 PAGE 18  
+
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerSyncDDREnableCRCFunction(bit bEnable)
+              {
+                  if(bEnable == _ON)
+                  {
+                      // Enable M1, M2 I-domain CRC output
+                      ScalerSetByte(P36_00_I_CRC_CTRL, 0x8C);
+              
+                      // Enable M1, M2 M-domain CRC output
+                      ScalerSetByte(P36_40_M_CRC_CTRL, 0x0C);
+              
+                      // Enable M1, M2 D-domain CRC output
+                      ScalerSetByte(P36_2C_D_CRC_CTRL, 0x0C);
+                  }
+                  else
+                  {
+                      // Disable M1, M2 I-domain CRC output
+                      ScalerSetByte(P36_00_I_CRC_CTRL, 0x00);
+              
+                      // Disable M1, M2 M-domain CRC output
+                      ScalerSetByte(P36_40_M_CRC_CTRL, 0x00);
+              
+                      // Disable M1, M2 D-domain CRC output
+                      ScalerSetByte(P36_2C_D_CRC_CTRL, 0x00);
+                  }
+              }
+              #endif // End of #if(_DDR_BURN_IN_TEST == _ON)
+1044          
+1045          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3050    ----
+   CONSTANT SIZE    =   2325    ----
+   XDATA SIZE       =     48      43
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

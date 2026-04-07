@@ -1,0 +1,967 @@
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERSDRAM
+OBJECT MODULE PLACED IN .\Output\RL6463\ScalerSDRAM.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerSDRAM.c LARGE OPTIMIZE(9,SPE
+                    -ED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;
+                    -.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Hea
+                    -der;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler\RL6463_S
+                    -eries_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\
+                    -RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\U
+                    -ser\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\
+                    -RL6463\ScalerSDRAM.lst) OBJECT(.\Output\RL6463\ScalerSDRAM.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerSDRAM.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_SDRAM__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          #if(_SDRAM_PHASE_CALIBRATION == _ON)
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          #define _SDRAM_MCU_ALL_PHASE_CHECK                  _OFF
+  26          
+  27          #define _SDRAM_MCU_COMMAND_NOP_FINISH               0
+  28          #define _SDRAM_MCU_COMMAND_PRECHARGE                0x20
+  29          #define _SDRAM_MCU_COMMAND_AUTO_REFRESH             0x40
+  30          #define _SDRAM_MCU_COMMAND_LOAD_MODE_REGISTER       0x60
+  31          #define _SDRAM_MCU_COMMAND_WRITE                    0x80
+  32          #define _SDRAM_MCU_COMMAND_READ                     0xA0
+  33          
+  34          #define _SDRAM_MCU_ONLINE_START_LOOP                60
+  35          #define _SDRAM_MCU_ONLINE_END_LOOP                  1
+  36          
+  37          #define _SDRAM_ONLINE_TAP_DIFF_THRESHOLD            10
+  38          
+  39          #define _SDRAM_PHASE_CALIBRATION_OPTIMIZATION       _OFF
+  40          #define _SDRAM_PHASE_CALIBRATION_2T                 _OFF
+  41          
+  42          //****************************************************************************
+  43          // STRUCT / TYPE / ENUM DEFINITTIONS
+  44          //****************************************************************************
+  45          typedef enum
+  46          {
+  47              _SDRAM_TX = 0,
+  48              _SDRAM_RX_H,
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 2   
+
+  49              _SDRAM_RX_L,
+  50          } EnumSDRAMClk;
+  51          
+  52          //****************************************************************************
+  53          // CODE TABLES
+  54          //****************************************************************************
+  55          BYTE code tSDRAM_PATTERN[8] = {0x33, 0x33, 0x55, 0x55, 0xaa, 0xaa, 0xcc, 0xcc};
+  56          
+  57          WORD code tSDRAM_FINE_DLY_REG[3] =
+  58          {
+  59              P4_C1_TX_CLK_DLY2,
+  60              P4_C3_SDR_RX_CLK_DLY2,
+  61              P4_C5_SDR_RX_CLK_DLY4,
+  62          };
+  63          
+  64          //****************************************************************************
+  65          // VARIABLE DECLARATIONS
+  66          //****************************************************************************
+  67          BYTE g_ucPhaseCount;
+  68          BYTE g_ucWrPhasePoint;
+  69          BYTE g_pucSdramInitialPhase[3];
+  70          BYTE g_pucSdramDelayChain[3];
+  71          BYTE g_pucSdramOnLineDelayChain[3];
+  72          
+  73          #if(_SDRAM_PHASE_CALIBRATION_OPTIMIZATION == _ON)
+              BYTE g_ucTempDiffPhase;
+              BYTE g_ucMaxDiffPhase;
+              BYTE g_ucTempBestPhase;
+              BYTE g_ucBestPhase;
+              BYTE g_ucTempCoarseDly;
+              BYTE g_ucBestCoarseDly;
+              BYTE g_ucTempCASLatn;
+              BYTE g_ucBestCASLatn;
+              #endif
+  83          //*************************************************//
+  84          //g_pucSdramDelayChain[0] = g_ucTxClkDelayChain;
+  85          //g_pucSdramDelayChain[1] = g_ucRxClkHDelayChain;
+  86          //g_pucSdramDelayChain[2] = g_ucRxClkLDelayChain;
+  87          //*************************************************//
+  88          #endif // End of #if(_SDRAM_PHASE_CALIBRATION == _ON)
+  89          
+  90          //****************************************************************************
+  91          // FUNCTION DECLARATIONS
+  92          //****************************************************************************
+  93          #if(_MEMORY_TYPE_CONFIG == _MEMORY_SDRAM)
+  94          void ScalerSdramPowerControl(bit bOn);
+  95          void ScalerSdramMclkGenReset(void);
+  96          void ScalerSdramSystemInitial(void);
+  97          void ScalerSdramControlReset(void);
+  98          #endif
+  99          
+ 100          #if(_SDRAM_PHASE_CALIBRATION == _ON)
+ 101          void ScalerSdramTokenRingSet(void);
+ 102          void ScalerSdramSearchPhase(void);
+ 103          #if(_SDRAM_PHASE_CALIBRATION_OPTIMIZATION == _OFF)
+ 104          void ScalerSdramSearchPhaseCheck(void);
+ 105          #endif
+ 106          void ScalerSdramTxClkSearchPhase(void);
+ 107          void ScalerSdramRxClkSearchPhase(void);
+ 108          void ScalerSdramTxClkCalibrationEnable(bit bEn);
+ 109          void ScalerSdramRxClkCalibrationEnable(bit bEn);
+ 110          bit ScalerSdramMcuReadWriteCheck(BYTE ucAddrH, BYTE ucAddrM, BYTE ucAddrL, bit bReadSlowDown);
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 3   
+
+ 111          void ScalerSdramWriteToFifo(void);
+ 112          void ScalerSdramReadFromFifo(void);
+ 113          void ScalerSdramClearFifo(void);
+ 114          bit ScalerSdramCheckCommandFinish(void);
+ 115          void ScalerSdramOnLinePhaseCntCheck(void);
+ 116          void ScalerSdramOnLinePhaseCalibration(bit bEn);
+ 117          void ScalerSdramRestoreInitialPhase(void);
+ 118          #endif
+ 119          
+ 120          //****************************************************************************
+ 121          // FUNCTION DEFINITIONS
+ 122          //****************************************************************************
+ 123          #if(_MEMORY_TYPE_CONFIG == _MEMORY_SDRAM)
+ 124          //--------------------------------------------------
+ 125          // Description  : DDR Power On/Off
+ 126          // Input Value  : None
+ 127          // Output Value : None
+ 128          //--------------------------------------------------
+ 129          void ScalerSdramPowerControl(bit bOn)
+ 130          {
+ 131   1      #if(_MPLL_STRUCT_TYPE != _MPLL_STRUCT_COMBO_M2PLL)
+                  // Set MPLL CLK
+                  ScalerPLLSetMPLLFreq((DWORD)_MEMORY_PLL_CLOCK * 1000);
+              #endif
+ 135   1      
+ 136   1          // Set Mclk Gen Reset Align MPLL
+ 137   1          ScalerSdramMclkGenReset();
+ 138   1      
+ 139   1          if(bOn == _ON)
+ 140   1          {
+ 141   2              // Set Sdram Module Power Status
+ 142   2              ScalerSdramPowerEnable(_ON);
+ 143   2      
+ 144   2              // Set Sdram System Initial
+ 145   2              ScalerSdramSystemInitial();
+ 146   2          }
+ 147   1          else
+ 148   1          {
+ 149   2              // Set Sdram Module Power Status
+ 150   2              ScalerSdramPowerEnable(_OFF);
+ 151   2      
+ 152   2              // Set Sdram Module Power Status
+ 153   2              ScalerSdramMpllPowerDown();
+ 154   2          }
+ 155   1      }
+ 156          
+ 157          //--------------------------------------------------
+ 158          // Description  : SDRAM Mclk Gen Reset
+ 159          // Input Value  : None
+ 160          // Output Value : None
+ 161          //--------------------------------------------------
+ 162          void ScalerSdramMclkGenReset(void)
+ 163          {
+ 164   1          // Set Mclk Gen Local Reset
+ 165   1          ScalerSetBit(P4_A8_SDR_CLK_ALIGN, ~_BIT7, _BIT7);
+ 166   1      
+ 167   1          // Delay Time us [300,x] Waiting for SDRAM Mclk Reset
+ 168   1          DELAY_XUS(300);
+ 169   1      
+ 170   1          // Set Mclk Gen Local Reset
+ 171   1          ScalerSetBit(P4_A8_SDR_CLK_ALIGN, ~_BIT7, 0x00);
+ 172   1      }
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 4   
+
+ 173          
+ 174          //--------------------------------------------------
+ 175          // Description  : Sdram system initial
+ 176          // Input Value  : None
+ 177          // Output Value : None
+ 178          //--------------------------------------------------
+ 179          void ScalerSdramSystemInitial(void)
+ 180          {
+ 181   1          // Set Sdram Pinshare Initial
+ 182   1          ScalerSdramPinshareInitial();
+ 183   1      
+ 184   1          // Set Sdram Module Active to Read and Write delay
+ 185   1          ScalerSetBit(P4_A1_SDR_CTRL0, ~(_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT4 | _BIT3 | _BIT1
+             - | _BIT0));
+ 186   1      
+ 187   1          // Set Sdram Module CAS Latency
+ 188   1          ScalerSetBit(P4_A2_SDR_CTRL1, ~(_BIT7 | _BIT6 | _BIT5 | _BIT3 | _BIT2 | _BIT1), (_BIT6 | _BIT5 | _BIT2
+             -));
+ 189   1      
+ 190   1          // Set Sdram Auto Refresh Time
+ 191   1          ScalerSetByte(P4_A3_SDR_AREF_TIME, 0x0D);
+ 192   1      
+ 193   1          // Set Sdram Precharge Duty Cycle
+ 194   1          ScalerSetBit(P4_A4_SDR_PRCG, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+ 195   1      
+ 196   1          // Set Sdram Memory Type & Control CAS Latency = 1
+ 197   1          ScalerSetBit(P4_A5_SDR_MEM_TYPE, ~(_BIT7 | _BIT6 | _BIT5 | _BIT2 | _BIT1 | _BIT0), (_BIT5 | _BIT1));
+ 198   1      
+ 199   1          // Set Sdram Slew Rate SDRAM mode
+ 200   1          ScalerSetBit(P4_A6_SDR_SLEW_RATE, ~_BIT7, _BIT7);
+ 201   1      
+ 202   1          // Set Sdram Refresh time 15.6us
+ 203   1          ScalerSetByte(P4_A7_SDR_AREF_CNT, 0x0D);
+ 204   1      
+ 205   1      #if(_SDRAM_PHASE_CALIBRATION == _ON)
+ 206   1          ScalerSdramTokenRingSet();
+ 207   1      #endif
+ 208   1      
+ 209   1          // Set Sdram Read SRAM Length
+ 210   1          ScalerSetByte(P4_BD_SDR_MCU_RD_LEN, 0x04);
+ 211   1      
+ 212   1          // Set Sdram Control Reset
+ 213   1          ScalerSdramControlReset();
+ 214   1      
+ 215   1          // Set Sdram Control Reset Ready
+ 216   1          ScalerTimerPollingFlagProc(5, P4_B5_SDR_ABTR_STATUS1, _BIT0, _TRUE);
+ 217   1      }
+ 218          
+ 219          //--------------------------------------------------
+ 220          // Description  : Sdram Reset
+ 221          // Input Value  : None
+ 222          // Output Value : None
+ 223          //--------------------------------------------------
+ 224          void ScalerSdramControlReset(void)
+ 225          {
+ 226   1          ScalerSetBit(P4_A4_SDR_PRCG, ~_BIT4, _BIT4);
+ 227   1          ScalerSetBit(P4_A4_SDR_PRCG, ~_BIT4, 0x00);
+ 228   1      
+ 229   1          // Delay Time us [300,x] Waiting for SDRAM Control Reset
+ 230   1          DELAY_XUS(300);
+ 231   1      
+ 232   1          // Set Mclk Gen Reset Align MPLL
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 5   
+
+ 233   1          ScalerSdramMclkGenReset();
+ 234   1      }
+ 235          
+ 236          #endif // End of #if(_MEMORY_TYPE_CONFIG == _MEMORY_SDRAM)
+ 237          
+ 238          #if(_SDRAM_PHASE_CALIBRATION == _ON)
+ 239          //--------------------------------------------------
+ 240          // Description  : Sdram Token Ring Set
+ 241          // Input Value  : None
+ 242          // Output Value : None
+ 243          //--------------------------------------------------
+ 244          void ScalerSdramTokenRingSet(void)
+ 245          {
+ 246   1          ScalerSetByte(P4_AA_SDR_RSC_AREF, 0xFF);
+ 247   1      
+ 248   1      #if(_MEMORY_PHASE_CALIBRATION_MODE == _MEMORY_PHASE_CALIBRATION_MCU_MODE)
+ 249   1          ScalerSetByte(P4_AB_SDR_RSC_MCU, 0x20);
+ 250   1      #elif(_MEMORY_PHASE_CALIBRATION_MODE == _MEMORY_PHASE_CALIBRATION_FRC_MODE)
+                  ScalerSetByte(P4_AB_SDR_RSC_MCU, 0x00);
+              #endif
+ 253   1      
+ 254   1      #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _OFF))
+ 255   1          ScalerSetByte(P4_AC_SDR_RSC_CAP1, 0x00);
+ 256   1          ScalerSetByte(P4_AE_SDR_RSC_MAIN, 0x00);
+ 257   1          ScalerSetByte(P4_B0_SDR_RSC_RTC_RD, 0x44);
+ 258   1          ScalerSetByte(P4_B1_SDR_RSC_RTC_WR, 0x88);
+ 259   1      #elif((_OD_SUPPORT == _OFF) && (_FRC_SUPPORT == _ON))
+                  ScalerSetByte(P4_AC_SDR_RSC_CAP1, 0x44);
+                  ScalerSetByte(P4_AE_SDR_RSC_MAIN, 0x88);
+                  ScalerSetByte(P4_B0_SDR_RSC_RTC_RD, 0x00);
+                  ScalerSetByte(P4_B1_SDR_RSC_RTC_WR, 0x00);
+              #elif((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+                  ScalerSetByte(P4_AC_SDR_RSC_CAP1, 0x40);
+                  ScalerSetByte(P4_AE_SDR_RSC_MAIN, 0x80);
+                  ScalerSetByte(P4_B0_SDR_RSC_RTC_RD, 0x04);
+                  ScalerSetByte(P4_B1_SDR_RSC_RTC_WR, 0x08);
+              #endif
+ 270   1      }
+ 271          
+ 272          //--------------------------------------------------
+ 273          // Description  : Sdram Search Phase
+ 274          // Input Value  : None
+ 275          // Output Value : None
+ 276          //--------------------------------------------------
+ 277          void ScalerSdramSearchPhase(void)
+ 278          {
+ 279   1      #if(_SDRAM_PHASE_CALIBRATION_OPTIMIZATION == _ON)
+                  BYTE ucTempWrPhasePoint = 0;
+                  BYTE ucCASLat = 0;
+                  BYTE ucCoarseDly = 0;
+              
+                  // Tx Clk Search Phase
+                  for(ucTempWrPhasePoint = 0; ucTempWrPhasePoint < 2; ucTempWrPhasePoint++)
+                  {
+                      // Set CAS Num : Test CAS Latency 1 & 2
+                      ucCASLat = ucTempWrPhasePoint + 1;
+                      ScalerSetBit(P4_A5_SDR_MEM_TYPE, ~(_BIT2 | _BIT1 | _BIT0), _BIT0 << ucCASLat);
+                      DebugMessageMemoryPhaseCal("P4_A5_SDR_MEM_TYPE", ScalerGetByte(P4_A5_SDR_MEM_TYPE));
+              
+                      // Set Rx Data Coarse Dly = 0/90/180/270
+                      for(ucCoarseDly = 0; ucCoarseDly < 4; ucCoarseDly++)
+                      {
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 6   
+
+                          ScalerSetBit(P4_C2_SDR_RX_CLK_DLY1, ~(_BIT6 | _BIT5), ucCoarseDly << 5);
+                          ScalerSetBit(P4_C4_SDR_RX_CLK_DLY3, ~(_BIT6 | _BIT5), ucCoarseDly << 5);
+                          DebugMessageMemoryPhaseCal("=== Rx Phase ===", 0x00);
+                          DebugMessageMemoryPhaseCal("P4_C2_SDR_RX_CLK_DLY1", ScalerGetByte(P4_C2_SDR_RX_CLK_DLY1));
+                          DebugMessageMemoryPhaseCal("P4_C4_SDR_RX_CLK_DLY3", ScalerGetByte(P4_C4_SDR_RX_CLK_DLY3));
+                          DebugMessageMemoryPhaseCal("=====================", 0x00);
+                          ScalerSdramTxClkSearchPhase();
+              
+                          if(g_ucTempDiffPhase > g_ucMaxDiffPhase)
+                          {
+                              g_ucMaxDiffPhase = g_ucTempDiffPhase;
+                              g_ucBestPhase = g_ucTempBestPhase;
+                              g_ucBestCoarseDly = g_ucTempCoarseDly;
+                              g_ucBestCASLatn = g_ucTempCASLatn;
+                          }
+                      }
+                  }
+              
+                  DebugMessageMemoryPhaseCal("=== Tx Result===", 0x00);
+                  DebugMessageMemoryPhaseCal("g_BestCASLatn", g_ucBestCASLatn);
+                  DebugMessageMemoryPhaseCal("g_BestCoarseDly", g_ucBestCoarseDly);
+                  DebugMessageMemoryPhaseCal("g_MaxDiffPhase", g_ucMaxDiffPhase);
+                  DebugMessageMemoryPhaseCal("g_BestPhase", g_ucBestPhase);
+              
+                  // Set Best CAS Latency
+                  ScalerSetByte(P4_A5_SDR_MEM_TYPE, g_ucBestCASLatn);
+                  // Set Best Tx Phase
+                  ScalerSdramTxClkCalibrationEnable(_ON);
+                  ScalerSetByte(P4_C1_TX_CLK_DLY2, g_ucBestPhase);
+                  ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT6, _BIT6);
+                  ScalerSdramTxClkCalibrationEnable(_OFF);
+                  DebugMessageMemoryPhaseCal("=====================", 0x00);
+              
+                  // Rx Clk Search Phase
+                  ScalerSdramRxClkSearchPhase();
+              
+              #else
+ 332   1          // Tx Clk Search Phase
+ 333   1          ScalerSdramTxClkSearchPhase();
+ 334   1      
+ 335   1          // Rx Clk Search Phase
+ 336   1          ScalerSdramRxClkSearchPhase();
+ 337   1      
+ 338   1          // Check finish phase
+ 339   1          ScalerSdramSearchPhaseCheck();
+ 340   1      #endif
+ 341   1      }
+ 342          
+ 343          #if(_SDRAM_PHASE_CALIBRATION_OPTIMIZATION == _OFF)
+ 344          //--------------------------------------------------
+ 345          // Description  : Sdram Search Phase Check
+ 346          // Input Value  : None
+ 347          // Output Value : None
+ 348          //--------------------------------------------------
+ 349          void ScalerSdramSearchPhaseCheck(void)
+ 350          {
+ 351   1          if((g_pucSdramInitialPhase[0] != 0x00) ||
+ 352   1             ((ScalerGetByte(P4_C3_SDR_RX_CLK_DLY2) == 0x00) &&
+ 353   1              (ScalerGetByte(P4_C5_SDR_RX_CLK_DLY4) == 0x00)))
+ 354   1          {
+ 355   2              // Tx Clk Search Phase
+ 356   2              ScalerSdramTxClkSearchPhase();
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 7   
+
+ 357   2      
+ 358   2              // Rx Clk Search Phase
+ 359   2              ScalerSdramRxClkSearchPhase();
+ 360   2          }
+ 361   1      }
+ 362          
+ 363          #endif
+ 364          //--------------------------------------------------
+ 365          // Description  : Sdram Tx Clk Search Phase
+ 366          // Input Value  : None
+ 367          // Output Value : None
+ 368          //--------------------------------------------------
+ 369          void ScalerSdramTxClkSearchPhase(void)
+ 370          {
+ 371   1          BYTE ucCount = 0;
+ 372   1          BYTE ucInitialPhase = 0;
+ 373   1          BYTE ucPhase0 = _FALSE;
+ 374   1          BYTE ucEndPhase = 0;
+ 375   1          BYTE ucTempDiffPhase = 0;
+ 376   1          BYTE ucBestPhase = 0;
+ 377   1          BYTE ucHalfCycle = 0;
+ 378   1          bit bPhaseSearch = _FALSE;
+ 379   1      
+ 380   1          // Set Tx Clk Initial Phase
+ 381   1          ScalerSetByte(P4_C1_TX_CLK_DLY2, 0x00);
+ 382   1      
+ 383   1          // Enable Tx Clk Calibration Circuit
+ 384   1          ScalerSdramTxClkCalibrationEnable(_ON);
+ 385   1      
+ 386   1      #if(_SDRAM_PHASE_CALIBRATION_2T == _ON)
+                  ucHalfCycle = (g_pucSdramDelayChain[0] * 4); // Test 2T
+              #else
+ 389   1          ScalerSetBit(P4_C2_SDR_RX_CLK_DLY1, ~(_BIT6 | _BIT5), _BIT5);
+ 390   1          ScalerSetBit(P4_C4_SDR_RX_CLK_DLY3, ~(_BIT6 | _BIT5), _BIT5);
+ 391   1      
+ 392   1          ucHalfCycle = (g_pucSdramDelayChain[0] * 2); // Test 1T
+ 393   1      #endif
+ 394   1      
+ 395   1          DebugMessageMemoryPhaseCal("======================", 0x00);
+ 396   1          DebugMessageMemoryPhaseCal("==TX Clk Serch Phase==", 0x00);
+ 397   1          DebugMessageMemoryPhaseCal("===Tx phase half T====", g_pucSdramDelayChain[0]);
+ 398   1          DebugMessageMemoryPhaseCal("======================", 0x00);
+ 399   1      
+ 400   1          for(ucCount = 0; ucCount < ucHalfCycle; ucCount++)
+ 401   1          {
+ 402   2              ScalerSetByte(P4_C1_TX_CLK_DLY2, ucCount);
+ 403   2      
+ 404   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT6, _BIT6);
+ 405   2      
+ 406   2              ScalerSdramControlReset();
+ 407   2      
+ 408   2              g_ucPhaseCount = ScalerSdramMcuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00, _OFF)
+             -;
+ 409   2      
+ 410   2              // avoid phase all pass case
+ 411   2              if(ucCount == (ucHalfCycle - 1))
+ 412   2              {
+ 413   3                  g_ucPhaseCount = _FALSE;
+ 414   3              }
+ 415   2      
+ 416   2              if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+ 417   2              {
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 8   
+
+ 418   3                  ucInitialPhase = ucCount;
+ 419   3                  DebugMessageMemoryPhaseCal("ucInitialPhase", ucInitialPhase);
+ 420   3      
+ 421   3                  bPhaseSearch = _ON;
+ 422   3      
+ 423   3                  // Checking the Phase0 is good phase or not
+ 424   3                  if((ucCount == 0) && (ucInitialPhase == 0))
+ 425   3                  {
+ 426   4                      ucPhase0 = _TRUE;
+ 427   4                  }
+ 428   3              }
+ 429   2      
+ 430   2              if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+ 431   2              {
+ 432   3                  ucEndPhase = ucCount;
+ 433   3                  DebugMessageMemoryPhaseCal("ucEndPhase", ucEndPhase);
+ 434   3      
+ 435   3                  pData[2] = ucEndPhase - ucInitialPhase;
+ 436   3      
+ 437   3                  if(pData[2] > ucTempDiffPhase)
+ 438   3                  {
+ 439   4                      ucTempDiffPhase = pData[2];
+ 440   4                      DebugMessageMemoryPhaseCal("ucTempDiffPhase", ucTempDiffPhase);
+ 441   4                      ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+ 442   4                      DebugMessageMemoryPhaseCal("ucBestPhase", ucBestPhase);
+ 443   4      #if(_SDRAM_PHASE_CALIBRATION_2T == _ON)
+                              // The parameters of oprmization
+                              g_ucTempDiffPhase = ucTempDiffPhase;
+                              g_ucTempBestPhase = (ucBestPhase % (g_pucSdramDelayChain[0] * 2)); // Choice midpoint of t
+             -he max range
+                              g_ucTempCoarseDly = ScalerGetByte(P4_C2_SDR_RX_CLK_DLY1);
+                              g_ucTempCASLatn = ScalerGetByte(P4_A5_SDR_MEM_TYPE);
+              #endif
+ 450   4                  }
+ 451   3      
+ 452   3                  bPhaseSearch = _FALSE;
+ 453   3              }
+ 454   2      
+ 455   2      #if(_SDRAM_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("Tx Clk ", g_ucPhaseCount);
+              #endif
+ 459   2          }
+ 460   1      
+ 461   1          if(ucPhase0 == _TRUE)
+ 462   1          {
+ 463   2              ucBestPhase = 0;
+ 464   2          }
+ 465   1          else
+ 466   1          {
+ 467   2              ucBestPhase = ucBestPhase;
+ 468   2          }
+ 469   1      
+ 470   1          g_pucSdramInitialPhase[0] = ucBestPhase;
+ 471   1      
+ 472   1          ScalerSetByte(P4_C1_TX_CLK_DLY2, ucBestPhase);
+ 473   1      
+ 474   1          ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT6, _BIT6);
+ 475   1      
+ 476   1          ScalerSetBit(P4_C2_SDR_RX_CLK_DLY1, ~(_BIT6 | _BIT5), 0x00);
+ 477   1          ScalerSetBit(P4_C4_SDR_RX_CLK_DLY3, ~(_BIT6 | _BIT5), 0x00);
+ 478   1      
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 9   
+
+ 479   1          // Enable Tx Clk Calibration Circuit
+ 480   1          ScalerSdramTxClkCalibrationEnable(_OFF);
+ 481   1      
+ 482   1          DebugMessageMemoryPhaseCal("=== Tx Scan Result ===", 0x00);
+ 483   1          DebugMessageMemoryPhaseCal("P4_C1_TX_CLK_DLY2", ScalerGetByte(P4_C1_TX_CLK_DLY2));
+ 484   1          DebugMessageMemoryPhaseCal("======================", 0x00);
+ 485   1      }
+ 486          
+ 487          //--------------------------------------------------
+ 488          // Description  : Sdram Rx Clk Search Phse
+ 489          // Input Value  : None
+ 490          // Output Value : None
+ 491          //--------------------------------------------------
+ 492          void ScalerSdramRxClkSearchPhase(void)
+ 493          {
+ 494   1          BYTE ucCount = 0;
+ 495   1          BYTE ucInitialPhase = 0;
+ 496   1          BYTE ucEndPhase = 0;
+ 497   1          BYTE ucTempDiffPhase = 0;
+ 498   1          BYTE ucBestPhase = 0;
+ 499   1          BYTE ucTempWrPhasePoint = 0;
+ 500   1          bit bPhaseSearch = _FALSE;
+ 501   1          BYTE ucHalfCycleHigh = 0;
+ 502   1          BYTE ucHalfCycleLow = 0;
+ 503   1      
+ 504   1          // Enable Rx Dqs Calibration Circuit
+ 505   1          ScalerSdramRxClkCalibrationEnable(_ON);
+ 506   1      
+ 507   1          // Disable Rx Dqs Calibration Circuit
+ 508   1          ScalerSdramRxClkCalibrationEnable(_OFF);
+ 509   1      
+ 510   1      //**********************************************************************************//
+ 511   1      //**********************************RX Clk High Phase*******************************//
+ 512   1      //**********************************************************************************//
+ 513   1          ucHalfCycleHigh = (g_pucSdramDelayChain[1] * 2); // Test 1T
+ 514   1          DebugMessageMemoryPhaseCal("=====================", 0x00);
+ 515   1          DebugMessageMemoryPhaseCal("==RX Clk High Phase==", 0x00);
+ 516   1          DebugMessageMemoryPhaseCal("===Rx phase half T===", g_pucSdramDelayChain[1]);
+ 517   1          DebugMessageMemoryPhaseCal("=====================", 0x00);
+ 518   1      
+ 519   1          for(ucTempWrPhasePoint = 0; ucTempWrPhasePoint < 2; ucTempWrPhasePoint++)
+ 520   1          {
+ 521   2              bPhaseSearch = _FALSE;
+ 522   2      
+ 523   2              // Set Wr Phase Point to Pos or Neg
+ 524   2              ScalerSetBit(P4_C8_MCLK_CTRL, ~_BIT2, ucTempWrPhasePoint << 2);
+ 525   2              DebugMessageMemoryPhaseCal("P4_C8_MCLK_CTRL", ScalerGetByte(P4_C8_MCLK_CTRL));
+ 526   2      
+ 527   2              for(ucCount = 0; ucCount < ucHalfCycleHigh; ucCount++)
+ 528   2              {
+ 529   3                  ScalerSetByte(P4_C3_SDR_RX_CLK_DLY2, ucCount);
+ 530   3                  ScalerSetByte(P4_C5_SDR_RX_CLK_DLY4, ucCount);
+ 531   3      
+ 532   3                  g_ucPhaseCount = ScalerSdramMcuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00, _
+             -OFF);
+ 533   3      
+ 534   3                  // avoid phase all pass case
+ 535   3                  if(ucCount == (ucHalfCycleHigh - 1))
+ 536   3                  {
+ 537   4                      g_ucPhaseCount = _FALSE;
+ 538   4                  }
+ 539   3      
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 10  
+
+ 540   3                  if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+ 541   3                  {
+ 542   4                      ucInitialPhase = ucCount;
+ 543   4                      DebugMessageMemoryPhaseCal("ucInitialPhase", ucInitialPhase);
+ 544   4                      bPhaseSearch = _ON;
+ 545   4                  }
+ 546   3      
+ 547   3                  if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+ 548   3                  {
+ 549   4                      ucEndPhase = ucCount;
+ 550   4                      DebugMessageMemoryPhaseCal("ucEndPhase", ucEndPhase);
+ 551   4                      pData[2] = ucEndPhase - ucInitialPhase;
+ 552   4      
+ 553   4                      if(pData[2] > ucTempDiffPhase)
+ 554   4                      {
+ 555   5                          ucTempDiffPhase = pData[2];
+ 556   5                          DebugMessageMemoryPhaseCal("ucTempDiffPhase", ucTempDiffPhase);
+ 557   5                          g_ucWrPhasePoint = ucTempWrPhasePoint;
+ 558   5      
+ 559   5                          ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+ 560   5                          DebugMessageMemoryPhaseCal("ucBestPhase", ucBestPhase);
+ 561   5                      }
+ 562   4      
+ 563   4                      bPhaseSearch = _FALSE;
+ 564   4                  }
+ 565   3      
+ 566   3      #if(_SDRAM_MCU_ALL_PHASE_CHECK == _ON)
+                          DebugMessageMemoryPhaseCal("counter", ucCount);
+                          DebugMessageMemoryPhaseCal("rx Clk High", g_ucPhaseCount);
+              #endif
+ 570   3              }
+ 571   2          }
+ 572   1      
+ 573   1          if(ucBestPhase > 0)
+ 574   1          {
+ 575   2              ScalerSetBit(P4_C8_MCLK_CTRL, ~_BIT2, g_ucWrPhasePoint << 2);
+ 576   2          }
+ 577   1      
+ 578   1          g_pucSdramInitialPhase[1] = ucBestPhase;
+ 579   1      
+ 580   1          ScalerSetByte(P4_C3_SDR_RX_CLK_DLY2, ucBestPhase);
+ 581   1      
+ 582   1      //**********************************************************************************//
+ 583   1      //*********************************RX Clk Low Phase*********************************//
+ 584   1      //**********************************************************************************//
+ 585   1          ucTempDiffPhase = 0;
+ 586   1          bPhaseSearch = _FALSE;
+ 587   1          ucHalfCycleLow = (g_pucSdramDelayChain[2] * 2); // Test 1T
+ 588   1          DebugMessageMemoryPhaseCal("=====================", 0x00);
+ 589   1          DebugMessageMemoryPhaseCal("===RX Clk Low Phase==", 0x00);
+ 590   1          DebugMessageMemoryPhaseCal("===Rx phase half T===", g_pucSdramDelayChain[2]);
+ 591   1          DebugMessageMemoryPhaseCal("=====================", 0x00);
+ 592   1      
+ 593   1          for(ucCount = 0; ucCount < ucHalfCycleLow; ucCount++)
+ 594   1          {
+ 595   2              ScalerSetByte(P4_C5_SDR_RX_CLK_DLY4, ucCount);
+ 596   2      
+ 597   2              g_ucPhaseCount = ScalerSdramMcuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00, _OFF)
+             -;
+ 598   2      
+ 599   2              if(ucCount == (ucHalfCycleLow - 1))
+ 600   2              {
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 11  
+
+ 601   3                  g_ucPhaseCount = _FALSE;
+ 602   3              }
+ 603   2      
+ 604   2              if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+ 605   2              {
+ 606   3                  ucInitialPhase = ucCount;
+ 607   3                  DebugMessageMemoryPhaseCal("ucInitialPhase", ucInitialPhase);
+ 608   3                  bPhaseSearch = _ON;
+ 609   3              }
+ 610   2      
+ 611   2              if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+ 612   2              {
+ 613   3                  ucEndPhase = ucCount;
+ 614   3                  DebugMessageMemoryPhaseCal("ucEndPhase", ucEndPhase);
+ 615   3                  pData[2] = ucEndPhase - ucInitialPhase;
+ 616   3      
+ 617   3                  if(pData[2] > ucTempDiffPhase)
+ 618   3                  {
+ 619   4                      ucTempDiffPhase = pData[2];
+ 620   4                      DebugMessageMemoryPhaseCal("ucTempDiffPhase", ucTempDiffPhase);
+ 621   4      
+ 622   4                      ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+ 623   4                      DebugMessageMemoryPhaseCal("ucBestPhase", ucBestPhase);
+ 624   4                  }
+ 625   3      
+ 626   3                  bPhaseSearch = _FALSE;
+ 627   3              }
+ 628   2      
+ 629   2      #if(_SDRAM_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx Clk Low", g_ucPhaseCount);
+              #endif
+ 633   2          }
+ 634   1      
+ 635   1          g_pucSdramInitialPhase[2] = ucBestPhase;
+ 636   1      
+ 637   1          ScalerSetByte(P4_C5_SDR_RX_CLK_DLY4, ucBestPhase);
+ 638   1      
+ 639   1          DebugMessageMemoryPhaseCal("=== Rx Scan Result ==", 0x00);
+ 640   1          DebugMessageMemoryPhaseCal("P4_A5_SDR_MEM_TYPE", ScalerGetByte(P4_A5_SDR_MEM_TYPE));
+ 641   1          DebugMessageMemoryPhaseCal("P4_C8_MCLK_CTRL", ScalerGetByte(P4_C8_MCLK_CTRL));
+ 642   1          DebugMessageMemoryPhaseCal("P4_C3_SDR_RX_CLK_DLY2", ScalerGetByte(P4_C3_SDR_RX_CLK_DLY2));
+ 643   1          DebugMessageMemoryPhaseCal("P4_C5_SDR_RX_CLK_DLY4", ScalerGetByte(P4_C5_SDR_RX_CLK_DLY4));
+ 644   1          DebugMessageMemoryPhaseCal("=====================", 0x00);
+ 645   1      }
+ 646          
+ 647          //--------------------------------------------------
+ 648          // Description  : Sdram Tx Clk Calibration
+ 649          // Input Value  : None
+ 650          // Output Value : None
+ 651          //--------------------------------------------------
+ 652          void ScalerSdramTxClkCalibrationEnable(bit bEn)
+ 653          {
+ 654   1          // Set Clk Gatting Idel and Stop time
+ 655   1          ScalerSetByte(P4_C9_SDR_STOPCLK_CNT, 0x02);
+ 656   1          ScalerSetByte(P4_CA_STOP_WAIT_CNT, 0x02);
+ 657   1      
+ 658   1          if(bEn == _ON)
+ 659   1          {
+ 660   2              // Enable Sdram Clk Gatting Function
+ 661   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~(_BIT5 | _BIT1), (_BIT5 | _BIT1));
+ 662   2      
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 12  
+
+ 663   2              // Enable Tx Calibration Function
+ 664   2              ScalerSetBit(P4_CB_TX_PHASE_CALIBRATION, ~_BIT2, _BIT2);
+ 665   2      
+ 666   2              // Pob Tx delay chain value of half clock cycle
+ 667   2              g_pucSdramDelayChain[0] = ScalerGetByte(P4_CC_TX_CALIBRATION_RESULT);
+ 668   2          }
+ 669   1          else
+ 670   1          {
+ 671   2              // Disable Sdram Clk Gatting Function
+ 672   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~(_BIT5 | _BIT1), 0x00);
+ 673   2      
+ 674   2              // Disable Tx Calibration Function
+ 675   2              ScalerSetBit(P4_CB_TX_PHASE_CALIBRATION, ~_BIT2, 0x00);
+ 676   2          }
+ 677   1      }
+ 678          
+ 679          //--------------------------------------------------
+ 680          // Description  : Sdram Rx Dqs Calibration
+ 681          // Input Value  : None
+ 682          // Output Value : None
+ 683          //--------------------------------------------------
+ 684          void ScalerSdramRxClkCalibrationEnable(bit bEn)
+ 685          {
+ 686   1          if(bEn == _ON)
+ 687   1          {
+ 688   2              // Enable Rx Calibration Function
+ 689   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT2, _BIT2);
+ 690   2      
+ 691   2              // Pob Rx delay chain value of half clock cycle
+ 692   2              g_pucSdramDelayChain[1] = (ScalerGetByte(P4_BF_SDR_RX_CALIBRATION_RESULT) & 0x7F);
+ 693   2              g_pucSdramDelayChain[2] = (ScalerGetByte(P4_BF_SDR_RX_CALIBRATION_RESULT) & 0x7F);
+ 694   2      
+ 695   2      #if(_SDRAM_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("rx phase half T", g_pucSdramDelayChain[1]);
+              #endif
+ 698   2          }
+ 699   1          else
+ 700   1          {
+ 701   2              // Disable Rx Calibration Function
+ 702   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT2, 0x00);
+ 703   2          }
+ 704   1      }
+ 705          
+ 706          //--------------------------------------------------
+ 707          // Description  : Sdram Read Write Check
+ 708          // Input Value  : None
+ 709          // Output Value : None
+ 710          //--------------------------------------------------
+ 711          bit ScalerSdramMcuReadWriteCheck(BYTE ucAddrH, BYTE ucAddrM, BYTE ucAddrL, bit bReadSlowDown)
+ 712          {
+ 713   1          ScalerSetByte(P4_B8_SDR_ADDR_H, ucAddrH);
+ 714   1          ScalerSetByte(P4_B9_SDR_ADDR_M, ucAddrM);
+ 715   1          ScalerSetByte(P4_BA_SDR_ADDR_L, ucAddrL);
+ 716   1      
+ 717   1          ScalerSdramWriteToFifo();
+ 718   1      
+ 719   1          if(bReadSlowDown == _ON)
+ 720   1          {
+ 721   2              // mclk div 2 for read phase
+ 722   2              ScalerSetBit(P4_C8_MCLK_CTRL, ~(_BIT1 | _BIT0), _BIT0);
+ 723   2      
+ 724   2              ScalerSdramReadFromFifo();
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 13  
+
+ 725   2      
+ 726   2              ScalerSetBit(P4_C8_MCLK_CTRL, ~(_BIT1 | _BIT0), 0x00);
+ 727   2          }
+ 728   1          else
+ 729   1          {
+ 730   2              ScalerSdramReadFromFifo();
+ 731   2          }
+ 732   1      
+ 733   1      
+ 734   1          ScalerSetByte(P4_BB_SDR_ACCESS_CMD, 0x00);
+ 735   1      
+ 736   1          for(pData[14] = 0; pData[14] < sizeof(tSDRAM_PATTERN); pData[14]++)
+ 737   1          {
+ 738   2              if(ScalerGetByte(P4_BC_SDR_DATA_BUF) != tSDRAM_PATTERN[pData[14]])
+ 739   2              {
+ 740   3                  return _FALSE;
+ 741   3              }
+ 742   2          }
+ 743   1      
+ 744   1          return _TRUE;
+ 745   1      }
+ 746          
+ 747          //--------------------------------------------------
+ 748          // Description  : Sdram Write Data To FIFO
+ 749          // Input Value  : None
+ 750          // Output Value : None
+ 751          //--------------------------------------------------
+ 752          void ScalerSdramWriteToFifo(void)
+ 753          {
+ 754   1          ScalerSdramClearFifo();
+ 755   1      
+ 756   1          ScalerSetByte(P4_BB_SDR_ACCESS_CMD, 0x00);
+ 757   1      
+ 758   1          for(pData[14] = 0; pData[14] < sizeof(tSDRAM_PATTERN); pData[14]++)
+ 759   1          {
+ 760   2              ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), pData[14]);
+ 761   2              ScalerSetByte(P4_BC_SDR_DATA_BUF, tSDRAM_PATTERN[pData[14]]);
+ 762   2          }
+ 763   1      
+ 764   1          ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _SDRAM_MCU_COMMAND_WRITE);
+ 765   1      
+ 766   1          if(ScalerSdramCheckCommandFinish() == _FALSE)
+ 767   1          {
+ 768   2              DebugMessageMemoryPhaseCal("Write Command Fail", 0x00);
+ 769   2          }
+ 770   1      }
+ 771          
+ 772          //--------------------------------------------------
+ 773          // Description  : Sdram Write Data To FIFO
+ 774          // Input Value  : None
+ 775          // Output Value : None
+ 776          //--------------------------------------------------
+ 777          void ScalerSdramReadFromFifo(void)
+ 778          {
+ 779   1          ScalerSdramClearFifo();
+ 780   1      
+ 781   1          ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _SDRAM_MCU_COMMAND_READ);
+ 782   1      
+ 783   1          if(ScalerSdramCheckCommandFinish() == _FALSE)
+ 784   1          {
+ 785   2              DebugMessageMemoryPhaseCal("Read Command Fail", 0x00);
+ 786   2          }
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 14  
+
+ 787   1      }
+ 788          
+ 789          //--------------------------------------------------
+ 790          // Description  : Sdram Clear Fifo
+ 791          // Input Value  : None
+ 792          // Output Value : None
+ 793          //--------------------------------------------------
+ 794          void ScalerSdramClearFifo(void)
+ 795          {
+ 796   1          ScalerSetByte(P4_BB_SDR_ACCESS_CMD, 0x00);
+ 797   1      
+ 798   1          for(pData[14] = 0; pData[14] < 32; pData[14]++)
+ 799   1          {
+ 800   2              ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), pData[14]);
+ 801   2              ScalerSetByte(P4_BC_SDR_DATA_BUF, 0x00);
+ 802   2          }
+ 803   1      }
+ 804          
+ 805          //--------------------------------------------------
+ 806          // Description  : Sdram Check Command Finish
+ 807          // Input Value  : None
+ 808          // Output Value : None
+ 809          //--------------------------------------------------
+ 810          bit ScalerSdramCheckCommandFinish(void)
+ 811          {
+ 812   1          if(ScalerTimerPollingFlagProc(5, P4_BB_SDR_ACCESS_CMD, (_BIT7 | _BIT6 | _BIT5), 0x00) == _FALSE)
+ 813   1          {
+ 814   2              return _FALSE;
+ 815   2          }
+ 816   1      
+ 817   1          return _TRUE;
+ 818   1      }
+ 819          
+ 820          //--------------------------------------------------
+ 821          // Description  : Sdram On Line Phase Check
+ 822          // Input Value  : None
+ 823          // Output Value : None
+ 824          //--------------------------------------------------
+ 825          void ScalerSdramOnLinePhaseCntCheck(void)
+ 826          {
+ 827   1          static BYTE sucSdramOnLineCheckLoop = _SDRAM_MCU_ONLINE_START_LOOP;
+ 828   1      
+ 829   1          if(sucSdramOnLineCheckLoop-- == _SDRAM_MCU_ONLINE_END_LOOP)
+ 830   1          {
+ 831   2              BYTE ucRxClkIndex = 0;
+ 832   2              SWORD shHalfCycleTapDiff = 0;
+ 833   2              SWORD shCurrOneCycleTap = 0;
+ 834   2      
+ 835   2              // Set Loop Counter 60 times Restore
+ 836   2              sucSdramOnLineCheckLoop = _SDRAM_MCU_ONLINE_START_LOOP;
+ 837   2      
+ 838   2              ScalerSdramOnLinePhaseCalibration(_ON);
+ 839   2      
+ 840   2              for(ucRxClkIndex = _SDRAM_RX_H; ucRxClkIndex <= _SDRAM_RX_L; ucRxClkIndex++)
+ 841   2              {
+ 842   3                  shHalfCycleTapDiff = (SWORD)g_pucSdramOnLineDelayChain[ucRxClkIndex] - (SWORD)g_pucSdramDelayC
+             -hain[ucRxClkIndex];
+ 843   3      
+ 844   3                  if(abs(shHalfCycleTapDiff) > _SDRAM_ONLINE_TAP_DIFF_THRESHOLD)
+ 845   3                  {
+ 846   4                      shCurrOneCycleTap = g_pucSdramOnLineDelayChain[ucRxClkIndex] * 2;
+ 847   4                      ScalerSetByte(tSDRAM_FINE_DLY_REG[ucRxClkIndex],
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 15  
+
+ 848   4                                    (BYTE)(((SWORD)g_pucSdramInitialPhase[ucRxClkIndex] + shHalfCycleTapDiff / 2
+             - + shCurrOneCycleTap) % shCurrOneCycleTap));
+ 849   4                  }
+ 850   3              }
+ 851   2      
+ 852   2              ScalerSdramOnLinePhaseCalibration(_OFF);
+ 853   2          }
+ 854   1      }
+ 855          //--------------------------------------------------
+ 856          // Description  : Sdram On Line Phase Calibration
+ 857          // Input Value  : None
+ 858          // Output Value : None
+ 859          //--------------------------------------------------
+ 860          void ScalerSdramOnLinePhaseCalibration(bit bEn)
+ 861          {
+ 862   1          if(bEn == _ON)
+ 863   1          {
+ 864   2              // Enable MCU Mode Token Ring
+ 865   2              ScalerSetByte(P4_AB_SDR_RSC_MCU, 0x30);
+ 866   2      
+ 867   2              // Enable Rx Calibration Function
+ 868   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT2, _BIT2);
+ 869   2      
+ 870   2              // Pob Rx delay chain value of half clock cycle
+ 871   2              g_pucSdramOnLineDelayChain[1] = (ScalerGetByte(P4_BF_SDR_RX_CALIBRATION_RESULT) & 0x7F);
+ 872   2              g_pucSdramOnLineDelayChain[2] = (ScalerGetByte(P4_BF_SDR_RX_CALIBRATION_RESULT) & 0x7F);
+ 873   2          }
+ 874   1          else
+ 875   1          {
+ 876   2              // Disable MCU Mode Token Ring
+ 877   2              ScalerSetByte(P4_AB_SDR_RSC_MCU, 0x00);
+ 878   2      
+ 879   2              // Disable Rx Calibration Function
+ 880   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT2, 0x00);
+ 881   2          }
+ 882   1      }
+ 883          
+ 884          //--------------------------------------------------
+ 885          // Description  : SDRAM Restore Initial Phase
+ 886          // Input Value  : None
+ 887          // Output Value : None
+ 888          //--------------------------------------------------
+ 889          void ScalerSdramRestoreInitialPhase(void)
+ 890          {
+ 891   1          ScalerSetByte(P4_C1_TX_CLK_DLY2, g_pucSdramInitialPhase[0]);
+ 892   1          ScalerSetByte(P4_C3_SDR_RX_CLK_DLY2, g_pucSdramInitialPhase[1]);
+ 893   1          ScalerSetByte(P4_C5_SDR_RX_CLK_DLY4, g_pucSdramInitialPhase[2]);
+ 894   1          ScalerSetBit(P4_C8_MCLK_CTRL, ~_BIT2, ((g_ucWrPhasePoint << 2) & _BIT2));
+ 895   1      }
+ 896          
+ 897          #endif  // End of #if(_Sdram_PHASE_CALIBRATION == _ON)
+ 898          
+ 899          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1461    ----
+   CONSTANT SIZE    =     14    ----
+   XDATA SIZE       =     12      20
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V8.12   SCALERSDRAM                                                           03/10/2025 13:50:27 PAGE 16  
+
+   BIT SIZE         =   ----       7
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

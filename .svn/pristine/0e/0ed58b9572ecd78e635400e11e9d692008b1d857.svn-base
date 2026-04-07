@@ -1,0 +1,155 @@
+C51 COMPILER V8.12   OSDROUNDEDWINDOW                                                      03/11/2025 19:55:59 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE OSDROUNDEDWINDOW
+OBJECT MODULE PLACED IN .\Output\OsdRoundedWindow.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerFunction\Lib\Code\ScalerOSD\Windows\OsdRoundedWindow.c LARGE OP
+                    -TIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..
+                    -\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449
+                    -_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\Os
+                    -dRoundedWindow.lst) OBJECT(.\Output\OsdRoundedWindow.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : OsdRoundedWindow.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "ScalerOSDLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerOsdRoundedWindowSize(EnumOsdWindowsType enumOsdWindowsType, EnumOsdRoundedWindowType enumRounde
+             -dWinSize);
+  42          
+  43          //****************************************************************************
+  44          // FUNCTION DEFINITIONS
+  45          //****************************************************************************
+  46          //--------------------------------------------------
+  47          // Description  : Set Window Rounded Window Size
+  48          // Input Value  : enumOsdWindowsType -> _OSD_WINDOW_0 or _OSD_WINDOW_5 or _OSD_WINDOW_4_1 ~ _OSD_WINDOW_4_
+             -8 or _OSD_WINDOW_5_1 ~ _OSD_WINDOW_5_8
+  49          //                enumRoundedWinSize -> _OSD_ROUNDED_WIN_SIZE_8x8 or _OSD_ROUNDED_WIN_SIZE_16x16 or _OSD_R
+C51 COMPILER V8.12   OSDROUNDEDWINDOW                                                      03/11/2025 19:55:59 PAGE 2   
+
+             -OUNDED_WIN_SIZE_32x32
+  50          // Output Value :
+  51          //--------------------------------------------------
+  52          void ScalerOsdRoundedWindowSize(EnumOsdWindowsType enumOsdWindowsType, EnumOsdRoundedWindowType enumRounde
+             -dWinSize)
+  53          {
+  54   1          BYTE ucTemp = 0;
+  55   1      
+  56   1          if(enumOsdWindowsType == _OSD_WINDOW_0)
+  57   1          {
+  58   2              // Set Rouned Window Size
+  59   2              ucTemp = ScalerOsdFrameControlByteGet((_P0_92_PT_178_WIN0_ADR10_LSB >> 4), _OSD_BYTE0);
+  60   2      
+  61   2              // Set Rouned Window Size
+  62   2      #if(_OSD_WINDOW_ROUNED_PATTERN_32X32_SUPPORT == _ON)
+  63   2              ucTemp = ((ucTemp & (~(_BIT2 | _BIT1))) | (enumRoundedWinSize));
+  64   2      #else
+                      ucTemp = ((ucTemp & (~_BIT1)) | (enumRoundedWinSize));
+              #endif
+  67   2      
+  68   2              ScalerOsdWriteByte((_OSD_WIN_CONTROL | _OSD_BYTE0), _OSD_WITHOUT_DB, (_P0_92_PT_178_WIN0_ADR10_LSB
+             - >> 4), ucTemp);
+  69   2          }
+  70   1          else if(enumOsdWindowsType == _OSD_WINDOW_5)
+  71   1          {
+  72   2              // Get Rouned Window Info
+  73   2              ucTemp = ScalerOsdFrameControlByteGet((_P0_92_PT_19B_WIN5_ADR10_LSB >> 4), _OSD_BYTE0);
+  74   2      
+  75   2              // Set Rouned Window Size
+  76   2      #if(_OSD_WINDOW_ROUNED_PATTERN_32X32_SUPPORT == _ON)
+  77   2              ucTemp = ((ucTemp & (~(_BIT2 | _BIT1))) | (enumRoundedWinSize));
+  78   2      #else
+                      ucTemp = ((ucTemp & (~_BIT1)) | (enumRoundedWinSize));
+              #endif
+  81   2      
+  82   2              ScalerOsdWriteByte((_OSD_WIN_CONTROL | _OSD_BYTE0), _OSD_WITHOUT_DB, (_P0_92_PT_19B_WIN5_ADR10_LSB
+             - >> 4), ucTemp);
+  83   2          }
+  84   1          else if((enumOsdWindowsType >= _OSD_WINDOW_4_1) && (enumOsdWindowsType <= _OSD_WINDOW_4_8))
+  85   1          {
+  86   2              // Get Rouned Window Info
+  87   2              ucTemp = ScalerOsdFrameControlByteGet(((_P0_92_PT_1BE_WIN4_1_ADR10_LSB >> 4) + ((enumOsdWindowsTyp
+             -e - _OSD_WINDOW_4_1) * 7)), _OSD_BYTE0);
+  88   2      
+  89   2              // Set Rouned Window Size
+  90   2      #if(_OSD_WINDOW_ROUNED_PATTERN_32X32_SUPPORT == _ON)
+  91   2              ucTemp = ((ucTemp & (~(_BIT2 | _BIT1))) | (enumRoundedWinSize));
+  92   2      #else
+                      ucTemp = ((ucTemp & (~_BIT1)) | (enumRoundedWinSize));
+              #endif
+  95   2      
+  96   2              ScalerOsdWriteByte((_OSD_WIN_CONTROL | _OSD_BYTE0), _OSD_WITHOUT_DB, ((_P0_92_PT_1BE_WIN4_1_ADR10_
+             -LSB >> 4) + ((enumOsdWindowsType - _OSD_WINDOW_4_1) * 7)), ucTemp);
+  97   2          }
+  98   1      #if(_OSD_WINDOW_5_1_5_8_SUPPORT == _ON)
+  99   1          else if((enumOsdWindowsType >= _OSD_WINDOW_5_1) && (enumOsdWindowsType <= _OSD_WINDOW_5_8))
+ 100   1          {
+ 101   2              // Get Rouned Window Info
+ 102   2              ucTemp = ScalerOsdFrameControlByteGet(((_P0_92_PT_2A6_WIN5_1_ADR10_LSB >> 4) + ((enumOsdWindowsTyp
+             -e - _OSD_WINDOW_5_1) * 10)), _OSD_BYTE0);
+ 103   2      
+ 104   2              // Set Rouned Window Size
+C51 COMPILER V8.12   OSDROUNDEDWINDOW                                                      03/11/2025 19:55:59 PAGE 3   
+
+ 105   2      #if(_OSD_WINDOW_ROUNED_PATTERN_32X32_SUPPORT == _ON)
+ 106   2              ucTemp = ((ucTemp & (~(_BIT2 | _BIT1))) | (enumRoundedWinSize));
+ 107   2      #else
+                      ucTemp = ((ucTemp & (~_BIT1)) | (enumRoundedWinSize));
+              #endif
+ 110   2      
+ 111   2              ScalerOsdWriteByte((_OSD_WIN_CONTROL | _OSD_BYTE0), _OSD_WITHOUT_DB, ((_P0_92_PT_2A6_WIN5_1_ADR10_
+             -LSB >> 4) + ((enumOsdWindowsType - _OSD_WINDOW_5_1) * 10)), ucTemp);
+ 112   2          }
+ 113   1      #endif
+ 114   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    221    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       3
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

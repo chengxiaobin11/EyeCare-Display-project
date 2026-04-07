@@ -1,0 +1,170 @@
+C51 COMPILER V9.01   RL6449_SERIES_TCON                                                    05/24/2025 15:52:08 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE RL6449_SERIES_TCON
+OBJECT MODULE PLACED IN .\Output\RL6449\RL6449_Series_TCON.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\Scaler\RL6449_Series_Scaler\Code\RL6449_Series_TCON.c LARGE OPTIMIZE
+                    -(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\H
+                    -eader;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\L
+                    -ib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kernel\Scaler\RL
+                    -6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Common\Lib\Heade
+                    -r;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\Us
+                    -er\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Heade
+                    -r) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449\RL6449_Series_T
+                    -CON.lst) OBJECT(.\Output\RL6449\RL6449_Series_TCON.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_TCON.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          //****************************************************************************
+  32          // VARIABLE DECLARATIONS
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // FUNCTION DECLARATIONS
+  37          //****************************************************************************
+  38          #if(_PWM_RST_SIGNAL_SEL == _TCON)
+              void ScalerTconAdjust(BYTE ucArea);
+              #endif
+  41          #if(_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+              #if(_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+              void ScalerTconInvEnableByIndex(BYTE ucTconIndex, bit bEnable);
+              #endif
+              void ScalerTconLogicalOpEnable(EnumTconLogicalOpSet enumTconLogicalOpSet, EnumTconLogicalOp enumTconLogica
+             -lOp, bit bEnable);
+              #endif
+C51 COMPILER V9.01   RL6449_SERIES_TCON                                                    05/24/2025 15:52:08 PAGE 2   
+
+  47          
+  48          //****************************************************************************
+  49          // FUNCTION DEFINITIONS
+  50          //****************************************************************************
+  51          
+  52          #if(_PWM_RST_SIGNAL_SEL == _TCON)
+              //--------------------------------------------------
+              // Description  : PWM reset by TCON,adjust TCON
+              // Input Value  : usVstart --> TCON phase shift
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTconAdjust(BYTE ucArea)
+              {
+                  WORD usVstart = 0;
+              
+                  usVstart = (WORD)(((DWORD)(ucArea) * (DWORD)(GET_INPUT_TIMING_VTOTAL() - 100)) / 100);
+              
+                  ScalerTcon8Adjust(0x0000, 0x1FFF, usVstart, (usVstart + 0x02)); // 0x02 indicate Tcon pulse width equa
+             -l to 2 lines
+              }
+              
+              #endif
+  68          
+  69          #if(_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+              #if(_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Set Specified Tcon invert enable
+              // Input Value  : ucTconIndex --> Specified Tcon Index
+              //                bEnable --> enable
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTconInvEnableByIndex(BYTE ucTconIndex, bit bEnable)
+              {
+                  ScalerSetDataPortBit(P15_A3_TCON_ADDR, _P15_A4_PT_18_TC0_CTRL + (ucTconIndex << 4), ~(_BIT6), ((BYTE)b
+             -Enable << 6));
+              }
+              
+              #endif
+              //--------------------------------------------------
+              // Description  : Set Tcon logical operation enable
+              // Input Value  :
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTconLogicalOpEnable(EnumTconLogicalOpSet enumTconLogicalOpSet, EnumTconLogicalOp enumTconLogica
+             -lOp, bit bEnable)
+              {
+                  if(bEnable == _ENABLE)
+                  {
+                      switch(enumTconLogicalOp)
+                      {
+                          case _TCON_LOGICAL_OP_AND:
+                              ScalerSetDataPortBit(P15_A3_TCON_ADDR, _P15_A4_PT_18_TC0_CTRL + (BYTE)(enumTconLogicalOpSe
+             -t << 4), ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), _BIT0);
+                              break;
+                          case _TCON_LOGICAL_OP_OR:
+                              ScalerSetDataPortBit(P15_A3_TCON_ADDR, _P15_A4_PT_18_TC0_CTRL + (BYTE)(enumTconLogicalOpSe
+             -t << 4), ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), _BIT1);
+                              break;
+                          case _TCON_LOGICAL_OP_XOR:
+                              ScalerSetDataPortBit(P15_A3_TCON_ADDR, _P15_A4_PT_18_TC0_CTRL + (BYTE)(enumTconLogicalOpSe
+             -t << 4), ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+                              break;
+C51 COMPILER V9.01   RL6449_SERIES_TCON                                                    05/24/2025 15:52:08 PAGE 3   
+
+                          case _TCON_TOGGLE_OP_NORMAL:
+                              ScalerSetDataPortBit(P15_A3_TCON_ADDR, _P15_A4_PT_18_TC0_CTRL + (BYTE)(enumTconLogicalOpSe
+             -t << 4), ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT3 | _BIT2));
+                              break;
+                          case _TCON_TOGGLE_OP_AND:
+                              ScalerSetDataPortBit(P15_A3_TCON_ADDR, _P15_A4_PT_18_TC0_CTRL + (BYTE)(enumTconLogicalOpSe
+             -t << 4), ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT3 | _BIT2 | _BIT0));
+                              break;
+                          case _TCON_TOGGLE_OP_OR:
+                              ScalerSetDataPortBit(P15_A3_TCON_ADDR, _P15_A4_PT_18_TC0_CTRL + (BYTE)(enumTconLogicalOpSe
+             -t << 4), ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT3 | _BIT2 | _BIT1));
+                              break;
+                          default:
+                              ScalerSetDataPortBit(P15_A3_TCON_ADDR, _P15_A4_PT_18_TC0_CTRL + (BYTE)(enumTconLogicalOpSe
+             -t << 4), ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+                              break;
+                      }
+                  }
+                  else
+                  {
+                      ScalerSetDataPortBit(P15_A3_TCON_ADDR, _P15_A4_PT_18_TC0_CTRL + (BYTE)(enumTconLogicalOpSet << 4),
+             - ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+                  }
+              }
+              #endif
+ 123          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,152 @@
+C51 COMPILER V8.12   RL6463_SERIES_SDRAM                                                   03/10/2025 13:50:49 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_SDRAM
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_SDRAM.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_SDRAM.c LARGE 
+                    -OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\
+                    -System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFu
+                    -nction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\S
+                    -caler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\Us
+                    -er\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\None
+                    -Osd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND P
+                    -RINT(.\Output\RL6463\RL6463_Series_SDRAM.lst) OBJECT(.\Output\RL6463\RL6463_Series_SDRAM.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_SDRAM.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          //****************************************************************************
+  32          // VARIABLE DECLARATIONS
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // FUNCTION DECLARATIONS
+  37          //****************************************************************************
+  38          #if(_MEMORY_TYPE_CONFIG == _MEMORY_SDRAM)
+  39          void ScalerSdramPowerEnable(bit bOn);
+  40          void ScalerSdramPinshareInitial(void);
+  41          void ScalerSdramMpllPowerDown(void);
+  42          #endif
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          #if(_MEMORY_TYPE_CONFIG == _MEMORY_SDRAM)
+  48          //--------------------------------------------------
+C51 COMPILER V8.12   RL6463_SERIES_SDRAM                                                   03/10/2025 13:50:49 PAGE 2   
+
+  49          // Description  : Sdram ScalerSdramPowerMode
+  50          // Input Value  : None
+  51          // Output Value : None
+  52          //--------------------------------------------------
+  53          void ScalerSdramPowerEnable(bit bOn)
+  54          {
+  55   1          if(bOn == _ON)
+  56   1          {
+  57   2              // Config for SDRAM MCM Mde
+  58   2              ScalerSetBit(P4_00_SDR_CTRL, ~(_BIT1 | _BIT0), (_BIT1 | _BIT0));
+  59   2      
+  60   2              // Disable Sdram CKE force low into Power down mode
+  61   2              ScalerSetBit(P4_A6_SDR_SLEW_RATE, ~_BIT1, 0x00);
+  62   2      
+  63   2              // Precharge power down mode select
+  64   2              ScalerSetBit(P4_B7_SDR_POWER_CTRL0, ~(_BIT5 | _BIT4), 0x00);
+  65   2      
+  66   2              // Delay Time us [5,x] Waiting for DDR setting
+  67   2              DELAY_5US();
+  68   2      
+  69   2              // Inactive power down
+  70   2              ScalerSetBit(P4_B7_SDR_POWER_CTRL0, ~_BIT7, 0x00);
+  71   2          }
+  72   1          else
+  73   1          {
+  74   2              // Config for SDRAM MCM Mde
+  75   2              ScalerSetBit(P4_00_SDR_CTRL, ~(_BIT1 | _BIT0), (_BIT1 | _BIT0));
+  76   2      
+  77   2              // Self Refresh mode select
+  78   2              ScalerSetBit(P4_B7_SDR_POWER_CTRL0, ~(_BIT5 | _BIT4), (_BIT5 | _BIT4));
+  79   2      
+  80   2              // Delay Time us [5,x] Waiting for DDR setting
+  81   2              DELAY_5US();
+  82   2      
+  83   2              // Active power down
+  84   2              ScalerSetBit(P4_B7_SDR_POWER_CTRL0, ~_BIT7, _BIT7);
+  85   2      
+  86   2              // Enable Sdram CKE force low into Power down mode
+  87   2              ScalerSetBit(P4_A6_SDR_SLEW_RATE, ~_BIT1, _BIT1);
+  88   2      
+  89   2              // Config for Non-SDRAM MCM Mde
+  90   2              ScalerSetBit(P4_00_SDR_CTRL, ~(_BIT1 | _BIT0), 0x00);
+  91   2          }
+  92   1      }
+  93          
+  94          //--------------------------------------------------
+  95          // Description  : Sdram Pinshare Initial
+  96          // Input Value  : None
+  97          // Output Value : None
+  98          //--------------------------------------------------
+  99          void ScalerSdramPinshareInitial(void)
+ 100          {
+ 101   1          ScalerSetByte(P4_01_SDR_CLK_CTRL0, 0x00);
+ 102   1          ScalerSetByte(P4_02_SDR_CMD_CTRL, 0x00);
+ 103   1          ScalerSetByte(P4_03_SDR_DQ_CTRL0, 0x00);
+ 104   1          ScalerSetByte(P4_04_SDR_DQ_CTRL1, 0x00);
+ 105   1          ScalerSetByte(P4_05_SDR_ADR_CTRL, 0x00);
+ 106   1          ScalerSetByte(P4_06_SDR_DQM_CTRL, 0x00);
+ 107   1      }
+ 108          
+ 109          //--------------------------------------------------
+ 110          // Description  : SDRAM MPLL Power Down
+C51 COMPILER V8.12   RL6463_SERIES_SDRAM                                                   03/10/2025 13:50:49 PAGE 3   
+
+ 111          // Input Value  : None
+ 112          // Output Value : None
+ 113          //--------------------------------------------------
+ 114          void ScalerSdramMpllPowerDown(void)
+ 115          {
+ 116   1          // Power off MPLL -> No MPLL
+ 117   1      }
+ 118          #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    105    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,2993 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RTD2014Ddcci.c No.0000
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+
+#define __RTD_DDCCI__
+
+#include "UserCommonInclude.h"
+
+#if(_OSD_TYPE == _REALTEK_2014_OSD)
+
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+#define _DDCCI_FIRMWARE_VERSION                     0x01
+
+#define _DDCCI_BLACKLEVEL_DEFAULT                   0x50
+
+// RC
+#define _DDCCI_CMD_GETVCP_RC_NO_ERROR               0x00
+#define _DDCCI_CMD_GETVCP_RC_UNSUPPORTED            0x01
+
+// TP
+#define _DDCCI_CMD_GETVCP_TP_SET_PARAMETER          0x00
+#define _DDCCI_CMD_GETVCP_TP_MOMENTARY              0x01
+
+//--------------------------------------------------
+// Definitions of Contrast Range (Real Value)
+//--------------------------------------------------
+#define _COLORTEMP_USER_MAX                         255
+#define _COLORTEMP_USER_MIN                         0
+#define _COLORTEMP_USER_CENTER                      (((_COLORTEMP_USER_MAX - _COLORTEMP_USER_MIN) / 2) + _COLORTEMP_USER_MIN)
+
+//--------------------------------------------------
+// For DDCCI Set Input Port
+//--------------------------------------------------
+#define _VGA_1                                      _A0_INPUT_PORT
+#define _DVI_1                                      _NO_INPUT_PORT
+#define _DVI_2                                      _NO_INPUT_PORT
+#define _DP_1                                       _D0_INPUT_PORT
+#define _DP_2                                       _NO_INPUT_PORT
+#define _HDMI_1                                     _D1_INPUT_PORT
+#define _HDMI_2                                     _D2_INPUT_PORT
+
+//--------------------------------------------------
+// Dell DDM Tool
+//--------------------------------------------------
+#define _DDCCI_OPCODE_VCP_DELL_DDM_SUPPORT          0xF1
+
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+// sRGB, 9300k, 7500k, 6500k, 5000k, User
+BYTE code tCOLORPRESET_VALUE[] = 
+{
+#if(_DEF_CT_SRGB_SUPPIRT == _ON)
+	0x01, 
+#endif
+	0x08, 
+	0x06, 
+	0x05, 
+#if(_DEF_CT_5800_SUPPORT == _ON)
+	0x04, 
+#endif
+	0x0B, 
+	0x03
+};
+//- 0x00 = Reserved, must be ignored
+//- 0x01 = Chinese (traditional / Hantai)	 - 0x02 = English		- 0x03 = French 	- 0x04 = German
+//- 0x05 = Italian						- 0x06 = Japanese			- 0x07 = Korean 	- 0x08 = Portuguese (Portugal)
+//- 0x09 = Russian						- 0x0A = Spanish (Espanol)	- 0x0B = Swedish	- 0x0C = Turkish
+//- 0x0D = Chinese (simplified / Kantai)	  - 0x0E = Portuguese (Brazil)	  - 0x0F = Arabic			- 0x10 = Bulgarian
+//- 0x11 = Croatian 					- 0x12 = Czech				- 0x13 = Danish 	- 0x14 = Dutch (Netherlands)
+//- 0x15 = Estonian 					- 0x16 = Finnish			- 0x17 = Greek		- 0x18 = Hebrew
+//- 0x19 = Hindi						- 0x1A = Hungarian			- 0x1B = Latvian	- 0x1C = Lithuanian
+//- 0x1D = Norwegian					- 0x1E = Polish 			- 0x1F = Romanian	- 0x20 = Serbian
+//- 0x21 = Slovak						- 0x22 = Slovenian			- 0x23 = Thai		- 0x24 = Ukrainian
+//- 0x25 = Vietnamese
+
+#if(_18_LANGUAGE_SUPPORT)
+BYTE code tLANGUAGEDEFINE[] = {0x02, 0x03, 0x04, 0x14, 0x0A, 0x05, 0x0B, 0x09, 0x0C, 0x1E, 0x12, 0x1F, 0x23, 0x26, 0x06, 0x01, 0x0D, 0x25};
+#else
+BYTE code tLANGUAGEDEFINE[] = {0x02, 0x03, 0x04, 0x0A, 0x05, 0x16, 0x0B, 0x09, 0x0C, 0x12, 0x06, 0x07, 0x01, 0x0D, 0x25};
+#endif
+
+//_CT_SRGB
+
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+BYTE g_ucDdcciRedBlackLevel   = _DDCCI_BLACKLEVEL_DEFAULT;
+BYTE g_ucDdcciGreenBlackLevel = _DDCCI_BLACKLEVEL_DEFAULT;
+BYTE g_ucDdcciBlueBlackLevel  = _DDCCI_BLACKLEVEL_DEFAULT;
+BYTE g_ucDdcciNewControlValue = 1;
+BYTE g_ucDdcciActiveValue;
+BYTE g_ucColorTempUnSupport;
+
+bit g_bForcePowSavStatus = _FALSE;
+
+BYTE g_ucVCP_OSD_ON_OFF   = 0x02;
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+void UserDdcciHandler(void);
+void RTDDdcciGetVCPFeature(void);
+bit RTDDdcciSetVCPFeatureCheck(void);
+void RTDDdcciSetVCPFeature(void);
+void RTDDdcciResetAllSettings(void);
+void RTDDdcciColorReset(void);
+//void RTDDdcciEdidProc(void);
+
+extern void RTDDdcciAutoAlignPro(void);
+extern	bit TPVFCmdFactoryCommand(void);
+extern void UserAdjustViewMode(void);
+
+
+extern void CTXAlignControl(void);
+extern void RTDDdcciAutoAlignPro(void);
+extern void CTXWriteEdid( void);
+#if(_OD_SUPPORT == _ON)
+extern void UserAdjustOverDrive(void);
+#endif
+
+//****************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+
+void RTDDdccireply(BYTE Flag)
+{
+	g_pucDdcciTxBuf[0]=0x6E;
+	g_pucDdcciTxBuf[1]=0x82;
+	g_pucDdcciTxBuf[2]=0x02;
+	g_pucDdcciTxBuf[3]=Flag;
+	g_pucDdcciTxBuf[4] = UserCommonDdcciCalCheckSum();
+	ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+#if 1//((_OGC_SUPPORT == _ON) || (_OCC_SUPPORT == _ON) || (_OGC_DICOM_SUPPORT == _ON))	
+	ScalerMcuDdcciReleaseScl();
+#endif
+}
+
+//--------------------------------------------------
+// Description  : DDC Handler Process
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void UserDdcciHandler(void)
+{
+    if(GET_OSD_DDCCI_STATUS() == _ON)
+    {
+        // Check if Data is needed to be received
+        // Reply data to source according to the request
+        if(GET_RUN_DDCCI_COMMAND() == _SUCCESS)
+        {
+        	/*if(SysModeGetModeState() != _MODE_STATUS_INITIAL)
+        	{
+				g_usShowTimingNotice = _OFF;
+				OsdDispDisableOsd();
+			}*/
+			
+        	if(TPVFCmdFactoryCommand() == _FALSE)
+			{
+            	switch(g_pucDdcciRxBuf[_DDCCI_COMMAND])
+	            {
+	                case _DDCCI_CMD_GET_VCP_FEATURE:
+	                    RTDDdcciGetVCPFeature();
+	                    break;
+
+	                case _DDCCI_CMD_SET_VCP_FEATURE:
+	                    RTDDdcciSetVCPFeature();
+	                    break;
+
+	                case _DDCCI_CMD_GET_TIMING_REPORT:
+	                    UserCommonDdcciGetTimingReport();
+	                    break;
+
+	                case _DDCCI_CMD_SAVE_CURRENT_SETTINGS:
+	                    break;
+
+	                case _DDCCI_CMD_CAPABILITIES_REQUEST:
+	                    UserCommonDdcciGetCapabilitiesRequest();
+	                    break;
+#if(_CTX_TPV)						
+					case CTX_ALIGN:
+						g_usShowTimingNotice = _OFF;
+						CTXAlignControl();
+                         break;
+#if (_ENABLE_WRITE_EDID_CTX==_ON)
+											
+					case CTX_WRITE_EDID:
+						CTXWriteEdid();
+						break;
+#endif
+#endif
+	                default:
+	                    UserCommonDdcciInitTx();
+	                    break;
+	            }
+        	}
+			// 20240117 调HDR的工具和调色温都有概率卡死,在此释放SCL
+			if(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE] == _DDCCI_OPCODE_VCP_AUTOALIGN || g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE] == _DDCCI_OPCODE_VCP_DISP_CALIBRATION)
+				ScalerMcuDdcciReleaseScl();
+
+            UserCommonDdcciInitRx();
+
+            SET_RUN_DDCCI_COMMAND(_FAIL);
+        }
+    }
+#if((_DP_SUPPORT == _ON) && (_DP_MST_SUPPORT == _ON))
+    else
+    {
+        // Check if Data is needed to be received
+        // Reply data to source according to the request
+        if((GET_RUN_DDCCI_COMMAND() == _SUCCESS) && (UserCommonInterfaceGetDpMstCapablePort() != _DP_MST_NO_PORT))
+        {
+            UserCommonDdcciInitTx();
+            SET_RUN_DDCCI_COMMAND(_FAIL);
+        }
+    }
+#endif
+}
+
+#if(_DDCCI_CUSTOM_CAPABILITY_STR_SUPPORT == _ON)
+//--------------------------------------------------
+// Description  : Get custom capability string data
+// Input Value  : pucDest -> destination
+//                enumPortType -> port type
+//                usStartIndex -> data offset
+//                usLength -> data length
+// Output Value : None
+//--------------------------------------------------
+void UserInterfaceDdcciGetCpStringData(BYTE *pucDest, EnumInputPortType enumPortType, WORD usStartIndex, WORD usLength)
+{
+    pucDest = pucDest;
+    enumPortType = enumPortType;
+    usStartIndex = usStartIndex;
+    usLength = usLength;
+}
+
+//--------------------------------------------------
+// Description  : Get custom capability string size
+// Input Value  : enumPortType -> port type
+// Output Value : size
+//--------------------------------------------------
+WORD UserInterfaceDdcciGetCpStringSize(EnumInputPortType enumPortType)
+{
+    enumPortType = enumPortType;
+    return 0;
+}
+#endif
+
+//--------------------------------------------------
+// Description  : DDCCI Get VCP Feature & VCP Feature Reply
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void RTDDdcciGetVCPFeature(void)
+{
+    BYTE pucTemp[2] = {0};
+#if(_CTX_TPV)	
+#if (_ENABLE_WRITE_EDID_CTX==_ON)
+			if(g_pucDdcciTxBuf[_DDCCI_SOURCE_OPCODE] == VCP_BOE_FACTORY_ALIGNMENT )//&& u8PageValue == 0)
+			{
+				
+			}
+			 else
+#endif
+#endif
+            {
+              g_pucDdcciTxBuf[_DDCCI_SOURCE] = _DDCCI_DEST_ADDRESS;
+              g_pucDdcciTxBuf[_DDCCI_LENGTH] = _DDCCI_CONTROL_STATUS_FLAG | 0x08;
+              g_pucDdcciTxBuf[_DDCCI_COMMAND] = _DDCCI_CMD_GET_VCP_FEATURE_REPLY;
+              g_pucDdcciTxBuf[_DDCCI_RESULT_CODE] = _DDCCI_CMD_GETVCP_RC_NO_ERROR;
+              g_pucDdcciTxBuf[_DDCCI_SINK_OPCODE] = g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE];
+            }
+    switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+    {
+#if(_CTX_TPV)
+#if (_ENABLE_WRITE_EDID_CTX==_ON)
+		case VCP_BOE_FACTORY_ALIGNMENT:
+		   CTXWriteEdid();
+		  break;
+
+#endif
+#endif
+		case _DDCCI_OPCODE_VCP_DDCPROC:
+			{
+					//	WORD udAddress;
+					//	udAddress=((WORD)(256*g_pucDdcciRxBuf[4])+g_pucDdcciRxBuf[5]);
+						
+						
+			///**/flash area 
+			/*
+						UserCommonFlashRead(_EEPROM_HDCP_KEY_FLASH_BANK,(_MISC_PAGE) * _FLASH_PAGE_SIZE+127, 1, &g_pucDdcciTxBuf[3]);
+						UserCommonFlashRead(_EEPROM_HDCP_KEY_FLASH_BANK,(_MISC_PAGE) * _FLASH_PAGE_SIZE+255, 1, &g_pucDdcciTxBuf[4]);
+						UserCommonFlashRead(_EEPROM_HDCP_KEY_FLASH_BANK,(_MISC_PAGE) * _FLASH_PAGE_SIZE+383, 1, &g_pucDdcciTxBuf[5]);
+						UserCommonFlashRead(_EEPROM_HDCP_KEY_FLASH_BANK,(_MISC_PAGE) * _FLASH_PAGE_SIZE+511, 1, &g_pucDdcciTxBuf[6]);
+			*/	
+#if((_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH))
+#if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+						g_pucDdcciTxBuf[3] = MCU_DDCRAM_A0[127];
+#endif
+#endif
+			
+#if((_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH))
+#if(_D0_INPUT_PORT_TYPE == _D0_DVI_PORT)
+						g_pucDdcciTxBuf[4] = MCU_DDCRAM_D0[127];
+			
+#elif(_D0_INPUT_PORT_TYPE >_D0_DVI_PORT)
+						g_pucDdcciTxBuf[5] = MCU_DDCRAM_D0[127];
+						g_pucDdcciTxBuf[6] = MCU_DDCRAM_D0[255];
+#endif
+#endif
+			
+#if((_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH))
+#if(_D1_INPUT_PORT_TYPE == _D1_DVI_PORT)
+						g_pucDdcciTxBuf[4] = MCU_DDCRAM_D1[127];
+#elif(_D1_INPUT_PORT_TYPE > _D1_DVI_PORT)
+						g_pucDdcciTxBuf[5] = MCU_DDCRAM_D1[127];
+						g_pucDdcciTxBuf[6] = MCU_DDCRAM_D1[255];
+#endif
+#endif
+			
+						g_pucDdcciTxBuf[7]=0;
+						g_pucDdcciTxBuf[8]=0;
+						g_pucDdcciTxBuf[9]=0;
+						g_pucDdcciTxBuf[10]=0;
+						
+						g_pucDdcciTxBuf[_DDCCI_LENGTH]=9;
+						g_pucDdcciTxBuf[11] = UserCommonDdcciCalCheckSum();
+						ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+						//ScalerTimerActiveTimerEvent(SEC(0.5), _USER_TIMER_EVENT_OSD_DISABLE);
+						//OsdDispDisableOsd();
+						return;
+			}
+			break;
+        case _DDCCI_OPCODE_VCP_NEW_CONTROL_VALUE:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, g_ucDdcciNewControlValue);
+            break;
+
+        case _DDCCI_OPCODE_VCP_FACTORY_RESET:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+            break;
+
+        case _DDCCI_OPCODE_VCP_RECAL_BRI_CON:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+            break;
+
+        case _DDCCI_OPCODE_VCP_GEOMETRY_RESET:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+            break;
+
+        case _DDCCI_OPCODE_VCP_COLOR_RESET:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+            break;
+
+        case _DDCCI_OPCODE_VCP_COLOR_TEMP_INCREMENT:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0064, 100);
+            break;
+
+        case _DDCCI_OPCODE_VCP_COLOR_TEMP_REQUEST:
+            switch(GET_COLOR_TEMP_TYPE())
+            {
+                case _CT_SRGB:
+                    pucTemp[0] = (40 - 30);
+                    break;
+
+				case _CT_9300:
+					pucTemp[0] = (93 - 30);
+					break;
+
+				case _CT_7500:
+					pucTemp[0] = (75 - 30);
+					break;
+
+                case _CT_6500:
+                    pucTemp[0] = (65 - 30);
+                    break;
+
+                case _CT_5000:
+                    pucTemp[0] = (50 - 30);
+                    break;
+		/*
+				case _CT_4500:
+					pucTemp[0] = (45 - 30);
+					break;
+		*/
+                default:
+                    pucTemp[0] = (65 - 30);
+                    break;
+            }
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x00, pucTemp[0]);
+            break;
+
+#if(_VGA_SUPPORT == _ON)
+        case _DDCCI_OPCODE_VCP_CLOCK:
+
+#if(_AUTO_CLOCK_SAVE_VALUE_OPTION == _CLOCK_SAVE_PERCENT_VALUE)
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_VGA_MODE_ADJUST_CLOCK());
+#else
+            {
+                WORD usClockRangeMax = 0;
+                WORD usClockRangeMin = 0;
+                BYTE ucClock = 0;
+
+                usClockRangeMax = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MAX);
+                usClockRangeMin = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MIN);
+                ucClock = UserCommonAdjustRealValueToPercent(GET_VGA_MODE_ADJUST_CLOCK(), usClockRangeMax, usClockRangeMin, (((usClockRangeMax - usClockRangeMin) / 2) + usClockRangeMin));
+
+                UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, ucClock);
+            }
+#endif
+            break;
+
+#endif // End of #if(_VGA_SUPPORT == _ON)
+
+        case _DDCCI_OPCODE_VCP_BACKLIGHT:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100,
+                                      (WORD)UserCommonAdjustRealValueToPercent(GET_OSD_BACKLIGHT(),
+                                      _BACKLIGHT_MAX_1, _BACKLIGHT_MIN, _BACKLIGHT_CENTER));
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_CONTRAST:
+			UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_CONTRAST());
+            //UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100,
+                                           // (WORD)UserCommonAdjustRealValueToPercent(GET_OSD_CONTRAST(), _CONTRAST_MAX, _CONTRAST_MIN, _CONTRAST_CENTER));
+            break;
+
+        case _DDCCI_OPCODE_VCP_SELECT_COLOR_PRESET:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x000B,
+                                            tCOLORPRESET_VALUE[GET_COLOR_TEMP_TYPE()]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_BLUELIGHT:
+			UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_LOW_BLUE());
+            break;
+
+        case _DDCCI_OPCODE_VCP_BLK_STABLE:
+			UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 10, GET_OSD_BLACKSTABLE());
+            break;
+
+		case _DDCCI_OPCODE_VCP_RED:
+		case _DDCCI_OPCODE_VCP_YELLOW:
+		case _DDCCI_OPCODE_VCP_GREEN:
+		case _DDCCI_OPCODE_VCP_CYAN:
+		case _DDCCI_OPCODE_VCP_BLUE:
+		case _DDCCI_OPCODE_VCP_MAGENDA:
+
+			switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+			{
+				case _DDCCI_OPCODE_VCP_RED:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_R);
+					break;
+				case _DDCCI_OPCODE_VCP_YELLOW:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_Y);
+					break;
+				case _DDCCI_OPCODE_VCP_GREEN:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_G);
+					break;
+				case _DDCCI_OPCODE_VCP_CYAN:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_C);
+					break;
+				case _DDCCI_OPCODE_VCP_BLUE:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_B);
+					break;
+				case _DDCCI_OPCODE_VCP_MAGENDA:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_M);
+					break;
+
+			}
+
+            OsdDisplaySixColorGetOneColor(GET_OSD_SIX_COLOR());
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_SIX_COLOR_HUE());
+
+			
+            break;
+
+
+
+		case _DDCCI_OPCODE_VCP_SAT_RED:
+		case _DDCCI_OPCODE_VCP_SAT_YELLOW:
+		case _DDCCI_OPCODE_VCP_SAT_GREEN:
+		case _DDCCI_OPCODE_VCP_SAT_CYAN:
+		case _DDCCI_OPCODE_VCP_SAT_BLUE:
+		case _DDCCI_OPCODE_VCP_SAT_MAGENTA:
+
+			switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+			{
+				case _DDCCI_OPCODE_VCP_SAT_RED:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_R);
+					break;
+				case _DDCCI_OPCODE_VCP_SAT_YELLOW:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_Y);
+					break;
+				case _DDCCI_OPCODE_VCP_SAT_GREEN:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_G);
+					break;
+				case _DDCCI_OPCODE_VCP_SAT_CYAN:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_C);
+					break;
+				case _DDCCI_OPCODE_VCP_SAT_BLUE:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_B);
+					break;
+				case _DDCCI_OPCODE_VCP_SAT_MAGENTA:
+					SET_OSD_SIX_COLOR(_SIXCOLOR_M);
+					break;
+
+			}
+
+            OsdDisplaySixColorGetOneColor(GET_OSD_SIX_COLOR());
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_SIX_COLOR_SATURATION());
+
+			
+            break;
+
+
+        case _DDCCI_OPCODE_VCP_RED_GAIN:
+            pucTemp[0] = GET_COLOR_TEMP_TYPE();
+
+            if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+            {
+                SET_COLOR_TEMP_TYPE(_CT_USER);
+
+                RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+            }
+
+            pucTemp[1] = UserCommonAdjustRealValueToPercent(GET_COLOR_TEMP_TYPE_USER_R(),
+                                                            _USER_RGB_MAX,
+                                                            _USER_RGB_MIN,
+                                                            _USER_RGB_CENTER);
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, pucTemp[1]);
+
+            SET_COLOR_TEMP_TYPE(pucTemp[0]);
+
+            RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+            break;
+
+        case _DDCCI_OPCODE_VCP_GREEN_GAIN:
+            pucTemp[0] = GET_COLOR_TEMP_TYPE();
+
+            if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+            {
+                SET_COLOR_TEMP_TYPE(_CT_USER);
+
+                RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+            }
+
+            pucTemp[1] = UserCommonAdjustRealValueToPercent(GET_COLOR_TEMP_TYPE_USER_G(),
+                                                            _USER_RGB_MAX,
+                                                            _USER_RGB_MIN,
+                                                            _USER_RGB_CENTER);
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, pucTemp[1]);
+
+            SET_COLOR_TEMP_TYPE(pucTemp[0]);
+
+            RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+            break;
+
+        case _DDCCI_OPCODE_VCP_BLUE_GAIN:
+            pucTemp[0] = GET_COLOR_TEMP_TYPE();
+
+            if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+            {
+                SET_COLOR_TEMP_TYPE(_CT_USER);
+
+                RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+            }
+
+            pucTemp[1] = UserCommonAdjustRealValueToPercent(GET_COLOR_TEMP_TYPE_USER_B(),
+                                                            _USER_RGB_MAX,
+                                                            _USER_RGB_MIN,
+                                                            _USER_RGB_CENTER);
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, pucTemp[1]);
+
+            SET_COLOR_TEMP_TYPE(pucTemp[0]);
+
+            RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+            break;
+
+        case _DDCCI_OPCODE_VCP_AUTO_SET_UP:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+            break;
+
+#if(_VGA_SUPPORT == _ON)
+        case _DDCCI_OPCODE_VCP_AUTO_COLOR:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x01, 0x01);
+            break;
+#endif
+
+        case _DDCCI_OPCODE_VCP_HPOSITION:
+#if(_VGA_SUPPORT == _ON)
+            if(SysSourceGetSourceType() == _SOURCE_VGA)
+            {
+                UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_VGA_MODE_ADJUST_H_POSITION());
+            }
+            else
+#endif
+            {
+                UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_DIGITAL_H_POSITION());
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_VPOSITION:
+#if(_VGA_SUPPORT == _ON)
+            if(SysSourceGetSourceType() == _SOURCE_VGA)
+            {
+                UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_VGA_MODE_ADJUST_V_POSITION());
+            }
+            else
+#endif
+            {
+                UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_DIGITAL_V_POSITION());
+            }
+            break;
+
+#if(_VGA_SUPPORT == _ON)
+        case _DDCCI_OPCODE_VCP_CLOCK_PHASE:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_VGA_MODE_ADJUST_PHASE());
+            break;
+#endif
+
+        case _DDCCI_OPCODE_VCP_ACTIVE_CONTROL:
+            break;
+
+        case _DDCCI_OPCODE_VCP_INPUT_SOURCE:
+
+#if(_PROJECT == _RL6449_PROJECT)
+			if(OsdDispJudgeSourceType()==0x11)
+				pucTemp[2] = 0x12;			
+			else if(OsdDispJudgeSourceType()==0x12)
+				pucTemp[2] = 0x11;
+			else
+#endif
+				pucTemp[2] = OsdDispJudgeSourceType();
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x1D, pucTemp[2]);
+            break;
+
+#if(_AUDIO_SUPPORT == _ENABLE)
+        case _DDCCI_OPCODE_VCP_AUDIO_VOLUME:
+	 case _DDCCI_OPCODE_VCP_MICROPHONE_VOLUME:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_VOLUME());
+            break;
+#endif
+
+        case _DDCCI_OPCODE_VCP_RED_BLACK_LEVEL:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, g_ucDdcciRedBlackLevel);
+            break;
+
+        case _DDCCI_OPCODE_VCP_GREEN_BLACK_LEVEL:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, g_ucDdcciGreenBlackLevel);
+            break;
+
+        case _DDCCI_OPCODE_VCP_BLUE_BLACK_LEVEL:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, g_ucDdcciBlueBlackLevel);
+            break;
+
+        case _DDCCI_OPCODE_VCP_PRODUCTKEY:
+            g_pucDdcciTxBuf[_DDCCI_LENGTH] = _DDCCI_CONTROL_STATUS_FLAG | 9;
+            g_pucDdcciTxBuf[_DDCCI_COMMAND] = _DDCCI_CMD_GET_VCP_FEATURE_REPLY;
+            break;
+
+        case _DDCCI_OPCODE_VCP_GAMMA:
+
+			switch(GET_OSD_GAMMA())
+			{
+				case _GAMMA_OFF:
+					UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 0);
+					break;
+				case _GAMMA_18:
+					UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 180-100);
+					break;
+				case _GAMMA_20:
+					UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 200-100);
+					break;
+				case _GAMMA_22:
+					UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 220-100);
+					break;
+				case _GAMMA_24:
+					UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 240-100);
+					break;
+				case _GAMMA_26:
+					UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 260-100);
+					break;
+				case _GAMMA_28:
+					UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 280-100);
+					break;
+			}
+            break;
+
+        case _DDCCI_OPCODE_VCP_HFREQ:
+			
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, LOWORD(((DWORD)GET_INPUT_TIMING_HFREQ() * 100)), HIWORD(((DWORD)GET_INPUT_TIMING_HFREQ() * 100)));
+            break;
+
+        case _DDCCI_OPCODE_VCP_VFREQ:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, GET_INPUT_TIMING_VFREQ()*10);
+            break;
+
+        case _DDCCI_OPCODE_VCP_PANEL_TYPE:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x01, 1);
+            break;
+
+        case _DDCCI_OPCODE_VCP_MONITOR_TYPE:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x05, 3);
+            break;
+
+        case _DDCCI_OPCODE_VCP_APPLICATION_ENABLE:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFF, 0x5a);
+            break;
+
+        case _DDCCI_OPCODE_VCP_CONTROLLER_TYPE:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0000, 0x0009);
+            break;
+
+        case _DDCCI_OPCODE_VCP_FW_LEVEL:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, _DDCCI_FIRMWARE_VERSION);
+            break;
+
+        case _DDCCI_OPCODE_VCP_OSD_ON_OFF:
+            pucTemp[0] = g_ucVCP_OSD_ON_OFF;
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x08, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_OSD_LANGUAGE:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x26, tLANGUAGEDEFINE[GET_OSD_LANGUAGE()]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_POWER_MODE:
+            if(SysPowerGetPowerStatus() == _POWER_STATUS_OFF)
+            {
+                pucTemp[0] = 0x05;
+            }
+            else if(SysPowerGetPowerStatus() == _POWER_STATUS_SAVING)
+            {
+                pucTemp[0] = 0x04;
+            }
+            else
+            {
+                pucTemp[0] = 0x01;
+            }
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0005, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_FREESYNC:
+
+			if(GET_OSD_FREE_SYNC_STATUS()==_ON)
+                pucTemp[0] = 0x02;
+			else
+                pucTemp[0] = 0x01;
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0003, pucTemp[0]);
+            break;
+
+
+		case _DDCCI_OPCODE_VCP_VIEW_MODE:
+
+
+			if(GET_OSD_VIEWMODE_TYPE()==_VM_STANDARD)
+                pucTemp[0] = 0x00;			
+			else if(GET_OSD_VIEWMODE_TYPE()==_VM_MOVIE)
+                pucTemp[0] = 0x03;			
+			else if(GET_OSD_VIEWMODE_TYPE()==_VM_GAME && GET_OSD_GAME_MODE()==_GM_FPS1)
+                pucTemp[0] = 0x30;	
+#if(_DEF_VIEWMODE_RTS == _ON)
+			else if(GET_OSD_VIEWMODE_TYPE()==_VM_GAME && GET_OSD_GAME_MODE()==_GM_RTS)
+                pucTemp[0] = 0x32;	
+#endif
+#if(_DEF_VIEWMODE_MOBA == _ON)
+			else if(GET_OSD_VIEWMODE_TYPE()==_VM_GAME && GET_OSD_GAME_MODE()==_GM_MOBA)
+				pucTemp[0] = 0x33;	
+#endif
+			else if(GET_OSD_VIEWMODE_TYPE()==_VM_WEB)
+                pucTemp[0] = 0x34;			
+			else if(GET_OSD_VIEWMODE_TYPE()==_VM_TEXT)
+                pucTemp[0] = 0x35;	
+#if(_DEF_VIEWMODE_MAC)
+			else if(GET_OSD_VIEWMODE_TYPE()==_VM_MAC)
+                pucTemp[0] = 0x36;
+#endif
+			else if(GET_OSD_VIEWMODE_TYPE()==_VM_MONO)
+                pucTemp[0] = 0x3E;	
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x3E, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_SLEEP:
+
+			if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_OFF)
+                pucTemp[0] = 0x00;
+			else if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_30)
+                pucTemp[0] = 0x1E;
+			else if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_45)
+                pucTemp[0] = 0x2D;
+			else if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_60)
+                pucTemp[0] = 0x3C;
+			else if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_120)
+                pucTemp[0] = 0x78;
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0078, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_HDR:
+			
+#if(_HDR10_SUPPORT == _ON)
+			if(GET_OSD_HDR_MODE()==_HDR10_MODE_OFF)
+                pucTemp[0] = 0x00;
+			else if(GET_OSD_HDR_MODE()==_HDR10_MODE_AUTO)
+                pucTemp[0] = 0x01;
+#endif
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_ASPECT_RATIO:
+			
+			//if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_FULL)
+                //pucTemp[0] = 0x01;
+			 if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_4_BY_3)
+                pucTemp[0] = 0x02;
+			//else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_ORIGIN)
+                //pucTemp[0] = 0x03;
+			//else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_16_BY_9)
+              //  pucTemp[0] = 0x04;
+			else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_16_BY_9)
+                pucTemp[0] = 0x06;
+			else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_16_BY_10)
+                pucTemp[0] = 0x07;
+			else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_5_BY_4)
+                pucTemp[0] = 0x08;
+
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0008, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_SCAN_MODE:
+
+
+			if(UserAdjustGetOverScanStatus()==_OFF)
+                pucTemp[0] = 0x01;
+			else if(UserAdjustGetOverScanStatus()==_ON)
+                pucTemp[0] = 0x02;
+
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_DCR:
+
+			if(GET_OSD_DCR_STATUS()==_DCR_Level_0)
+                pucTemp[0] = 0x00;
+			else if(GET_OSD_DCR_STATUS()==_DCR_Level_1)
+                pucTemp[0] = 0x19;
+			else if(GET_OSD_DCR_STATUS()==_DCR_Level_2)
+                pucTemp[0] = 0x32;
+			else if(GET_OSD_DCR_STATUS()==_DCR_Level_3)
+                pucTemp[0] = 0x4B;
+			else if(GET_OSD_DCR_STATUS()==_DCR_Level_4)
+                pucTemp[0] = 0x64;
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0064, pucTemp[0]);
+            break;
+
+		case _DDCCI_OPCODE_VCP_RESPONSE_TIME:
+			
+#if(_OD_SUPPORT == _ON)
+			if(GET_OSD_OD_STATUS()== _OD_STANDARD)
+                pucTemp[0] = 0x01;
+	#if(_OD_TIME_OFF_OPTION == _ON)
+			else if(GET_OSD_OD_STATUS()==_OD_OFF)
+                pucTemp[0] = 0x00;
+	#endif
+			else if(GET_OSD_OD_STATUS()==_OD_ADVANCED)
+                pucTemp[0] = 0x02;
+			else if(GET_OSD_OD_STATUS()==_OD_ULTRA_FAST)
+                pucTemp[0] = 0x03;
+#endif
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0003, pucTemp[0]);
+            break;
+			
+        case _DDCCI_OPCODE_VCP_RESOLUTION_NOTICE:
+
+			if(GET_OSD_RESOLUTION_STATUS()== _OFF)
+                pucTemp[0] = 0x01;
+			else if(GET_OSD_RESOLUTION_STATUS()==_ON)
+                pucTemp[0] = 0x02;
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_POWER_INDICATOR:
+
+			if(GET_POWER_INDICATOR()== _OFF)
+                pucTemp[0] = 0x01;
+			else if(GET_POWER_INDICATOR()==_ON)
+                pucTemp[0] = 0x02;
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_AUTO_DETECT:
+
+			if(SysSourceGetScanType()!=(_SOURCE_SWITCH_AUTO_IN_GROUP))
+                pucTemp[0] = 0x01;
+			else if(SysSourceGetScanType()==(_SOURCE_SWITCH_AUTO_IN_GROUP))
+                pucTemp[0] = 0x02;
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_DDCCI:
+
+			if(GET_OSD_DDCCI_STATUS()== _OFF)
+                pucTemp[0] = 0x01;
+			else if(GET_OSD_DDCCI_STATUS()==_ON)
+                pucTemp[0] = 0x02;
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+            break;
+
+        case _DDCCI_OPCODE_VCP_COLOR_SPACE:
+
+        	switch(OsdDisplayGetColorSpaceType())
+        	{
+        		case _SPACE_AUTO:
+        		switch(OsdDisplayGetColorRangeType())
+        		{
+        			case _RANGE_AUTO:
+                        UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 1);
+        			    break;
+        		}
+        		break;
+
+                case _SPACE_RGB:
+        		switch(OsdDisplayGetColorRangeType())
+        		{
+        			case _RANGE_FULL:
+            			UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 2);
+            			break;
+
+                    		case _RANGE_LIMITED:
+            			UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 3);
+            			break;	
+        		}
+        		break;
+
+                case _SPACE_YUV:
+        		switch(OsdDisplayGetColorRangeType())
+        		{
+        			case _RANGE_FULL:
+            			UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 4);
+            			break;
+
+                    		case _RANGE_LIMITED:
+            			UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 5);
+            			break;
+        		}
+        		break;		
+        	}
+            break;
+
+        case _DDCCI_OPCODE_VCP_ECO:
+
+			if(GET_OSD_ECO_STATUS()==_ECO_STANDARD)
+                pucTemp[0] = 0x00;
+			else if(GET_OSD_ECO_STATUS()==_ECO_OPTIMIZE)
+                pucTemp[0] = 0x01;
+			else if(GET_OSD_ECO_STATUS()==_ECO_CONSERVE)
+                pucTemp[0] = 0x02;
+
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0003, pucTemp[0]);
+            break;
+
+
+
+
+        case _DDCCI_OPCODE_VCP_VERSION:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, 0x0202);
+            break;
+
+        case _DDCCI_OPCODE_VCP_SHARPNESS:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0004, GET_OSD_SHARPNESS());
+            break;
+
+
+        case _DDCCI_OPCODE_VCP_AUDIO_MUTE:
+			if(GET_OSD_VOLUME_MUTE())
+			{
+				UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002,0x0001);
+			}
+			else
+			{
+				UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002,0x0002);
+			}
+			break;
+			
+	 	case _DDCCI_OPCODE_VCP_USAGE_TIME:
+			UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, GET_PANEL_TIME_HOUR());
+			break;
+
+
+        case _DDCCI_OPCODE_VCP_DELL_DDM_SUPPORT:
+            UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, 0x01);
+            break;
+
+        default:
+            g_pucDdcciTxBuf[_DDCCI_RESULT_CODE] = _DDCCI_CMD_GETVCP_RC_UNSUPPORTED;
+            break;
+    }
+#if(_CTX_TPV)
+#if (_ENABLE_WRITE_EDID_CTX==_ON)
+			if(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE] == VCP_BOE_FACTORY_ALIGNMENT )//&& u8PageValue == 0)
+			{
+				
+			}
+			 else
+#endif
+#endif
+          {
+            g_pucDdcciTxBuf[_DDCCI_PRESENT_LOW_BYTE + 1] = UserCommonDdcciCalCheckSum();
+            ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+          }	
+}
+
+//--------------------------------------------------
+// Description  : Check DDCCI Set VCP Feature
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+bit RTDDdcciSetVCPFeatureCheck(void)
+{
+    switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+    {
+        case _DDCCI_OPCODE_VCP_FACTORY_RESET:
+        case _DDCCI_OPCODE_VCP_RECAL_BRI_CON:
+        case _DDCCI_OPCODE_VCP_GEOMETRY_RESET:
+        case _DDCCI_OPCODE_VCP_COLOR_RESET:
+
+            if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0)
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_NEW_CONTROL_VALUE:
+        case _DDCCI_OPCODE_VCP_AUTO_SET_UP:
+        case _DDCCI_OPCODE_VCP_AUTO_COLOR:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 3))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_SELECT_COLOR_PRESET:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0E))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_OSD_LANGUAGE:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x27))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_OSD_ON_OFF:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x09))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_POWER_MODE:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x06))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_FREESYNC:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x03))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_VIEW_MODE:
+
+            if( (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x3F))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_SLEEP:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 0x78))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_HDR:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x02))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_DCR:
+
+            if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x65)
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_ASPECT_RATIO:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x09))
+            {
+                return _FALSE;
+            }
+
+            break;
+
+        case _DDCCI_OPCODE_VCP_ECO:
+
+            if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x03)
+            {
+                return _FALSE;
+            }
+
+            break;
+			
+		case _DDCCI_OPCODE_VCP_SCAN_MODE:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x03))
+            {
+                return _FALSE;
+            }
+            break;
+
+		case _DDCCI_OPCODE_VCP_RESPONSE_TIME:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x04))
+            {
+                return _FALSE;
+            }
+            break;
+			
+		case _DDCCI_OPCODE_VCP_POWER_INDICATOR:
+		case _DDCCI_OPCODE_VCP_RESOLUTION_NOTICE:
+        case _DDCCI_OPCODE_VCP_AUTO_DETECT:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x03))
+            {
+                return _FALSE;
+            }
+            break;
+			
+        case _DDCCI_OPCODE_VCP_DDCCI:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x03))
+            {
+                return _FALSE;
+            }
+            break;
+			
+        case _DDCCI_OPCODE_VCP_COLOR_SPACE:
+
+            if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x06))
+            {
+                return _FALSE;
+            }
+            break;
+        default:
+            break;
+    }
+
+    return _TRUE;
+}
+
+//--------------------------------------------------
+// Description  : DDCCI Set VCP Feature
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void RTDDdcciSetVCPFeature(void)
+{
+    BYTE ucTemp = 0;
+    BYTE ucValue = 0;
+
+    if(RTDDdcciSetVCPFeatureCheck() == _FAIL)
+    {
+        UserCommonDdcciInitTx();
+    }
+    else
+    {
+        switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+        {
+
+#if(_CTX_TPV)
+
+#if (_ENABLE_WRITE_EDID_CTX==_ON)
+			case VCP_BOE_FACTORY_ALIGNMENT:
+			
+			   CTXWriteEdid();
+			  break;
+#endif
+#endif
+#if(_CTX_TPV==_OFF)
+
+			case _DDCCI_OPCODE_VCP_AUTOALIGN:
+
+				RTDDdcciAutoAlignPro();
+			break;
+#endif			
+
+			case _DDCCI_OPCODE_VCP_DDCPROC:
+
+				//RTDDdcciEdidProc();
+			break;
+			
+            case _DDCCI_OPCODE_VCP_NEW_CONTROL_VALUE:
+
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+                {
+                    g_ucDdcciNewControlValue = 0x01;
+                }
+
+                break;
+
+#if(_SHARPNESS_SUPPORT == _ON)
+            case _DDCCI_OPCODE_VCP_SHARPNESS:
+
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 4)
+                {
+                    g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 4;
+                }
+                SET_OSD_SHARPNESS(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+
+                UserCommonAdjustSharpness(SysSourceGetInputPort());
+                SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+
+                break;
+#endif
+
+		    case _DDCCI_OPCODE_VCP_AUDIO_MUTE:
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)//mute
+				{
+					SET_OSD_VOLUME_MUTE(_ON);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)//unmute
+				{
+					SET_OSD_VOLUME_MUTE(_OFF);
+				}
+
+				UserAdjustAudioMuteSwitch();
+				RTDNVRamSaveOSDData();
+
+                break;
+
+				
+            case _DDCCI_OPCODE_VCP_INPUT_SOURCE:
+
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_FALSE);
+                    SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+                    SysSourceSwitchInputPort(_VGA_1);
+                    SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x03)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_FALSE);
+                    SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+                    SysSourceSwitchInputPort(_DVI_1);
+                    SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x04)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_FALSE);
+                    SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+                    SysSourceSwitchInputPort(_DVI_2);
+                    SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x0F)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_FALSE);
+                    SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+                    SysSourceSwitchInputPort(_DP_1);
+                    SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x10)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_FALSE);
+                    SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+                    SysSourceSwitchInputPort(_DP_2);
+                    SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x11)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_FALSE);
+                    SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+                    SysSourceSwitchInputPort(_HDMI_1);
+                    SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x12)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_FALSE);
+                    SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+                    SysSourceSwitchInputPort(_HDMI_2);
+                    SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+                }
+                break;
+
+            case _DDCCI_OPCODE_VCP_FACTORY_RESET:
+
+		  		OsdDispOsdReset();
+                //RTDDdcciResetAllSettings();
+
+#if(_VGA_SUPPORT == _ON)
+                if(SysSourceGetSourceType() == _SOURCE_VGA)
+                {
+                    UserCommonAutoConfig();
+                }
+                else
+#endif
+                {
+                    SET_DIGITAL_H_POSITION(50);
+                    SET_DIGITAL_V_POSITION(50);
+                    UserCommonAdjustHPosition(GET_DIGITAL_H_POSITION());
+                    UserCommonAdjustVPosition(GET_DIGITAL_V_POSITION());
+                }
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_RECAL_BRI_CON:
+
+				if(GET_OSD_DCR_STATUS() == _DCR_Level_0)
+				{
+					
+					//RTDNVRamRestoreBriCon();
+					//RTDNVRamRestoreBacklight();
+					RTDNVRamRestoreBriConOnly();
+					RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+
+					UserAdjustBacklight(GET_OSD_BACKLIGHT());
+	
+#if(_CONTRAST_SUPPORT == _ON)
+					UserAdjustContrast(GET_OSD_CONTRAST());
+#endif
+	
+#if(_BRIGHTNESS_SUPPORT == _ON)
+					UserAdjustBrightness(GET_OSD_BRIGHTNESS());
+#endif
+
+				}
+                break;
+
+            case _DDCCI_OPCODE_VCP_GEOMETRY_RESET:
+
+#if(_VGA_SUPPORT == _ON)
+                if(SysSourceGetSourceType() == _SOURCE_VGA)
+                {
+                    UserCommonAutoConfig();
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+                }
+                else
+#endif
+                {
+                    SET_DIGITAL_H_POSITION(50);
+                    SET_DIGITAL_V_POSITION(50);
+                    UserCommonAdjustHPosition(GET_DIGITAL_H_POSITION());
+                    UserCommonAdjustVPosition(GET_DIGITAL_V_POSITION());
+                }
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_COLOR_RESET:
+
+                RTDDdcciColorReset();
+#if(_DEF_VIEW_SONIC_DCR)
+#if(_DCR_SUPPORT == _ON)
+				CDcrReset();
+#endif
+#endif
+                break;
+
+			// 色温没有像进度条一样可以调节，改为菜单当前有的色温
+            case _DDCCI_OPCODE_VCP_COLOR_TEMP_INCREMENT:
+
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 93)
+				{
+                    SET_COLOR_TEMP_TYPE(_CT_9300);
+				}				
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 75)
+				{
+                    SET_COLOR_TEMP_TYPE(_CT_7500);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 65)
+				{
+                    SET_COLOR_TEMP_TYPE(_CT_6500);
+				}
+#if(_DEF_CT_5800_SUPPORT == _ON)
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 50)
+				{
+                    SET_COLOR_TEMP_TYPE(_CT_5000);
+				}
+#endif
+				else 
+				{
+					break;
+				}	
+
+				RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+
+				if(GET_COLOR_TEMP_TYPE() != _CT_SRGB)
+				{
+					UserAdjustContrast(GET_OSD_CONTRAST());
+					UserAdjustBacklight(GET_OSD_BACKLIGHT());
+				}
+				else
+				{
+					UserAdjustContrast(_SRGB_CONTRAST);
+					UserAdjustBacklight(GET_OSD_BACKLIGHT());
+				}
+
+
+				RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+
+				
+			break;
+
+            case _DDCCI_OPCODE_VCP_COLOR_TEMP_REQUEST:
+
+                g_ucColorTempUnSupport = (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] + 30);
+                if(g_ucColorTempUnSupport >= 93)
+                {
+                    SET_COLOR_TEMP_TYPE(_CT_9300);
+                }
+                else if((g_ucColorTempUnSupport < 93) && (g_ucColorTempUnSupport >= 75))
+                {
+                    SET_COLOR_TEMP_TYPE(_CT_7500);
+                }
+                else if((g_ucColorTempUnSupport < 75) && (g_ucColorTempUnSupport >= 65))
+                {
+                    SET_COLOR_TEMP_TYPE(_CT_6500);
+                }
+                else if((g_ucColorTempUnSupport < 65) && (g_ucColorTempUnSupport >= 50))
+                {
+                    SET_COLOR_TEMP_TYPE(_CT_5000);
+                }		                
+				else if((g_ucColorTempUnSupport <= 45) && (g_ucColorTempUnSupport >= 35))
+                {
+					break;
+                }			
+				else if((g_ucColorTempUnSupport < 50) && (g_ucColorTempUnSupport >= 40))
+				{
+					#if(_DCR_SUPPORT == _ON)
+					if(GET_OSD_DCR_STATUS() != _OFF)
+					{
+						;
+					}
+					else
+					#endif
+					{
+						SET_COLOR_TEMP_TYPE(_CT_SRGB);
+					}
+				}
+                else
+                {
+                    SET_COLOR_TEMP_TYPE(_CT_USER);
+                }
+
+                RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+
+#if(_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+				if(GET_OSD_BLUELIGHT_STATUS() == _ENABLE)
+				{
+					SET_OSD_BLUELIGHT_STATUS(_DISABLE);
+					RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+				}
+#endif
+
+				if(GET_COLOR_TEMP_TYPE() != _CT_SRGB)
+				{
+					UserAdjustContrast(GET_OSD_CONTRAST());
+					UserAdjustBacklight(GET_OSD_BACKLIGHT());
+				}
+				else
+				{
+					UserAdjustContrast(_SRGB_CONTRAST);
+					UserAdjustBacklight(GET_OSD_BACKLIGHT());
+				}
+
+
+                //OsdDispDisableOsd();
+				RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_CLOCK:
+
+#if(_VGA_SUPPORT == _ON)
+                if(SysSourceGetSourceType() == _SOURCE_VGA)
+                {
+                    if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+                    {
+                        g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+                    }
+
+#if(_AUTO_CLOCK_SAVE_VALUE_OPTION == _CLOCK_SAVE_PERCENT_VALUE)
+                    SET_VGA_MODE_ADJUST_CLOCK(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+#else
+                    {
+                        WORD usClockRangeMax = 0;
+                        WORD usClockRangeMin = 0;
+
+                        usClockRangeMax = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MAX);
+                        usClockRangeMin = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MIN);
+
+                        SET_VGA_MODE_ADJUST_CLOCK(UserCommonAdjustPercentToRealValue(GET_VGA_MODE_ADJUST_CLOCK(), usClockRangeMax, usClockRangeMin, (((usClockRangeMax - usClockRangeMin) / 2) + usClockRangeMin)));
+                    }
+#endif
+                    UserCommonAdjustClock(GET_VGA_MODE_ADJUST_CLOCK());
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+                }
+#endif // End of #if(_VGA_SUPPORT == _ON)
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_BACKLIGHT:
+
+#if(_DCR_SUPPORT == _ON)
+				if(GET_OSD_DCR_STATUS() != _DCR_Level_0)
+				{
+					return;
+				}
+#endif
+
+				if(OSD_ITEM_MASK_GET(_MENU_FUN_BACKLIGHT))
+				{
+					return;
+				}
+				
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+                {
+                    g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+                }
+
+                SET_OSD_BACKLIGHT(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE], _BACKLIGHT_MAX_1, _BACKLIGHT_MIN, _BACKLIGHT_CENTER));
+
+                UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_CONTRAST:
+
+#if(_DCR_SUPPORT == _ON)
+				if(GET_OSD_DCR_STATUS() != _DCR_Level_0)
+				{
+					return;
+				}
+#endif
+
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+                {
+                    g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+                }
+
+                //SET_OSD_CONTRAST(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE], _CONTRAST_MAX, _CONTRAST_MIN, _CONTRAST_CENTER));
+				SET_OSD_CONTRAST(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+				UserAdjustContrast(GET_OSD_CONTRAST());
+/*
+				if((GET_COLOR_TEMP_TYPE() == _CT_SRGB)
+#if(_VIEWMODE_SUPPORT == _ON)
+                    || (GET_OSD_VIEWMODE_TYPE() != _VM_STANDARD)
+#endif
+#if(_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+                    || (GET_OSD_BLUELIGHT_STATUS() != _OFF)
+#endif
+                    )
+				{
+					//UserAdjustDDCCIReturnColorTempDefault();
+				}
+                else
+                {
+                    UserAdjustContrast(GET_OSD_CONTRAST());
+                }
+*/
+                SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_BRICON_MSG);
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_SELECT_COLOR_PRESET:
+
+                switch(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE])
+                {
+                    case 0x01:
+
+                   #if(_DCR_SUPPORT)
+						if(GET_OSD_DCR_STATUS() != _DCR_Level_0)
+						{
+							return;
+						}
+						else
+                   #endif
+                     	{
+                        	SET_COLOR_TEMP_TYPE(_CT_SRGB); // OK
+                        }
+                        break;
+
+
+                    case 0x03:
+                        SET_COLOR_TEMP_TYPE(_CT_4500);
+                        break;
+
+                    case 0x04:
+                        SET_COLOR_TEMP_TYPE(_CT_5000);//_CT_5000
+                        break;
+
+                    case 0x05:
+                        SET_COLOR_TEMP_TYPE(_CT_6500);
+                        break;
+
+                    case 0x06:
+                        SET_COLOR_TEMP_TYPE(_CT_7500);//OK
+                        break;
+
+                    case 0x08:
+                        SET_COLOR_TEMP_TYPE(_CT_9300);// OK
+                        break;
+
+                    case 0x0B:
+                        SET_COLOR_TEMP_TYPE(_CT_USER);
+                        break;
+
+                    default:
+                        SET_COLOR_TEMP_TYPE(_CT_6500);
+                        break;
+                }
+
+                RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+
+#if(_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+				if(GET_OSD_BLUELIGHT_STATUS() == _ENABLE)
+				{
+					SET_OSD_BLUELIGHT_STATUS(_DISABLE);
+				}
+#endif
+
+				UserAdjustContrast(GET_OSD_CONTRAST());
+				UserAdjustBacklight(GET_OSD_BACKLIGHT());//add for sRGB use
+
+                OsdDispDisableOsd();
+
+                break;
+				
+			case _DDCCI_OPCODE_VCP_RED:
+			case _DDCCI_OPCODE_VCP_YELLOW:
+			case _DDCCI_OPCODE_VCP_GREEN:
+			case _DDCCI_OPCODE_VCP_CYAN:
+			case _DDCCI_OPCODE_VCP_BLUE:
+			case _DDCCI_OPCODE_VCP_MAGENDA:
+
+				switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+				{
+					case _DDCCI_OPCODE_VCP_RED:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_R);
+						break;
+					case _DDCCI_OPCODE_VCP_YELLOW:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_Y);
+						break;
+					case _DDCCI_OPCODE_VCP_GREEN:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_G);
+						break;
+					case _DDCCI_OPCODE_VCP_CYAN:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_C);
+						break;
+					case _DDCCI_OPCODE_VCP_BLUE:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_B);
+						break;
+					case _DDCCI_OPCODE_VCP_MAGENDA:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_M);
+						break;
+				
+				}
+			
+				ucValue = UserCommonAdjustRealValueToPercent((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]), _SIX_COLOR_HUE_MAX, _SIX_COLOR_HUE_MIN, _SIX_COLOR_HUE_CENTER);
+			
+				ucValue = (BYTE)OsdDisplayDetOverRange(ucValue, _SLIDER_MAX, _SLIDER_MIN, _OFF);
+				
+				ucValue =UserCommonAdjustPercentToRealValue(ucValue, _SIX_COLOR_HUE_MAX, _SIX_COLOR_HUE_MIN, _SIX_COLOR_HUE_CENTER);
+			
+				SET_OSD_SIX_COLOR_HUE(ucValue);
+						
+		        switch (GET_OSD_SIX_COLOR())
+			    {		
+			        case _SIXCOLOR_Y:
+			            g_stVscSceneModeData.ucSixColorHueY = ucValue;
+			            break;
+
+			        case _SIXCOLOR_G:
+			            g_stVscSceneModeData.ucSixColorHueG = ucValue;
+			            break;
+
+			        case _SIXCOLOR_C:
+			            g_stVscSceneModeData.ucSixColorHueC = ucValue;
+			            break;
+
+			        case _SIXCOLOR_B:
+			            g_stVscSceneModeData.ucSixColorHueB = ucValue;
+			            break;
+
+			        case _SIXCOLOR_M:
+			            g_stVscSceneModeData.ucSixColorHueM = ucValue;
+			            break;
+
+			        case _SIXCOLOR_R:
+			        default:
+			            g_stVscSceneModeData.ucSixColorHueR = ucValue;
+			            break;			
+
+		        }
+#if(_SIX_COLOR_SUPPORT == _ON)
+				ScalerColorSixColorInitial();
+				OsdFuncSixColorAdjust();
+#endif
+				ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+				//ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SIX_COLOR_DATA);
+				break;
+
+	
+			case _DDCCI_OPCODE_VCP_SAT_RED:
+			case _DDCCI_OPCODE_VCP_SAT_YELLOW:
+			case _DDCCI_OPCODE_VCP_SAT_GREEN:
+			case _DDCCI_OPCODE_VCP_SAT_CYAN:
+			case _DDCCI_OPCODE_VCP_SAT_BLUE:
+			case _DDCCI_OPCODE_VCP_SAT_MAGENTA:
+
+	
+				switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+				{
+					case _DDCCI_OPCODE_VCP_SAT_RED:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_R);
+						break;
+					case _DDCCI_OPCODE_VCP_SAT_YELLOW:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_Y);
+						break;
+					case _DDCCI_OPCODE_VCP_SAT_GREEN:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_G);
+						break;
+					case _DDCCI_OPCODE_VCP_SAT_CYAN:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_C);
+						break;
+					case _DDCCI_OPCODE_VCP_SAT_BLUE:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_B);
+						break;
+					case _DDCCI_OPCODE_VCP_SAT_MAGENTA:
+						SET_OSD_SIX_COLOR(_SIXCOLOR_M);
+						break;
+				}
+				ucValue = UserCommonAdjustRealValueToPercent((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]), _SIX_COLOR_SATURATION_MAX, _SIX_COLOR_SATURATION_MIN, _SIX_COLOR_SATURATION_CENTER);
+
+				ucValue = (BYTE)OsdDisplayDetOverRange(ucValue, _SLIDER_MAX, _SLIDER_MIN, _OFF);
+
+				ucValue = UserCommonAdjustPercentToRealValue(ucValue, _SIX_COLOR_SATURATION_MAX, _SIX_COLOR_SATURATION_MIN, _SIX_COLOR_SATURATION_CENTER);
+
+				SET_OSD_SIX_COLOR_SATURATION(ucValue);
+				
+				switch (GET_OSD_SIX_COLOR())
+				{
+					case _SIXCOLOR_Y:
+						g_stVscSceneModeData.ucSixColorSaturationY = ucValue;
+						break;
+					
+					case _SIXCOLOR_G:
+						g_stVscSceneModeData.ucSixColorSaturationG = ucValue;
+						break;
+					
+					case _SIXCOLOR_C:
+						g_stVscSceneModeData.ucSixColorSaturationC = ucValue;
+						break;
+					
+					case _SIXCOLOR_B:
+						g_stVscSceneModeData.ucSixColorSaturationB = ucValue;
+						break;
+					
+					case _SIXCOLOR_M:
+						g_stVscSceneModeData.ucSixColorSaturationM = ucValue;
+						break;
+					
+					case _SIXCOLOR_R:
+					default:
+						g_stVscSceneModeData.ucSixColorSaturationR = ucValue;
+						break;
+				
+				}
+#if(_SIX_COLOR_SUPPORT == _ON)
+				ScalerColorSixColorInitial();
+				OsdFuncSixColorAdjust();
+#endif
+				ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+				//ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SIX_COLOR_DATA);
+
+				break;
+
+
+            case _DDCCI_OPCODE_VCP_RED_GAIN:
+                // Only write at customer color
+                if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+                {
+                    ucTemp = GET_COLOR_TEMP_TYPE();
+
+                    SET_COLOR_TEMP_TYPE(_CT_USER);
+
+                    RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+
+                    //RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+
+                   // SET_COLOR_TEMP_TYPE(ucTemp);
+
+                  //  RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                }
+                    SET_COLOR_TEMP_TYPE_USER_R(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE],
+                                                                                  _USER_RGB_MAX,
+                                                                                  _USER_RGB_MIN,
+                                                                                  _USER_RGB_CENTER));
+#if(_CONTRAST_SUPPORT == _ON)
+                    UserAdjustContrast(GET_OSD_CONTRAST());
+#endif
+
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_COLORPROC_MSG);
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_GREEN_GAIN:
+                // Only write at customer color
+                if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+                {
+                    ucTemp = GET_COLOR_TEMP_TYPE();
+
+                    SET_COLOR_TEMP_TYPE(_CT_USER);
+
+                    RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+
+               //     RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+
+                //    SET_COLOR_TEMP_TYPE(ucTemp);
+
+             //       RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                }
+                    SET_COLOR_TEMP_TYPE_USER_G(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE],
+                                                                                  _USER_RGB_MAX,
+                                                                                  _USER_RGB_MIN,
+                                                                                  _USER_RGB_CENTER));
+#if(_CONTRAST_SUPPORT == _ON)
+                    UserAdjustContrast(GET_OSD_CONTRAST());
+#endif
+
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_COLORPROC_MSG);
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_BLUE_GAIN:
+                // Only write at customer color
+                if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+                {
+                    ucTemp = GET_COLOR_TEMP_TYPE();
+
+                    SET_COLOR_TEMP_TYPE(_CT_USER);
+
+                    RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+
+                 //   RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+
+                //    SET_COLOR_TEMP_TYPE(ucTemp);
+
+              //      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                }
+                    SET_COLOR_TEMP_TYPE_USER_B(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE],
+                                                                                  _USER_RGB_MAX,
+                                                                                  _USER_RGB_MIN,
+                                                                                  _USER_RGB_CENTER));
+#if(_CONTRAST_SUPPORT == _ON)
+                    UserAdjustContrast(GET_OSD_CONTRAST());
+#endif
+
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_COLORPROC_MSG);
+
+                break;
+
+#if(_VGA_SUPPORT == _ON)
+            case _DDCCI_OPCODE_VCP_AUTO_SET_UP:
+
+                if(SysSourceGetSourceType() == _SOURCE_VGA)
+                {
+                    if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] != 0)
+                    {
+                        SET_OSD_EVENT_MESSAGE(_OSDEVENT_DO_AUTO_CONFIG_MSG);
+                    }
+                }
+
+                break;
+#endif
+
+            case _DDCCI_OPCODE_VCP_HPOSITION:
+#if(_VGA_SUPPORT == _ON)
+                if(SysSourceGetSourceType() == _SOURCE_VGA)
+                {
+                    SET_VGA_MODE_ADJUST_H_POSITION(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+                    UserCommonAdjustHPosition(GET_VGA_MODE_ADJUST_H_POSITION());
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+                }
+                else
+#endif
+                {
+                    SET_DIGITAL_H_POSITION(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+                    UserCommonAdjustHPosition(GET_DIGITAL_H_POSITION());
+                }
+                break;
+
+            case _DDCCI_OPCODE_VCP_VPOSITION:
+#if(_VGA_SUPPORT == _ON)
+                if(SysSourceGetSourceType() == _SOURCE_VGA)
+                {
+                    if(abs(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] - GET_VGA_MODE_ADJUST_V_POSITION()) > 50)
+                    {
+                        SET_VGA_MODE_ADJUST_V_POSITION(50);
+                    }
+                    SET_VGA_MODE_ADJUST_V_POSITION(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+                    UserCommonAdjustVPosition(GET_VGA_MODE_ADJUST_V_POSITION());
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+                }
+                else
+#endif
+                {
+                    SET_DIGITAL_V_POSITION(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+                    UserCommonAdjustVPosition(GET_DIGITAL_V_POSITION());
+                }
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_RESPONSE_TIME:
+				
+#if(_OD_SUPPORT == _ON)
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+                {
+					SET_OSD_OD_STATUS(_OD_STANDARD);
+					SET_BACKUP_OD_MODE(GET_OSD_OD_STATUS());
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+                {
+					SET_OSD_OD_STATUS(_OD_ADVANCED);
+					SET_BACKUP_OD_MODE(GET_OSD_OD_STATUS());
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x03)
+                {
+					SET_OSD_OD_STATUS(_OD_ULTRA_FAST);
+					SET_BACKUP_OD_MODE(GET_OSD_OD_STATUS());
+                }
+
+				UserAdjustOverDrive();
+				SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_BRICON_MSG);
+#endif	
+                break;
+				
+			case _DDCCI_OPCODE_VCP_RESOLUTION_NOTICE:
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+                {
+                    SET_OSD_RESOLUTION_STATUS(_OFF);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+                {
+                    SET_OSD_RESOLUTION_STATUS(_ON);
+                }
+                RTDNVRamSaveOSDData();
+                break;
+
+            case _DDCCI_OPCODE_VCP_POWER_INDICATOR:
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+                {
+                    SET_POWER_INDICATOR(_OFF);
+                    ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_POWER_INDICATOR);
+                    UserInterfaceKeyPadLedControl(_LED_POWER_OFF);
+
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+                {
+                    SET_POWER_INDICATOR(_ON);
+                    ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_POWER_INDICATOR);
+                    UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+                }
+                RTDNVRamSaveOSDData();
+                break;
+            case _DDCCI_OPCODE_VCP_AUTO_DETECT:
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+                {
+                    SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+                {
+                    SysSourceSetScanType(_SOURCE_SWITCH_AUTO_IN_GROUP);
+                }
+                break;
+            case _DDCCI_OPCODE_VCP_DDCCI:
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+                {
+                    SET_OSD_DDCCI_STATUS(_OFF);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+                {
+                    SET_OSD_DDCCI_STATUS(_ON);
+                }
+				ScalerMcuDdcciSwitchPort(GET_OSD_DDCCI_STATUS(), SysSourceGetInputPort());
+                RTDNVRamSaveOSDData();
+
+                break;
+				
+            case _DDCCI_OPCODE_VCP_COLOR_SPACE:
+				
+        		switch(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE])
+        		{
+        			case 1:
+        				OsdDisplaySetColorSpaceType1(_SPACE_AUTO);
+        				OsdDisplaySetColorRangeType1(_RANGE_AUTO);
+        			    break;
+
+                    case 2:
+	    				OsdDisplaySetColorSpaceType1(_SPACE_RGB);
+	    				OsdDisplaySetColorRangeType1(_RANGE_FULL);
+	    			    break;
+
+                    case 3:
+	    				OsdDisplaySetColorSpaceType1(_SPACE_RGB);
+	    				OsdDisplaySetColorRangeType1(_RANGE_LIMITED);
+	    			    break;
+
+                    case 4:
+	    				OsdDisplaySetColorSpaceType1(_SPACE_YUV);
+	    				OsdDisplaySetColorRangeType1(_RANGE_FULL);
+	    			    break;
+
+                    case 5:
+	    				OsdDisplaySetColorSpaceType1(_SPACE_YUV);
+	    				OsdDisplaySetColorRangeType1(_RANGE_LIMITED);
+	    			    break;		
+        		}		
+    	        SysModeSetResetTarget(_MODE_ACTION_RESET_TO_DISPLAY_SETTING);
+                UserInterfaceColorFormatConvert();
+                RTDNVRamSaveOSDData();
+                break;
+
+#if(_VGA_SUPPORT == _ON)
+            case _DDCCI_OPCODE_VCP_CLOCK_PHASE:
+
+                if(SysSourceGetSourceType() == _SOURCE_VGA)
+                {
+                    if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+                    {
+                        g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+                    }
+
+                    SET_VGA_MODE_ADJUST_PHASE(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+
+                    UserCommonAdjustPhase(GET_VGA_MODE_ADJUST_PHASE());
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+                }
+
+                break;
+#endif
+
+            case _DDCCI_OPCODE_VCP_ACTIVE_CONTROL:
+
+                g_ucDdcciActiveValue = g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE];
+
+                break;
+
+#if(_AUDIO_SUPPORT == _ON)
+            case _DDCCI_OPCODE_VCP_AUDIO_VOLUME:
+	     case _DDCCI_OPCODE_VCP_MICROPHONE_VOLUME:
+
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+                {
+                    g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+                }
+
+                SET_OSD_VOLUME(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+
+                UserAdjustAudioVolume(GET_OSD_VOLUME());
+                SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+
+                break;
+#endif // End of #if(_AUDIO_SUPPORT == _ON)
+
+            case _DDCCI_OPCODE_VCP_RED_BLACK_LEVEL:
+
+                g_ucDdcciRedBlackLevel = g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE];
+                // UserAdjustBrightness(g_ucDdcciRedBlackLevel);                            // Please don't delete
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_GREEN_BLACK_LEVEL:
+
+                g_ucDdcciGreenBlackLevel = g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE];
+                // UserAdjustBrightness(g_ucDdcciGreenBlackLevel);                             // Please don't delete
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_BLUE_BLACK_LEVEL:
+
+                g_ucDdcciBlueBlackLevel = g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE];
+                // UserAdjustBrightness(g_ucDdcciGreenBlackLevel);                             // Please don't delete
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_POWER_MODE:
+
+                if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 5)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_FALSE);
+                    SysPowerSetTargetPowerStatus(_POWER_STATUS_OFF);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 4)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_TRUE);
+                    SysPowerSetTargetPowerStatus(_POWER_STATUS_SAVING);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 1)
+                {
+                    SET_FORCE_POW_SAV_STATUS(_FALSE);
+                    SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL);
+                }
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_ECO:
+
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+				{
+					SET_OSD_ECO_STATUS(_ECO_STANDARD);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+				{
+					SET_OSD_ECO_STATUS(_ECO_OPTIMIZE);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+				{
+					SET_OSD_ECO_STATUS(_ECO_CONSERVE);
+				}
+
+				if(GET_OSD_DCR_STATUS()==0) 					//开启DCR后，开ECO亮度变化突兀
+					UserAdjustBacklight(GET_OSD_BACKLIGHT());
+				RTDNVRamSaveOSDData();
+
+				break;
+
+			case _DDCCI_OPCODE_VCP_ASPECT_RATIO:
+
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+				{
+					//SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_FULL);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+				{
+					SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_4_BY_3);
+				}				
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x03)
+				{
+					//SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_ORIGIN);
+				}				
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x07)
+				{
+					SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_16_BY_10);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x08)
+				{
+					SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_5_BY_4);
+				}
+				else
+					SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_16_BY_9);
+				
+				SysModeSetResetTarget(_MODE_ACTION_RESET_TO_DISPLAY_SETTING);
+	            RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+				break;
+
+			case _DDCCI_OPCODE_VCP_SCAN_MODE:
+
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+				{
+					UserAdjustSetOverScanStatus(_OFF);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+				{
+					UserAdjustSetOverScanStatus(_ON);
+				}
+
+				UserAdjustOverScan(UserAdjustGetOverScanStatus());
+				// RTDNVRamSaveOSDData();
+				RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+
+				break;		
+				
+			case _DDCCI_OPCODE_VCP_DCR:
+
+
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+				{
+					SET_OSD_DCR_STATUS(_DCR_Level_0);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x19)
+				{
+					SET_OSD_DCR_STATUS(_DCR_Level_1);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x32)
+				{
+					SET_OSD_DCR_STATUS(_DCR_Level_2);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x4B)
+				{
+					SET_OSD_DCR_STATUS(_DCR_Level_3);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x64)
+				{
+					SET_OSD_DCR_STATUS(_DCR_Level_4);
+				}
+				
+				if(GET_OSD_DCR_STATUS() == _DCR_Level_0)
+				{
+#if(_DEF_VIEW_SONIC_DCR)
+#if(_DCR_SUPPORT)			
+					CDcrReset();
+					UserAdjustBacklight(GET_OSD_BACKLIGHT());
+#endif
+#endif
+				}
+				else
+				{
+					#if(_ULTRA_VIVID_SUPPORT == _ON)
+						UserAdjustUltraVivid();
+					#endif
+				}
+				ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+				break;
+
+			case _DDCCI_OPCODE_VCP_BLUELIGHT:
+			
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+				{
+					g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+				}
+				
+				SET_OSD_LOW_BLUE(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+				UserAdjustContrast(GET_OSD_CONTRAST());
+				ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+				break;
+
+			case _DDCCI_OPCODE_VCP_BLK_STABLE:
+			
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 10)
+				{
+					g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 10;
+				}
+				SET_OSD_BLACKSTABLE(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+					
+				UserAdjustColorEffectMode();
+				ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+				break;
+
+
+			case _DDCCI_OPCODE_VCP_HDR:
+	
+#if(_HDR10_SUPPORT == _ON)
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+				{
+					SET_OSD_HDR_MODE(_HDR10_MODE_OFF);
+					OsdFunHDR();
+				}				
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+				{
+					SET_OSD_HDR_MODE(_HDR10_MODE_AUTO);
+					OsdFunHDR();
+				}				
+#endif
+				break;
+
+			
+            case _DDCCI_OPCODE_VCP_SLEEP:
+	
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+				{
+					SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_OFF);
+				}				
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x1E)
+				{
+					SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_30);
+				}				
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x2D)
+				{
+					SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_45);
+				}				
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x3C)
+				{
+					SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_60);
+				}				
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x78)
+				{
+					SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_120);
+				}
+				
+				SET_OSD_EVENT_MESSAGE(_OSDEVENT_SLEEP_TIME_ADJ_MSG);
+	
+				{
+#if _OSD_PowerSaving_Fun
+					if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_30)
+					{
+						g_usPowerSavingCount = 30*_OSD_TIME_AUTO_DOWN;
+						ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+				
+					}
+					else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_45)
+					{
+						g_usPowerSavingCount = 45*_OSD_TIME_AUTO_DOWN;
+						ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+				
+					}
+					else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_60)
+					{
+						g_usPowerSavingCount = 60*_OSD_TIME_AUTO_DOWN;
+						ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+				
+					}
+					else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_120)
+					{
+						g_usPowerSavingCount = 120*_OSD_TIME_AUTO_DOWN;
+						ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+				
+					}
+					else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_OFF)
+					{
+						ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_AUTO_POWER_Saving); 
+					}
+#endif
+				}
+				RTDNVRamSaveOSDData();
+
+				
+                break;
+
+			
+			case _DDCCI_OPCODE_VCP_VIEW_MODE:	// 目前只做所有模式都有的优派，有模式没开的，后面再改
+
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+                {
+                	OSD_SubMenuCur = 0;
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x03)
+                {
+                	OSD_SubMenuCur = 4;
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x04)
+                {
+					break;
+                	//OSD_SubMenuCur = 2;
+                }                
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x30)
+                {
+                	OSD_SubMenuCur = 1;
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x32)
+                {
+                	OSD_SubMenuCur = 2;
+                }                
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x33)
+                {
+                	OSD_SubMenuCur = 3;
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x34)
+                {
+                	OSD_SubMenuCur = 5;
+                }
+	            else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x35)
+                {
+                	OSD_SubMenuCur = 6;
+                }                
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x36)
+                {
+                	OSD_SubMenuCur = 7;
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x3E)
+                {
+                	OSD_SubMenuCur = 8;
+                }
+				else	
+				{
+					break;
+				}
+				
+				UserAdjustViewMode();
+				UpdateMaskValue();
+                break;
+
+				
+            case _DDCCI_OPCODE_VCP_FREESYNC:
+
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+                {
+					SET_OSD_FREE_SYNC_STATUS(_FALSE);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+                {
+					SET_OSD_FREE_SYNC_STATUS(_FALSE);
+                }
+                else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+                {
+					SET_OSD_FREE_SYNC_STATUS(_TRUE);
+                }
+				
+#if(_FREESYNC_SUPPORT == _ON)
+				UserCommonInterfaceFreeSyncSupportSwitch();
+#endif
+	
+#if(_MPRT_SUPPORT == _ON)
+				if(GET_OSD_FREE_SYNC_STATUS())
+				{
+					SET_OSD_MPRT(_OFF);
+					UserAdjustMPRTFuntion(GET_OSD_MPRT());
+				}
+#endif
+				if(GET_OSD_FREE_SYNC_STATUS())
+				{
+					SET_OSD_LATENCY(_ON);
+					SET_OSD_ASPECT_RATIO_TYPE(_ASPECT_RATIO_DEFAULT); // 恢复到16 : 9
+				}
+	
+	
+				RTDNVRamSaveOSDData();
+				RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+
+			break;
+
+            case _DDCCI_OPCODE_VCP_OSD_LANGUAGE:
+
+//--------------------------------------------------
+// Description	: TPV Factory Command set language
+// Input Value	: None
+// Output Value : None
+//--------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////////
+//- 0x00 = Reserved, must be ignored
+//- 0x01 = Chinese (traditional / Hantai)	 - 0x02 = English		- 0x03 = French 	- 0x04 = German
+//- 0x05 = Italian						- 0x06 = Japanese			- 0x07 = Korean 	- 0x08 = Portuguese (Portugal)
+//- 0x09 = Russian						- 0x0A = Spanish (Espanol)	- 0x0B = Swedish	- 0x0C = Turkish
+//- 0x0D = Chinese (simplified / Kantai)	  - 0x0E = Portuguese (Brazil)	  - 0x0F = Arabic			- 0x10 = Bulgarian
+//- 0x11 = Croatian 					- 0x12 = Czech				- 0x13 = Danish 	- 0x14 = Dutch (Netherlands)
+//- 0x15 = Estonian 					- 0x16 = Finnish			- 0x17 = Greek		- 0x18 = Hebrew
+//- 0x19 = Hindi						- 0x1A = Hungarian			- 0x1B = Latvian	- 0x1C = Lithuanian
+//- 0x1D = Norwegian					- 0x1E = Polish 			- 0x1F = Romanian	- 0x20 = Serbian
+//- 0x21 = Slovak						- 0x22 = Slovenian			- 0x23 = Thai		- 0x24 = Ukrainian
+//- 0x25 = Vietnamese
+/////////////////////////////////////////////////////////////////////////////////////////
+
+                switch(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE])
+                {
+#if(_DEF_TCHINESE_TEXT)
+                    case 0x01:
+                        SET_OSD_LANGUAGE(_CHINESE_T);
+                        break;
+#endif
+#if(_DEF_ENGLISH_TEXT)
+                    case 0x02:
+                        SET_OSD_LANGUAGE(_ENGLISH);
+                        break;
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+                    case 0x03:
+                        SET_OSD_LANGUAGE(_FRENCH);
+                        break;
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+                    case 0x04:
+                        SET_OSD_LANGUAGE(_GERMAN);
+                        break;
+#endif
+#if(_DEF_ITALIANO_TEXT)
+                    case 0x05:
+                        SET_OSD_LANGUAGE(_ITALIAN);
+                        break;
+#endif
+#if(_DEF_JAPANESE_TEXT)
+                    case 0x06:
+                        SET_OSD_LANGUAGE(_JAPANESE);
+                        break;
+#endif
+#if(_DEF_KOREAN_TEXT)
+                    case 0x07:
+                        SET_OSD_LANGUAGE(_KOREAN);
+                        break;
+#endif
+#if(_DEF_RUSSIA_TEXT)
+                    case 0x09:
+                        SET_OSD_LANGUAGE(_RUSSIA);
+                        break;
+#endif
+#if(_DEF_ESPANOL_TEXT)
+                    case 0x0A:
+                        SET_OSD_LANGUAGE(_SPANISH);
+                        break;
+#endif
+#if(_DEF_SWEDEN_TEXT)
+                    case 0x0B:
+                        SET_OSD_LANGUAGE(_SWEDEN);
+                        break;
+#endif
+#if(_DEF_TURKISH_TEXT)
+                    case 0x0C:
+                        SET_OSD_LANGUAGE(_TURKISH);
+                        break;
+#endif
+#if(_DEF_SCHINESE_TEXT)
+                    case 0x0D:
+                        SET_OSD_LANGUAGE(_CHINESE_S);
+                        break;
+#endif
+#if(_DEF_CZECH_TEXT)
+					case 0x12:
+						SET_OSD_LANGUAGE(_CZECH);
+						break;
+#endif
+#if(_DEF_SUOMI_TEXT)
+                    case 0x16:
+                        SET_OSD_LANGUAGE(_FINNISH);
+                        break;
+#endif
+#if(_DEF_Vietnam_TEXT)
+					case 0x25:
+						SET_OSD_LANGUAGE(_Vietnam);
+						break;
+#endif
+#if(_DEF_DUTH_TEXT)
+                    case 0x14:
+                        SET_OSD_LANGUAGE(_DUTH);
+                        break;
+#endif
+#if(_DEF_POLISH_TEXT)
+                    case 0x1E:
+                        SET_OSD_LANGUAGE(_POLISH);
+                        break;
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+                    case 0x1F:
+                        SET_OSD_LANGUAGE(_ROMANIAN);
+                        break;
+#endif
+#if(_DEF_THAI_TEXT)
+                    case 0x23:
+                        SET_OSD_LANGUAGE(_THAI);
+                        break;
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+                    case 0x26:
+                        SET_OSD_LANGUAGE(_INDONESIAN);
+                        break;
+#endif
+
+                    default:
+                        break;
+                }
+
+                OsdDispDisableOsd();
+                SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+
+                break;
+
+            case _DDCCI_OPCODE_VCP_OSD_ON_OFF:
+
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 1 )
+				{
+				    g_ucVCP_OSD_ON_OFF = 1;
+					SET_OSD_LOCK_STATUS(_ON);
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 2)
+				{
+				    g_ucVCP_OSD_ON_OFF = 2;
+					SET_OSD_LOCK_STATUS(_OFF);
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+				}				
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 3)
+				{
+				    g_ucVCP_OSD_ON_OFF = 3;
+					SET_OSD_LOCK_STATUS(_ON);
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+				}
+  				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 8)
+				{
+				    g_ucVCP_OSD_ON_OFF = 8;
+					SET_OSD_LOCK_STATUS(_ON);
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+				}
+
+ 				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 4)
+				{
+				    g_ucVCP_OSD_ON_OFF = 4;
+					SET_OSD_DDCCI_STATUS(_OFF);
+                    if(GET_OSD_LOCK_STATUS() == _ON)
+                        SET_OSD_LOCK_STATUS(_OFF);
+                    ScalerMcuDdcciSwitchPort(GET_OSD_DDCCI_STATUS(), SysSourceGetInputPort());
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 5)
+				{
+				    g_ucVCP_OSD_ON_OFF = 5;
+					SET_OSD_DDCCI_STATUS(_ON);
+                    ScalerMcuDdcciSwitchPort(GET_OSD_DDCCI_STATUS(), SysSourceGetInputPort());
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+				}
+
+				if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 6)
+				{
+				    g_ucVCP_OSD_ON_OFF = 6;
+					SET_OSD_PWKEY_LOCK_STATUS(_ON);
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_POWER_LOCK_MSG);
+				}
+				else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 7)
+				{
+				    g_ucVCP_OSD_ON_OFF = 7;
+					SET_OSD_PWKEY_LOCK_STATUS(_OFF);
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_POWER_LOCK_MSG);
+				}
+
+                break;
+
+#if(_VGA_SUPPORT == _ON)
+
+			case _DDCCI_OPCODE_VCP_AUTO_COLOR:
+				if(SysSourceGetSourceType() == _SOURCE_VGA)
+                {
+                    if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] != 0)
+                    {
+					   	//OsdDisplayAutoBalanceProc();
+					   	OsdDisplayAutoBalanceProc_DDCCI();
+                    }
+                }
+
+				break;
+#endif
+
+
+#if((_OGC_SUPPORT == _ON) || (_OCC_SUPPORT == _ON) || (_OGC_DICOM_SUPPORT == _ON))
+            case _DDCCI_OPCODE_VCP_DISP_CALIBRATION:
+
+                UserCommonDdcciDispCalibProcess();
+
+                break;
+#endif
+
+            default:
+
+                UserCommonDdcciInitTx();
+
+                break;
+        }
+    }
+}
+
+//--------------------------------------------------
+// Description  : Reset monitor
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void RTDDdcciResetAllSettings(void)
+{
+    UserCommonNVRamRestoreSystemData();
+    RTDNVRamRestoreOSDData();
+
+#if(_VGA_SUPPORT == _ON)
+    UserCommonNVRamRestoreModeUserData();
+#endif
+
+    if((UserCommonNVRamGetSystemData(_SEARCH_PORT) != SysSourceGetInputPort()) ||
+       (UserCommonNVRamGetSystemData(_SOURCE_SCAN_TYPE) != SysSourceGetScanType()))
+    {
+        UserCommonNVRamSetSystemData(_SEARCH_PORT, SysSourceGetInputPort());
+        UserCommonNVRamSetSystemData(_SOURCE_SCAN_TYPE, SysSourceGetScanType());
+        UserCommonNVRamSaveSystemData();
+    }
+
+    RTDDdcciColorReset();
+}
+
+//--------------------------------------------------
+// Description  : Reset color to default
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void RTDDdcciColorReset(void)
+{
+    g_ucDdcciRedBlackLevel = _DDCCI_BLACKLEVEL_DEFAULT;
+    g_ucDdcciGreenBlackLevel = _DDCCI_BLACKLEVEL_DEFAULT;
+    g_ucDdcciBlueBlackLevel = _DDCCI_BLACKLEVEL_DEFAULT;
+
+#if(_VIEWMODE_SUPPORT == _ON)
+    if(GET_OSD_VIEWMODE_TYPE() != _VM_STANDARD)
+	{
+        SET_OSD_VIEWMODE_TYPE(_VM_STANDARD);
+        UserAdjustViewModeType(GET_OSD_VIEWMODE_TYPE());
+
+#if(_ADVANCED_IMAGE_SUPPORT == _ON)
+		SET_OSD_GAME_MODE(_GM_OFF);
+#endif
+
+	}
+#endif
+
+    RTDNVRamRestoreUserColorSetting();
+	SET_COLOR_TEMP_TYPE(_COLORTEMP_DEFAULT);
+	RTDNVRamSaveOSDData();
+    RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+
+    RTDNVRamRestoreBriCon();
+    RTDNVRamRestoreBacklight();
+
+    UserAdjustBacklight(GET_OSD_BACKLIGHT());
+
+#if(_CONTRAST_SUPPORT == _ON)
+    UserAdjustContrast(GET_OSD_CONTRAST());
+#endif
+
+#if(_BRIGHTNESS_SUPPORT == _ON)
+    UserAdjustBrightness(GET_OSD_BRIGHTNESS());
+#endif
+}
+
+#if 0
+void RTDDdcciEdidProc(void)
+{
+	BYTE udAddress = 0;
+	BYTE ucFlag = 0;
+
+	ucFlag = (g_pucDdcciRxBuf[4]);
+	udAddress = (g_pucDdcciRxBuf[5]);
+
+	switch(ucFlag)
+
+	{
+		case 0xff:
+			if(UserCommonFlashErasePage(_EDID_FLASH_BANK, _EDID_ADDRESS_FLASH))
+				RTDDdccireply(_TRUE);				
+			break;
+			
+		case 1:				
+#if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+#if(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+			memcpy(&MCU_DDCRAM_A0[udAddress], &g_pucDdcciRxBuf[6], 8);
+			RTDDdccireply(_TRUE);	
+#elif(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+#elif(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif
+#else
+			RTDDdccireply(_FALSE);	
+#endif
+			break;
+
+
+		case 2:				
+#if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+#if(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+			memcpy(&MCU_DDCRAM_D0[udAddress], &g_pucDdcciRxBuf[6], 8);
+			RTDDdccireply(_TRUE);		
+#elif(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)	
+#elif(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif
+#else
+			RTDDdccireply(_FALSE);	
+#endif
+			break;
+			
+
+		case 3:			
+#if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+#if(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+			memcpy(&MCU_DDCRAM_D1[udAddress], &g_pucDdcciRxBuf[6], 8);
+			RTDDdccireply(_TRUE);		
+#elif(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+#elif(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif
+#else
+			RTDDdccireply(_FALSE);	
+#endif
+			break;
+
+		case 4:				
+#if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+#if(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+			memcpy(&MCU_DDCRAM_D2[udAddress], &g_pucDdcciRxBuf[6], 8);
+			RTDDdccireply(_TRUE);
+#elif(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+#elif(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif
+#else
+			RTDDdccireply(_FALSE);	
+#endif
+			break;
+
+		case 5:			
+#if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+#if(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+			memcpy(&MCU_DDCRAM_D3[udAddress], &g_pucDdcciRxBuf[6], 8);
+			RTDDdccireply(_TRUE);	
+#elif(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+#elif(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif
+#else
+			RTDDdccireply(_FALSE);	
+#endif
+			break;
+
+		case 0x80:
+#if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+#if(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+			if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_A0_ADDRESS_FLASH, _A0_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_A0))
+			{
+				if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_A0_ADDRESS_FLASH, _A0_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_A0))
+				{
+					if(!RTDDdcciDdcCheck(MCU_DDCRAM_A0,_A0_EMBEDDED_DDCRAM_MAX_SIZE))
+					{
+						RTDDdccireply(_FALSE);				
+						return;
+					}
+				}
+			}
+			else
+			{		
+				return;
+			}
+#elif(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+#elif(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif
+
+#endif
+
+#if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+#if(_D0_INPUT_PORT_TYPE ==_D0_DVI_PORT )
+			udAddress = 128;
+#else
+			udAddress = 256;
+#endif
+#if(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+			if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_D0_ADDRESS_FLASH, _D0_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_D0))
+			{
+				if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_D0_ADDRESS_FLASH, _D0_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_D0))
+				{
+					if(!RTDDdcciDdcCheck(MCU_DDCRAM_D0,_D0_EMBEDDED_DDCRAM_MAX_SIZE))
+					{
+						RTDDdccireply(_FALSE);				
+						return;
+					}
+				}
+			}
+			else
+			{
+				return;
+			}
+#elif(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+#elif(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif
+			
+#endif
+			
+#if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+#if(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+			if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_D1_ADDRESS_FLASH, _D1_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_D1))
+			{
+				if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_D1_ADDRESS_FLASH, _D1_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_D1))
+				{
+					if(!RTDDdcciDdcCheck(MCU_DDCRAM_D1,_D1_EMBEDDED_DDCRAM_MAX_SIZE))
+					{
+						RTDDdccireply(_FALSE);				
+						return;
+					}
+				}
+			}
+			else 
+			{
+				return;
+			}
+#elif(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+#elif(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif
+#endif
+							
+
+#if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+#if(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)				
+			if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_D2_ADDRESS_FLASH, _D2_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_D2))
+			{
+				if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_D2_ADDRESS_FLASH, _D2_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_D2))
+				{
+					if(!RTDDdcciDdcCheck(MCU_DDCRAM_D2,_D2_EMBEDDED_DDCRAM_MAX_SIZE))
+					{
+						RTDDdccireply(_FALSE);				
+						return;
+					}
+				}
+			}
+			else
+			{
+				return;
+			}
+#elif(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+#elif(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif
+			
+							
+#endif
+
+#if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+#if(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+			if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_D3_ADDRESS_FLASH, _D3_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_D3))
+			{
+				if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_D3_ADDRESS_FLASH, _D3_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCRAM_D3))
+				{
+					if(!RTDDdcciDdcCheck(MCU_DDCRAM_D3,_D3_EMBEDDED_DDCRAM_MAX_SIZE))
+					{
+						RTDDdccireply(_FALSE);				
+						return;
+					} 
+				}
+			}
+			else
+			{
+				return;
+			}
+#elif(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+#elif(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+#endif												
+#endif
+			RTDDdccireply(_TRUE);				
+
+			break;
+
+		default:
+			break;
+
+	}
+
+}
+#endif
+
+
+
+#endif // End of #if(_OSD_TYPE == _REALTEK_2014_OSD)

@@ -1,0 +1,155 @@
+C51 COMPILER V8.12   SCALERCOLORIDITHER                                                    03/11/2025 19:55:46 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERCOLORIDITHER
+OBJECT MODULE PLACED IN .\Output\ScalerColorIDither.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerFunction\Lib\Code\ScalerColor\ScalerColorIDither.c LARGE OPTIMI
+                    -ZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\
+                    -ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Ser
+                    -ies_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\Scaler
+                    -ColorIDither.lst) OBJECT(.\Output\ScalerColorIDither.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerColorIDither.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "ScalerColorLibInternalInclude.h"
+  17          
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          #define _DITHER_TABLE_LENGTH    (24)
+  23          #define _TEMPORAL_TABLE_LENGTH  (4)
+  24          
+  25          //****************************************************************************
+  26          // STRUCT / TYPE / ENUM DEFINITTIONS
+  27          //****************************************************************************
+  28          
+  29          
+  30          //****************************************************************************
+  31          // CODE TABLES
+  32          //****************************************************************************
+  33          
+  34          
+  35          //****************************************************************************
+  36          // VARIABLE DECLARATIONS
+  37          //****************************************************************************
+  38          
+  39          
+  40          //****************************************************************************
+  41          // FUNCTION DECLARATIONS
+  42          //****************************************************************************
+  43          void ScalerColorIDitherLoadDitherTable(BYTE code *pucDitherTable, BYTE ucBankAddress);
+  44          void ScalerColorIDitherLoadSeqTable(BYTE code *pucSeqTable, BYTE ucSeqLength, BYTE ucBankAddress);
+  45          void ScalerColorIDitherLoadTemporalTable(BYTE code *pucTempoTable, BYTE ucBankAddress);
+  46          void ScalerColorIDitherLoadSetting(WORD usAdjustOption);
+  47          
+  48          
+  49          //****************************************************************************
+  50          // FUNCTION DEFINITIONS
+  51          //****************************************************************************
+C51 COMPILER V8.12   SCALERCOLORIDITHER                                                    03/11/2025 19:55:46 PAGE 2   
+
+  52          
+  53          //--------------------------------------------------
+  54          // Description  : Adjust IDither Setting
+  55          // Input Value  :
+  56          //                pucDitherTable : Dither Table Pointer
+  57          //                ucBankAddress : Bank Address
+  58          // Output Value : None
+  59          //--------------------------------------------------
+  60          void ScalerColorIDitherLoadDitherTable(BYTE code *pucDitherTable, BYTE ucBankAddress)
+  61          {
+  62   1          if(pucDitherTable != _NULL_POINTER)
+  63   1          {
+  64   2              ScalerSetBit(P0_89_I_DITHER_COMMON_CTRL1_SETA, ~(_BIT7 | _BIT6), 0x80);
+  65   2              ScalerBurstWrite(pucDitherTable, _DITHER_TABLE_LENGTH, ucBankAddress, P0_88_I_DITHER_DATA_ACCESS_S
+             -ETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  66   2              ScalerSetBit(P0_89_I_DITHER_COMMON_CTRL1_SETA, ~(_BIT7 | _BIT6), 0x00);
+  67   2          }
+  68   1      }
+  69          
+  70          //--------------------------------------------------
+  71          // Description  : Adjust IDither Setting
+  72          // Input Value  :
+  73          //                pucDitherTable : Seq Table Pointer.
+  74          //                ucSeqLength : table len
+  75          //                ucBankAddress : Bank Address
+  76          // Output Value : None
+  77          //--------------------------------------------------
+  78          void ScalerColorIDitherLoadSeqTable(BYTE code *pucSeqTable, BYTE ucSeqLength, BYTE ucBankAddress)
+  79          {
+  80   1          if(pucSeqTable != _NULL_POINTER)
+  81   1          {
+  82   2              ScalerSetBit(P0_89_I_DITHER_COMMON_CTRL1_SETA, ~(_BIT7 | _BIT6), 0x40);
+  83   2              ScalerBurstWrite(pucSeqTable, ucSeqLength, ucBankAddress, P0_88_I_DITHER_DATA_ACCESS_SETA, _BURSTW
+             -RITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  84   2              ScalerSetBit(P0_89_I_DITHER_COMMON_CTRL1_SETA, ~(_BIT7 | _BIT6), 0x00);
+  85   2          }
+  86   1      }
+  87          
+  88          //--------------------------------------------------
+  89          // Description  : Adjust IDither Setting
+  90          // Input Value  :
+  91          //                pucDitherTable : Temporal Table Pointer
+  92          //              ucBankAddress : Bank Address
+  93          // Output Value : None
+  94          //--------------------------------------------------
+  95          void ScalerColorIDitherLoadTemporalTable(BYTE code *pucTempoTable, BYTE ucBankAddress)
+  96          {
+  97   1          if(pucTempoTable != _NULL_POINTER)
+  98   1          {
+  99   2              ScalerSetBit(P0_89_I_DITHER_COMMON_CTRL1_SETA, ~(_BIT7 | _BIT6), 0xC0);
+ 100   2              ScalerBurstWrite(pucTempoTable, _TEMPORAL_TABLE_LENGTH, ucBankAddress, P0_88_I_DITHER_DATA_ACCESS_
+             -SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+ 101   2              ScalerSetBit(P0_89_I_DITHER_COMMON_CTRL1_SETA, ~(_BIT7 | _BIT6), 0x00);
+ 102   2          }
+ 103   1      }
+ 104          
+ 105          //--------------------------------------------------
+ 106          // Description  : Adjust IDither Setting
+ 107          // Input Value  : usAdjustOption->Adjust setting
+ 108          // Output Value : None
+ 109          //--------------------------------------------------
+ 110          void ScalerColorIDitherLoadSetting(WORD usAdjustOption)
+C51 COMPILER V8.12   SCALERCOLORIDITHER                                                    03/11/2025 19:55:46 PAGE 3   
+
+ 111          {
+ 112   1          ScalerSetBit(P0_89_I_DITHER_COMMON_CTRL1_SETA, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), usAdjustOptio
+             -n & 0x001F);
+ 113   1          ScalerSetBit(P0_8A_I_DITHER_COMMON_CTRL2_SETA, ~(_BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1), (usAd
+             -justOption & 0x7E00) >> 8);
+ 114   1      
+ 115   1      #if(_IDITHER_TYPE == _IDITHER_GEN_3_4_SEQ_TRUNCATE_6_4_2_BIT)
+                  ScalerSetBit(P0_20_M1_DUMMY2, ~(_BIT7), (usAdjustOption & 0x0080));
+              #endif
+ 118   1      }
+ 119          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    181    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       5
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,2396 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RTD2014Osd.c No.0000
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+
+#define __RTD_OSD__
+
+#include "UserCommonInclude.h"
+
+#if(_OSD_TYPE == _REALTEK_2014_OSD)
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// CODE TABLES
+//****************************************************************************
+
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+
+StructViewSonic g_stViewSonicOsd = {0};
+StructTimer g_stTimer = {0};
+#if(_DCR_SUPPORT ==_ON)
+StructDcrInfo g_stDcrInfo = {0};
+#endif
+
+BYTE xdata OsdStateDefine[_OSD_MAIN_LENGTH][12]={0}; // _OSD_ITEM_LENGTH
+
+WORD xdata OSD_MASK[_OSD_MAIN_LENGTH] = {0};
+
+BYTE xdata OSD_MAIN_MENU_ITEM = 0;
+BYTE xdata OSD_SubMenuCur = 0;
+BYTE xdata OSD_SubMenuPer = 0;
+
+BYTE xdata OSD_ITEM_BASE[_MENU_NULL - _OSD_FUN_START] = {0};
+BYTE xdata OSD_ITEM_MASK[12] = {0}; 
+
+BYTE xdata OSD_HOT_KEY_PAGE=0;      //快捷键页面
+BYTE HotKeyPageIndex = 0;           //页面项目
+
+
+BYTE  Input_New_State=10;
+BYTE  Input_Old_State=11;
+BYTE   Language_District_flang=10; //2025.02.07  tx
+#if(_DEF_OSD_GAMING == _ON)
+WORD TIME_COUNT = 0;
+BYTE GAME_FLAG = 0;
+#endif
+
+StructOsdInfo g_stOsdInfo;
+
+// #if(_PIXEL_SHIFT_SUPPORT == _ON)
+// StructTimer g_stTimer;
+// StructPixelOrbitingStatus g_stPixelOrbitingStatus;
+// #endif
+
+WORD g_usAdjustValue;
+WORD g_usBackupValue;
+BYTE g_ucLogoTimerCounter;
+BYTE g_us3rdItemNum;
+WORD g_us4thItemNum;
+
+BYTE g_usOsdMenu2Page;
+BYTE g_usOsdMenu3Page;
+BYTE g_usOsdMenu4Page = 0;
+BYTE g_usOsdSixColorSelect;
+#if(_OVERSCAN_SUPPORT == _ON)
+extern bit g_bOverScanFlag;
+#endif
+
+volatile BYTE g_ucLogoTimerCounter;
+BYTE g_usPowerOffCount;
+
+#if 0//_OVERCLOCK_SUPPORT - 是否有超频功能
+#define InforMation_index           6
+#elif(_MPRT_SUPPORT == _ON)
+#define InforMation_index           5
+#elif(_PROJECT_ID ==_ID_ZQ_2775E15_BOE_DV245QHB_N20_8BIT_QHD180_ZQ25F180_20250110 || _PROJECT_ID ==_ID_ZQ_2557E02_SG2701B08_4_FHD200_MKF27F240L_20250515)
+#define InforMation_index           5
+#else
+#define InforMation_index           4
+#endif
+extern void HotKeyFun(void);
+
+extern void OsdFuncShowSourceMenuCheck(void);
+#if(_DEF_NAVIGATION_OSD_ENABLE)
+extern void OsdDisplayUserKeyPage(void);
+#endif
+
+bit KeyActionFlag = _OFF;           // 按键是否有作用
+
+extern bit ddcci_reset;
+
+#if _GSYNC_TEST
+BYTE ucDsiableShowVFreqFlag = 0;
+#endif
+
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+void UserOsdHandler(void);
+void RTDOsdSystemFlowProc(void);
+void RTDOsdEventMsgProc(void);
+extern void UserAdjustViewMode(void);
+extern void OsdDisplayUpdateVolumeMuteIcon(void);
+
+//***************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+BYTE GetUpdateSetUpInfoVfreq(void)
+{
+	if(OsdStateDefine[OSD_MAIN_MENU_ITEM][OSD_SubMenuCur] == _MENU_FUN_INFORMATION)
+		return 1;
+	return 0;
+}
+
+
+//--------------------------------------------------
+// Description  : OSD Handler, executed in the main loop
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void UserOsdHandler(void)
+{
+    RTDOsdSystemFlowProc();
+    RTDOsdEventMsgProc();
+}
+
+//--------------------------------------------------
+// Description  : OSD system flow
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void RTDOsdSystemFlowProc(void)
+{
+    switch(SysModeGetModeState())
+    {
+        case _MODE_STATUS_POWER_OFF:
+
+            if(SysModeGetModeStateChange() == _TRUE)
+            {
+                SET_FORCE_POW_SAV_STATUS(_FALSE);
+            }
+
+            break;
+
+        case _MODE_STATUS_INITIAL:
+
+            if(SysModeGetModeStateChange() == _TRUE)
+            {
+#if(_FREESYNC_OD_MEASURE == _ON)
+                UserAdjustFREESYNCODMeasure();
+#endif
+
+#if(_DCR_SUPPORT ==_ON)
+				if(GET_OSD_DCR_STATUS() !=_DCR_Level_0)
+				{
+					CDcrReset();
+					UserAdjustBacklight(GET_OSD_BACKLIGHT());
+				}
+#endif
+
+//#if(_PROJECT_ID !=_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)  //2025.2.11  tx
+				if(GET_FACTORY_FORCE_LOGO_OFF() && !GET_FACTORY_MODE())
+//#endif		
+				{
+					OsdDispShowLogo();
+					UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+
+#if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+					ScalerTimerActiveTimerEvent(SEC(2), _USER_TIMER_EVENT_AUDIO_TTS_SHOW_LOGO);
+#else
+					ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_DISABLE_OSD_LOGO);
+#endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+				}
+
+
+				ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_DISABLE); 			
+				ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_BUININ_MSG);
+
+            }
+
+            break;
+
+        case _MODE_STATUS_SEARCH:
+
+            if(SysModeGetModeStateChange() == _TRUE)
+            {
+#if(_FREEZE_SUPPORT == _ON)
+                if(GET_OSD_FREEZE_STATUS() == _ON)
+                {
+                    SET_OSD_FREEZE_STATUS(_OFF);
+                }
+#endif
+
+#if(_DCR_SUPPORT ==_ON)
+				if(GET_OSD_DCR_STATUS() !=_DCR_Level_0)
+				{
+					CDcrReset();
+	
+					if(GET_OSD_LOGO_ON() == _FALSE)
+					{
+						UserAdjustBacklight(GET_OSD_BACKLIGHT());
+					}
+				}
+#endif
+
+
+                if(SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL)
+                {  
+					#if(_PROJECT_ID==_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)||(_PROJECT_ID==_ID_ZQ_2513E05_BOE_HV320FHB_F4A_8BIT_FHD75_VA2271_H_20250301)
+                	if(GET_FACTORY_MODE())
+				 		UserInterfaceKeyPadLedControl(_LED_POWER_SAVING);
+				 	else
+				 	#endif 	
+                    	UserInterfaceKeyPadLedControl(_LED_POWER_SEARCH);
+                }
+            }
+
+#if(_OVERSCAN_SUPPORT == _ON)
+			g_bOverScanFlag = _FALSE;
+#endif
+
+            break;
+
+        case _MODE_STATUS_DISPLAY_SETTING:
+
+            break;
+
+        case _MODE_STATUS_ACTIVE:
+
+            if(SysModeGetModeStateChange() == _TRUE)
+            {
+                if(SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL)
+                {
+              		#if(_PROJECT_ID==_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)||(_PROJECT_ID==_ID_ZQ_2513E05_BOE_HV320FHB_F4A_8BIT_FHD75_VA2271_H_20250301)
+                	if(GET_FACTORY_MODE())
+				 		UserInterfaceKeyPadLedControl(_LED_POWER_SAVING);
+				 	else
+			  		#endif	 	
+                   		UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+					 DebugMessageOsd("My_led",20);
+
+#if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+                    UserAdjustAudioTtsPlayEvent(_AUDIO_TTS_EVENT_POWER_ON);
+#endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+                }
+
+#if(_MPRT_SUPPORT == _ON)
+				UserAdjustMPRTFuntion(GET_OSD_MPRT()); 		
+#endif
+#if(_PROJECT_ID==_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)||(_PROJECT_ID==_ID_ZQ_2513E05_BOE_HV320FHB_F4A_8BIT_FHD75_VA2271_H_20250301)
+			if(GET_OSD_LANGUAGE_HK_STATUS() == _ON)//语言选择未完成切换分辨率不消除快捷键选择语言
+			{
+				Language_District_flang=0;
+				SET_OSD_ACTIVE_STATE_MESSAGE(_TRUE);
+			}
+#endif
+				
+            }
+			
+#if(_DEF_NO_CHECK_LANGUAGE_DISTRICT_MODE_SWTICH)
+          if(ddcci_reset==0)
+			OsdDisplayActiveStateCheck();	//循环检测
+#endif
+
+
+#if(_DCR_SUPPORT == _ON)
+#if(_HDR10_SUPPORT == _ON)
+			if(UserCommonHDRGetHDR10Status() == _HDR10_ON) //|| (GET_OSD_MPRT_STATUS() != _OFF))
+			{	
+				if(GET_OSD_DCR_STATUS() != _OFF)
+				{
+					SET_OSD_DCR_STATUS(_OFF);
+					ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_DCR_SLOW_ADJUST); // yongle 20130710
+					RTDNVRamSaveSceneModeData(GET_OSD_VIEWMODE_TYPE());
+				}
+			}
+			else
+#endif
+			{
+				if(GET_OSD_DCR_STATUS() != _OFF)
+				{
+					
+					//UserAdjustDCR();
+					ScalerTimerActiveTimerEvent(SEC(0.01), _USER_TIMER_EVENT_DCR_SLOW_ADJUST);
+				}
+			}
+#endif
+
+
+            break;
+
+        case _MODE_STATUS_NOSUPPORT:
+
+            if(SysModeGetModeStateChange() == _TRUE)
+            {
+                if(SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL)
+                {   
+   
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_NOSUPPORT_MSG);
+                    UserInterfaceKeyPadLedControl(_LED_POWER_NOSUPPORT);
+                }
+            }
+
+            break;
+
+        case _MODE_STATUS_NOSIGNAL:
+
+			if((GET_OSD_HOTKEY_BURNIN() == _ON)&& (GET_FACTORY_MODE() == _ON))
+			{
+				SET_FACTORY_BURNIN(_ON);
+				SET_OSD_HOTKEY_BURNIN(_OFF);
+				TPVNVRamSaveFactoryDate();
+
+			}
+			
+ 			 if(SysModeGetModeStateChange() == _TRUE)
+            {
+
+
+			
+    			if((GET_FACTORY_BURNIN() == _ON)&&(GET_FACTORY_MODE() == _ON))
+    			{
+
+					#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+					#else
+						SysSourceSetScanType(_SOURCE_SWITCH_AUTO_IN_GROUP);
+					#endif
+					ScalerTimerActiveTimerEvent(SEC(2), _USER_TIMER_EVENT_BUININ_MSG);
+
+					#if (_BURNIN_MSG_MENU_SUPPORT==_ON)
+						RTDBurnInMenu();
+					#endif
+
+					UserAdjustContrast(100);
+					UserAdjustBacklight(100);
+					UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+                    // while(1);
+				}
+                else if((GET_FACTORY_BURNIN() == _OFF) && (GET_FACTORY_MODE() == _ON)&&(SysModeGetModeState() != _MODE_STATUS_ACTIVE && ScalerTimerSearchActiveTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_NO_SIGNAL)))
+                {
+			 		//ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_POWER_SAVING);
+                   // UserCommonInterfacePanelPowerAction(_PANEL_OFF);
+                   
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+
+#if(_DEF_NO_SIGNAL_SHOW_SOURCE_MENU)
+
+				{
+						SET_OSD_POWER_SAVING_SHOW_SOURCE(_FALSE);
+						SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_CHANGE_SOURCE_MENU_MSG);
+				}
+#endif
+									
+								
+				
+#endif
+                }
+				else
+				{
+					ScalerTimerActiveTimerEvent(SEC(2), _USER_TIMER_EVENT_OSD_SHOW_NO_SIGNAL);	//弹出无信号弹窗  
+				}
+            }
+
+            break;
+
+        case _MODE_STATUS_POWER_SAVING:
+
+            if(SysSourceGetCableDetect(SysSourceGetInputPort()) == _FALSE)
+            {
+                SET_FORCE_POW_SAV_STATUS(_FALSE);
+            }
+
+            if(SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL)
+            {
+                if(GET_OSD_POWER_SAVING_SHOW_SOURCE() == _TRUE)
+                {
+#if(_DEF_NO_SIGNAL_SHOW_SOURCE_MENU)
+                    SET_OSD_POWER_SAVING_SHOW_SOURCE(_FALSE);
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_CHANGE_SOURCE_MENU_MSG);
+#endif
+                }
+                else if(GET_OSD_WAKE_UP_SWITCH_DDCCI_PORT() == _TRUE)
+                {
+                    SET_OSD_WAKE_UP_SWITCH_DDCCI_PORT(_FALSE);
+
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_WAKE_UP_SWITCH_DDCCI_PORT_MSG);
+                }
+#if(_DP_SUPPORT == _ON)
+                else if(GET_OSD_POWER_SAVING_SHOW_DP_OPTION() == _TRUE)
+                {
+                    SET_OSD_POWER_SAVING_SHOW_DP_OPTION(_FALSE);
+                    SET_OSD_EVENT_MESSAGE(_OSDEVENT_DP_VERSIOM_MSG);
+                }
+#endif
+#if(_DP_DEBUG_MSG == _ON)
+                else if(GET_OSD_POWER_SAVING_SHOW_DP_INFO() == _TRUE)
+                {
+                    SET_OSD_POWER_SAVING_SHOW_DP_INFO(_FALSE);
+
+                    OsdDispOsdMessage(_OSD_DISP_INPUT_SIGNAL_MSG);
+                    UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+                }
+#endif
+            }
+
+            break;
+
+        case _MODE_STATUS_FACTORY:
+
+            break;
+
+        default:
+
+            break;
+    }
+
+#if(_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+    // Check embedded DP switch status
+    UserCommonAdjustEmbeddedDpSwitch();
+#endif
+
+    if(GET_KEYMESSAGE() < _KEY_AMOUNT)
+    {
+        // hot key
+        if((SysModeGetModeState() == _MODE_STATUS_ACTIVE) ||
+           (SysModeGetModeState() == _MODE_STATUS_NOSUPPORT) ||
+           (SysModeGetModeState() == _MODE_STATUS_NOSIGNAL) ||
+           (SysModeGetModeState() == _MODE_STATUS_POWER_SAVING))
+        {
+
+            if((GET_OSD_STATE() != _MENU_NONE) &&
+                ((GET_KEYMESSAGE() == _LEFT_KEY_MESSAGE) || (GET_KEYMESSAGE() == _RIGHT_KEY_MESSAGE) || (GET_KEYMESSAGE() == _UP_KEY_MESSAGE) || (GET_KEYMESSAGE() == _DOWN_KEY_MESSAGE)))
+            {
+                SET_KEYREPEATENABLE();
+            }
+        }
+
+        if(GET_OSD_IN_FACTORY_MENU_STATUS() == _TRUE)
+        {
+            RTDFactoryMenuOperation();
+            ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_DISABLE);
+        }
+        else
+        {
+#if(_FREEZE_SUPPORT == _ON)
+#if(_URGENT_EVENT_CHECK_MODE == _ON)
+            if(ScalerTimerSearchActiveTimerEvent(_USER_TIMER_EVENT_OSD_DISABLE_FREEZE_MSG) == _TRUE)
+            {
+                return;
+            }
+#else
+            if(GET_FREEZE_DISABLE_MSG_STATE() == _ON)
+            {
+                return;
+            }
+#endif
+#endif
+            // back up previous OSD State
+            SET_OSD_STATE_PREVIOUS(GET_OSD_STATE());
+
+#if(_FREEZE_SUPPORT == _ON)
+            if(GET_OSD_FREEZE_STATUS() == _ON) // Confirm whether disable the freeze status
+            {
+                if(OsdFuncCheckFreezeDisable() == _TRUE)
+                {
+                    return;
+                }
+            }
+#endif
+
+			if(OsdDisplayCheckkeyValid() == _TRUE)
+			{
+				if(GET_OSD_LOCK_STATUS())
+				{
+					if(GET_OSD_MESSAGE()==_OSD_DISP_LOCKING_STATUS_MSG  \
+						|| GET_OSD_MESSAGE()==_OSD_DISP_POWER_LOCK_STATUS_MSG \
+						|| GET_OSD_MESSAGE()==_OSD_DISP_POWER_LOCKING_STATUS_MSG)
+					{
+						SET_OSD_MESSAGE(_OSD_DISP_NULL_MSG);
+						OsdDispDisableOsd();
+					}
+					#if _PROJECT_ID == _ID_ZQ_2557E02_SG2701B08_4_FHD200_MKF27F240L_20250515
+						else if(SysModeGetModeState() == _MODE_STATUS_ACTIVE && (GET_OSD_STATE() != _MENU_NONE))
+	                    	return;
+					#else
+						else if(SysModeGetModeState() == _MODE_STATUS_ACTIVE && ScalerOsdGetOsdEnable() == _ENABLE)
+	                    	return;
+					#endif
+					else
+						SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+				}
+				else
+				{
+					(*OperationTable[GET_OSD_STATE()])();
+				
+				}
+
+			}
+			
+			if(GET_OSD_STATE() == _OSD_MSG_INPUT_SOURCE)
+			{
+				OsdDispDisableOsd();
+			}
+			else if(GET_OSD_STATE() == _OSD_MSG_NOTHING1)
+			{
+				return;
+			}
+
+
+			OsdFuncShowSourceMenuCheck();
+
+            if(GET_OSD_IN_FACTORY_MENU_STATUS() == _FALSE)
+            {
+                if(SysModeGetModeState() == _MODE_STATUS_ACTIVE)
+                {
+                
+					if(OsdDisplayCheckkeyValid() == _TRUE)
+					{
+						if(OsdDisplayTimeOut(GET_OSD_TIME_OUT()) < _OSD_TIMEOUT_MIN)
+						{
+							ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_DISABLE);
+						}
+						else
+						{
+							DebugMessageOsd("OSD_DISABLE",1);
+							ScalerTimerReactiveTimerEvent(SEC(OsdDisplayTimeOut(GET_OSD_TIME_OUT())), _USER_TIMER_EVENT_OSD_DISABLE);
+						}
+
+					}
+
+                }
+            }
+
+
+
+
+
+        }
+    }
+}
+
+//--------------------------------------------------
+// Description  : OSD event message processing function
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void RTDOsdEventMsgProc(void)
+{
+    switch(GET_OSD_EVENT_MESSAGE())
+    {
+        case _OSDEVENT_SHOW_NOSIGNAL_MSG:
+			
+
+			if(GET_FACTORY_BURNIN() != _ON)
+			{
+            	OsdDispOsdMessage(_OSD_DISP_NOSIGNAL_MSG);
+            	UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+				OsdFuncEnableOsd();
+			}
+            ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_GO_TO_POWER_SAVING);
+            //ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_SHOW_POWER_SAVING);
+            break;
+
+        case _OSDEVENT_SHOW_NOCABLE_MSG:
+            OsdDispOsdMessage(_OSD_DISP_NOCABLE_MSG);
+            UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+            ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_GO_TO_POWER_SAVING);
+            //ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_SHOW_POWER_SAVING);
+            break;
+
+        case _OSDEVENT_SHOW_NOSUPPORT_MSG:
+
+            ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_NO_CABLE);
+            ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_NO_SIGNAL);
+
+            OsdDispOsdMessage(_OSD_DISP_NOSUPPORT_MSG);
+			
+            UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+            ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_GO_TO_POWER_SAVING);
+            //ScalerTimerReactiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_SHOW_POWER_SAVING);
+            break;
+
+        case _OSDEVENT_SHOW_FAIL_SAFE_MODE_MSG:
+            OsdDispOsdMessage(_OSD_DISP_FAIL_SAFE_MODE_MSG);
+            break;
+
+        case _OSDEVENT_SLEEP_TIME_ADJ_MSG:
+            OsdDispOsdMessage(_OSD_DISP_SLEEP_MSG_ADJ);
+            break;
+
+#if(_DEF_NO_SIGNAL_SHOW_SOURCE_MENU)
+        case _OSDEVENT_SHOW_CHANGE_SOURCE_MENU_MSG:
+            ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_GO_TO_POWER_SAVING);
+            ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_NO_CABLE);
+            ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_NO_SIGNAL);
+            OsdFuncSetOsdItemFlag();
+            g_usBackupValue = GET_OSD_INPUT_PORT_OSD_ITEM();
+			
+			OsdDispHotKeySourceMenu(_OSD_HOTKEY_INPUT); // 信号选择    // OsdDispHotKeySourceMenu();
+
+            ScalerTimerReactiveTimerEvent(SEC(5), _USER_TIMER_EVENT_OSD_SHOW_NO_SIGNAL);
+            //ScalerTimerReactiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_SHOW_POWER_SAVING);
+            UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+			if(GET_POWER_INDICATOR() == _OFF)
+				;
+			else
+				UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+            break;
+#endif
+
+        case _OSDEVENT_WAKE_UP_SWITCH_DDCCI_PORT_MSG:
+
+            ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_GO_TO_POWER_SAVING);
+            ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_NO_CABLE);
+            ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_NO_SIGNAL);
+            //SET_OSD_STATE(_MENU_HOTKEY_DDCCI);
+            ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_GO_TO_POWER_SAVING);
+            //ScalerTimerReactiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_SHOW_POWER_SAVING);
+            UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+
+            break;
+
+        case _OSDEVENT_SHOW_POWER_SAVING_EVENT_MSG:
+            OsdDispDisableOsd();
+            OsdDispOsdMessage(_OSD_DISP_POWER_SAVING_MSG);
+            UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+            ScalerTimerActiveTimerEvent(SEC(2), _USER_TIMER_EVENT_GO_TO_POWER_SAVING);
+#if(_MPRT_SUPPORT == _ON)
+			UserAdjustMPRTFuntion(_OFF);
+#endif
+
+#if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+            UserAdjustAudioTtsPlayEvent(_AUDIO_TTS_EVENT_POWER_SAVING);
+#endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+
+            break;
+
+        case _OSDEVENT_GO_TO_POWER_SAVING_EVENT_MSG:
+			
+            OsdDispDisableOsd();
+
+ #if _OSD_Sleep_PowenOff_Fun
+			if(GET_AUTO_POWEROFF_STATUS())
+			{	
+				g_usPowerOffCount = 3; // 3分钟后关机
+				ScalerTimerActiveTimerEvent(SEC(60), _USER_TIMER_EVENT_AUTO_POWER_DOWN); 
+			}
+#endif
+
+            SysPowerSetTargetPowerStatus(_POWER_STATUS_SAVING);
+            break;
+
+#if(_VGA_SUPPORT == _ON)
+        case _OSDEVENT_DO_AUTO_CONFIG_MSG:
+#if(_FREEZE_SUPPORT == _ON)
+            ScalerTimerWaitForActiveTimerEvent(_USER_TIMER_EVENT_OSD_DISABLE_FREEZE_MSG);
+#endif
+            OsdDispAutoConfigProc();
+            break;
+#endif
+
+#if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+        case _OSDEVENT_DO_AUTO_COLOR_MSG:
+        	if(SysSourceGetSourceType() == _SOURCE_VGA)
+            {
+                //if(GET_OSD_HOTKEY_DETECT() == _FALSE)
+                {
+                    OsdDisplayAutoBalanceProc();
+                    //SET_OSD_HOTKEY_DETECT(_TRUE);
+                }
+#if(_INSTANT_TIMER_EVENT_0 == _ON)
+				ScalerTimer0SetTimerCount(_OFF); // this timer always counter
+#endif
+            }
+        	break;
+#endif
+
+
+        case _OSDEVENT_ACTIVE_DO_ONE_TIME_MSG:
+
+#if(_FREEZE_SUPPORT == _ON)
+            ScalerTimerWaitForActiveTimerEvent(_USER_TIMER_EVENT_OSD_DISABLE_FREEZE_MSG);
+#endif
+
+#if(_VGA_SUPPORT == _ON)
+            if(SysSourceGetSourceType() == _SOURCE_VGA)
+            {
+                if(UserInterfaceGetFirstAutoConfigStatus() == _TRUE)
+                {
+                    OsdDispAutoConfigProc();
+                }
+            }
+#endif
+
+
+
+            if((GET_OSD_STATE() == _MENU_NONE) 
+#if(_FRONT_SIGHT_FUNCTION == _ON)
+				|| (GET_OSD_STATE() == _OSD_HOTKEY_FRONT_SIGHT)
+#endif
+#if(_GSYNC_TEST== _ON)
+				|| (GET_OSD_STATE() == _OSD_HOTKEY_VFREQ)
+#endif
+				)
+            {
+				if(GET_POWER_INDICATOR() == _OFF)
+					UserInterfaceKeyPadLedControl(_LED_POWER_OFF);
+
+                Input_Old_State=Input_New_State;
+                Input_New_State=SysSourceGetInputPort();
+				if(Input_Old_State!=Input_New_State)
+				{
+                	OsdDispOsdMessage(_OSD_DISP_INPUT_SIGNAL_MSG);
+				}
+#if(_FRONT_SIGHT_FUNCTION == _ON)
+				else if(GET_OSD_FRONT_SIGHT())
+				{
+					OsdDispFrontSight();
+				}
+#endif
+				
+				if(GET_OSD_STATE() != _OSD_HOTKEY_FRONT_SIGHT  
+					#if(_GSYNC_TEST== _ON)
+					&& (GET_OSD_STATE() != _OSD_HOTKEY_VFREQ)
+					#endif
+					)
+                	ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_DISABLE);
+
+
+#if _OSD_Timing_Notice
+				if((GET_INPUT_TIMING_HWIDTH()!=_PANEL_DH_WIDTH ||GET_INPUT_TIMING_VHEIGHT()!=_PANEL_DV_HEIGHT)&&GET_OSD_RESOLUTION_STATUS() && !GET_FACTORY_MODE())
+				{
+					g_usShowTimingNotice=1;
+					ScalerTimerActiveTimerEvent(SEC(30), _USER_TIMER_EVENT_OSD_SHOW_Timing_Notice);
+				}
+				else
+				{
+					g_usShowTimingNotice=0;
+					ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_Timing_Notice);
+				}
+#endif
+
+            }
+
+#if _OSD_Sleep_PowenOff_Fun
+			ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_AUTO_POWER_DOWN); 
+#endif
+
+#if _OSD_PowerSaving_Fun
+			if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_30)
+			{
+				g_usPowerSavingCount = 30*_OSD_TIME_AUTO_DOWN;
+				ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+		
+			}
+			else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_45)
+			{
+				g_usPowerSavingCount = 45*_OSD_TIME_AUTO_DOWN;
+				ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+		
+			}
+			else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_60)
+			{
+				g_usPowerSavingCount = 60*_OSD_TIME_AUTO_DOWN;
+				ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+		
+			}
+			else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_120)
+			{
+				g_usPowerSavingCount = 120*_OSD_TIME_AUTO_DOWN;
+				ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+		
+			}
+			else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_OFF)
+			{
+				ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_AUTO_POWER_Saving); 
+		
+			}
+#endif
+
+		    SET_OSD_HOTKEY_BURNIN(_OFF);
+		    TPVNVRamSaveFactoryDate();
+
+			
+            break;
+
+        case _OSDEVENT_SAVE_NVRAM_SYSTEMDATA_MSG:
+            UserCommonNVRamSaveSystemData();
+            break;
+
+#if(_VGA_SUPPORT == _ON)
+        case _OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG:
+            UserCommonNVRamSaveModeUserData();
+            break;
+#endif
+        case _OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG:
+            RTDNVRamSaveOSDData();
+            break;
+
+#if(_VGA_SUPPORT == _ON)
+        case _OSDEVENT_SAVE_NVRAM_ADCDATA_MSG:
+            if(ScalerColorGetColorSpaceRGB(UserCommonInterfaceGetColorFormat()) == _TRUE)
+            {
+                UserCommonNVRamSaveADCSetting(_COLOR_SPACE_RGB);
+            }
+            else
+            {
+                UserCommonNVRamSaveADCSetting(_COLOR_SPACE_YPBPR);
+            }
+            break;
+#endif
+
+        case _OSDEVENT_SAVE_NVRAM_COLORPROC_MSG:
+            RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+            break;
+
+        case _OSDEVENT_SAVE_NVRAM_BRICON_MSG:
+            RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+            RTDNVRamSaveBriCon(SysSourceGetSourceType());
+            break;
+
+        case _OSDEVENT_SAVE_NVRAM_OSDSIXCOLORDATA_MSG:
+            //RTDNVRamSaveSixColorData();
+            break;
+		case _OSDEVENT_BUININ_MSG:
+			
+	        if((SysModeGetModeState() == _MODE_STATUS_NOSIGNAL) && GET_FACTORY_BURNIN())
+	        {
+				FactoryBurnInEvent();			
+	    	}
+			else
+			{
+			
+// #if (_BURNIN_MSG_MENU_SUPPORT==_ON)
+				OsdDispDisableOsd();
+// #endif
+				ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_BUININ_MSG);
+			}
+			break;
+			
+		case _OSDEVENT_SHOW_OSD_LOCK_MSG:
+            OsdDispOsdMessage(_OSD_DISP_LOCK_STATUS_MSG);
+			//UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+			//UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+			
+#if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+#if(_INSTANT_TIMER_EVENT_0 == _ON)
+			ScalerTimer0SetTimerCount(_TIMER_OFF);
+#endif
+#else
+			ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_OSD_LOCKING_STATUS_MSG);
+#endif
+            ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_DISABLE);
+			break;
+
+		case _OSDEVENT_SHOW_POWER_LOCK_MSG:
+			OsdDispOsdMessage(_OSD_DISP_POWER_LOCK_STATUS_MSG);
+#if(_INSTANT_TIMER_EVENT_0 == _ON)
+			ScalerTimer0SetTimerCount(_TIMER_OFF);
+#endif
+            ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_DISABLE);
+			break;
+			
+		case _OSDEVENT_LOGOBOOTUP_MSG:
+			OsdDispOsdMessage(_OSD_DISP_LOGO_BOOTUP_STATUS_MSG);
+			break;
+			
+		case _OSDEVENT_SHOW_AUTO_POWER_OFF_MSG:
+			OsdDispOsdMessage(_OSD_DISP_AUTO_POWER_OFF_MSG);
+			break;
+
+			
+#if(_DEF_VGA_TIMING_KEY_2_4)
+        case _OSDEVENT_SWITCHMODE_MSG:
+#if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+			OsdDispModeSwitch(); 
+#endif
+        	break;
+
+#endif
+
+
+
+
+        default:
+            break;
+    }
+
+    SET_OSD_EVENT_MESSAGE(_OSDEVENT_NONE_MSG);
+}
+
+
+void MenuNone(void)
+{
+
+#if(_DEF_NAVIGATION_OSD_ENABLE)
+
+
+#if(_DEF_NO_SIGNAL_SHOW_SOURCE_MENU)
+		if(SysModeGetModeState() != _MODE_STATUS_ACTIVE)
+		{
+			if(SysSourceGetScanType() != (_SOURCE_SWITCH_AUTO_IN_GROUP))
+			{
+				SET_OSD_POWER_SAVING_SHOW_SOURCE(_ON); // 信号选择
+	
+				if((SysPowerGetPowerStatus() == _POWER_STATUS_SAVING))
+				{
+					SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL);
+				}
+				
+				return;
+			}
+		}
+#endif
+
+
+    switch(GET_KEYMESSAGE())
+    {
+    	case _MIDDLE_KEY_MESSAGE:
+		case _LEFT_KEY_MESSAGE:
+		case _UP_KEY_MESSAGE:
+		case _EXIT_KEY_MESSAGE:   //完成语言选择后中键值变为"3"?????	
+			if((SysModeGetModeState() != _MODE_STATUS_ACTIVE)||(SysModeGetModeState() == _MODE_STATUS_NOSIGNAL))
+			{
+				if(SysModeGetModeState() == _MODE_STATUS_POWER_SAVING && GET_KEYMESSAGE() != _MIDDLE_KEY_MESSAGE)
+				{
+					if(GetOsdValue(_MENU_FUN_SEARCH) == _FALSE)
+					{
+						SET_OSD_POWER_SAVING_SHOW_SOURCE(_TRUE);
+
+						if(SysPowerGetPowerStatus() == _POWER_STATUS_SAVING)
+						{
+						    SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL);
+						}
+					}
+				}
+				return;
+			}
+				
+			if(GET_FACTORY_MODE() == _ON)
+			{
+				RTDFactoryMainMenu();
+				return;
+			}
+
+#if(ENABLE_LANGUAGE_SELECT_OSD)			
+			if(GET_OSD_LANGUAGE_HK_STATUS() != _OFF)
+			{
+                OsdDispHotKeySourceMenu(_OSD_HOTKEY_LANGUAGE_SELECT);
+			}
+			else
+#endif
+
+#if(_DEF_District_swtich_Message == _ON)
+			if(GET_OSD_DISTRICT_SWTICH_STATE() != _OFF) //完成语言，地区选择，进入菜单
+			{
+				OsdDispHotKeySourceMenu(_OSD_HOTKEY_DISTRICT_SELECT);
+			}
+			else 
+#endif
+
+#if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+			if(GET_OSD_PC_HINT_STATUS() != _OFF)
+			{
+				OsdDisplayPowerConsumptionHint();
+			}
+			else
+#endif
+
+			{	
+#if(_DEF_NAVIGATION_OSD_ENABLE)
+				OsdDisplayUserKeyPage();
+#endif
+			}
+			break;
+
+		case _RIGHT_KEY_MESSAGE:
+			
+			if((SysModeGetModeState() == _MODE_STATUS_ACTIVE)&&(SysModeGetModeState() != _MODE_STATUS_NOSIGNAL))
+			{
+				if(GET_FACTORY_MODE() == _ON)
+				{
+					RTDFactoryMainMenu();
+				
+					return;
+				}
+#if ENABLE_LANGUAGE_SELECT_OSD
+				if(GET_OSD_LANGUAGE_HK_STATUS() != _OFF)
+				{
+	                OsdDispHotKeySourceMenu(_OSD_HOTKEY_LANGUAGE_SELECT);
+				}
+				else
+#endif
+
+#if(_DEF_District_swtich_Message == _ON)
+				if(GET_OSD_DISTRICT_SWTICH_STATE() != _OFF) //完成语言，地区选择，进入菜单
+				{
+					OsdDispHotKeySourceMenu(_OSD_HOTKEY_DISTRICT_SELECT);
+				}
+				else
+#endif
+
+#if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+				if(GET_OSD_PC_HINT_STATUS() != _OFF)
+				{
+					OsdDisplayPowerConsumptionHint();
+				}
+				else
+#endif
+				{	
+					if(0);
+#if(_DEF_NAVIGATION_OSD_ENABLE)
+					else
+						OsdDisplayUserKeyPage();
+#endif
+				}
+			}
+			else if(SysModeGetModeState() == _MODE_STATUS_POWER_SAVING)
+            {
+            	if(GetOsdValue(_MENU_FUN_SEARCH) == _FALSE)
+        		{
+		            SET_OSD_POWER_SAVING_SHOW_SOURCE(_TRUE);
+
+		            if(SysPowerGetPowerStatus() == _POWER_STATUS_SAVING)
+		            {
+		                SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL);
+		            }
+        		}
+            }
+			break;
+
+		case _DOWN_KEY_MESSAGE:
+			if((SysModeGetModeState() != _MODE_STATUS_ACTIVE)||(SysModeGetModeState() == _MODE_STATUS_NOSIGNAL))
+			{
+				if(SysModeGetModeState() == _MODE_STATUS_POWER_SAVING && GET_KEYMESSAGE() != _MIDDLE_KEY_MESSAGE)
+				{
+						if(GetOsdValue(_MENU_FUN_SEARCH) == _FALSE)
+						{
+							SET_OSD_POWER_SAVING_SHOW_SOURCE(_TRUE);
+
+							if(SysPowerGetPowerStatus() == _POWER_STATUS_SAVING)
+							{
+							    SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL);
+							}
+						}
+				}
+				return;
+			}
+				
+			if(GET_FACTORY_MODE() == _ON)
+			{
+				RTDFactoryMainMenu();
+			
+				return;
+			}
+
+#if(_DEFAULT_OSD_STYLE == _TRG_OSD_STYLE)
+				OsdDisplayUserKeyPage();
+#else
+
+			#if(_FRONT_SIGHT_FUNCTION == _ON)
+				OsdDispFrontSight();
+			#endif
+
+#endif
+			break;
+
+		default:
+			break;
+    }
+
+/*********************************else***********************************/ 
+#else
+
+
+//RTDOsdSystemFlowProc
+#if(_DEF_NO_SIGNAL_SHOW_SOURCE_MENU)
+	if(SysModeGetModeState() != _MODE_STATUS_ACTIVE)
+	{
+		if(SysSourceGetScanType() != (_SOURCE_SWITCH_AUTO_IN_GROUP))
+		{
+			SET_OSD_POWER_SAVING_SHOW_SOURCE(_ON); // 信号选择
+
+			if((SysPowerGetPowerStatus() == _POWER_STATUS_SAVING))
+			{
+				SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL);
+			}
+            
+			return;
+		}
+	}
+#endif
+
+    switch(GET_KEYMESSAGE())
+    {
+        case _MENU_KEY_MESSAGE:
+            if(SysModeGetModeState() == _MODE_STATUS_ACTIVE)
+            {
+				if(GET_FACTORY_MODE() == _ON)
+				{
+					RTDFactoryMainMenu();
+					return;
+				}
+
+				if(0);
+#if(ENABLE_LANGUAGE_SELECT_OSD)			
+				else if(GET_OSD_LANGUAGE_HK_STATUS() == _ON)
+				{
+					OsdDispHotKeySourceMenu(_OSD_HOTKEY_LANGUAGE_SELECT); // 语言选择
+				}
+#endif
+#if(_DEF_District_swtich_Message == _ON)
+				else if(GET_OSD_DISTRICT_SWTICH_STATE() == _ON)
+				{
+					OsdDispHotKeySourceMenu(_OSD_HOTKEY_DISTRICT_SELECT); // 地区选择
+				}
+#endif
+#if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+				else if(GET_OSD_PC_HINT_STATUS() == _ON) //能耗提醒
+				{
+					OsdDisplayPowerConsumptionHint();
+				}
+				else
+#else
+				else
+#endif
+
+				{
+				     //OsdDispOsdMessage(_OSD_DISP_Timing_Notice); 
+					OsdDispMainMenu();
+				}	
+
+
+
+
+            }
+            break;
+
+        case _RIGHT_KEY_MESSAGE:
+			
+            if(SysModeGetModeState() == _MODE_STATUS_ACTIVE)
+            {
+				CLR_KEYREPEATENABLE();
+				if(GET_FACTORY_MODE() == _ON)
+				{
+					RTDFactoryMainMenu();
+					return;
+				}
+				
+				if(0);
+#if(ENABLE_LANGUAGE_SELECT_OSD)			
+				else if(GET_OSD_LANGUAGE_HK_STATUS() == _ON)
+				{
+					OsdDispHotKeySourceMenu(_OSD_HOTKEY_LANGUAGE_SELECT); // 语言选择
+				}
+#endif
+#if(_DEF_District_swtich_Message == _ON)
+				else if(GET_OSD_DISTRICT_SWTICH_STATE() == _ON)
+				{
+					OsdDispHotKeySourceMenu(_OSD_HOTKEY_DISTRICT_SELECT); // 地区选择
+				}
+#endif
+#if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+				else if(GET_OSD_PC_HINT_STATUS() == _ON) //能耗提醒
+				{
+					OsdDisplayPowerConsumptionHint();
+				}
+				else
+#else
+				else
+#endif
+
+				{
+					OsdDispMainMenu();
+				}
+
+			}
+
+
+            break;
+
+        case _LEFT_KEY_MESSAGE:
+
+			if(SysModeGetModeState() == _MODE_STATUS_ACTIVE)
+            {
+				CLR_KEYREPEATENABLE();
+				if(GET_FACTORY_MODE() == _ON)
+				{
+					RTDFactoryMainMenu();
+					return;
+				}
+
+				if(0);
+#if(ENABLE_LANGUAGE_SELECT_OSD)			
+				else if(GET_OSD_LANGUAGE_HK_STATUS() == _ON)
+				{
+					OsdDispHotKeySourceMenu(_OSD_HOTKEY_LANGUAGE_SELECT); // 语言选择
+				}
+#endif
+#if(_DEF_District_swtich_Message == _ON)
+				else if(GET_OSD_DISTRICT_SWTICH_STATE() == _ON)
+				{
+					OsdDispHotKeySourceMenu(_OSD_HOTKEY_DISTRICT_SELECT); // 地区选择
+				}
+#endif
+#if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+				else if(GET_OSD_PC_HINT_STATUS() == _ON) //能耗提醒
+				{
+					OsdDisplayPowerConsumptionHint();
+				}
+				else
+#else
+				else
+#endif
+				{
+#if(_5KEY_MENU_STYLE)	  //2025.2.14 tx			
+				if(SysSourceGetSourceType() == _SOURCE_VGA&&GET_OSD_HOTKEY_LEFT()==_OSD_HOTKEY_VOLUME)
+				   {
+					SET_OSD_HOTKEY_LEFT(_OSD_HOTKEY_CONBRI);
+				   }
+				else
+				  {
+					if(GET_OSD_DCR_STATUS()!=0&&GET_OSD_HOTKEY_LEFT()==_OSD_HOTKEY_CONBRI)
+					 SET_OSD_HOTKEY_LEFT(_OSD_HOTKEY_INPUT);
+				   }
+#endif	
+
+					OsdDispHotKeySourceMenu(GET_OSD_HOTKEY_LEFT());
+				}	
+
+			}
+
+
+			
+
+            break;
+
+        case _EXIT_KEY_MESSAGE:
+
+			if(SysModeGetModeState() == _MODE_STATUS_ACTIVE)
+            {
+				CLR_KEYREPEATENABLE();
+				if(GET_FACTORY_MODE() == _ON)
+				{
+					RTDFactoryMainMenu();
+					return;
+				}
+
+				if(0);
+#if(ENABLE_LANGUAGE_SELECT_OSD)			
+				else if(GET_OSD_LANGUAGE_HK_STATUS() == _ON)
+				{
+					OsdDispHotKeySourceMenu(_OSD_HOTKEY_LANGUAGE_SELECT); // 语言选择
+				}
+#endif
+#if(_DEF_District_swtich_Message == _ON)
+				else if(GET_OSD_DISTRICT_SWTICH_STATE() == _ON)
+				{
+					OsdDispHotKeySourceMenu(_OSD_HOTKEY_DISTRICT_SELECT); // 地区选择
+				}
+#endif
+#if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+				else if(GET_OSD_PC_HINT_STATUS() == _ON) //能耗提醒
+				{
+					OsdDisplayPowerConsumptionHint();
+				}
+				else
+#else
+				else
+#endif
+				{
+					OsdDispMainMenu();
+				}
+
+			}
+
+			
+            break;
+
+        default:
+            break;
+    }
+
+
+	
+#endif
+}
+
+
+
+
+
+
+
+
+
+
+
+void MenuInput(void)
+{
+    switch(GET_KEYMESSAGE())
+    {
+        case _MENU_KEY_MESSAGE:
+        	
+			OSDSubMenuMove();
+            break;
+
+        case _RIGHT_KEY_MESSAGE:
+#if(_DEF_NO_SIGNAL_SHOW_SOURCE_MENU)
+			if(SysModeGetModeState() != _MODE_STATUS_ACTIVE)
+			{
+				break;
+			}
+#endif
+
+#if(_MENU_AUDIO_SUPPORT && _DEFAULT_OSD_STYLE!=_SUMA_OSD_STYLE)
+           if(SysSourceGetSourceType() == _SOURCE_VGA)  //2025.2.11 tx
+            UpdateOSDMainInterface(_MENU_VIEWMODE);
+		   else
+			UpdateOSDMainInterface(_MENU_AUDIO);
+#else
+			UpdateOSDMainInterface(_MENU_VIEWMODE);
+#endif
+            break;
+        case _LEFT_KEY_MESSAGE:
+			
+			UpdateOSDMainInterface(_MENU_SETUP);
+            break;
+
+        case _EXIT_KEY_MESSAGE:
+#if(_5KEY_MENU_STYLE)  //2025.2.13  tx wan
+		    ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+#endif			
+			OsdDispDisableOsd();
+            break;
+
+#if(_DEF_KEY_ROCKER)
+		case _UP_KEY_MESSAGE:
+			UpdateOSDMainInterface(_MENU_SETUP);
+			OSD_SubMenuCur = InforMation_index;
+			OSDSubMenuMove();
+			break;
+#endif
+
+        default:
+            break;
+    }
+}
+
+#if (_MENU_AUDIO_SUPPORT)
+void MenuAudio(void)
+{
+    switch(GET_KEYMESSAGE())
+    {
+        case _MENU_KEY_MESSAGE:
+
+			OSDSubMenuMove();
+            break;
+
+        case _RIGHT_KEY_MESSAGE:
+			
+			if(OSD_ITEM_MASK_GET(_OSD_HOTKEY_VIEWMODE))
+				UpdateOSDMainInterface(_MENU_COLOR);
+			else
+				UpdateOSDMainInterface(_MENU_VIEWMODE);
+            break;
+
+        case _LEFT_KEY_MESSAGE:
+			
+			UpdateOSDMainInterface(_MENU_INPUT);
+            break;
+
+        case _EXIT_KEY_MESSAGE:
+#if(_5KEY_MENU_STYLE)  //2025.2.13  tx wan
+		    ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+#endif			
+			OsdDispDisableOsd();
+            break;
+
+#if(_DEF_KEY_ROCKER)
+		case _UP_KEY_MESSAGE:
+			UpdateOSDMainInterface(_MENU_SETUP);
+			OSD_SubMenuCur = InforMation_index;
+			OSDSubMenuMove();
+			break;
+#endif
+
+        default:
+            break;
+    }
+}
+#endif
+void MenuViewMode(void)
+{
+    switch(GET_KEYMESSAGE())
+    {
+        case _MENU_KEY_MESSAGE:
+
+			OSDSubMenuMove();
+            break;
+
+        case _RIGHT_KEY_MESSAGE:
+			
+			UpdateOSDMainInterface(_MENU_COLOR);
+            break;
+
+        case _LEFT_KEY_MESSAGE:
+#if(_MENU_AUDIO_SUPPORT && _DEFAULT_OSD_STYLE!=_SUMA_OSD_STYLE)
+           if(SysSourceGetSourceType() == _SOURCE_VGA)   //2025.2.11 tx
+            UpdateOSDMainInterface(_MENU_INPUT);
+		   else
+			UpdateOSDMainInterface(_MENU_AUDIO);
+#else
+			UpdateOSDMainInterface(_MENU_INPUT);
+#endif
+            break;
+
+        case _EXIT_KEY_MESSAGE:
+#if(_5KEY_MENU_STYLE)  //2025.2.13  tx wan
+		    ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+#endif		
+			OsdDispDisableOsd();
+            break;
+
+#if(_DEF_KEY_ROCKER)
+		case _UP_KEY_MESSAGE:
+			UpdateOSDMainInterface(_MENU_SETUP);
+			OSD_SubMenuCur = InforMation_index;
+			OSDSubMenuMove();
+			break;
+#endif
+
+        default:
+            break;
+    }
+}
+
+void MenuColor(void)
+{
+    switch(GET_KEYMESSAGE())
+    {
+        case _MENU_KEY_MESSAGE:
+
+			OSDSubMenuMove();
+            break;
+
+        case _RIGHT_KEY_MESSAGE:
+			
+			UpdateOSDMainInterface(_MENU_IMAGE);
+            break;
+
+        case _LEFT_KEY_MESSAGE:
+			
+			if(OSD_ITEM_MASK_GET(_OSD_HOTKEY_VIEWMODE))
+				UpdateOSDMainInterface(_MENU_AUDIO);
+			else
+				UpdateOSDMainInterface(_MENU_VIEWMODE);
+            break;
+
+        case _EXIT_KEY_MESSAGE:
+#if(_5KEY_MENU_STYLE)  //2025.2.13  tx wan
+			ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+#endif			
+			OsdDispDisableOsd();
+            break;
+
+#if(_DEF_KEY_ROCKER)
+		case _UP_KEY_MESSAGE:
+			UpdateOSDMainInterface(_MENU_SETUP);
+			OSD_SubMenuCur = InforMation_index;
+			OSDSubMenuMove();
+			break;
+#endif
+
+        default:
+            break;
+    }
+}
+
+void MenuImage(void)
+{
+    switch(GET_KEYMESSAGE())
+    {
+        case _MENU_KEY_MESSAGE:
+
+			OSDSubMenuMove();
+            break;
+
+        case _RIGHT_KEY_MESSAGE:
+			
+			UpdateOSDMainInterface(_MENU_SETUP);
+            break;
+
+        case _LEFT_KEY_MESSAGE:
+			
+			UpdateOSDMainInterface(_MENU_COLOR);
+            break;
+
+        case _EXIT_KEY_MESSAGE:
+#if(_5KEY_MENU_STYLE)  //2025.2.13  tx wan
+			ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+#endif			
+			OsdDispDisableOsd();
+            break;
+
+#if(_DEF_KEY_ROCKER)
+		case _UP_KEY_MESSAGE:
+			UpdateOSDMainInterface(_MENU_SETUP);
+			OSD_SubMenuCur = InforMation_index;
+			OSDSubMenuMove();
+			break;
+#endif
+
+        default:
+            break;
+    }
+}
+
+void MenuSetup(void)
+{
+    switch(GET_KEYMESSAGE())
+    {
+        case _MENU_KEY_MESSAGE:
+
+			OSDSubMenuMove();
+            break;
+
+        case _RIGHT_KEY_MESSAGE:
+			
+			UpdateOSDMainInterface(_MENU_INPUT);
+            break;
+
+        case _LEFT_KEY_MESSAGE:
+			
+			UpdateOSDMainInterface(_MENU_IMAGE);
+            break;
+
+        case _EXIT_KEY_MESSAGE:
+#if(_5KEY_MENU_STYLE)  //2025.2.13  tx wan
+		    ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+#endif			
+			OsdDispDisableOsd();
+            break;
+
+#if(_DEF_KEY_ROCKER)
+		case _UP_KEY_MESSAGE:
+			UpdateOSDMainInterface(_MENU_SETUP);
+			OSD_SubMenuCur = InforMation_index;
+			OSDSubMenuMove();
+			break;
+#endif
+
+        default:
+            break;
+    }
+}
+
+
+#if(_DEF_HotOSD_Logo_MessageEanble_swtich)
+void MENU_FUN_MSG_BOOT_UP(void)
+{
+    switch(GET_KEYMESSAGE())
+    {
+        case _MENU_KEY_MESSAGE:
+			if(OSD_SubMenuCur == 0)	// Boot up Screen
+			{
+				SET_FACTORY_FORCE_LOGO_OFF(!GET_FACTORY_FORCE_LOGO_OFF());
+				OsdPropPutString(ROW(2), COL(19), _PFONT_PAGE_2, STRING(_STRING_ON_OFF), GET_FACTORY_FORCE_LOGO_OFF(), COLOR(_CP_WHITE, _CP_DARKGRAY), GET_OSD_LANGUAGE());
+				TPVNVRamSaveFactoryDate();
+
+			}
+			else	// Mode Message
+			{
+				SET_OSD_Message_Info_Eanble(!GET_OSD_Message_Info_Eanble());
+				OsdPropPutString(ROW(4), COL(19), _PFONT_PAGE_2, STRING(_STRING_ON_OFF), GET_OSD_Message_Info_Eanble(), COLOR(_CP_WHITE, _CP_DARKGRAY), GET_OSD_LANGUAGE());
+				RTDNVRamSaveOSDData();
+				//SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+			}
+			break;
+			
+        case _EXIT_KEY_MESSAGE:
+			OsdDispDisableOsd();
+			break;
+			
+        case _RIGHT_KEY_MESSAGE:
+        case _LEFT_KEY_MESSAGE:		
+		case _UP_KEY_MESSAGE:
+        case _DOWN_KEY_MESSAGE:
+			OSD_SubMenuCur = OsdDisplayDetOverRange(OSD_SubMenuCur, 1, 0, _ON);
+			OsdWindowDrawingHighlight(WINNO(_MAIN_WIN_3RD_CURSOR), XSTART(0), YSTART(2*18+(OSD_SubMenuCur*2)*18), XEND(_OSD_MSG_COL_NUM_23*12), YEND(3*18+(OSD_SubMenuCur*2)*18),	_CP_BLUE, _CP_WHITE, _CP_BLUE);
+            break;
+
+        default:
+            break;
+    }
+}
+#endif
+
+
+
+
+#if(_DEF_MAIN_MENU_MUTE_ICON_SUPPORT == _ON)
+//--------------------------------------------------
+// Description      :
+// Input Value	    : None
+// Output Value     : None
+//--------------------------------------------------
+void OsdDisplayVolumeAdjustUpdateIcon(void)
+{
+	if(GET_OSD_VOLUME_MUTE() == _ON)
+	{ 
+#if(_DEF_JS_KEY_ICON_5_KEY_MODE)	
+	    //OsdFontPut2BitTable(ROW(_MAIN_ICON_ROW_), COL(_MAIN_ICON_COL_+((_MENU_AUDIO - _OSD_MAIN_START)*8)), tiOSD_OSDKEY_ICON_NO_VOLUME, _CP_BG, _CP_WHITE, _CP_RED, _CP_RED);
+#else
+		OsdFontPut2BitTable(ROW(_MAIN_ICON_ROW_), COL(_MAIN_ICON_COL_+((_MENU_AUDIO - _OSD_MAIN_START)*8)), tiOSD_OSDKEY_ICON_NO_Audio, _CP_BG, _CP_WHITE, _CP_RED, _CP_RED);
+#endif
+	}
+	else
+	{
+#if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+        //OsdFontPut1BitTable(ROW(_MAIN_ICON_ROW_),COL(_MAIN_ICON_COL_+((_MENU_AUDIO - _OSD_MAIN_START)*8)), tiOSD_2BIT_MAIN_ICON[1], COLOR(_CP_WHITE, _CP_BG));	 
+#else
+		OsdFontPut2BitTable(ROW(_MAIN_ICON_ROW_), COL(_MAIN_ICON_COL_+((_MENU_AUDIO - _OSD_MAIN_START)*8)), tiOSD_2BIT_MAIN_ICON[_MENU_AUDIO - _OSD_MAIN_START], _CP_BG, _CP_WHITE, _CP_GRAY, _CP_GRAY);
+#endif
+	}
+
+#if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+	OsdDisplayKeyIndex(_LAYER_VOLUME_ADJUST);
+#endif
+
+}
+#endif
+
+
+void MENU_FUN_COMMON(void)
+{
+	DebugMessageOsd("My_COMMON",GET_OSD_STATE());
+    switch(GET_KEYMESSAGE())
+    {
+        case _MENU_KEY_MESSAGE: 
+        case _EXIT_KEY_MESSAGE:
+
+            OSDSubMenuMove();
+            break;
+
+        case _RIGHT_KEY_MESSAGE:
+        case _LEFT_KEY_MESSAGE:
+		case _UP_KEY_MESSAGE:
+		case _DOWN_KEY_MESSAGE:
+			OsdInterfaceAdjust();
+            SpecialFuncAdj();		
+			if((GET_OSD_VOLUME_MUTE() == _ON)&&(GET_OSD_VOLUME() !=0)&&(GET_OSD_STATE() == _MENU_FUN_VOLUME ))
+			{
+				SET_OSD_VOLUME_MUTE(_OFF);
+				#if(_DEF_MAIN_MENU_MUTE_ICON_SUPPORT == _ON)
+				OsdDisplayVolumeAdjustUpdateIcon();
+				#endif
+			}
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+
+BYTE InputSourceConvert(BYTE ucInputPort)
+{
+
+	
+	if(0);
+	
+#if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+	else if(ucInputPort==_OSD_INPUT_A0)
+		ucInputPort = _A0_INPUT_PORT;
+#endif
+
+#if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+	else if(ucInputPort==_OSD_INPUT_D0)
+		ucInputPort = _D0_INPUT_PORT;
+#endif
+
+#if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+	else if(ucInputPort==_OSD_INPUT_D1)
+		ucInputPort = _D1_INPUT_PORT;
+#endif
+
+#if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+	else if(ucInputPort==_OSD_INPUT_D2)
+		ucInputPort = _D2_INPUT_PORT;
+#endif
+
+#if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+	else if(ucInputPort==_OSD_INPUT_D3)
+		ucInputPort = _D3_INPUT_PORT;
+#endif
+
+#if(_D4_INPUT_PORT_TYPE != _D4_NO_PORT)
+	else if(ucInputPort==_OSD_INPUT_D4)
+		ucInputPort = _D4_INPUT_PORT;
+#endif
+
+	return ucInputPort;
+}
+
+
+
+
+
+void HotKeyFUNAdjust(void)
+{
+
+	//WORD usValue;
+
+    switch (OSD_HOT_KEY_PAGE)
+    {
+    
+#if(ENABLE_LANGUAGE_SELECT_OSD)			
+        case _OSD_HOTKEY_LANGUAGE_SELECT:
+            if (GET_OSD_LANGUAGE_HK_STATUS() == _ON)
+            {  
+            	if(GET_KEYMESSAGE()==_MENU_KEY_MESSAGE)
+                	SET_OSD_LANGUAGE(OsdHotLanguageSelect[OSD_SubMenuCur]);
+				
+                SET_OSD_LANGUAGE_HK_STATUS(_OFF); // 完成语言选择后，切换到地区选择
+     #if(_5KEY_MENU_STYLE)  //2025.2.13  tx wan
+		       ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+     #endif	
+                //OsdFuncDisableOsd();
+                
+				#if _GSYNC_TEST
+					ucDsiableShowVFreqFlag = 0;
+				#endif
+	 			OsdDispDisableOsd();
+                
+				
+	#if(_DEF_NO_CHECK_LANGUAGE_DISTRICT_MODE_SWTICH)
+                OsdDispDrawHotKeyWindow(_OSD_HOTKEY_DISTRICT_SELECT);
+	#else
+				SET_OSD_STATE(_MENU_NONE);
+				SET_OSD_DISTRICT_SWTICH_STATE(_ON);
+				
+	#endif
+				RTDNVRamSaveOSDData();
+
+            }
+            break;
+#endif
+
+#if(_DEF_District_swtich_Message == _ON)
+
+        case _OSD_HOTKEY_DISTRICT_SELECT:
+            if (GET_OSD_DISTRICT_SWTICH_STATE() == _ON && GET_KEYMESSAGE()==_MENU_KEY_MESSAGE)
+            {
+#if(_DEF_ZhongDong)
+                if(OSD_SubMenuCur == _DEF_REGION_AMERICAS  || OSD_SubMenuCur == _DEF_REGION_EUROPE || OSD_SubMenuCur == _DEF_REGION_MIDDLE_EAST) // 欧美 默认亮度
+#else
+				if(OSD_SubMenuCur == _DEF_REGION_AMERICAS  || OSD_SubMenuCur == _DEF_REGION_EUROPE) // 欧美 默认亮度
+#endif
+                {
+					SET_OSD_DISTRICT(OSD_SubMenuCur);
+                    if(GET_OSD_BACKLIGHT() != _DEF_REGION_BACKLIGHT)
+                    {
+                     #if(_5KEY_MENU_STYLE)  //2025.2.13 tx
+                        SET_OSD_BACKLIGHT(70);
+					 #else
+                        SET_OSD_BACKLIGHT(_DEF_REGION_BACKLIGHT);
+					 #endif
+                        //PCB_BACKLIGHT_PWM(_BACKLIGHT_MAX - GET_OSD_BACKLIGHT());
+                       // RTDNVRamRestoreBacklight();
+						RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE()); //保存亮度
+                    }
+                }
+
+                else
+                {
+                	SET_OSD_DISTRICT(OSD_SubMenuCur);
+                    if (GET_OSD_BACKLIGHT() != 100)
+                    {
+                        SET_OSD_BACKLIGHT(100); 
+                        //PCB_BACKLIGHT_PWM(_BACKLIGHT_MAX - GET_OSD_BACKLIGHT());
+                        //RTDNVRamRestoreBacklight();
+						RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE()); //保存亮度
+                    }
+                }
+				UserAdjustBacklight(GET_OSD_BACKLIGHT());
+   #if(_5KEY_MENU_STYLE)  //2025.2.13	tx wan
+				 ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+   #endif 
+                OsdFuncDisableOsd();
+                SET_OSD_STATE(_MENU_NONE);
+                SET_OSD_DISTRICT_SWTICH_STATE(_OFF);
+                RTDNVRamSaveOSDData();
+            }
+			else if(GET_KEYMESSAGE()==_EXIT_KEY_MESSAGE)
+			{
+                OsdFuncDisableOsd();
+                SET_OSD_STATE(_MENU_NONE);
+                SET_OSD_DISTRICT_SWTICH_STATE(_OFF);
+                RTDNVRamSaveOSDData();
+
+			}
+			//DebugMessageOsd("4._OSD_HOTKEY_DISTRICT_SELECT",567);
+            break;
+
+#endif
+
+#if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+		case _OSD_HOTKEY_POWER_CONSUMPTION_HINT:
+			if(GET_OSD_PC_HINT_STATUS() == _ON)
+			{
+				SET_OSD_PC_HINT_STATUS(_OFF);
+				RTDNVRamSaveOSDData();
+#if(_DEF_NAVIGATION_OSD_ENABLE)
+				OsdDisplayUserKeyPage();
+#else
+				OsdDispMainMenu();
+#endif
+			}
+			break;
+#endif
+
+        case _OSD_HOTKEY_VIEWMODE:
+			
+			UserAdjustViewMode();
+			UpdateMaskValue();
+			//OsdDispDrawHotKeyWindow(_OSD_HOTKEY_VIEWMODE);
+#if 0//(_DEF_JS_KEY_ICON_5_KEY_MODE)
+       #if(_PROJECT_ID==_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)
+           // OsdFontPut1BitTable(ROW(2*OsdHotPageSize[HotKeyPageIndex]+3), COL(9), tiOSD_OSDKEY_ICON_ConBri, COLOR((OSD_ITEM_MASK_GET(_OSD_HOTKEY_CONBRI) ? _CP_BLOCK : _CP_WHITE), _CP_BG));
+	   #else
+			OsdFontPut1BitTable(ROW(2*OsdHotPageSize[HotKeyPageIndex]+3), COL(7), tiOSD_OSDKEY_ICON_ConBri, COLOR((OSD_ITEM_MASK_GET(_OSD_HOTKEY_CONBRI) ? _CP_BLOCK : _CP_WHITE), _CP_BG));
+       #endif
+#endif
+			//RTDFlashSaveOSDData();
+            break;
+
+        case _OSD_HOTKEY_CONBRI:
+				
+			//DebugMessageOsd("1.ucTypeTemp",1);
+
+            OsdDisplaySliderAndNumber(OsdHotConbri[OSD_SubMenuCur], GetOsdValue(OsdHotConbri[OSD_SubMenuCur]), _SLIDER_HOTKEY);
+            //RTDNVRamSaveOSDData();
+            break;
+			
+#if(_MENU_AUDIO_SUPPORT)
+        case _OSD_HOTKEY_VOLUME:
+            OsdDisplaySliderAndNumber(_OSD_HOTKEY_VOLUME, GetOsdValue(_OSD_HOTKEY_VOLUME), _SLIDER_HOTKEY);
+            SET_OSD_VOLUME_MUTE(_OFF);     
+#if(_DEF_JS_KEY_ICON_5_KEY_MODE)			
+            OsdDisplayUpdateVolumeMuteIcon();
+#endif
+            //RTDNVRamSaveOSDData();
+			ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_OSD_DATE);
+            break;
+#endif
+
+		case _OSD_HOTKEY_INPUT:
+
+
+			if(GET_KEYMESSAGE() == _MENU_KEY_MESSAGE && GetOsdValue(_MENU_INPUT)!=OSD_SubMenuCur )
+			{
+			
+				Input_New_State = 10; // 只要切信号就秀当前通道弹窗
+				SET_FORCE_POW_SAV_STATUS(_FALSE);
+				SET_OSD_STATE(_MENU_NONE);
+
+				ScalerDDomainPatternGenAdjustColor(0, 0, 0);//关背光的过程中有竖条纹或者一些乱七八糟的画面
+				ScalerDDomainBackgroundSetColor(0, 0, 0);
+				ScalerDDomainBackgroundEnable(_ENABLE);
+				
+				//DebugMessageOsd("4._OSD_HOTKEY_INPUT",567);
+
+				SysSourceSwitchInputPort(InputSourceConvert(OSD_SubMenuCur));
+
+			
+			    #if(_MPRT_SUPPORT)	
+				if(GET_OSD_MPRT())
+				{
+					SET_OSD_MPRT(_OFF);
+					UserAdjustMPRTFuntion(GET_OSD_MPRT());
+				}
+				#endif
+				
+				if((SysSourceGetScanType() == _SOURCE_SWITCH_AUTO_IN_GROUP) )
+				{
+					SysSourceSetScanType(_SOURCE_SWITCH_AUTO_IN_GROUP);
+
+					if(UserCommonNVRamGetSystemData(_SOURCE_SCAN_TYPE) != SysSourceGetScanType())
+					{
+						UserCommonNVRamSetSystemData(_SOURCE_SCAN_TYPE, SysSourceGetScanType());
+						SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_SYSTEMDATA_MSG);
+					}
+
+				}
+				else //(SysSourceGetScanType() == _SOURCE_SWITCH_FIXED_PORT)
+				{
+					SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+
+					if((UserCommonNVRamGetSystemData(_SEARCH_PORT) != SysSourceGetInputPort()) ||
+					   (UserCommonNVRamGetSystemData(_SOURCE_SCAN_TYPE) != SysSourceGetScanType()))
+					{
+						UserCommonNVRamSetSystemData(_SEARCH_PORT, SysSourceGetInputPort());
+						UserCommonNVRamSetSystemData(_SOURCE_SCAN_TYPE, SysSourceGetScanType());
+						SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_SYSTEMDATA_MSG);
+
+					}
+
+				}
+				SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+
+			}
+
+			break;
+
+        default:
+            break;
+    }
+}
+
+
+void OsdMsgInputSourceKey(void)
+{
+
+/*
+		OsdDispDisableOsd();
+		
+#if(_DEF_ACON_AND_RESET_USER_MODE_SWTICH)
+		if(GET_OSD_LANGUAGE_HK_STATUS() == _ON && GET_FACTORY_MODE() == _OFF)
+		{
+			SET_OSD_STATE(_OSD_HOTKEY_LANGUAGE);
+			OsdDispDrawHotKeyWindow(_HOTKEY_TYPE_LANGUAGE);
+		}
+#endif
+*/
+}
+
+//==================================================
+// Message OSD Common
+//==================================================
+void OsdNothingKey(void)
+{
+	DebugMessageOsd("1.OsdNothingKey",GET_KEYMESSAGE());
+
+#if _OSD_PowerSaving_Fun
+
+	if(g_usPowerSavingCount<_OSD_TIME_AUTO_DOWN_COUNT && GET_KEYMESSAGE()!=_NONE_KEY_MESSAGE)
+	{
+		ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_AUTO_POWER_Saving); 
+		SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_OFF);
+		OsdDispDisableOsd();
+	}
+
+#endif
+
+	if(GET_KEYREPEATENABLE())
+	{
+		;//CLR_KEYREPEATENABLE();
+	}
+	else
+	{
+		switch (GET_KEYMESSAGE())
+		{
+			case _MENU_KEY_MESSAGE: 
+			case _EXIT_KEY_MESSAGE:
+			case _RIGHT_KEY_MESSAGE:
+			case _LEFT_KEY_MESSAGE:
+			case _UP_KEY_MESSAGE:
+			case _DOWN_KEY_MESSAGE:
+				OsdDispDisableOsd();
+				break;
+			
+			default:
+				break;
+		
+		}
+
+	}
+	
+
+
+}
+
+
+
+//==================================================
+// Message OSD Common
+//==================================================
+void OsdNothingKey1(void)
+{
+	DebugMessageOsd("1.OsdNothingKey1",GET_KEYMESSAGE());
+	
+	if(GET_OSD_MESSAGE()==_OSD_DISP_LOGO_BOOTUP_STATUS_MSG || GET_OSD_MESSAGE()==_OSD_DISP_POWER_LOCK_STATUS_MSG \
+		)
+		SET_OSD_MESSAGE(_OSD_DISP_NULL_MSG);
+	else
+	{
+
+		switch (GET_KEYMESSAGE())
+		{
+			case _MENU_KEY_MESSAGE: 
+			case _EXIT_KEY_MESSAGE:
+			case _RIGHT_KEY_MESSAGE:
+			case _LEFT_KEY_MESSAGE:
+			case _UP_KEY_MESSAGE:
+			case _DOWN_KEY_MESSAGE:
+				OsdDispDisableOsd();
+				break;
+			
+			default:
+				break;
+		
+		}
+
+	}
+
+
+}
+
+
+
+void MENU_FUN_RESOLUTION_NOTICE(void)
+{
+    switch(GET_KEYMESSAGE())
+    {
+#if(_DEF_KEY_ROCKER)
+			case _RIGHT_KEY_MESSAGE:
+#else
+			case _MENU_KEY_MESSAGE: 
+			case _EXIT_KEY_MESSAGE:
+#endif
+			SET_OSD_RESOLUTION_STATUS(_OFF);
+			RTDNVRamSaveOSDData();
+            OsdDispDisableOsd();
+            break;
+
+#if(_DEF_KEY_ROCKER)
+			case _LEFT_KEY_MESSAGE:
+#else
+			case _RIGHT_KEY_MESSAGE:
+			case _LEFT_KEY_MESSAGE:
+#endif
+
+			OsdDispDisableOsd();
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+#if(_DEF_NAVIGATION_OSD_ENABLE)
+void MenuNavigat(void)
+{
+
+#if(_DEF_KEY_ROCKER)
+
+    switch(GET_KEYMESSAGE())
+    {
+    	case _MIDDLE_KEY_MESSAGE:
+			OsdDispDisableOsd();
+			break;
+			
+		case _LEFT_KEY_MESSAGE:
+			OsdDispHotKeySourceMenu(_OSD_HOTKEY_INPUT);
+			break;
+		
+		case _RIGHT_KEY_MESSAGE:
+			if(!OSD_ITEM_MASK_GET(_OSD_HOTKEY_CONBRI))
+				OsdDispHotKeySourceMenu(_OSD_HOTKEY_CONBRI);
+			break;
+			
+		case _UP_KEY_MESSAGE:
+			if(!OSD_ITEM_MASK_GET(_OSD_HOTKEY_VIEWMODE))
+				OsdDispHotKeySourceMenu(_OSD_HOTKEY_VIEWMODE);
+			break;
+
+		case _DOWN_KEY_MESSAGE:
+			OsdDispMainMenu();
+			break;
+
+		default:
+			break;
+	}
+
+#elif(_DEF_JS_KEY_ICON_5_KEY_MODE)
+
+	switch(GET_KEYMESSAGE())
+	{
+		case _EXIT_KEY_MESSAGE:
+			OsdDispDisableOsd();
+			break;
+		
+		case _RIGHT_KEY_MESSAGE:
+			OsdDispHotKeySourceMenu(_OSD_HOTKEY_INPUT);
+			break;
+			
+		case _LEFT_KEY_MESSAGE:
+			if(!OSD_ITEM_MASK_GET(_OSD_HOTKEY_VIEWMODE))
+				OsdDispHotKeySourceMenu(_OSD_HOTKEY_VIEWMODE);
+			break;
+
+		case _MENU_KEY_MESSAGE:
+			OsdDispMainMenu();
+			break;
+
+		default:
+			break;
+	}
+
+#endif
+	
+}
+#endif
+
+#if(_FRONT_SIGHT_FUNCTION == _ON)
+void MENU_FUN_FRONT_SIGHT(void)
+{
+	switch(GET_KEYMESSAGE())
+    {
+	#if(_DEF_KEY_ROCKER)
+		case _DOWN_KEY_MESSAGE:
+	#else
+    	case _RIGHT_KEY_MESSAGE:
+	#endif
+			SET_OSD_FRONT_SIGHT(_OFF);
+			RTDNVRamSaveOSDData();
+			OsdDispDisableOsd();
+            break;
+
+			
+        case _MENU_KEY_MESSAGE: 
+        case _EXIT_KEY_MESSAGE:
+        case _LEFT_KEY_MESSAGE:
+
+        default:
+            break;
+    }
+}
+#endif
+
+
+code void (*OperationTable[])(void) =
+{
+    MenuNone,
+		
+#if(_DEF_NAVIGATION_OSD_ENABLE)
+	MenuNavigat,			// _MENU_NAVIGAT
+#endif
+
+    // main
+    MenuInput,
+#if (_MENU_AUDIO_SUPPORT)
+    MenuAudio,
+#endif
+    MenuViewMode,
+    MenuColor,
+    MenuImage,
+    MenuSetup,
+
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+    OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+
+#if(_MENU_AUDIO_SUPPORT)
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+#endif
+
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+    OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+	OSDSubMenuMove,
+
+    MENU_FUN_COMMON,	//_MENU_FUN_INPUT_0				
+    MENU_FUN_COMMON,	//_MENU_FUN_INPUT_1
+    MENU_FUN_COMMON,	//_MENU_FUN_INPUT_2
+    MENU_FUN_COMMON,	//_MENU_FUN_INPUT_3
+
+    MENU_FUN_COMMON,	//_MENU_FUN_VOLUME
+    MENU_FUN_COMMON,	//_MENU_FUN_MUTE
+    
+    MENU_FUN_COMMON,	//_MENU_FUN_VIEWMODE_STANDARD
+    MENU_FUN_COMMON,	//_MENU_FUN_VIEWMODE_FPS
+    MENU_FUN_COMMON,	//_MENU_FUN_VIEWMODE_RTS
+    MENU_FUN_COMMON,	//_MENU_FUN_VIEWMODE_MOBA
+    MENU_FUN_COMMON,	//_MENU_FUN_VIEWMODE_MOVIE
+    MENU_FUN_COMMON,	//_MENU_FUN_VIEWMODE_WEB
+    MENU_FUN_COMMON,	//_MENU_FUN_VIEWMODE_TEXT
+    MENU_FUN_COMMON,	//_MENU_FUN_VIEWMODE_MAC
+    MENU_FUN_COMMON,	//_MENU_FUN_VIEWMODE_MONO
+    
+    MENU_FUN_COMMON,	//_MENU_FUN_CONTRAST_BRIGHTNESS
+    MENU_FUN_COMMON,	//_MENU_FUN_SIX_AXIS
+    MENU_FUN_COMMON,	//_MENU_FUN_TEMP
+    MENU_FUN_COMMON,	//_MENU_FUN_GAMUT
+    MENU_FUN_COMMON,	//_MENU_FUN_SPACE
+    MENU_FUN_COMMON,	//_MENU_FUN_RANGE
+    MENU_FUN_COMMON,	//_MENU_FUN_HDR
+    
+#if(_VGA_SUPPORT == _ON)
+    MENU_FUN_COMMON,	//_MENU_FUN_AUTO_IMAGE_ADJ
+    MENU_FUN_COMMON,	//_MENU_FUN_HORIZONTAL_SIZE
+    MENU_FUN_COMMON,	//_MENU_FUN_VGA_POSTION
+    MENU_FUN_COMMON,	//_MENU_FUN_FINE_TUNE	
+    SpecialFuncAdj, 	//_MENU_FUN_VGA_HPOSITON
+	SpecialFuncAdj, 	//_MENU_FUN_VGA_VPOSITON
+#endif
+
+    MENU_FUN_COMMON,	//_MENU_FUN_SHARPNESS
+    MENU_FUN_COMMON,	//_MENU_FUN_BLUELIGHT
+    MENU_FUN_COMMON,	//_MENU_FUN_ASPECT
+    MENU_FUN_COMMON,	//_MENU_FUN_OVERSCAN
+    MENU_FUN_COMMON,	//_MENU_FUN_BLK_STABLE
+    MENU_FUN_COMMON,	//_MENU_FUN_ADV_DCR
+    MENU_FUN_COMMON,	//_MENU_FUN_RESPONSE_TIME
+
+    MENU_FUN_COMMON,	//_MENU_FUN_LANGUAGE
+    MENU_FUN_COMMON,	//_MENU_FUN_FREESYNC
+    MENU_FUN_COMMON,	//_MENU_FUN_MPRT
+#if(_DEF_OSD_GAMING == _ON)
+	MENU_FUN_COMMON,	//_MENU_FUN_GAMING    
+	SpecialFuncAdj,		//_MENU_FUN_TIMER  
+    SpecialFuncAdj,		//_MENU_FUN_CROSSHAIR  
+    SpecialFuncAdj,		//_MENU_FUN_FPS_COUNTER  
+#endif
+    MENU_FUN_COMMON,	//_MENU_FUN_NOTICE
+    MENU_FUN_COMMON,	//_MENU_FUN_INFORMATION
+#if(_DEF_OSD_DOUBLE)
+    MENU_FUN_COMMON,	//_MENU_FUN_OSD_SIZE
+#endif
+    MENU_FUN_COMMON,	//_MENU_FUN_OSD_TIMEOUT
+    MENU_FUN_COMMON,	//_MENU_FUN_OSD_BACKGROUND
+    MENU_FUN_COMMON,	//_MENU_FUN_OSD_PIVOT
+    MENU_FUN_COMMON,	//_MENU_FUN_POWER_INDICATOR
+    MENU_FUN_COMMON,	//_MENU_FUN_AUTO_POWEROFF
+    MENU_FUN_COMMON,	//_MENU_FUN_SLEEP
+    MENU_FUN_COMMON,	//_MENU_FUN_ECO
+    MENU_FUN_COMMON,	//_MENU_FUN_DP_VERSION
+    MENU_FUN_COMMON,	//_MENU_FUN_SEARCH
+    MENU_FUN_COMMON,	//_MENU_FUN_DDCCI
+    MENU_FUN_COMMON,	//_MENU_FUN_RECALL
+    
+    SpecialFuncAdj,		//_MENU_FUN_CONTRAST
+    SpecialFuncAdj,		//_MENU_FUN_BRIGHTNESS
+	SpecialFuncAdj, 	//_MENU_FUN_BACKLIGHT
+
+
+    SpecialFuncAdj,		//_MENU_FUN_HUE
+    SpecialFuncAdj,		//_MENU_FUN_SATURATION
+
+    SpecialFuncAdj,		//_MENU_FUN_HUE_ADJUST
+    SpecialFuncAdj,		//_MENU_FUN_SATURATION_ADJUST
+
+    SpecialFuncAdj,		//_MENU_FUN_USER_COLOR
+    SpecialFuncAdj,		//_MENU_FUN_USER_COLOR_ADJUST
+
+    SpecialFuncAdj,		//_MENU_ARROW_UP
+    SpecialFuncAdj,		//_MENU_ARROW_DOWN
+    OsdNothingKey,		//_MENU_NULL
+
+	OsdMsgInputSourceKey, // _OSD_MSG_INPUT_SOURCE
+
+	HotKeyFun,			//_OSD_HOTKEY_FUNC
+    
+    SpecialFuncAdj,		//_OSD_HOTKEY_VIEWMODE
+#if(_MENU_AUDIO_SUPPORT)
+    SpecialFuncAdj,		//_OSD_HOTKEY_VOLUME
+#endif
+    SpecialFuncAdj,		//_OSD_HOTKEY_CONBRI
+
+    MENU_FUN_COMMON,	//_OSD_HOTKEY_INPUT
+    MENU_FUN_COMMON,	//_OSD_HOTKEY_LANGUAGE_SELECT
+    MENU_FUN_COMMON,	//_OSD_HOTKEY_DISTRICT_SELECT
+#if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+    MENU_FUN_COMMON,	//_OSD_HOTKEY_POWER_CONSUMPTION_HINT
+#endif
+    MENU_FUN_COMMON,	//_OSD_START_UP
+    SpecialFuncAdj,		//_OSD_HOTKEY_CONTRAST	
+    SpecialFuncAdj,		//_OSD_HOTKEY_BACKLIGHT	
+    
+#if(_FRONT_SIGHT_FUNCTION == _ON)
+	MENU_FUN_FRONT_SIGHT, //_OSD_HOTKEY_FRONT_SIGHT
+#endif
+    MENU_FUN_RESOLUTION_NOTICE, //_OSD_MESSAGE_MENU_RESOLUTION_NOTICE
+#if(_DEF_HotOSD_Logo_MessageEanble_swtich)
+	MENU_FUN_MSG_BOOT_UP, //_OSD_MESSAGE_MENU_BOOT_UP,
+#endif
+	MenuNone,//_OSD_HOTKEY_VFREQ
+
+	OsdNothingKey, // _OSD_MSG_NOTHING
+	OsdNothingKey1, // _OSD_MSG_NOTHING1
+
+
+    MENU_FUN_COMMON,// _MENU_END
+
+
+
+
+
+};
+
+#endif//#if(_OSD_TYPE == _REALTEK_2014_OSD)

@@ -1,0 +1,63 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6851_Series_ScalerColorDCCSetMeasureRegion.c
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+#include "RL6851_Series_ScalerColorLibInternalInclude.h"
+
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// CODE TABLES
+//****************************************************************************
+
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+void ScalerColorDCCSetMeasureRegion(EnumHLWType enumHLWType);
+
+
+//****************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+//--------------------------------------------------
+// Description  : Adjust DCC Measure region
+// Input Value  : Highlight Window Actvie Region Option
+// Output Value : None
+//--------------------------------------------------
+void ScalerColorDCCSetMeasureRegion(EnumHLWType enumHLWType)
+{
+    if(ScalerGetDataPortBit(P0_60_HLW_ADDR_PORT, _P0_61_PT_0C_HLW_BORDER_EN, _BIT0) == _BIT0)
+    {
+        ScalerSetBit(P7_C8_DCC_CTRL_1, ~(_BIT3 | _BIT2), enumHLWType << 2);
+    }
+    else
+    {
+        ScalerSetBit(P7_C8_DCC_CTRL_1, ~(_BIT3 | _BIT2), 0x00);
+    }
+}
+

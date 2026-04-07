@@ -1,0 +1,93 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6463_Series_ColorMdomainForceYUV.c
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+#include "RL6463_Series_ColorLibInternalInclude.h"
+
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// CODE TABLES
+//****************************************************************************
+
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+void ScalerColorMdomainForceYUV(EnumColorSpace enumColorSpace, EnumDBApply enumDBApply);
+
+
+//****************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+//--------------------------------------------------
+// Description  : Force YUV Color Format to M-domain
+// Input Value  : Input Color Space, EnumDBApply
+// Output Value : None
+//--------------------------------------------------
+void ScalerColorMdomainForceYUV(EnumColorSpace enumColorSpace, EnumDBApply enumDBApply)
+{
+    BYTE ucDVSCnt = ScalerColorSpaceConvertIDomainWaitEventForAutoBlockToggle();
+
+    enumDBApply = enumDBApply;
+
+    if(GET_MEMORY_SELECT() == _FRAME_SYNC_LINE_BUFFER)
+    {
+        ScalerTimerWaitForEvent(_EVENT_IEN_START);
+    }
+    else
+    {
+        ScalerTimerWaitForEvent(_EVENT_IEN_STOP);
+    }
+
+    ///////////////////////////////
+    // I-Domain Color Conversion //
+    ///////////////////////////////
+    if(GET_COLOR_SPACE_RGB(enumColorSpace) == _TRUE)
+    {
+        // Enable I-Domain RGB2YUV
+        ScalerSetBit(P0_9C_RGB2YCC_CTRL, ~_BIT0, _BIT0);
+    }
+    else
+    {
+        // Disable I-Domain RGB2YUV
+        ScalerSetBit(P0_9C_RGB2YCC_CTRL, ~_BIT0, 0x00);
+    }
+
+    ///////////////////////////////
+    // D-Domain Color Conversion //
+    ///////////////////////////////
+
+    ScalerColorSpaceConvertDDomainWaitEventForAutoBlockToggle(ucDVSCnt);
+
+    // Load D-Domain YUV2RGB Table
+    ScalerColorSpaceLoadYuv2RgbTable(enumColorSpace, _OFF);
+
+    // Enable D-Domain YUV2RGB
+    ScalerSetBit(P14_A1_SR_YCC2RGB_CTRL, ~(_BIT4 | _BIT0), _BIT0);
+}
+

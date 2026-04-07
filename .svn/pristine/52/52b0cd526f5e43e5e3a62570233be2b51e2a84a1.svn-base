@@ -1,0 +1,46 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6432_Series_DPRx0_INTInclude.h No.0000
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+
+#if(_D0_DP_EXIST == _ON)
+
+//****************************************************************************
+// LAYER DEFINITIONS / MACROS
+//****************************************************************************
+
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// VARIABLE EXTERN
+//****************************************************************************
+
+
+//****************************************************************************
+// FUNCTION EXTERN
+//****************************************************************************
+
+extern void ScalerDpRx0IntHandler_EXINT0(void);
+extern void ScalerDpRx0Tp1SetPhy_EXINT0(EnumDpNFCodeRef enumDpNFCodeRef);
+extern void ScalerDpRx0Tp2SetPhy_EXINT0(void);
+
+#if(_WD_TIMER_INT_SUPPORT == _ON)
+extern void ScalerDpRx0RebuildPhy_WDINT(BYTE ucDpLinkRate);
+#endif
+
+#endif // End of #if(_D0_DP_EXIST == _ON)

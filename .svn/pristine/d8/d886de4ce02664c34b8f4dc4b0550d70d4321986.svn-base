@@ -1,0 +1,120 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORPCMOUTPUTGAMMAADJUST                               03/11/2025 19:56:08 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORPCMOUTPUTGAMMAADJUST
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorPCMOutputGammaAdjust.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorPCMOutputGammaAdjust.c LARGE OP
+                    -TIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..
+                    -\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449
+                    -_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL
+                    -6449_Series_ColorPCMOutputGammaAdjust.lst) OBJECT(.\Output\RL6449_Series_ColorPCMOutputGammaAdjust.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorPCMOutputGammaAdjust.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          #define _GAMMA_WRITE_TO_SRAM                    0
+  22          #define _GAMMA_WRITE_TO_LATCH                   1
+  23          
+  24          #define _PCM_OUTPUTGAMMA_LATCH_TABLE_SIZE       148
+  25          #define _PCM_OUTPUTGAMMA_SRAM_TABLE_SIZE        2052
+  26          
+  27          //****************************************************************************
+  28          // STRUCT / TYPE / ENUM DEFINITTIONS
+  29          //****************************************************************************
+  30          
+  31          
+  32          //****************************************************************************
+  33          // CODE TABLES
+  34          //****************************************************************************
+  35          
+  36          
+  37          //****************************************************************************
+  38          // VARIABLE DECLARATIONS
+  39          //****************************************************************************
+  40          
+  41          
+  42          //****************************************************************************
+  43          // FUNCTION DECLARATIONS
+  44          //****************************************************************************
+  45          void ScalerColorPCMOutputGammaAdjust(BYTE *pucGammaTableArray, BYTE ucBankNum);
+  46          
+  47          
+  48          //****************************************************************************
+  49          // FUNCTION DEFINITIONS
+  50          //****************************************************************************
+  51          
+C51 COMPILER V8.12   RL6449_SERIES_COLORPCMOUTPUTGAMMAADJUST                               03/11/2025 19:56:08 PAGE 2   
+
+  52          //--------------------------------------------------
+  53          // Description  : Adjust output gamma for PCM
+  54          // Input Value  : Gamma table type and gamma tables banks and Latch&Sram Length
+  55          // Output Value : None
+  56          //--------------------------------------------------
+  57          void ScalerColorPCMOutputGammaAdjust(BYTE *pucGammaTableArray, BYTE ucBankNum)
+  58          {
+  59   1          WORD usTotalLength = _PCM_OUTPUTGAMMA_LATCH_TABLE_SIZE + _PCM_OUTPUTGAMMA_SRAM_TABLE_SIZE;
+  60   1      
+  61   1          // Load gamma table of R Channel
+  62   1          ScalerColorOutputGammaChannelCtrl(_GAMMA_RED_CHANNEL, 0x00, _GAMMA_WRITE_TO_LATCH);
+  63   1          ScalerBurstWrite(pucGammaTableArray, _PCM_OUTPUTGAMMA_LATCH_TABLE_SIZE, ucBankNum, P0_66_GAMMA_PORT_SE
+             -TA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  64   1      
+  65   1          ScalerColorOutputGammaChannelCtrl(_GAMMA_RED_CHANNEL, 0x00, _GAMMA_WRITE_TO_SRAM);
+  66   1          ScalerBurstWrite(pucGammaTableArray + _PCM_OUTPUTGAMMA_LATCH_TABLE_SIZE, _PCM_OUTPUTGAMMA_SRAM_TABLE_S
+             -IZE, ucBankNum, P0_66_GAMMA_PORT_SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  67   1      
+  68   1          // Load gamma table of G Channel
+  69   1          ScalerColorOutputGammaChannelCtrl(_GAMMA_GREEN_CHANNEL, 0x00, _GAMMA_WRITE_TO_LATCH);
+  70   1          ScalerBurstWrite(pucGammaTableArray + usTotalLength, _PCM_OUTPUTGAMMA_LATCH_TABLE_SIZE, ucBankNum, P0_
+             -66_GAMMA_PORT_SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  71   1      
+  72   1          ScalerColorOutputGammaChannelCtrl(_GAMMA_GREEN_CHANNEL, 0x00, _GAMMA_WRITE_TO_SRAM);
+  73   1          ScalerBurstWrite(pucGammaTableArray + usTotalLength + _PCM_OUTPUTGAMMA_LATCH_TABLE_SIZE, _PCM_OUTPUTGA
+             -MMA_SRAM_TABLE_SIZE, ucBankNum, P0_66_GAMMA_PORT_SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  74   1      
+  75   1          // Load gamma table of B Channel
+  76   1          ScalerColorOutputGammaChannelCtrl(_GAMMA_BLUE_CHANNEL, 0x00, _GAMMA_WRITE_TO_LATCH);
+  77   1          ScalerBurstWrite(pucGammaTableArray + usTotalLength * 2, _PCM_OUTPUTGAMMA_LATCH_TABLE_SIZE, ucBankNum,
+             - P0_66_GAMMA_PORT_SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  78   1      
+  79   1          ScalerColorOutputGammaChannelCtrl(_GAMMA_BLUE_CHANNEL, 0x00, _GAMMA_WRITE_TO_SRAM);
+  80   1          ScalerBurstWrite(pucGammaTableArray + usTotalLength * 2 + _PCM_OUTPUTGAMMA_LATCH_TABLE_SIZE, _PCM_OUTP
+             -UTGAMMA_SRAM_TABLE_SIZE, ucBankNum, P0_66_GAMMA_PORT_SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  81   1      
+  82   1          // Disable Port Access
+  83   1          ScalerSetBit(P0_67_GAMMA_CTRL_SETA, ~_BIT7, 0x00);
+  84   1      }
+  85          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    259    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       6
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

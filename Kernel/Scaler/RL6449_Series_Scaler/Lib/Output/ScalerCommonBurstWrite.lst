@@ -1,0 +1,170 @@
+C51 COMPILER V8.12   SCALERCOMMONBURSTWRITE                                                03/11/2025 19:55:38 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERCOMMONBURSTWRITE
+OBJECT MODULE PLACED IN .\Output\ScalerCommonBurstWrite.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerCommonFunction\Lib\Code\ScalerCommonReg\ScalerCommonBurstWrite.
+                    -c LARGE OPTIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction
+                    -\Header;..\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..
+                    -\..\RL6449_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.
+                    -\Output\ScalerCommonBurstWrite.lst) OBJECT(.\Output\ScalerCommonBurstWrite.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerCommonBurstWrite.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "ScalerCommonRegLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          //****************************************************************************
+  23          // STRUCT / TYPE / ENUM DEFINITTIONS
+  24          //****************************************************************************
+  25          
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          
+  32          //****************************************************************************
+  33          // VARIABLE DECLARATIONS
+  34          //****************************************************************************
+  35          
+  36          
+  37          //****************************************************************************
+  38          // FUNCTION DECLARATIONS
+  39          //****************************************************************************
+  40          
+  41          void ScalerBurstWrite(BYTE *pucAddress, WORD usWriteLength, BYTE ucBankNum, WORD usHostAddr, BYTE ucTableT
+             -ype, bit bTableLocation);
+  42          
+  43          //****************************************************************************
+  44          // FUNCTION DEFINITIONS
+  45          //****************************************************************************
+  46          //--------------------------------------------------
+  47          // Description  : Set some bits of selected register in data port
+  48          // Input Value  : usAddr    --> Access Port Address of register
+  49          //                ucValue   --> Data Port Value we want to set
+  50          //                ucAnd     --> & operation
+C51 COMPILER V8.12   SCALERCOMMONBURSTWRITE                                                03/11/2025 19:55:38 PAGE 2   
+
+  51          // Output Value : Value after & operation
+  52          //--------------------------------------------------
+  53          void ScalerBurstWrite(BYTE *pucAddress, WORD usWriteLength, BYTE ucBankNum, WORD usHostAddr, BYTE ucTableT
+             -ype, bit bTableLocation)
+  54          {
+  55   1          BYTE ucTimeOut = 100;
+  56   1      
+  57   1          ScalerSetByte(P0_9F_PAGE_SEL, HIBYTE(usHostAddr));
+  58   1      
+  59   1          // Disable burst write data and burst write command function.
+  60   1          MCU_FFF3_SCA_INF_CONTROL &= 0xE7;
+  61   1      
+  62   1          // Disable Burst write Auto Inc
+  63   1          MCU_FFF3_SCA_INF_CONTROL |= _BIT5;
+  64   1      
+  65   1          if((ucTableType == _BURSTWRITE_DATA_COMMON) || (ucTableType == _BURSTWRITE_DATA_COMMON_AUTO_INC) || (u
+             -cTableType == _BURSTWRITE_DATA_OSD))
+  66   1          {
+  67   2              MCU_FFF4_SCA_INF_ADDR = usHostAddr;
+  68   2          }
+  69   1      
+  70   1          MCU_FFF6_SCA_INF_BWR_ADRH = ucBankNum;
+  71   1      
+  72   1          MCU_FFF7_SCA_INF_BWR_ADRM = (BYTE)((((WORD)pucAddress) & 0xFF00) >> 8);
+  73   1          MCU_FFF8_SCA_INF_BWR_ADRL = (BYTE)((((WORD)pucAddress) & 0x00FF));
+  74   1      
+  75   1          MCU_FFF9_SCA_INF_BWR_COUNT_H = (BYTE)(((usWriteLength) & 0xFF00) >> 8);
+  76   1          MCU_FFFA_SCA_INF_BWR_COUNT_L = (BYTE)(((usWriteLength) & 0x00FF));
+  77   1      
+  78   1          if(ucTableType == _BURSTWRITE_DATA_OSD)
+  79   1          {
+  80   2              BYTE ucData = 0;
+  81   2      
+  82   2              ucData = ScalerBurstWriteTimeoutCal();
+  83   2      
+  84   2              if(ucData >= 2)
+  85   2              {
+  86   3                  // Set the interval between two command for OSD Load Font data.
+  87   3                  MCU_FFFB_SCA_INF_PERIOD = ucData;
+  88   3              }
+  89   2              else
+  90   2              {
+  91   3                  MCU_FFFB_SCA_INF_PERIOD = 0x02;
+  92   3              }
+  93   2          }
+  94   1          else
+  95   1          {
+  96   2              MCU_FFFB_SCA_INF_PERIOD = 0x03;
+  97   2          }
+  98   1      
+  99   1          MCU_FFFC_BANK_SWICH_CONTROL |= (_BIT5 & (((BYTE)bTableLocation) << 5));
+ 100   1      
+ 101   1          if(ucTableType == _BURSTWRITE_COMMAND)
+ 102   1          {
+ 103   2              // Enable burst write command function, enable the function of releasing mcu by interrupt.
+ 104   2              MCU_FFF3_SCA_INF_CONTROL = 0x10;
+ 105   2      
+ 106   2              while(((MCU_FFF3_SCA_INF_CONTROL & _BIT4) == _BIT4) && (--ucTimeOut > 0))
+ 107   2              {
+ 108   3                  // Restart Burst Write When Interrupted
+ 109   3                  MCU_FFF3_SCA_INF_CONTROL |= _BIT4;
+ 110   3              }
+C51 COMPILER V8.12   SCALERCOMMONBURSTWRITE                                                03/11/2025 19:55:38 PAGE 3   
+
+ 111   2          }
+ 112   1          else  // _BURSTWRITE_DATA_COMMON/OSD
+ 113   1          {
+ 114   2              if(ucTableType == _BURSTWRITE_DATA_COMMON_AUTO_INC)
+ 115   2              {
+ 116   3                  // Enable burst write data function, disable auto address increase, enable the function of rel
+             -easing mcu by interrupt.
+ 117   3                  MCU_FFF3_SCA_INF_CONTROL = 0x08;
+ 118   3              }
+ 119   2              else
+ 120   2              {
+ 121   3                  // Enable burst write data function, disable auto address increase, enable the function of rel
+             -easing mcu by interrupt.
+ 122   3                  MCU_FFF3_SCA_INF_CONTROL = 0x28;
+ 123   3              }
+ 124   2      
+ 125   2              while(((MCU_FFF3_SCA_INF_CONTROL & _BIT3) == _BIT3) && (--ucTimeOut > 0))
+ 126   2              {
+ 127   3                  // Restart Burst Write When Interrupted
+ 128   3                  MCU_FFF3_SCA_INF_CONTROL |= _BIT3;
+ 129   3              }
+ 130   2          }
+ 131   1      
+ 132   1          // disable burst data from int xram.
+ 133   1          MCU_FFFC_BANK_SWICH_CONTROL &= ~_BIT5;
+ 134   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    237    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      11
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

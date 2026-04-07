@@ -1,0 +1,636 @@
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SYSJUDGE
+OBJECT MODULE PLACED IN .\Output\RL6432\SysJudge.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\System\Code\SysJudge.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL643
+                    -2;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kernel\Scaler\ScalerFun
+                    -ction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\Kernel\Scaler\Scale
+                    -rCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Series_Common\Header;.\Ker
+                    -nel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kernel\User Common Function
+                    -\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\No
+                    -ne Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6432_PROJ
+                    -ECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\SysJudge.lst) OBJECT(.\Output\RL6432\SysJudge.
+                    -obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : SysJudge.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SYSTEM_JUDGE__
+  18          
+  19          #include "SysInclude.h"
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          
+  25          
+  26          //****************************************************************************
+  27          // STRUCT / TYPE / ENUM DEFINITTIONS
+  28          //****************************************************************************
+  29          
+  30          
+  31          //****************************************************************************
+  32          // CODE TABLES
+  33          //****************************************************************************
+  34          
+  35          
+  36          //****************************************************************************
+  37          // VARIABLE DECLARATIONS
+  38          //****************************************************************************
+  39          
+  40          
+  41          //****************************************************************************
+  42          // FUNCTION DECLARATIONS
+  43          //****************************************************************************
+  44          void SysJudgeHandler(void);
+  45          bit SysJudgeCheckStatus(void);
+  46          bit SysJudgeStateChangeEvent(EnumModeStatus enumModeState);
+  47          void SysJudgeModeResetProc(void);
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 2   
+
+  48          WORD SysJudgeGetActiveWaitTime(void);
+  49          
+  50          //****************************************************************************
+  51          // FUNCTION DEFINITIONS
+  52          //****************************************************************************
+  53          //--------------------------------------------------
+  54          // Description  : Judge Handler
+  55          // Input Value  : None
+  56          // Output Value : None
+  57          //--------------------------------------------------
+  58          void SysJudgeHandler(void)
+  59          {
+  60   1          CLR_MODE_STATE_CHANGE_OTHERS();
+  61   1      
+  62   1          switch(SysPowerGetPowerStatus())
+  63   1          {
+  64   2              case _POWER_STATUS_OFF:
+  65   2      
+  66   2                  if(GET_MODE_STATE() != _MODE_STATUS_POWER_OFF)
+  67   2                  {
+  68   3                      if(SysJudgeStateChangeEvent(_MODE_STATUS_POWER_OFF) == _FALSE)
+  69   3                      {
+  70   4                          break;
+  71   4                      }
+  72   3                  }
+  73   2      
+  74   2                  break;
+  75   2      
+  76   2              case _POWER_STATUS_SAVING:
+  77   2      
+  78   2                  if(GET_MODE_STATE() != _MODE_STATUS_POWER_SAVING)
+  79   2                  {
+  80   3                      if(SysJudgeStateChangeEvent(_MODE_STATUS_POWER_SAVING) == _FALSE)
+  81   3                      {
+  82   4                          break;
+  83   4                      }
+  84   3                  }
+  85   2      
+  86   2                  break;
+  87   2      
+  88   2              case _POWER_STATUS_NORMAL:
+  89   2      
+  90   2      #if(_URGENT_EVENT_CHECK_MODE == _ON)
+  91   2                  if(ScalerSyncGetUrgentEventFlg() == _TRUE)
+  92   2                  {
+  93   3                      ScalerSyncClrUrgentEventFlg();
+  94   3      
+  95   3                      if(ScalerTimerSearchActiveTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_NOSIGNAL_STATE) == _TRUE)
+  96   3                      {
+  97   4                          ScalerTimerReactiveTimerEvent(SEC(1), _SYSTEM_TIMER_EVENT_JUDGE_NOSIGNAL_STATE);
+  98   4                      }
+  99   3      
+ 100   3                      if(ScalerTimerSearchActiveTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STATE) == _TRUE)
+ 101   3                      {
+ 102   4                          if(GET_MODE_STATE() == _MODE_STATUS_DISPLAY_SETTING)
+ 103   4                          {
+ 104   5                              ScalerTimerReactiveTimerEvent(SEC(2), _SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STATE);
+ 105   5                          }
+ 106   4                          else
+ 107   4                          {
+ 108   5                              ScalerTimerReactiveTimerEvent(SEC(0.5), _SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STATE)
+             -;
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 3   
+
+ 109   5                          }
+ 110   4                      }
+ 111   3                  }
+ 112   2      #endif
+ 113   2      
+ 114   2                  switch(GET_MODE_STATE())
+ 115   2                  {
+ 116   3                      case _MODE_STATUS_POWER_OFF:
+ 117   3      
+ 118   3                          if(SysJudgeStateChangeEvent(_MODE_STATUS_INITIAL) == _FALSE)
+ 119   3                          {
+ 120   4                              break;
+ 121   4                          }
+ 122   3      
+ 123   3                          break;
+ 124   3      
+ 125   3                      case _MODE_STATUS_INITIAL:
+ 126   3      
+ 127   3                          if(SysJudgeStateChangeEvent(_MODE_STATUS_SEARCH) == _FALSE)
+ 128   3                          {
+ 129   4                              return;
+ 130   4                          }
+ 131   3      
+ 132   3                          return;
+ 133   3      
+ 134   3                          break;
+ 135   3      
+ 136   3                      case _MODE_STATUS_SEARCH:
+ 137   3      
+ 138   3                          if(UserInterfaceGetLogoStatus() == _TRUE)
+ 139   3                          {
+ 140   4                              return;
+ 141   4                          }
+ 142   3      
+ 143   3                          if(GET_SOURCE_JUDGE(g_ucSearchIndex) == _TRUE)
+ 144   3                          {
+ 145   4                              // If Timing can't be confirmed for 1 sec, switch to No Support State
+ 146   4                              ScalerTimerActiveTimerEvent(SEC(1), _SYSTEM_TIMER_EVENT_JUDGE_NOSIGNAL_STATE);
+ 147   4      
+ 148   4                              if(SysModeGetTimingConfirm() == _TRUE)
+ 149   4                              {
+ 150   5                                  ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_NOSIGNAL_STATE);
+ 151   5      
+ 152   5                                  if(UserCommonInterfaceCheckNoSupport() == _FALSE)
+ 153   5                                  {
+ 154   6                                      ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STATE);
+ 155   6      
+ 156   6                                      if(SysJudgeStateChangeEvent(_MODE_STATUS_DISPLAY_SETTING) == _FALSE)
+ 157   6                                      {
+ 158   7                                          break;
+ 159   7                                      }
+ 160   6                                  }
+ 161   5                                  else
+ 162   5                                  {
+ 163   6                                      ScalerTimerActiveTimerEvent(SEC(0.5), _SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_
+             -STATE);
+ 164   6                                  }
+ 165   5                              }
+ 166   4                          }
+ 167   3                          else if(GET_SOURCE_SWITCH_FINISH() == _TRUE)  // If Search Finish, Switch to no signal
+ 168   3                          {
+ 169   4                              if(SysJudgeStateChangeEvent(_MODE_STATUS_NOSIGNAL) == _FALSE)
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 4   
+
+ 170   4                              {
+ 171   5                                  break;
+ 172   5                              }
+ 173   4                              else
+ 174   4                              {
+ 175   5                                  CLR_SOURCE_SWITCH_FINISH();
+ 176   5                              }
+ 177   4                          }
+ 178   3      
+ 179   3                          break;
+ 180   3      
+ 181   3                      case _MODE_STATUS_DISPLAY_SETTING:
+ 182   3      
+ 183   3                          if(SysModeGetActiveReady() == _TRUE)
+ 184   3                          {
+ 185   4                              if(UserCommonInterfaceReadyForActive() == _TRUE)
+ 186   4                              {
+ 187   5                                  if(SysJudgeStateChangeEvent(_MODE_STATUS_ACTIVE) == _FALSE)
+ 188   5                                  {
+ 189   6                                      break;
+ 190   6                                  }
+ 191   5                                  else
+ 192   5                                  {
+ 193   6                                      CLR_MODE_ACTIVE_READY();
+ 194   6                                  }
+ 195   5                              }
+ 196   4                          }
+ 197   3                          else
+ 198   3                          {
+ 199   4                              if(SysModeGetDisplaySettingReady() == _TRUE)
+ 200   4                              {
+ 201   5                                  // Check Whether to Support Current D Clk
+ 202   5                                  if(UserInterfaceGetDclkNoSupportStatus() == _TRUE)
+ 203   5                                  {
+ 204   6                                      ScalerTimerActiveTimerEvent(SEC(0.5), _SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_
+             -STATE);
+ 205   6                                  }
+ 206   5                                  else
+ 207   5                                  {
+ 208   6                                      ScalerTimerActiveTimerEvent(SysJudgeGetActiveWaitTime(), _SYSTEM_TIMER_EVE
+             -NT_JUDGE_ACTIVE_STATE);
+ 209   6                                  }
+ 210   5                              }
+ 211   4                              else
+ 212   4                              {
+ 213   5                                  // If Display Setting can't be Ready for 2 sec, switch to No Support State
+ 214   5                                  ScalerTimerActiveTimerEvent(SEC(2), _SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STATE)
+             -;
+ 215   5                              }
+ 216   4                          }
+ 217   3      
+ 218   3                          break;
+ 219   3      
+ 220   3                      case _MODE_STATUS_ACTIVE:
+ 221   3      
+ 222   3                          break;
+ 223   3      
+ 224   3                      case _MODE_STATUS_NOSUPPORT:
+ 225   3      
+ 226   3                          break;
+ 227   3      
+ 228   3                      case _MODE_STATUS_NOSIGNAL:
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 5   
+
+ 229   3                      case _MODE_STATUS_POWER_SAVING:
+ 230   3      
+ 231   3                          if(SysModeGetTimingConfirm() == _TRUE)
+ 232   3                          {
+ 233   4                              UserCommonInterfaceOsdResetProc();
+ 234   4      
+ 235   4                              if(UserCommonInterfaceCheckNoSupport() == _FALSE)
+ 236   4                              {
+ 237   5                                  ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STATE);
+ 238   5                                  if(SysJudgeStateChangeEvent(_MODE_STATUS_DISPLAY_SETTING) == _FALSE)
+ 239   5                                  {
+ 240   6                                      break;
+ 241   6                                  }
+ 242   5                              }
+ 243   4                              else
+ 244   4                              {
+ 245   5                                  ScalerTimerActiveTimerEvent(SEC(0.5), _SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STAT
+             -E);
+ 246   5                              }
+ 247   4                          }
+ 248   3      
+ 249   3                          break;
+ 250   3      
+ 251   3                      case _MODE_STATUS_FACTORY:
+ 252   3      
+ 253   3                          break;
+ 254   3      
+ 255   3                      default:
+ 256   3      
+ 257   3                          break;
+ 258   3                  }
+ 259   2      
+ 260   2                  break;
+ 261   2      
+ 262   2              default:
+ 263   2                  break;
+ 264   2          }
+ 265   1      
+ 266   1          // Handle Status Check and Manual Reset Requests
+ 267   1          SysJudgeModeResetProc();
+ 268   1      
+ 269   1          if(SysJudgeCheckStatus() == _FALSE)
+ 270   1          {
+ 271   2              // Force Reset
+ 272   2              CLR_MODE_STATE_CHANGE_SOURCE();
+ 273   2              CLR_MODE_STATE_CHANGE_MODE();
+ 274   2              CLR_MODE_STATE_CHANGE_MHL();
+ 275   2              CLR_MODE_STATE_CHANGE_OSD();
+ 276   2              CLR_MODE_STATE_CHANGE_OTHERS();
+ 277   2              SET_MODE_RESET_TARGET(_MODE_ACTION_NO_RESET_MODE);
+ 278   2      
+ 279   2              SysModeResetState(_MODE_ACTION_RESET_TO_SEARCH);
+ 280   2      
+ 281   2      #if(_COLORIMETRY_SEAMLESS_CHANGE_SUPPORT == _ON)
+                      if(UserCommonNVRamGetSystemData(_COLORIMETRY_SEAMLESS_CHANGE) == _TRUE)
+                      {
+                          CLR_DIGITAL_COLOR_INFO_CHANGE_RESET();
+                      }
+                      else
+                      {
+                          SET_DIGITAL_COLOR_INFO_CHANGE_RESET();
+                      }
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 6   
+
+              #endif
+ 291   2      
+ 292   2              if((GET_MODE_STATE() != _MODE_STATUS_NOSIGNAL) && (GET_MODE_STATE() != _MODE_STATUS_POWER_SAVING))
+ 293   2              {
+ 294   3                  SysJudgeStateChangeEvent(_MODE_STATUS_SEARCH);
+ 295   3              }
+ 296   2          }
+ 297   1      }
+ 298          
+ 299          //--------------------------------------------------
+ 300          // Description  : Check Status
+ 301          // Input Value  : None.
+ 302          // Output Value : _FALSE => Status Changed
+ 303          //--------------------------------------------------
+ 304          bit SysJudgeCheckStatus(void)
+ 305          {
+ 306   1          if(GET_MODE_STATE() != _MODE_STATUS_FACTORY)
+ 307   1          {
+ 308   2              if(GET_SOURCE_JUDGE(g_ucSearchIndex) == _TRUE)
+ 309   2              {
+ 310   3                  if(SysSourceStableCheck() == _FALSE)
+ 311   3                  {
+ 312   4                      DebugMessageSystem("Source Unstable!!", GET_SOURCE_TYPE(g_ucSearchIndex));
+ 313   4                      return _FALSE;
+ 314   4                  }
+ 315   3              }
+ 316   2      
+ 317   2              if(SysModeGetTimingConfirm() == _TRUE)
+ 318   2              {
+ 319   3                  // Check whether Input Timing changed
+ 320   3                  if(ScalerMeasureTimingChange(GET_SOURCE_TYPE(g_ucSearchIndex), SysSourceGetInputPort()) == _TR
+             -UE)
+ 321   3                  {
+ 322   4                      DebugMessageSystem("Measured Input HV Changed", GET_SOURCE_TYPE(g_ucSearchIndex));
+ 323   4                      return _FALSE;
+ 324   4                  }
+ 325   3      
+ 326   3                  // double check input timing
+ 327   3                  if((GET_INPUT_TIMING_DOUBLE_CHECK() == _TRUE) &&
+ 328   3                     ((SysModeGetDisplaySettingReady() == _TRUE) || (GET_MODE_STATE() == _MODE_STATUS_NOSUPPORT)
+             -))
+ 329   3                  {
+ 330   4                      if(GET_SOURCE_TYPE(g_ucSearchIndex) != _SOURCE_VGA)
+ 331   4                      {
+ 332   5                          if(ScalerMeasureInterlaceCheck(GET_SOURCE_TYPE(g_ucSearchIndex), SysSourceGetInputPort
+             -()) != GET_INPUT_TIMING_INTERLACE_FLG())
+ 333   5                          {
+ 334   6                              DebugMessageSystem("Input Timing Double Check : Interlace Flag Change", GET_SOURCE
+             -_TYPE(g_ucSearchIndex));
+ 335   6                              return _FALSE;
+ 336   6                          }
+ 337   5                      }
+ 338   4      
+ 339   4                      CLR_INPUT_TIMING_DOUBLE_CHECK();
+ 340   4                  }
+ 341   3              }
+ 342   2      
+ 343   2              if(SysModeGetDisplaySettingReady() == _TRUE)
+ 344   2              {
+ 345   3                  if((ScalerMDomainMemoryCheck() == _FALSE) ||
+ 346   3                     (ScalerMDomainDisplayTimingGenCheck() == _FALSE))
+ 347   3                  {
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 7   
+
+ 348   4                      DebugMessageSystem("Memory Check Failed", GET_SOURCE_TYPE(g_ucSearchIndex));
+ 349   4                      return _FALSE;
+ 350   4                  }
+ 351   3      
+ 352   3      #if(_ULTRA_HDR_SUPPORT == _ON)
+ 353   3                  ScalerSyncGetColorInfoFrame(SysSourceGetInputPort(), _DP_GET_RSV0_INFO_ACTIVE);
+ 354   3      #endif
+ 355   3              }
+ 356   2      
+ 357   2      #if(_PANEL_STYLE == _PANEL_DPTX)
+              #if(_PANEL_DPTX_HPD_DETECT == _ON)
+                      if(GET_MODE_STATE() == _MODE_STATUS_ACTIVE)
+                      {
+                          if(ScalerDisplayDPTxStableDetect() == _FALSE)
+                          {
+              #if(_PANEL_POW_SEQ_FAST_MODE == _OFF)
+                              CLR_DISPLAY_DP_TX_FORCE_TO_LT();
+              #endif
+                              DebugMessageSystem("eDP unstable", 0x00);
+                              return _FALSE;
+                          }
+                      }
+              #endif
+              #endif
+ 372   2          }
+ 373   1      
+ 374   1          return _TRUE;
+ 375   1      }
+ 376          
+ 377          //--------------------------------------------------
+ 378          // Description  : Switch to Active State
+ 379          // Input Value  : None
+ 380          // Output Value : _TRUE => Successfully Changed
+ 381          //--------------------------------------------------
+ 382          bit SysJudgeStateChangeEvent(EnumModeStatus enumModeState)
+ 383          {
+ 384   1          // Check mode reset target
+ 385   1          if(GET_MODE_RESET_TARGET() != _MODE_ACTION_NO_RESET_MODE)
+ 386   1          {
+ 387   2              return _FALSE;
+ 388   2          }
+ 389   1      
+ 390   1          if((GET_MODE_STATE_CHANGE_SOURCE() == _FALSE) &&
+ 391   1             (GET_MODE_STATE_CHANGE_MODE() == _FALSE) &&
+ 392   1             (GET_MODE_STATE_CHANGE_MHL() == _FALSE) &&
+ 393   1             (GET_MODE_STATE_CHANGE_OSD() == _FALSE) &&
+ 394   1             (GET_MODE_STATE_CHANGE_OTHERS() == _FALSE))
+ 395   1          {
+ 396   2              SET_MODE_STATE(enumModeState);
+ 397   2      
+ 398   2              SET_MODE_STATE_CHANGE_SOURCE();
+ 399   2              SET_MODE_STATE_CHANGE_MODE();
+ 400   2              SET_MODE_STATE_CHANGE_MHL();
+ 401   2              SET_MODE_STATE_CHANGE_OSD();
+ 402   2              SET_MODE_STATE_CHANGE_OTHERS();
+ 403   2      
+ 404   2              return _TRUE;
+ 405   2          }
+ 406   1      
+ 407   1          return _FALSE;
+ 408   1      }
+ 409          
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 8   
+
+ 410          //--------------------------------------------------
+ 411          // Description  : Mode Reset Process according to reset target
+ 412          // Input Value  : None
+ 413          // Output Value : None
+ 414          //--------------------------------------------------
+ 415          void SysJudgeModeResetProc(void)
+ 416          {
+ 417   1          BYTE ucModeResetTarget = GET_MODE_RESET_TARGET();
+ 418   1      
+ 419   1          SET_MODE_RESET_TARGET(_MODE_ACTION_NO_RESET_MODE);
+ 420   1      
+ 421   1          switch(ucModeResetTarget)
+ 422   1          {
+ 423   2              case _MODE_ACTION_RESET_TO_SEARCH:
+ 424   2      
+ 425   2                  if(SysPowerGetPowerStatus() != _POWER_STATUS_OFF)
+ 426   2                  {
+ 427   3                      SysModeResetState(_MODE_ACTION_RESET_TO_SEARCH);
+ 428   3      
+ 429   3                      if(SysJudgeStateChangeEvent(_MODE_STATUS_SEARCH) == _FALSE)
+ 430   3                      {
+ 431   4                          SET_MODE_RESET_TARGET(_MODE_ACTION_RESET_TO_SEARCH);
+ 432   4                          return;
+ 433   4                      }
+ 434   3                  }
+ 435   2      
+ 436   2                  break;
+ 437   2      
+ 438   2              case _MODE_ACTION_RESET_TO_DISPLAY_SETTING_WITHOUT_FORCETOBG:
+ 439   2      
+ 440   2                  if(GET_MODE_STATE() == _MODE_STATUS_ACTIVE)
+ 441   2                  {
+ 442   3                      SysModeResetState(_MODE_ACTION_RESET_TO_DISPLAY_SETTING_WITHOUT_FORCETOBG);
+ 443   3      
+ 444   3                      if(SysJudgeStateChangeEvent(_MODE_STATUS_DISPLAY_SETTING) == _FALSE)
+ 445   3                      {
+ 446   4                          // Resume mode reset target
+ 447   4                          SET_MODE_RESET_TARGET(_MODE_ACTION_RESET_TO_DISPLAY_SETTING_WITHOUT_FORCETOBG);
+ 448   4                          return;
+ 449   4                      }
+ 450   3                  }
+ 451   2      
+ 452   2                  break;
+ 453   2      
+ 454   2              case _MODE_ACTION_RESET_TO_DISPLAY_SETTING:
+ 455   2      
+ 456   2                  if(GET_MODE_STATE() == _MODE_STATUS_ACTIVE)
+ 457   2                  {
+ 458   3                      SysModeResetState(_MODE_ACTION_RESET_TO_DISPLAY_SETTING);
+ 459   3      
+ 460   3                      if(SysJudgeStateChangeEvent(_MODE_STATUS_DISPLAY_SETTING) == _FALSE)
+ 461   3                      {
+ 462   4                          SET_MODE_RESET_TARGET(_MODE_ACTION_RESET_TO_DISPLAY_SETTING);
+ 463   4                          return;
+ 464   4                      }
+ 465   3                  }
+ 466   2      
+ 467   2                  break;
+ 468   2      
+ 469   2              case _MODE_ACTION_RESET_TO_NOSIGNAL:
+ 470   2      
+ 471   2                  if(SysPowerGetPowerStatus() != _POWER_STATUS_OFF)
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 9   
+
+ 472   2                  {
+ 473   3                      ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_NOSIGNAL_STATE);
+ 474   3      
+ 475   3                      if(SysJudgeStateChangeEvent(_MODE_STATUS_NOSIGNAL) == _FALSE)
+ 476   3                      {
+ 477   4                          SET_MODE_RESET_TARGET(_MODE_ACTION_RESET_TO_NOSIGNAL);
+ 478   4                          return;
+ 479   4                      }
+ 480   3                      else
+ 481   3                      {
+ 482   4                          CLR_SOURCE_SWITCH_FINISH();
+ 483   4                      }
+ 484   3                  }
+ 485   2      
+ 486   2                  break;
+ 487   2      
+ 488   2              case _MODE_ACTION_RESET_TO_NOSUPPORT:
+ 489   2      
+ 490   2                  if(SysPowerGetPowerStatus() != _POWER_STATUS_OFF)
+ 491   2                  {
+ 492   3                      SysModeResetState(_MODE_ACTION_RESET_TO_NOSUPPORT);
+ 493   3      
+ 494   3                      ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STATE);
+ 495   3      
+ 496   3                      if(SysJudgeStateChangeEvent(_MODE_STATUS_NOSUPPORT) == _FALSE)
+ 497   3                      {
+ 498   4                          SET_MODE_RESET_TARGET(_MODE_ACTION_RESET_TO_NOSUPPORT);
+ 499   4                          return;
+ 500   4                      }
+ 501   3                  }
+ 502   2      
+ 503   2                  break;
+ 504   2      
+ 505   2              case _MODE_ACTION_RESET_TO_FACTORY_MODE:
+ 506   2      
+ 507   2                  ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_NOSUPPORT_STATE);
+ 508   2                  ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_NOSIGNAL_STATE);
+ 509   2                  ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_JUDGE_ACTIVE_STATE);
+ 510   2      
+ 511   2                  if(SysJudgeStateChangeEvent(_MODE_STATUS_FACTORY) == _FALSE)
+ 512   2                  {
+ 513   3                      SET_MODE_RESET_TARGET(_MODE_ACTION_RESET_TO_FACTORY_MODE);
+ 514   3                      return;
+ 515   3                  }
+ 516   2      
+ 517   2                  break;
+ 518   2      
+ 519   2              default:
+ 520   2                  break;
+ 521   2          }
+ 522   1      }
+ 523          
+ 524          //--------------------------------------------------
+ 525          // Description  : Get Required Wait Time before Active
+ 526          // Input Value  : None
+ 527          // Output Value : Required Wait Time
+ 528          //--------------------------------------------------
+ 529          WORD SysJudgeGetActiveWaitTime(void)
+ 530          {
+ 531   1          WORD usActiveWaitTime = 0;
+ 532   1      
+ 533   1      #if(_PANEL_POW_SEQ_T6_TIMER_EVENT_MODE == _ON)
+C51 COMPILER V9.01   SYSJUDGE                                                              08/18/2025 18:00:48 PAGE 10  
+
+                  WORD usPanelOffTime = ScalerTimerGetEventRemainTime(_USER_TIMER_EVENT_PANEL_POWER_OFF);
+              #endif
+ 536   1      
+ 537   1          usActiveWaitTime = UserInterfaceDisplayGetExtendedActiveWaitTime();
+ 538   1      
+ 539   1          if(GET_MODE_NO_WAIT_FOR_ACTIVE() == _FALSE)
+ 540   1          {
+ 541   2              switch(GET_SOURCE_TYPE(g_ucSearchIndex))
+ 542   2              {
+ 543   3      #if(_VGA_SUPPORT == _ON)
+                          case _SOURCE_VGA:
+                              usActiveWaitTime += _WAIT_TIME_TO_ACTIVE_VGA;
+                              break;
+              #endif
+ 548   3      
+ 549   3      #if(_DVI_SUPPORT == _ON)
+ 550   3                  case _SOURCE_DVI:
+ 551   3                      usActiveWaitTime += _WAIT_TIME_TO_ACTIVE_DVI;
+ 552   3                      break;
+ 553   3      #endif
+ 554   3      
+ 555   3      #if(_HDMI_SUPPORT == _ON)
+ 556   3                  case _SOURCE_HDMI:
+ 557   3                      usActiveWaitTime += _WAIT_TIME_TO_ACTIVE_HDMI;
+ 558   3                      break;
+ 559   3      #endif
+ 560   3      
+ 561   3      #if(_DP_SUPPORT == _ON)
+ 562   3                  case _SOURCE_DP:
+ 563   3                      usActiveWaitTime += _WAIT_TIME_TO_ACTIVE_DP;
+ 564   3                      break;
+ 565   3      #endif
+ 566   3      
+ 567   3                  default:
+ 568   3                      break;
+ 569   3              }
+ 570   2          }
+ 571   1      
+ 572   1      #if(_PANEL_POW_SEQ_T6_TIMER_EVENT_MODE == _ON)
+                  return ((usPanelOffTime >= usActiveWaitTime) ? usPanelOffTime : usActiveWaitTime);
+              #else
+ 575   1          return usActiveWaitTime;
+ 576   1      #endif
+ 577   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    920    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

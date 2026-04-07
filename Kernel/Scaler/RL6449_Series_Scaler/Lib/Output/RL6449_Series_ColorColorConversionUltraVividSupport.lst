@@ -1,0 +1,158 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORCOLORCONVERSIONULTRAVI                             03/11/2025 19:56:02 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORCOLORCONVERSIONULTRAVI
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorColorConversionUltraVividSupport.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorColorConversionUltraVividSuppor
+                    -t.c LARGE OPTIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFuncti
+                    -on\Header;..\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;
+                    -..\..\RL6449_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT
+                    -(.\Output\RL6449_Series_ColorColorConversionUltraVividSupport.lst) OBJECT(.\Output\RL6449_Series_ColorColorConversionUlt
+                    -raVividSupport.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorColorConversionUltraVividSupport.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerColorSpaceConvertUltraVividSupport(EnumColorSpace enumColorSpace, EnumDBApply enumDBApply);
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Description  : Color Space Conversion function On/Off
+  49          // Input Value  : Input Color Space, EnumDBApply
+  50          // Output Value : None
+C51 COMPILER V8.12   RL6449_SERIES_COLORCOLORCONVERSIONULTRAVI                             03/11/2025 19:56:02 PAGE 2   
+
+  51          //--------------------------------------------------
+  52          void ScalerColorSpaceConvertUltraVividSupport(EnumColorSpace enumColorSpace, EnumDBApply enumDBApply)
+  53          {
+  54   1          //////////////////////////////
+  55   1          // I-Domain Color Conversion//
+  56   1          //////////////////////////////
+  57   1          if(GET_COLOR_SPACE_RGB(enumColorSpace) == _TRUE)
+  58   1          {
+  59   2              if((ScalerColorUltraVividGetStatus() == _ON) ||
+  60   2                 (GET_INTERLACED_MODE() == _TRUE))
+  61   2              {
+  62   3                  // Enable I-Domain RGB2YUV
+  63   3                  ScalerSetBit(P0_9C_RGB2YCC_CTRL, ~(_BIT4 | _BIT0), (_BIT4 | _BIT0));
+  64   3              }
+  65   2              else
+  66   2              {
+  67   3                  // Disable I-Domain RGB2YUV
+  68   3                  ScalerSetBit(P0_9C_RGB2YCC_CTRL, ~(_BIT4 | _BIT0), 0x00);
+  69   3              }
+  70   2          }
+  71   1          else
+  72   1          {
+  73   2              // Disable I-Domain RGB2YUV
+  74   2              ScalerSetBit(P0_9C_RGB2YCC_CTRL, ~(_BIT4 | _BIT0), 0x00);
+  75   2          }
+  76   1      
+  77   1          //////////////////////////////
+  78   1          // D-Domain Color Conversion//
+  79   1          //////////////////////////////
+  80   1      
+  81   1          // Load D-Domain YUV2RGB Table
+  82   1          ScalerColorSpaceLoadYuv2RgbTable(enumColorSpace, _ON);
+  83   1      
+  84   1          if(GET_COLOR_SPACE_RGB(enumColorSpace) == _TRUE)
+  85   1          {
+  86   2              if((ScalerColorUltraVividGetStatus() == _ON) ||
+  87   2                 (GET_INTERLACED_MODE() == _TRUE))
+  88   2              {
+  89   3                  // Enable D-Domain YUV2RGB
+  90   3                  ScalerSetBit(P14_A1_SR_YCC2RGB_CTRL, ~(_BIT5 | _BIT4 | _BIT0), _BIT0);
+  91   3              }
+  92   2              else
+  93   2              {
+  94   3                  if(GET_COLOR_RGB_LIMIT_RANGE_USER() == _TRUE)
+  95   3                  {
+  96   4                      // Enable D-Domain YUV2RGB & Identity_Matrix
+  97   4                      ScalerSetBit(P14_A1_SR_YCC2RGB_CTRL, ~(_BIT5 | _BIT4 | _BIT0), (_BIT4 | _BIT0));
+  98   4                  }
+  99   3                  else
+ 100   3                  {
+ 101   4                      // Disable D-Domain YUV2RGB Identity_Matrix
+ 102   4                      ScalerSetBit(P14_A1_SR_YCC2RGB_CTRL, ~(_BIT5 | _BIT4 | _BIT0), 0x00);
+ 103   4                  }
+ 104   3              }
+ 105   2          }
+ 106   1          else
+ 107   1          {
+ 108   2              ScalerSetBit(P14_A1_SR_YCC2RGB_CTRL, ~(_BIT5 | _BIT4 | _BIT0), _BIT0);
+ 109   2          }
+ 110   1      
+ 111   1          if(GET_INTERLACED_MODE() == _TRUE)
+ 112   1          {
+C51 COMPILER V8.12   RL6449_SERIES_COLORCOLORCONVERSIONULTRAVI                             03/11/2025 19:56:02 PAGE 3   
+
+ 113   2              ScalerGlobalIDomainDBApply(enumDBApply);
+ 114   2              ScalerGlobalDDomainDBApply(enumDBApply);
+ 115   2          }
+ 116   1          else
+ 117   1          {
+ 118   2              if(enumDBApply == _DB_APPLY_NO_POLLING)
+ 119   2              {
+ 120   3                  enumDBApply = _DB_APPLY_POLLING;
+ 121   3              }
+ 122   2      
+ 123   2              ScalerGlobalIDDomainDBApply(enumDBApply);
+ 124   2          }
+ 125   1      }
+ 126          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    223    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       2
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

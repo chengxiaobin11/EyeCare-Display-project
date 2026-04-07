@@ -1,0 +1,199 @@
+C51 COMPILER V8.12   RL6463_SERIES_MDOMAIN                                                 03/10/2025 13:50:46 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_MDOMAIN
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_MDomain.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_MDomain.c LARG
+                    -E OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kerne
+                    -l\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\Scaler
+                    -Function\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel
+                    -\Scaler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\
+                    -User\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\No
+                    -neOsd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND
+                    - PRINT(.\Output\RL6463\RL6463_Series_MDomain.lst) OBJECT(.\Output\RL6463\RL6463_Series_MDomain.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_MDomain.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          //****************************************************************************
+  32          // VARIABLE DECLARATIONS
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // FUNCTION DECLARATIONS
+  37          //****************************************************************************
+  38          void ScalerMDomainControlDBApply(void);
+  39          bit ScalerMDomainMemoryCheck(void);
+  40          void ScalerMDomainDisplayTimingGenDBApply(EnumDBApply enumDBApply);
+  41          
+  42          //****************************************************************************
+  43          // FUNCTION DEFINITIONS
+  44          //****************************************************************************
+  45          //--------------------------------------------------
+  46          // Description  : Special Double Buffer Apply Procedure for FS
+  47          // Input Value  : None
+  48          // Output Value : None
+C51 COMPILER V8.12   RL6463_SERIES_MDOMAIN                                                 03/10/2025 13:50:46 PAGE 2   
+
+  49          // Note : Only for Frame Sync case
+  50          //--------------------------------------------------
+  51          void ScalerMDomainControlDBApply(void)
+  52          {
+  53   1          bit bFreeRunEn = _FALSE;
+  54   1      
+  55   1          // Enable double buffer
+  56   1          if((GET_MEMORY_SELECT() == _FRAME_SYNC_LINE_BUFFER) || (GET_MEMORY_SELECT() == _FRAME_SYNC_MEMORY))
+  57   1          {
+  58   2              if(ScalerGetBit(P0_10_M1_VGIP_CTRL, _BIT1) == _BIT1)
+  59   2              {
+  60   3                  // Avoid (Current_IVStart + IVHeight) > IVToal + New_IVSDelay in digital capture
+  61   3                  PDATA_WORD(0) = (g_stInputTimingData.usVStart + ScalerVgipGetCaptureVStartPosition() + g_stMDo
+             -mainInputData.usVHeight);
+  62   3              }
+  63   2              else
+  64   2              {
+  65   3                  // Avoid (Current_IVSDelay + IVStart + IVHeight) > IVToal + New_IVSDelay in analog capture
+  66   3                  PDATA_WORD(0) = (ScalerVgipGetCaptureVDelay() + ScalerVgipGetCaptureVStartPosition() + g_stMDo
+             -mainInputData.usVHeight);
+  67   3              }
+  68   2      
+  69   2              bFreeRunEn = (PDATA_WORD(0) > g_stMDomainInputData.usVTotal) ? (_TRUE) : (_FALSE);
+  70   2      
+  71   2      
+  72   2              if(bFreeRunEn == _TRUE)
+  73   2              {
+  74   3                  ScalerTimerWaitForEvent(_EVENT_DEN_START);
+  75   3      
+  76   3                  // Set Free run
+  77   3                  ScalerSetBit(P0_28_VIDEO_DISPLAY_CONTROL_REG, ~_BIT3, 0x00);
+  78   3      
+  79   3                  ScalerSetDataPortBit(P0_2A_DISPLAY_FORMAT_ADDR_PORT, _P0_2B_PT_25_MN_FRAME_RATE_EN, ~_BIT7, 0x
+             -00);
+  80   3              }
+  81   2      
+  82   2              // I-domain & D-domain apply polling
+  83   2              ScalerGlobalIDDomainDBApply(_DB_APPLY_POLLING);
+  84   2      
+  85   2              if(bFreeRunEn == _TRUE)
+  86   2              {
+  87   3                  if(GET_MEMORY_DVF_SELECT() == _1_IVF)
+  88   3                  {
+  89   4                      ScalerTimerWaitForEvent(_EVENT_IVS);
+  90   4                      ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+  91   4      
+  92   4                      // Set Frame sync
+  93   4                      ScalerSetBit(P0_28_VIDEO_DISPLAY_CONTROL_REG, ~_BIT3, _BIT3);
+  94   4                  }
+  95   3              }
+  96   2          }
+  97   1          else
+  98   1          {
+  99   2              // I-domain & D-domain apply polling
+ 100   2              ScalerGlobalIDDomainDBApply(_DB_APPLY_POLLING);
+ 101   2          }
+ 102   1      }
+ 103          
+ 104          //--------------------------------------------------
+ 105          // Description  : Check memory
+ 106          // Input Value  : None
+ 107          // Output Value : Memory check pass or fail
+C51 COMPILER V8.12   RL6463_SERIES_MDOMAIN                                                 03/10/2025 13:50:46 PAGE 3   
+
+ 108          //--------------------------------------------------
+ 109          bit ScalerMDomainMemoryCheck(void)
+ 110          {
+ 111   1          // Check fifo under/overflow and Input HVsync error flag, Display Vsync timeout flag
+ 112   1          if((ScalerGetBit(P0_02_STATUS0, (_BIT6 | _BIT5 | _BIT1 | _BIT0)) != 0x00) || (ScalerGetBit(P0_0C_WATCH
+             -_DOG_CTRL0, _BIT0) != 0x00))
+ 113   1          {
+ 114   2              return _FALSE;
+ 115   2          }
+ 116   1      
+ 117   1          return _TRUE;
+ 118   1      }
+ 119          
+ 120          //--------------------------------------------------
+ 121          // Description  : Apply Display Timing Gen Double Buffer
+ 122          // Input Value  : None
+ 123          // Output Value : None
+ 124          //--------------------------------------------------
+ 125          void ScalerMDomainDisplayTimingGenDBApply(EnumDBApply enumDBApply)
+ 126          {
+ 127   1          if(enumDBApply != _DB_APPLY_NONE)
+ 128   1          {
+ 129   2              // Check if Display Timing Gen DB is enabled
+ 130   2              if(ScalerGetBit(P0_2F_DISPLAY_FORMAT_DOUBLE_BUFFER, _BIT7) == 0x00)
+ 131   2              {
+ 132   3                  return;
+ 133   3              }
+ 134   2      
+ 135   2              // Check D domain status
+ 136   2              if((ScalerGetBit(P0_28_VIDEO_DISPLAY_CONTROL_REG, _BIT0) == 0x00) ||
+ 137   2                 (GET_DPLL_POWER_STATUS() == _FALSE))
+ 138   2              {
+ 139   3                  // Disable Double Buffer
+ 140   3                  ScalerSetBit(P0_2F_DISPLAY_FORMAT_DOUBLE_BUFFER, ~_BIT7, 0x00);
+ 141   3                  return;
+ 142   3              }
+ 143   2      
+ 144   2              // Apply Display Timing Gen Double Buffer
+ 145   2              ScalerSetBit(P0_2F_DISPLAY_FORMAT_DOUBLE_BUFFER, ~_BIT6, _BIT6);
+ 146   2      
+ 147   2              if(enumDBApply == _DB_APPLY_POLLING)
+ 148   2              {
+ 149   3                  // Wait Display Timing Gen double buffer
+ 150   3                  if(ScalerTimerPollingFlagProc(_DOUBLE_BUFFER_WAIT_TIME, P0_2F_DISPLAY_FORMAT_DOUBLE_BUFFER, _B
+             -IT6, 0) == _FALSE)
+ 151   3                  {
+ 152   4                      // Disable Double Buffer
+ 153   4                      ScalerSetBit(P0_2F_DISPLAY_FORMAT_DOUBLE_BUFFER, ~_BIT7, 0x00);
+ 154   4                  }
+ 155   3              }
+ 156   2          }
+ 157   1      }
+ 158          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    264    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V8.12   RL6463_SERIES_MDOMAIN                                                 03/10/2025 13:50:46 PAGE 4   
+
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

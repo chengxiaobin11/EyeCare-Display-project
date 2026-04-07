@@ -1,0 +1,3875 @@
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RTD2014USERADJUST
+OBJECT MODULE PLACED IN .\Output\RL6463\RTD2014UserAdjust.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE User\RTD Series\RTD2014Function\Code\RTD2014UserAdjust.c LARGE OPTIM
+                    -IZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Syste
+                    -m\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunctio
+                    -n\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler
+                    -\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RT
+                    -D Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\H
+                    -eader;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(
+                    -.\Output\RL6463\RTD2014UserAdjust.lst) OBJECT(.\Output\RL6463\RTD2014UserAdjust.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RTD2014UserAdjust.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __USER_ADJUST__
+  18          #define __USER_PANEL__
+  19          
+  20          #include "UserCommonInclude.h"
+  21          #if(_AUDIO_SUPPORT == _ON)
+  22          #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+              #include "./TTS/RTD2014UserTTSRecordList.h"
+              #endif
+  25          #endif
+  26          
+  27          #if(_OSD_TYPE == _REALTEK_2014_OSD)
+  28          
+  29          //****************************************************************************
+  30          // DEFINITIONS / MACROS
+  31          //****************************************************************************
+  32          
+  33          #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+  34          #define _HLWIN_TYPE5_MOVE_TIME                      SEC(0.01)
+  35          #endif
+  36          #if(_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+  37          WORD g_uc4500KColorTempR = 0;
+  38          WORD g_uc4500KColorTempG = 0;
+  39          WORD g_uc4500KColorTempB = 0;
+  40          #endif
+  41          WORD usCurrentContrast = 0;
+  42          //WORD usContrastData[3] = {0};
+  43          
+  44          extern bit bFreeSyncPreStatus ;
+  45          extern bit Aspect_Dcr_BacklightFlag ; // 记录DCR开启后调整宽高比画面起来后背光闪
+  46          
+  47          //****************************************************************************
+  48          // STRUCT / TYPE / ENUM DEFINITTIONS
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 2   
+
+  49          //****************************************************************************
+  50          
+  51          
+  52          //****************************************************************************
+  53          // CODE TABLES
+  54          //****************************************************************************
+  55          //----------------------------------------------------------------------------------------------------
+  56          // IR TABLE
+  57          //----------------------------------------------------------------------------------------------------
+  58          #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+              BYTE code tIR_INITIAL_TABLE[] =
+              {
+              #if(_IR_PROTOCAL == _IR_NEC_DTV328)
+                  #include "IRRemote/NEC_DTV328.h"
+              
+              #elif(_IR_PROTOCAL == _IR_SONY_B102P)
+                  #include "IRRemote/SONY_B102P.h"
+              
+              #elif(_IR_PROTOCAL == _IR_PHILIPS_RC6)
+                  #include "IRRemote/PHILIPS_RC6.h"
+              
+              #endif // End of #if(_IR_PROTOCAL == _IR_NEC_DTV328)
+              };
+              #endif
+  73          
+  74          //****************************************************************************
+  75          // VARIABLE DECLARATIONS
+  76          //****************************************************************************
+  77          #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+  78          bit g_bHLWinRLMove = _RIGHT;
+  79          WORD g_usHLWinHPos;
+  80          WORD g_usHLWinHWidth;
+  81          WORD g_usHLWinVPos;
+  82          WORD g_usHLWinVHeight;
+  83          #endif
+  84          
+  85          #if((_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON) && ((_PORT_CONTROLLER_RTS5400_SERIES_SUPPORT == _ON) || (_PORT_C
+             -ONTROLLER_USERDECITION_SUPPORT == _ON)))
+              #if(_TWO_CHIP_DATA_EXCHANGE_MODE == _DATA_EXCHANGE_MODE_NONE)
+              bit g_bTypeCPortControllerPowerOffFlag = _FALSE;
+              #endif
+              #endif
+  90          
+  91          //****************************************************************************
+  92          // FUNCTION DECLARATIONS
+  93          //****************************************************************************
+  94          //-------------------------------------------------------
+  95          // Adjust Backlight
+  96          //-------------------------------------------------------
+  97          void UserAdjustBacklight(WORD usBacklight);
+  98          
+  99          //-------------------------------------------------------
+ 100          // Dp Load Edid Related
+ 101          //-------------------------------------------------------
+ 102          #if((_EMBEDDED_EDID_SUPPORT == _ON) && (_WRITE_EDID_LOCATION_BY_USER_SUPPORT == _ON))
+              EnumEdidSelection UserAdjustGetDpEdidIndex(BYTE ucInputPort);
+              #endif
+ 105          
+ 106          //-------------------------------------------------------
+ 107          // Audio Related
+ 108          //-------------------------------------------------------
+ 109          #if(_AUDIO_SUPPORT == _ON)
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 3   
+
+ 110          #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+              void UserAdjustAudioTtsPlayEvent(EnumAudioTtsEvent enumTtsEvent);
+              #endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+ 113          
+ 114          void UserAdjustAudioMuteSwitch(void);
+ 115          void UserAdjustAudioVolume(BYTE ucVolume);
+ 116          WORD UserAdjustAudioVolumeMapping(BYTE ucVolume);
+ 117          #endif // End of #if(_AUDIO_SUPPORT == _ON)
+ 118          
+ 119          //-------------------------------------------------------
+ 120          // DCC
+ 121          //-------------------------------------------------------
+ 122          #if(_DCC_FUNCTION == _ON)
+ 123          void UserAdjustDCC(BYTE ucColorEffect);
+ 124          #endif // End of #if(_DCC_FUNCTION == _ON)
+ 125          
+ 126          //-------------------------------------------------------
+ 127          // ICM
+ 128          //-------------------------------------------------------
+ 129          #if(_ICM_SUPPORT == _ON)
+ 130          void UserAdjustICM(BYTE ucColorEffect);
+ 131          #endif
+ 132          
+ 133          #if(_SCM_SUPPORT == _ON)
+              void UserAdjustSCM(BYTE ucColorEffect);
+              #endif
+ 136          
+ 137          #if((_DCC_FUNCTION == _ON) || (_ICM_SUPPORT == _ON) || (_SCM_SUPPORT == _ON) || (_SIX_COLOR_SUPPORT == _ON
+             -))
+ 138          void UserAdjustColorEffectMode(void);
+ 139          #endif
+ 140          
+ 141          //-------------------------------------------------------
+ 142          // CTS / BRI
+ 143          //-------------------------------------------------------
+ 144          #if(_CONTRAST_SUPPORT == _ON)
+ 145          void UserAdjustContrast(WORD usContrast);
+ 146          #endif
+ 147          
+ 148          #if(_BRIGHTNESS_SUPPORT == _ON)
+ 149          void UserAdjustBrightness(WORD usBrightness);
+ 150          #endif
+ 151          
+ 152          //-------------------------------------------------------
+ 153          // 3D Gamma
+ 154          //-------------------------------------------------------
+ 155          
+ 156          //-------------------------------------------------------
+ 157          // sRGB
+ 158          //-------------------------------------------------------
+ 159          #if(_GLOBAL_HUE_SATURATION == _ON)
+ 160          void UserAdjustGlobalHueSat(SWORD shHue, WORD usSat);
+ 161          #endif
+ 162          
+ 163          //-------------------------------------------------------
+ 164          // Unifomity
+ 165          //-------------------------------------------------------
+ 166          
+ 167          //-------------------------------------------------------
+ 168          // Output Gamma
+ 169          //-------------------------------------------------------
+ 170          
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 4   
+
+ 171          //-------------------------------------------------------
+ 172          // OD
+ 173          //-------------------------------------------------------
+ 174          #if(_OD_SUPPORT == _ON)
+ 175          void UserAdjustOD(void);
+ 176          #endif
+ 177          
+ 178          //-------------------------------------------------------
+ 179          // Highlight window
+ 180          //-------------------------------------------------------
+ 181          #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+ 182          void UserAdjustHLWinType(BYTE ucHLWinType);
+ 183          void UserAdjustHLWinType5Move(void);
+ 184          void UserAdjustHighLightWindowEffectSpace(void);
+ 185          #endif
+ 186          
+ 187          #if(_FREESYNC_OD_MEASURE == _ON)
+              void UserAdjustFREESYNCODMeasure(void);
+              #endif
+ 190          
+ 191          
+ 192          //-------------------------------------------------------
+ 193          // HW IR Mode
+ 194          //-------------------------------------------------------
+ 195          #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+              void UserAdjusIR(void);
+              #endif
+ 198          
+ 199          //-------------------------------------------------------
+ 200          // DP
+ 201          //-------------------------------------------------------
+ 202          #if(_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+              void UserAdjustEmbeddedDpSwitch(void);
+              #endif
+ 205          
+ 206          //-------------------------------------------------------
+ 207          // Pixel Shift
+ 208          //-------------------------------------------------------
+ 209          #if(_PIXEL_SHIFT_SUPPORT == _ON)
+              void UserAdjustPixelShifting(void);
+              #endif
+ 212          
+ 213          //-------------------------------------------------------
+ 214          // SDRToHDR
+ 215          //-------------------------------------------------------
+ 216          #if(_SDR_TO_HDR_SUPPORT == _ON)
+              void UserAdjustSDRToHDR(bit bOn);
+              #endif
+ 219          
+ 220          //-------------------------------------------------------
+ 221          // DCR
+ 222          //-------------------------------------------------------
+ 223          #if(_DCR_SUPPORT == _ON)
+ 224          #if(_LD_TUNNEL_DETECT_SUPPORT == _ON)
+              void UserAdjustDCRTHD(void);
+              #endif
+ 227          #endif
+ 228          
+ 229          //-------------------------------------------------------
+ 230          // Type-C Port Controller
+ 231          //-------------------------------------------------------
+ 232          #if(_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 5   
+
+              #if((_PORT_CONTROLLER_RTS5400_SERIES_SUPPORT == _ON) || (_PORT_CONTROLLER_USERDECITION_SUPPORT == _ON))
+              #if(_TWO_CHIP_DATA_EXCHANGE_MODE == _DATA_EXCHANGE_MODE_NONE)
+              void UserAjustTypeCPowerControl(EnumPowerAction enumSwitch);
+              #endif
+              #endif
+              #endif
+ 239          
+ 240          //-------------------------------------------------------
+ 241          // HDR
+ 242          //-------------------------------------------------------
+ 243          #if((_EMBEDDED_EDID_SUPPORT == _ON) && (_DP_HDR10_SUPPORT == _ON) && (_DP_SUPPORT == _ON))
+              void UserAdjustHdrCheckDpVersion(WORD usHdrMode);
+              #endif
+ 246          
+ 247          //-------------------------------------------------------
+ 248          // DP Version
+ 249          //-------------------------------------------------------
+ 250          #if(_DP_SUPPORT == _ON)
+              void UserAdjustDpVersionForceUpdate(BYTE ucInputPort, bit bEnable, EnumDpVersionType enumDpVersionType);
+              #endif
+ 253          
+ 254          
+ 255          //--------------------------------------------------
+ 256          // Description      :
+ 257          // Input Value      : None
+ 258          // Output Value     : None
+ 259          //--------------------------------------------------
+ 260          BYTE OsdDisplayGetPowerBarValue(void)
+ 261          {
+ 262   1              WORD ucPower = 0;
+ 263   1      
+ 264   1              if(KeyActionFlag)
+ 265   1                      KeyActionFlag=_OFF;
+ 266   1      
+ 267   1      #if 0
+                      ucPower = GET_OSD_BACKLIGHT(); 
+              
+              #if 0//(_BACKLIGHT_PWM_INVERSE == _ON)
+                      return (_BACKLIGHT_MAX_1-ucPower);
+              #else
+                      return ucPower;
+              #endif
+              
+              
+              #else // 
+ 278   1              
+ 279   1              if(0)//(GET_OSD_DCR_STATUS() || GET_OSD_ECO_STATUS() != _ECO_STANDARD)
+ 280   1              {
+ 281   2                      ucPower = UserCommonAdjustRealValueToPercent(PCB_GET_BACKLIGHT_PWM(), (_BACKLIGHT_MAX_PWM), (_BACKLIGHT_
+             -MIN_PWM), (_BACKLIGHT_PWM_CENTER));
+ 282   2              }               
+ 283   1              else
+ 284   1              {
+ 285   2      #if(_BACKLIGHT_PWM_INVERSE == _ON)
+                              ucPower = 0xFF - PCB_GET_BACKLIGHT_PWM();
+              #else
+ 288   2                      ucPower = PCB_GET_BACKLIGHT_PWM();
+ 289   2      #endif
+ 290   2              }
+ 291   1              
+ 292   1              //DebugMessageOsd("2.ucPower1",ucPower);
+ 293   1      
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 6   
+
+ 294   1              ucPower = UserCommonAdjustRealValueToPercent(ucPower, MAX(_BACKLIGHT_MAX_PWM), MIN(_BACKLIGHT_MIN_PWM), C
+             -ENTER(_BACKLIGHT_PWM_CENTER));
+ 295   1      
+ 296   1              ucPower = ((ucPower * (_BACKLIGHT_MAX_1 - _POWER_BAR_MIN)) / _BACKLIGHT_MAX_1) + _POWER_BAR_MIN;
+ 297   1      
+ 298   1              
+ 299   1              return ucPower;
+ 300   1      
+ 301   1      #endif
+ 302   1      
+ 303   1      }
+ 304          
+ 305          void OsdDisplayUpdatePowerBar(BYTE ucPreload)   //更新功耗进度条
+ 306          {
+ 307   1      
+ 308   1      #if(_DEFAULT_OSD_STYLE == _TRG_OSD_STYLE || _DEFAULT_OSD_STYLE == _SUMA_OSD_STYLE)
+ 309   1      
+ 310   1              ucPreload = ucPreload;
+ 311   1      
+ 312   1      #else
+              
+                      BYTE usValue = OsdDisplayGetPowerBarValue();
+              
+                      if((ucPreload==_TRUE)&&(ScalerOsdGetOsdEnable() == _ENABLE) && (GET_OSD_STATE() < _MENU_END)  \
+                              && (GET_OSD_STATE() >= _MENU_INPUT) && (GET_OSD_STATE() != _OSD_HOTKEY_FUNC)  \
+                              && (g_usOsdKeyDirectionType != _LAYER_Timing_Tips))
+                      {
+                              //OsdDisplaySliderAndNumber(_MENU_NONE, OsdDisplayGetPowerBarValue(), _SLIDER_POWER);
+                              //DebugMessageOsd("2.PowerBar",usValue);
+                              OsdDisplaySubSlider(ROW(_ROW_POWER_BAR), COL(_COL_POWER_BAR), usValue, _SLIDER_MAX, _SLIDER_MIN, _SLIDER
+             -_BAR_LENGTH, _OSD_POWER_BAR_TYPE);
+              
+                              OsdPropShowNumber(ROW(_ROW_POWER_BAR), COL(_COL_POWER_BAR_VALUE), usValue, (_ALIGN_LEFT | _FORCE_SHOW_NU
+             -MBER_OFF | _SHOW_4), _PFONT_PAGE_POWER, COLOR(_CP_WHITE, _CP_BG));
+                      }
+              
+              #endif
+ 328   1      
+ 329   1      
+ 330   1      }
+ 331          
+ 332          
+ 333          
+ 334          //****************************************************************************
+ 335          // FUNCTION DEFINITIONS
+ 336          //****************************************************************************
+ 337          
+ 338          BYTE code BacklightDefault[3] = 
+ 339          {
+ 340                  _BACKLIGHT_MIN_PWM,                     
+ 341                  _BACKLIGHT_PWM_CENTER,//_BACKLIGHT_DEF_PWM,                                        
+ 342                  _BACKLIGHT_MAX_PWM, 
+ 343          };
+ 344          
+ 345          /*
+ 346          #if(_BACKLIGHT_DEFAULT == 100)
+ 347          #define tBacklight_Table_Value(x)   ((DWORD)(BacklightDefault[1]-BacklightDefault[0])*x/_BACKLIGHT_DEFAULT
+             -+BacklightDefault[0])
+ 348          #else
+ 349          #define tBacklight_Table_Value(x)   ( (x<=_BACKLIGHT_DEFAULT)?((DWORD)(BacklightDefault[1]-BacklightDefaul
+             -t[0])*x/_BACKLIGHT_DEFAULT+BacklightDefault[0]):((DWORD)(BacklightDefault[2]-BacklightDefault[1])*(x-_BACKLIGHT_DEFAULT)
+             -/(100-_BACKLIGHT_DEFAULT)+BacklightDefault[1]))
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 7   
+
+ 350          #endif
+ 351          */
+ 352          #define tBacklight_Table_Value_ECO(a,x)   ((DWORD)(a-BacklightDefault[0])*x/100+BacklightDefault[0])
+ 353          
+ 354          
+ 355          BYTE tBacklight_Table_Value(BYTE ucBacklight,BYTE ucmaxPercent)
+ 356          {
+ 357   1               #if 1//_BACKLIGHT_DEFAULT == 100 
+ 358   1           BYTE ucMaxValue = (WORD)(BacklightDefault[2] - BacklightDefault[0])*ucmaxPercent/100+BacklightDefault
+             -[0];
+ 359   1           BYTE ucMinValue = BacklightDefault[0];
+ 360   1               
+ 361   1               return (WORD)(ucMaxValue - ucMinValue)*ucBacklight/100+ucMinValue;
+ 362   1               #else
+              
+              
+                       #endif
+ 366   1      }
+ 367          
+ 368          //--------------------------------------------------
+ 369          // Description  : Adjust backlight
+ 370          // Input Value  : None
+ 371          // Output Value : None
+ 372          //--------------------------------------------------
+ 373          void UserAdjustBacklight(WORD usBacklight)
+ 374          {
+ 375   1      
+ 376   1                      BYTE ucMaxBacklightPercent = 100;
+ 377   1      
+ 378   1                      if(GET_OSD_LOGO_ON())//在显示LOGO时正常跑亮度函数
+ 379   1                      {
+ 380   2                      
+ 381   2      #if(_BACKLIGHT_PWM_INVERSE == _ON)
+                                      PCB_BACKLIGHT_PWM(0xFF-_BACKLIGHT_MAX_PWM);
+              #else
+ 384   2                              PCB_BACKLIGHT_PWM(_BACKLIGHT_MAX_PWM);
+ 385   2      #endif
+ 386   2                              return;
+ 387   2                      }
+ 388   1                      
+ 389   1      #if(_DCR_SUPPORT ==_ON)
+ 390   1                      if(GET_OSD_DCR_STATUS() !=_DCR_Level_0 && Aspect_Dcr_BacklightFlag)     
+ 391   1                      {
+ 392   2                              Aspect_Dcr_BacklightFlag = _OFF;
+ 393   2                              return;
+ 394   2                      }
+ 395   1      #endif
+ 396   1      
+ 397   1      #if(_MPRT_SUPPORT == _ON)
+ 398   1                      if(GET_OSD_MPRT())
+ 399   1                      {
+ 400   2                              usBacklight = 100;
+ 401   2                      }
+ 402   1      #endif
+ 403   1      
+ 404   1      #if(_HDR10_SUPPORT == _ON)
+                              if(UserCommonHDRGetHDR10Status()!=_HDR10_MODE_OFF && GET_OSD_HDR_MODE()!=_HDR10_MODE_OFF)
+                              {
+                                      //usBacklight = 100;
+                              }
+              #endif
+ 410   1      
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 8   
+
+ 411   1                      // Adjust backlight by changing PWM duty
+ 412   1                      if(GET_OSD_ECO_STATUS() != _ECO_STANDARD)
+ 413   1                      {
+ 414   2                              if(GET_OSD_ECO_STATUS() == _ECO_OPTIMIZE)
+ 415   2                              {
+ 416   3                                      ucMaxBacklightPercent = 75;
+ 417   3                              }
+ 418   2                              else if(GET_OSD_ECO_STATUS() == _ECO_CONSERVE)
+ 419   2                              {
+ 420   3                                      ucMaxBacklightPercent = 50;
+ 421   3                              }
+ 422   2                      }
+ 423   1                      else
+ 424   1                      {
+ 425   2                              ucMaxBacklightPercent = 100;
+ 426   2                      }
+ 427   1      
+ 428   1      
+ 429   1      
+ 430   1      #if(_DEF_ECO_BACK_NEW)
+              #if(_MPRT_SUPPORT == _ON)
+                                      if(GET_OSD_MPRT() == _OFF && GET_OSD_ECO_STATUS() != _ECO_STANDARD)
+              #else
+              
+                                      if(GET_OSD_ECO_STATUS() != _ECO_STANDARD)
+              #endif
+                                      {
+                                              if(usBacklight)
+                                              {
+                                                      //usBacklight = tBacklight_Table_Value((GET_OSD_ECO_STATUS() == _ECO_OPTIMIZE ? _DEF_ECO_BACK_75 : _D
+             -EF_ECO_BACK_50));
+                                                      usBacklight = tBacklight_Table_Value_ECO((GET_OSD_ECO_STATUS() == _ECO_OPTIMIZE ? _DEF_ECO_BACK_75 : 
+             -_DEF_ECO_BACK_50),usBacklight);
+                                              }
+                                      }
+                                      else
+              #endif
+ 446   1                              {
+ 447   2      #if(_DEF_ZhongDong)
+ 448   2                                      if(GET_OSD_DISTRICT()==_DEF_REGION_AMERICAS || GET_OSD_DISTRICT()==_DEF_REGION_EUROPE || GET_OSD_DISTR
+             -ICT()==_DEF_REGION_MIDDLE_EAST)
+ 449   2      #else
+                                              if(GET_OSD_DISTRICT()==_DEF_REGION_AMERICAS || GET_OSD_DISTRICT()==_DEF_REGION_EUROPE) 
+              #endif
+ 452   2                                      {
+ 453   3                                              usBacklight = tBacklight_Table_Value(usBacklight, ucMaxBacklightPercent);
+ 454   3                                      }
+ 455   2                                      else
+ 456   2                                              usBacklight = tBacklight_Table_Value(usBacklight, ucMaxBacklightPercent);
+ 457   2                              }
+ 458   1      
+ 459   1      
+ 460   1      #if 0//(_DEF_ECO_BACK_NEW == _OFF)
+              #if(_MPRT_SUPPORT)
+                                      if(GET_OSD_MPRT() == _OFF && GET_OSD_ECO_STATUS() != _ECO_STANDARD)
+              #else
+                                      if(GET_OSD_ECO_STATUS() != _ECO_STANDARD)
+              #endif
+                                      {
+                                              if(usBacklight && GET_OSD_BACKLIGHT()!=0)
+                                              {
+              #if(_BACKLIGHT_PWM_INVERSE == _ON)
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 9   
+
+                                                      usBacklight = (((usBacklight*100) - (usBacklight * _DEF_JS_POWER_ECO_DATA * GET_OSD_ECO_STATUS())) / 
+             -100);
+              #else
+                                                      usBacklight = (((usBacklight*100) - (usBacklight * _DEF_JS_POWER_ECO_DATA * GET_OSD_ECO_STATUS())) / 
+             -100);
+              #endif
+                                              }
+                                      }
+              #endif
+ 477   1      
+ 478   1      #if(_PROJECT_ID==_ID_ZQ_2775E15_INNOLUX_MV270KCA_D8B_8BIT_QHD180_VX2758A_2K_PRO_20241223   \
+ 479   1              || _PROJECT_ID==_ID_ZQ_2775E15_INNOLUX_MV270KCA_D8B_8BIT_QHD180_VX2758A_2K_PRO_2_20250103 \
+ 480   1              || _PROJECT_ID==_ID_ZQ_2775E15_INNOLUX_MV270KCA_E8B_8BIT_QHD180_VX2758A_2K_PRO_2_20250228 \
+ 481   1              || _PROJECT_ID==_ID_ZQ_2775E15_BOE_ME270QHB_NF2_8BIT_QHD180_VX2756_2K_PRO_2_20250224 \
+ 482   1              || _PROJECT_ID==_ID_ZQ_2775E15_INNOLUX_MV270KCA_D8B_8BIT_QHD180_VX2756_2K_PRO_2_20250115)
+                              if(GET_OSD_MPRT())
+                                      usBacklight = usBacklight+0x2A; // 提高亮度
+              #endif
+ 486   1      
+ 487   1      #if(_BACKLIGHT_PWM_INVERSE == _ON)
+                              usBacklight = _BACKLIGHT_MAX - usBacklight;
+              #endif
+ 490   1      
+ 491   1              DebugMessageOsd("PWM usBacklight", usBacklight);
+ 492   1      
+ 493   1          // Adjust backlight by changing PWM duty
+ 494   1          PCB_BACKLIGHT_PWM(usBacklight);
+ 495   1      
+ 496   1              OsdDisplayUpdatePowerBar(_TRUE);
+ 497   1      
+ 498   1              
+ 499   1      }
+ 500          
+ 501          //----------------------------------------------------------------------------
+ 502          // Not Kernel Related Function
+ 503          //----------------------------------------------------------------------------
+ 504          
+ 505          #if((_EMBEDDED_EDID_SUPPORT == _ON) && (_WRITE_EDID_LOCATION_BY_USER_SUPPORT == _ON))
+              //--------------------------------------------------
+              // Description  : Get the Mapping of Edid index of Function Application
+              // Input Value  : ucInputPort
+              // Output Value : Edid Index
+              //--------------------------------------------------
+              EnumEdidSelection UserAdjustGetDpEdidIndex(BYTE ucInputPort)
+              {
+                  BYTE ucIndex = 0;
+                  BYTE ucDpResolution = 0;
+              
+              #if(_DP_FREESYNC_SUPPORT == _ON)
+                  if((GET_OSD_FREE_SYNC_STATUS() == _ON))
+                  {
+                      ucIndex += ((_DP_HDR10_SUPPORT == _ON) ? 0x06 : 0x03);
+                  }
+              #endif
+              
+              #if(_DP_HDR10_SUPPORT == _ON)
+                  if((UserInterfaceHDRGetHDR10ModeStatus(ucInputPort) != _HDR10_MODE_OFF))
+                  {
+                      ucIndex += 0x03;
+                  }
+              #endif
+              
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 10  
+
+              #if(_DP_ADAPTIVESYNC_SUPPORT == _ON)
+                  // if((GET_OSD_DP_ADAPTIVE_SYNC_STATUS() == _ON))
+                  // {
+                  //     ucIndex += ((GET_OSD_FREE_SYNC_STATUS() == _ON) ? 0x06 : 0x03);
+                  // }
+              #endif
+              
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                          ucDpResolution = UserCommonNVRamGetSystemData(_EDID_D0_SELECT);
+                          break;
+                      case _D1_INPUT_PORT:
+                          ucDpResolution = UserCommonNVRamGetSystemData(_EDID_D1_SELECT);
+                          break;
+                      case _D2_INPUT_PORT:
+                          ucDpResolution = UserCommonNVRamGetSystemData(_EDID_D2_SELECT);
+                          break;
+                      case _D6_INPUT_PORT:
+                          ucDpResolution = UserCommonNVRamGetSystemData(_EDID_D6_SELECT);
+                          break;
+                      default:
+                          break;
+                  }
+              
+                  switch(ucDpResolution)
+                  {
+                      case _DP_EDID_1080P:
+                          break;
+              
+                      case _DP_EDID_2560_1440:
+                          ucIndex += 0x01;
+                          break;
+              
+                      case _DP_EDID_4K2K_60HZ:
+                          ucIndex += 0x02;
+                          break;
+              
+                      default:
+                          break;
+                  }
+              
+                  return ucIndex;
+              }
+              #endif
+ 575          
+ 576          #if(_AUDIO_SUPPORT == _ON)
+ 577          #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+              //--------------------------------------------------
+              // Description  : Adjust TTS Play Event
+              // Input Value  : EnumAudioTtsEvent
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAdjustAudioTtsPlayEvent(EnumAudioTtsEvent enumTtsEvent)
+              {
+                  StructAudioTtsSegment pstTtsSegment[_AUDIO_TTS_DATA_SEGMENT_SIZE];
+                  EnumAudioTtsPlayStatus enumTtsPlayStatus = UserCommonAudioTtsGetPlaybackStatus();
+              
+                  if(enumTtsPlayStatus == _TTS_PROCESSING)
+                  {
+                      DebugMessageAudio("[TTS] Playback Still Processing", 0x00);
+              
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 11  
+
+                      return;
+                  }
+                  else if(enumTtsPlayStatus == _TTS_PLAY_ERROR)
+                  {
+                      DebugMessageAudio("[TTS] Playback Error", 0x00);
+              
+                      // Check Error Segment
+                      switch(UserCommonAudioTtsGetErrorSegment())
+                      {
+                          case 0x00:
+                              break;
+              
+                          default:
+                              break;
+                      }
+              
+                      return;
+                  }
+              
+                  // TTS Event Judgment
+                  switch(enumTtsEvent)
+                  {
+                      case _AUDIO_TTS_EVENT_POWER_ON:
+              
+                          DebugMessageAudio("[TTS] Set POWER_ON event", _AUDIO_TTS_EVENT_POWER_ON);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_POWER_ON;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_POWER_ON;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DISPLAY_INFORMATION;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_DISPLAY_INFORMATION;
+              
+                          // Check Input Port
+                          switch(SysSourceGetInputPort())
+                          {
+                              case _A0_INPUT_PORT:
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_ANALOG_PORT_0;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_ANALOG_PORT_0;
+              
+                                  pstTtsSegment[3].ulDataAddress = _TTS_ADDRESS_VGA_PORT;
+                                  pstTtsSegment[3].usDataLength = _TTS_LENGTH_VGA_PORT;
+              
+                                  break;
+              
+                              case _D0_INPUT_PORT:
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_0;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_DIGITAL_PORT_0;
+              
+                                  pstTtsSegment[3].ulDataAddress = _TTS_ADDRESS_DP_PORT;
+                                  pstTtsSegment[3].usDataLength = _TTS_LENGTH_DP_PORT;
+              
+                                  break;
+              
+                              case _D1_INPUT_PORT:
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_1;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_DIGITAL_PORT_1;
+              
+                                  pstTtsSegment[3].ulDataAddress = _TTS_ADDRESS_HDMI_PORT;
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 12  
+
+                                  pstTtsSegment[3].usDataLength = _TTS_LENGTH_HDMI_PORT;
+              
+                                  break;
+              
+                              default:
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_OTHER;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_OTHER;
+              
+                                  pstTtsSegment[3].ulDataAddress = _TTS_ADDRESS_OTHER;
+                                  pstTtsSegment[3].usDataLength = _TTS_LENGTH_OTHER;
+              
+                                  break;
+                          }
+              
+                          pstTtsSegment[4].ulDataAddress = _TTS_ADDRESS_1920_BY_1080_60_HZ;
+                          pstTtsSegment[4].usDataLength = _TTS_LENGTH_1920_BY_1080_60_HZ;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[5].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 5, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_POWER_OFF:
+                      case _AUDIO_TTS_EVENT_POWER_SAVING:
+              
+                          DebugMessageAudio("[TTS] Set POWER_OFF event", _AUDIO_TTS_EVENT_POWER_OFF);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_POWER_OFF;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_POWER_OFF;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_KEY_MENU:
+              
+                          DebugMessageAudio("[TTS] Set MENU event", _AUDIO_TTS_EVENT_KEY_MENU);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_MENU;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_MENU;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_PICTURE;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_PICTURE;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 13  
+
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_KEY_LEFT:
+              
+                          DebugMessageAudio("[TTS] Set KEY_LEFT event", _AUDIO_TTS_EVENT_KEY_LEFT);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DISPLAY_INFORMATION;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DISPLAY_INFORMATION;
+              
+                          // Check Input Port
+                          switch(SysSourceGetInputPort())
+                          {
+                              case _A0_INPUT_PORT:
+              
+                                  pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_ANALOG_PORT_0;
+                                  pstTtsSegment[1].usDataLength = _TTS_LENGTH_ANALOG_PORT_0;
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_VGA_PORT;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_VGA_PORT;
+              
+                                  break;
+              
+                              case _D0_INPUT_PORT:
+              
+                                  pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_0;
+                                  pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_0;
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_DP_PORT;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_DP_PORT;
+              
+                                  break;
+              
+                              case _D1_INPUT_PORT:
+              
+                                  pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_1;
+                                  pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_1;
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_HDMI_PORT;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_HDMI_PORT;
+              
+                                  break;
+              
+                              default:
+              
+                                  pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_OTHER;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_OTHER;
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_OTHER;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_OTHER;
+              
+                                  break;
+                          }
+              
+                          pstTtsSegment[3].ulDataAddress = _TTS_ADDRESS_1920_BY_1080_60_HZ;
+                          pstTtsSegment[3].usDataLength = _TTS_LENGTH_1920_BY_1080_60_HZ;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[4].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 14  
+
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 4, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_KEY_RIGHT:
+              
+                          DebugMessageAudio("[TTS] Set KEY_RIGHT event", _AUDIO_TTS_EVENT_KEY_RIGHT);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_INPUT_SOURCE;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_INPUT_SOURCE;
+              
+                          // if((SysSourceGetScanType() != _SOURCE_SWITCH_FIXED_PORT) || (SysSourceGetInputPort() != _A0
+             -_INPUT_PORT))
+                          if(SysSourceGetScanType() != _SOURCE_SWITCH_FIXED_PORT)
+                          {
+                              // Auto Search
+                              pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_AUTO_SEARCH;
+                              pstTtsSegment[1].usDataLength = _TTS_LENGTH_AUTO_SEARCH;
+              
+                              // End command: Data_Length = 0x0000
+                              pstTtsSegment[2].usDataLength = 0x0000;
+                          }
+                          else
+                          {
+                              // Check Input Port
+                              switch(SysSourceGetInputPort())
+                              {
+                                  case _A0_INPUT_PORT:
+              
+                                      pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_ANALOG_PORT_0;
+                                      pstTtsSegment[1].usDataLength = _TTS_LENGTH_ANALOG_PORT_0;
+              
+                                      pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_VGA_PORT;
+                                      pstTtsSegment[2].usDataLength = _TTS_LENGTH_VGA_PORT;
+              
+                                      break;
+              
+                                  case _D0_INPUT_PORT:
+              
+                                      pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_0;
+                                      pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_0;
+              
+                                      pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_DP_PORT;
+                                      pstTtsSegment[2].usDataLength = _TTS_LENGTH_DP_PORT;
+              
+                                      break;
+              
+                                  case _D1_INPUT_PORT:
+              
+                                      pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_1;
+                                      pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_1;
+              
+                                      pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_HDMI_PORT;
+                                      pstTtsSegment[2].usDataLength = _TTS_LENGTH_HDMI_PORT;
+              
+                                      break;
+              
+                                  case _D2_INPUT_PORT:
+              
+                                      pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_2;
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 15  
+
+                                      pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_2;
+              
+                                      pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_OFF;
+                                      pstTtsSegment[2].usDataLength = _TTS_LENGTH_OFF;
+              
+                                      break;
+              
+                                  case _D3_INPUT_PORT:
+              
+                                      pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_3;
+                                      pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_3;
+              
+                                      pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_OFF;
+                                      pstTtsSegment[2].usDataLength = _TTS_LENGTH_OFF;
+              
+                                      break;
+              
+                                  case _D4_INPUT_PORT:
+              
+                                      pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_4;
+                                      pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_4;
+              
+                                      pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_OFF;
+                                      pstTtsSegment[2].usDataLength = _TTS_LENGTH_OFF;
+              
+                                      break;
+              
+                                  case _D5_INPUT_PORT:
+              
+                                      pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_5;
+                                      pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_5;
+              
+                                      pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_OFF;
+                                      pstTtsSegment[2].usDataLength = _TTS_LENGTH_OFF;
+              
+                                      break;
+              
+                                  case _D6_INPUT_PORT:
+              
+                                      pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_6;
+                                      pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_6;
+              
+                                      pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_ERROR;
+                                      pstTtsSegment[2].usDataLength = _TTS_LENGTH_ERROR;
+              
+                                      break;
+              
+                                  default:
+              
+                                      pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_ERROR;
+                                      pstTtsSegment[1].usDataLength = _TTS_LENGTH_ERROR;
+              
+                                      // End command: Data_Length = 0x0000
+                                      pstTtsSegment[2].usDataLength = 0x0000;
+              
+                                      break;
+                              }
+                          }
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[3].usDataLength = 0x0000;
+              
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 16  
+
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 3, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_KEY_ON:
+              
+                          DebugMessageAudio("[TTS] Set ON event", _AUDIO_TTS_EVENT_KEY_ON);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_ON;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_ON;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_KEY_OFF:
+              
+                          DebugMessageAudio("[TTS] Set OFF event", _AUDIO_TTS_EVENT_KEY_OFF);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_OFF;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_OFF;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_KEY_NUMBER:
+              
+                          DebugMessageAudio("[TTS] Set NUMBER event", _AUDIO_TTS_EVENT_KEY_NUMBER);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_20;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_20;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_3;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_3;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_KEY_DIGITAL:
+              
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 17  
+
+                          DebugMessageAudio("[TTS] Set DIGITAL event", _AUDIO_TTS_EVENT_KEY_DIGITAL);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DIGITAL;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DIGITAL;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_KEY_ANALOG:
+              
+                          DebugMessageAudio("[TTS] Set ANALOG event", _AUDIO_TTS_EVENT_KEY_ANALOG);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_ANALOG;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_ANALOG;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_LOGO_SHOW:
+              
+                          DebugMessageAudio("[TTS] Set OSD_LOGO_SHOW event", _AUDIO_TTS_EVENT_OSD_LOGO_SHOW);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_REALTEK;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_REALTEK;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_PICTURE:
+              
+                          DebugMessageAudio("[TTS] Set PICTURE event", _AUDIO_TTS_EVENT_OSD_PICTURE);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_PICTURE;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_PICTURE;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 18  
+
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_DISPLAY_CONFIG:
+              
+                          DebugMessageAudio("[TTS] Set DISPLAY_CONFIG event", _AUDIO_TTS_EVENT_OSD_DISPLAY_CONFIG);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DISPLAY;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DISPLAY;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_COLOR:
+              
+                          DebugMessageAudio("[TTS] Set COLOR event", _AUDIO_TTS_EVENT_OSD_COLOR);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_COLOR;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_COLOR;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_ADVANCE:
+              
+                          DebugMessageAudio("[TTS] Set ADVANCE event", _AUDIO_TTS_EVENT_OSD_ADVANCE);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_ADVANCE;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_ADVANCE;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_SOURCE:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_SOURCE event", _AUDIO_TTS_EVENT_OSD_INPUT_SOURCE);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_INPUT_SOURCE;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_INPUT_SOURCE;
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 19  
+
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO:
+              
+                          DebugMessageAudio("[TTS] Set AUDIO event", _AUDIO_TTS_EVENT_OSD_AUDIO);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_AUDIO;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_AUDIO;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_OTHER:
+              
+                          DebugMessageAudio("[TTS] Set OTHER event", _AUDIO_TTS_EVENT_OSD_OTHER);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_OTHER;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_OTHER;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_DISPLAY_INFORMATION:
+              
+                          DebugMessageAudio("[TTS] Set DISPLAY_INFORMATION event", _AUDIO_TTS_EVENT_OSD_DISPLAY_INFORMAT
+             -ION);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DISPLAY_INFORMATION;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DISPLAY_INFORMATION;
+              
+                          // Check Input Port
+                          switch(SysSourceGetInputPort())
+                          {
+                              case _A0_INPUT_PORT:
+              
+                                  pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_ANALOG_PORT_0;
+                                  pstTtsSegment[1].usDataLength = _TTS_LENGTH_ANALOG_PORT_0;
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_VGA_PORT;
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 20  
+
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_VGA_PORT;
+              
+                                  break;
+              
+                              case _D0_INPUT_PORT:
+              
+                                  pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_0;
+                                  pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_0;
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_DP_PORT;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_DP_PORT;
+              
+                                  break;
+              
+                              case _D1_INPUT_PORT:
+              
+                                  pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_1;
+                                  pstTtsSegment[1].usDataLength = _TTS_LENGTH_DIGITAL_PORT_1;
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_HDMI_PORT;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_HDMI_PORT;
+              
+                                  break;
+              
+                              default:
+              
+                                  pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_OTHER;
+                                  pstTtsSegment[1].usDataLength = _TTS_LENGTH_OTHER;
+              
+                                  pstTtsSegment[2].ulDataAddress = _TTS_ADDRESS_OTHER;
+                                  pstTtsSegment[2].usDataLength = _TTS_LENGTH_OTHER;
+              
+                                  break;
+                          }
+              
+                          pstTtsSegment[3].ulDataAddress = _TTS_ADDRESS_1920_BY_1080_60_HZ;
+                          pstTtsSegment[3].usDataLength = _TTS_LENGTH_1920_BY_1080_60_HZ;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[4].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 4, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_FACTORY:
+              
+                          DebugMessageAudio("[TTS] Set FACTORY event", _AUDIO_TTS_EVENT_OSD_FACTORY);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_FACTORY;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_FACTORY;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 21  
+
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO_VOLUME:
+              
+                          DebugMessageAudio("[TTS] Set AUDIO_VOLUME event", _AUDIO_TTS_EVENT_OSD_AUDIO_VOLUME);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_VOLUME;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_VOLUME;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO_MUTE:
+              
+                          DebugMessageAudio("[TTS] Set AUDIO_MUTE event", _AUDIO_TTS_EVENT_OSD_AUDIO_MUTE);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_MUTE;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_MUTE;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO_STAND_ALONG:
+              
+                          DebugMessageAudio("[TTS] Set STAND_ALONG event", _AUDIO_TTS_EVENT_OSD_AUDIO_STAND_ALONG);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_STAND_ALONG;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_STAND_ALONG;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO_SOURCE:
+              
+                          DebugMessageAudio("[TTS] Set AUDIO_SOURCE event", _AUDIO_TTS_EVENT_OSD_AUDIO_SOURCE);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_AUDIO_SOURCE;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_AUDIO_SOURCE;
+              
+                          // End command: Data_Length = 0x0000
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 22  
+
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO_MODE:
+              
+                          DebugMessageAudio("[TTS] Set AUDIO_MODE event", _AUDIO_TTS_EVENT_OSD_AUDIO_MODE);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_SOUND_MODE;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_SOUND_MODE;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO_TTS:
+              
+                          DebugMessageAudio("[TTS] Set AUDIO_TTS event", _AUDIO_TTS_EVENT_OSD_AUDIO_TTS);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_TTS;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_TTS;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO_TTS_SUPPORT:
+              
+                          DebugMessageAudio("[TTS] Set AUDIO_TTS_SUPPORT event", _AUDIO_TTS_EVENT_OSD_AUDIO_TTS_SUPPORT)
+             -;
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_TTS_SUPPORT;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_TTS_SUPPORT;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO_TTS_TEXT_VOLUME:
+              
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 23  
+
+                          DebugMessageAudio("[TTS] Set AUDIO_TTS_TEXT_VOLUME event", _AUDIO_TTS_EVENT_OSD_AUDIO_TTS_TEXT
+             -_VOLUME);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_TTS_TEXT_VOLUME;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_TTS_TEXT_VOLUME;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_AUDIO_TTS_MUSIC_VOLUME:
+              
+                          DebugMessageAudio("[TTS] Set AUDIO_TTS_MUSIC_VOLUME event", _AUDIO_TTS_EVENT_OSD_AUDIO_TTS_MUS
+             -IC_VOLUME);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_TTS_MUSIC_VOLUME;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_TTS_MUSIC_VOLUME;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_AUTO:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_AUTO event", _AUDIO_TTS_EVENT_OSD_INPUT_AUTO);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_AUTO_SEARCH;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_AUTO_SEARCH;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_A0:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_A0 event", _AUDIO_TTS_EVENT_OSD_INPUT_A0);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_ANALOG_PORT_0;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_ANALOG_PORT_0;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_VGA_PORT;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_VGA_PORT;
+              
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 24  
+
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_D0:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_D0 event", _AUDIO_TTS_EVENT_OSD_INPUT_D0);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_0;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DIGITAL_PORT_0;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_DP_PORT;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_DP_PORT;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_D1:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_D1 event", _AUDIO_TTS_EVENT_OSD_INPUT_D1);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_1;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DIGITAL_PORT_1;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_HDMI_PORT;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_HDMI_PORT;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_D2:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_D2 event", _AUDIO_TTS_EVENT_OSD_INPUT_D2);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_2;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DIGITAL_PORT_2;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_OFF;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_OFF;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 25  
+
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_D3:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_D3 event", _AUDIO_TTS_EVENT_OSD_INPUT_D3);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_3;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DIGITAL_PORT_3;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_OFF;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_OFF;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_D4:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_D4 event", _AUDIO_TTS_EVENT_OSD_INPUT_D4);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_4;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DIGITAL_PORT_4;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_OFF;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_OFF;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_D5:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_D5 event", _AUDIO_TTS_EVENT_OSD_INPUT_D5);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_5;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DIGITAL_PORT_5;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_OFF;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_OFF;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 26  
+
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_OSD_INPUT_D6:
+              
+                          DebugMessageAudio("[TTS] Set INPUT_D6 event", _AUDIO_TTS_EVENT_OSD_INPUT_D6);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_DIGITAL_PORT_6;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_DIGITAL_PORT_6;
+              
+                          pstTtsSegment[1].ulDataAddress = _TTS_ADDRESS_OFF;
+                          pstTtsSegment[1].usDataLength = _TTS_LENGTH_OFF;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[2].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 2, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      case _AUDIO_TTS_EVENT_NONE:
+              
+                          DebugMessageAudio("[TTS] Set NONE event", _AUDIO_TTS_EVENT_NONE);
+              
+                          // Set TTS Data Info
+                          pstTtsSegment[0].ulDataAddress = _TTS_ADDRESS_ERROR;
+                          pstTtsSegment[0].usDataLength = _TTS_LENGTH_ERROR;
+              
+                          // End command: Data_Length = 0x0000
+                          pstTtsSegment[1].usDataLength = 0x0000;
+              
+                          // Active TTS Data Play
+                          UserCommonAudioTtsSetPlaybackActiveEvent(pstTtsSegment, 1, UserInterfaceAudioGetTtsPlayTextVol
+             -ume(), UserInterfaceAudioGetTtsPlayAudioVolume());
+              
+                          break;
+              
+                      default:
+                          break;
+                  }
+              }
+              #endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+1525          
+1526          //--------------------------------------------------
+1527          // Description  : Mute/Unmute Aduio Volume
+1528          // Input Value  : bMute
+1529          // Output Value : None
+1530          //--------------------------------------------------
+1531          void UserAdjustAudioMuteSwitch(void)
+1532          {
+1533   1          SysAudioMuteProc(UserInterfaceGetAudioMuteStatus());
+1534   1      }
+1535          
+1536          //--------------------------------------------------
+1537          // Description  : Adjust Aduio Volume
+1538          // Input Value  : ucVolume
+1539          // Output Value : Node
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 27  
+
+1540          //--------------------------------------------------
+1541          void UserAdjustAudioVolume(BYTE ucVolume)
+1542          {
+1543   1              PCB_AUDIO_VOLUME_PWM(UserCommonAdjustPercentToRealValue(_DEF_VOLUME_PWM, 255, 0, 128));
+1544   1          ScalerAudioDigitalAdjustVolume(UserAdjustAudioVolumeMapping(ucVolume));
+1545   1      }
+1546          
+1547          //--------------------------------------------------
+1548          // Description  : OSD Volume Mapping to Real Value
+1549          // Input Value  : usVolume
+1550          // Output Value : usVolume
+1551          //--------------------------------------------------
+1552          WORD UserAdjustAudioVolumeMapping(BYTE ucVolume)
+1553          {
+1554   1      #if(_LINE_IN_SUPPORT == _ON)
+1555   1          if(UserInterfaceGetAudioSource() == _LINE_IN_AUDIO)
+1556   1          {
+1557   2              return (UserCommonAdjustPercentToRealValue(ucVolume, _LINE_IN_VOLUME_MAX, _LINE_IN_VOLUME_MIN, _LI
+             -NE_IN_VOLUME_CENTER));
+1558   2          }
+1559   1          else
+1560   1      #endif // End of #if(_LINE_IN_SUPPORT == _ON)
+1561   1          {
+1562   2              return (UserCommonAdjustPercentToRealValue(ucVolume, _DIGITAL_VOLUME_MAX, _DIGITAL_VOLUME_MIN, _DI
+             -GITAL_VOLUME_CENTER));
+1563   2          }
+1564   1      }
+1565          #endif // End of #if(_AUDIO_SUPPORT == _ON)
+1566          
+1567          #if(_DCC_FUNCTION == _ON)
+1568          //--------------------------------------------------
+1569          // Description  : Set DCC Table
+1570          // Input Value  : Request DCC Table
+1571          // Output Value : None
+1572          //--------------------------------------------------
+1573          void UserAdjustDCC(BYTE ucColorEffect)
+1574          {
+1575   1              //DebugMessageOsd("1.ucColorEffect",ucColorEffect);
+1576   1      
+1577   1          //if((ucColorEffect >= _COLOREFFECT_GAME) && (ucColorEffect < _COLOREFFECT_USER))
+1578   1          {
+1579   2              ScalerColorDCCAdjust(tDCC_TABLE[ucColorEffect], GET_CURRENT_BANK_NUMBER());
+1580   2          }
+1581   1      }
+1582          #endif // End of #if(_DCC_FUNCTION == _ON)
+1583          
+1584          
+1585          #if(_ICM_SUPPORT == _ON)
+1586          //--------------------------------------------------
+1587          // Description  : Set ICM parameter
+1588          // Input Value  : Adjust Option
+1589          // Output Value : None
+1590          //--------------------------------------------------
+1591          void UserAdjustICM(BYTE ucColorEffect)
+1592          {
+1593   1          if((ucColorEffect >= _COLOREFFECT_GAME) && (ucColorEffect < _COLOREFFECT_USER))
+1594   1          {
+1595   2              ScalerColorICMLoadTable(tICM_TABLE[ucColorEffect], GET_CURRENT_BANK_NUMBER());
+1596   2          }
+1597   1      }
+1598          #endif // End of #if(_ICM_SUPPORT == _ON)
+1599          
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 28  
+
+1600          #if(_SCM_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Set SCM parameter
+              // Input Value  : Adjust Option
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAdjustSCM(BYTE ucColorEffect)
+              {
+                  if((ucColorEffect >= _COLOREFFECT_GAME) && (ucColorEffect < _COLOREFFECT_USER))
+                  {
+                      ScalerColorSCMLoadTable(tSCM_TABLE[ucColorEffect], GET_CURRENT_BANK_NUMBER());
+                  }
+              }
+              #endif // End of #if(_SCM_SUPPORT == _ON)
+1614          
+1615          #if(_VIEWMODE_SUPPORT == _ON)
+1616          void UserAdjustViewModeType(BYTE ucViewModeType)
+1617          {
+1618   1              switch(ucViewModeType)
+1619   1              {
+1620   2                      case _VM_STANDARD:
+1621   2                      case _VM_GAME:
+1622   2                      case _VM_MOVIE:
+1623   2                      case _VM_WEB:
+1624   2                      case _VM_TEXT:
+1625   2      #if(_DEF_VIEWMODE_MAC)
+1626   2                      case _VM_MAC:
+1627   2      #endif
+1628   2                  SET_OSD_SATURATION(_DEFAULT_SATURATION);
+1629   2                              
+1630   2      #if 0//(_DEF_GAMMA_TOOL_TEST==_OFF)
+                           if(ucViewModeType == _VM_MOVIE)
+                           {
+                              UserCommonAdjustGlobalHueSat(((SWORD)_DEFAULT_HUE - (SWORD)GET_OSD_HUE()), ((WORD)GET_OSD_
+             -SATURATION() * 60) / 100);
+                           }
+                           else
+              #endif
+1637   2                   {
+1638   3                      UserCommonAdjustGlobalHueSat(((SWORD)_DEFAULT_HUE - (SWORD)GET_OSD_HUE()), GET_OSD_SATURAT
+             -ION());
+1639   3                   }
+1640   2                       
+1641   2                  //ScalerColorSRGBEnable(_ON);
+1642   2                              break;
+1643   2                              
+1644   2                      case _VM_MONO:
+1645   2                              
+1646   2      #if(_HDR10_SUPPORT == _ON)
+                          SET_OSD_HDR_MODE(_HDR10_MODE_OFF);
+              #endif
+1649   2                  SET_OSD_SATURATION(_SATURATION_MIN);
+1650   2                              RTDNVRamSaveOSDData();
+1651   2                  UserCommonAdjustGlobalHueSat(((SWORD)_DEFAULT_HUE - (SWORD)GET_OSD_HUE()), GET_OSD_SATURATION(
+             -));
+1652   2                  //ScalerColorSRGBEnable(_ON);
+1653   2                              break;
+1654   2      
+1655   2      
+1656   2                      default:
+1657   2                              break;
+1658   2              }
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 29  
+
+1659   1      
+1660   1              UserCommonAdjustSharpness(SysSourceGetInputPort());
+1661   1              
+1662   1      #if(_GAMMA_FUNCTION == _ON)
+1663   1              // Adjust Gamma Table
+1664   1              if(GET_OSD_PCM_STATUS() != _PCM_OSD_NATIVE)
+1665   1              {
+1666   2                      OsdFuncColorPcmAdjust();
+1667   2              }
+1668   1              else
+1669   1              {
+1670   2                      UserAdjustGamma(GET_OSD_GAMMA());                                        
+1671   2                      ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+1672   2                      UserCommonAdjustGammaRegionEnable(_FUNCTION_ON);
+1673   2              }
+1674   1      
+1675   1      #endif
+1676   1      
+1677   1      #if(_FREESYNC_SUPPORT == _ON)                           
+1678   1                      if(bFreeSyncPreStatus != GET_OSD_FREE_SYNC_STATUS())
+1679   1                      {
+1680   2      
+1681   2                              bFreeSyncPreStatus = GET_OSD_FREE_SYNC_STATUS();
+1682   2                              
+1683   2                  UserCommonInterfaceFreeSyncSupportSwitch();
+1684   2      
+1685   2                      #if 0//(_SMARTSYNC_SUPPORT == _ON)
+              
+                              if((GET_INPUT_TIMING_VFREQ() < 850) && (GET_OSD_SMARTSYNC() == _ON) && (GET_OSD_FREE_SYNC_STATUS() == _O
+             -FF))
+                              {
+                                      SET_OSD_SMARTSYNC(_OFF);
+                                      SET_OSD_LOW_LAG_STATUS(GET_BACKUP_LOW_LAG_STATUS());
+                               DebugMessageSystem("###999GET_OSD_LOW_LAG_STATUS###",GET_OSD_LOW_LAG_STATUS());
+              
+                                      
+                                      SET_OSD_OD_MODE(GET_BACKUP_OD_MODE());
+                                      SET_OSD_DCR_STATUS(GET_BACKUP_DCR_STATUS());
+              
+                                      RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+                              }
+              
+                              #endif
+1701   2              }
+1702   1      #endif
+1703   1      
+1704   1      }
+1705          #endif
+1706          
+1707          
+1708          
+1709          
+1710          #if((_DCC_FUNCTION == _ON) || (_ICM_SUPPORT == _ON) || (_SCM_SUPPORT == _ON) || (_SIX_COLOR_SUPPORT == _ON
+             -))
+1711          //--------------------------------------------------
+1712          // Description  : Set UltraVivid Settings
+1713          // Input Value  : None
+1714          // Output Value : None
+1715          //--------------------------------------------------
+1716          
+1717          
+1718          #if(_ADVANCED_IMAGE_SUPPORT == _ON)
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 30  
+
+1719          //--------------------------------------------------
+1720          // Description  :
+1721          // Input Value  : None
+1722          // Output Value : None
+1723          //--------------------------------------------------
+1724          void UserAdjustColorEffectMode(void)
+1725          {
+1726   1              BYTE ucIndex = 0;
+1727   1      
+1728   1              ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+1729   1              
+1730   1              ucIndex = (GET_OSD_BLACKSTABLE() * 2) + 1;
+1731   1               
+1732   1              #if(_DCC_FUNCTION == _ON)
+1733   1              ScalerColorDCCEnable(_FUNCTION_OFF);
+1734   1              
+1735   1                  #if(_DEF_CT_SRGB_SUPPIRT == _ON)
+1736   1                 if((GET_COLOR_TEMP_TYPE() == _CT_SRGB)&&(GET_OSD_BLACKSTABLE() != _BLK_STABLE_DEFAULT))
+1737   1                      {
+1738   2                              SET_COLOR_TEMP_TYPE(_COLORTEMP_DEFAULT);
+1739   2                              RTDNVRamSaveOSDData();
+1740   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1741   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1742   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1743   2                      }
+1744   1              #endif
+1745   1      
+1746   1              if(GET_OSD_BLACKSTABLE() != _BLK_STABLE_DEFAULT)
+1747   1      //      if(GET_OSD_BLACKSTABLE() > 0)
+1748   1              {
+1749   2                      UserAdjustDCC(ucIndex);
+1750   2      
+1751   2                      ScalerColorDCCEnable(_FUNCTION_ON);
+1752   2              }
+1753   1      
+1754   1              #endif
+1755   1      }
+1756          
+1757          #else
+              
+              void UserAdjustColorEffectMode(void)
+              {
+                  BYTE ucIndex = 0;
+                  BYTE ucBackupSixColor = 0;
+                  BYTE ucBackupHue = 0;
+                  BYTE ucBackupSaturation = 0;
+              
+                  ucBackupSixColor = GET_OSD_SIX_COLOR();
+                  ucBackupHue = GET_OSD_SIX_COLOR_HUE();
+                  ucBackupSaturation = GET_OSD_SIX_COLOR_SATURATION();
+              
+                  switch(GET_OSD_COLOR_EFFECT())
+                  {
+                      case _COLOREFFECT_STANDARD:
+                          ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+              #if(_DCC_FUNCTION == _ON)
+                          ScalerColorDCCEnable(_FUNCTION_OFF);
+              #endif
+              
+              #if(_ICM_SUPPORT == _ON)
+                          ScalerColorICMEnable(_FUNCTION_OFF);
+              #endif
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 31  
+
+                          break;
+              
+                      case _COLOREFFECT_USER:
+                          ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+              #if(_DCC_FUNCTION == _ON)
+                          ScalerColorDCCEnable(_FUNCTION_OFF);
+              #endif
+              
+              #if(_ICM_SUPPORT == _ON)
+                          ScalerColorICMEnable(_FUNCTION_OFF);
+              #endif
+              
+              #if(_SIX_COLOR_SUPPORT == _ON)
+                          for(ucIndex = 0; ucIndex < 6; ucIndex++)
+                          {
+                              SET_OSD_SIX_COLOR(ucIndex);
+                              OsdDisplaySixColorGetOneColor(ucIndex);
+                              ScalerColorSixColorAdjust(ucIndex, GET_OSD_SIX_COLOR_HUE(), GET_OSD_SIX_COLOR_SATURATION()
+             -);
+                          }
+              
+                          ScalerColorSixColorInitial();
+              #endif
+                          break;
+              
+                      case _COLOREFFECT_MOVIE:
+                      case _COLOREFFECT_GAME:
+                      case _COLOREFFECT_PHOTO:
+                      case _COLOREFFECT_VIVID:
+                          ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+              #if(_DCC_FUNCTION == _ON)
+                          ScalerColorDCCEnable(_FUNCTION_OFF);
+              #endif
+              
+              #if(_ICM_SUPPORT == _ON)
+                          ScalerColorICMEnable(_FUNCTION_OFF);
+              #endif
+              
+              #if(_DCC_FUNCTION == _ON)
+                          UserAdjustDCC(GET_OSD_COLOR_EFFECT());
+              #endif
+              
+              // Adjust SCM Table, Should before ICM Adjust
+              #if(_SCM_SUPPORT == _ON)
+                          UserAdjustSCM(GET_OSD_COLOR_EFFECT());
+              #endif
+              
+              #if(_ICM_SUPPORT == _ON)
+                          UserAdjustICM(GET_OSD_COLOR_EFFECT());
+              #endif
+              
+              
+              #if(_DCC_FUNCTION == _ON)
+                          ScalerColorDCCEnable(_FUNCTION_ON);
+              #endif
+              
+              #if(_ICM_SUPPORT == _ON)
+                          ScalerColorICMEnable(_FUNCTION_ON);
+              #endif
+                          break;
+              
+                      default:
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 32  
+
+                          break;
+                  }
+              
+                  SET_OSD_SIX_COLOR(ucBackupSixColor);
+                  SET_OSD_SIX_COLOR_HUE(ucBackupHue);
+                  SET_OSD_SIX_COLOR_SATURATION(ucBackupSaturation);
+              }
+              #endif // End of #if(_SIX_COLOR_SUPPORT == _ON)
+1850          
+1851          #endif // End of #if(_SIX_COLOR_SUPPORT == _ON)
+1852          
+1853          #if(_CONTRAST_SUPPORT == _ON)
+1854          //--------------------------------------------------
+1855          // Description  : User Adjust Contrast
+1856          // Input Value  : 12 bit input, old 8 bit contrast input value must left shift 4 bit
+1857          //                0 (00h) ~ 1(800h) ~  2(FFFh)
+1858          // Output Value : void
+1859          //--------------------------------------------------
+1860          // void UserAdjustContrast(WORD usContrast)
+1861          // {
+1862          // #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+1863          //     WORD pusData[6] = {0};
+1864          
+1865          // #if(_CTS_TYPE == _CTS_GEN_1_12BIT)
+1866          //     pusData[3] = 0x800;
+1867          //     pusData[4] = 0x800;
+1868          //     pusData[5] = 0x800;
+1869          // #else
+1870          //     pusData[3] = 0x80;
+1871          //     pusData[4] = 0x80;
+1872          //     pusData[5] = 0x80;
+1873          // #endif
+1874          
+1875          // #else
+1876          //     WORD pusData[3] = {0};
+1877          // #endif
+1878          
+1879          // #if(_CTS_TYPE == _CTS_GEN_1_12BIT)
+1880          //     pusData[0] = (WORD)(((DWORD)g_stColorProcData.usColorTempR * usContrast / 2048) > 4095) ? 4095 : (W
+             -ORD)((DWORD)g_stColorProcData.usColorTempR * usContrast / 2048);
+1881          //     pusData[1] = (WORD)(((DWORD)g_stColorProcData.usColorTempG * usContrast / 2048) > 4095) ? 4095 : (W
+             -ORD)((DWORD)g_stColorProcData.usColorTempG * usContrast / 2048);
+1882          //     pusData[2] = (WORD)(((DWORD)g_stColorProcData.usColorTempB * usContrast / 2048) > 4095) ? 4095 : (W
+             -ORD)((DWORD)g_stColorProcData.usColorTempB * usContrast / 2048);
+1883          
+1884          //     if(_PANEL_DISP_BIT_MODE == _PANEL_DISP_30_BIT)
+1885          //     {
+1886          //         // 10-bit Panel
+1887          //         pusData[0] = UserCommonAdjust10bitPanelCompensate(pusData[0]);
+1888          //         pusData[1] = UserCommonAdjust10bitPanelCompensate(pusData[1]);
+1889          //         pusData[2] = UserCommonAdjust10bitPanelCompensate(pusData[2]);
+1890          //     }
+1891          // #if(_CONTRAST_6BIT_PANEL_COMPENSATE == _ON)
+1892          //     else if(_PANEL_DISP_BIT_MODE == _PANEL_DISP_18_BIT)
+1893          //     {
+1894          // #if(_GAMMA_FUNCTION == _ON)
+1895          //         if(GET_OSD_GAMMA() == _GAMMA_OFF)
+1896          // #endif
+1897          //         {
+1898          //             pusData[0] = UserCommonAdjust6bitPanelCompensate(pusData[0]);
+1899          //             pusData[1] = UserCommonAdjust6bitPanelCompensate(pusData[1]);
+1900          //             pusData[2] = UserCommonAdjust6bitPanelCompensate(pusData[2]);
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 33  
+
+1901          //         }
+1902          //     }
+1903          // #endif
+1904          
+1905          // #else
+1906          //     pusData[0] = (WORD)(((DWORD)g_stColorProcData.usColorTempR * usContrast / 128) > 255) ? 255 : (WORD
+             -)((DWORD)g_stColorProcData.usColorTempR * usContrast / 128);
+1907          //     pusData[1] = (WORD)(((DWORD)g_stColorProcData.usColorTempG * usContrast / 128) > 255) ? 255 : (WORD
+             -)((DWORD)g_stColorProcData.usColorTempG * usContrast / 128);
+1908          //     pusData[2] = (WORD)(((DWORD)g_stColorProcData.usColorTempB * usContrast / 128) > 255) ? 255 : (WORD
+             -)((DWORD)g_stColorProcData.usColorTempB * usContrast / 128);
+1909          
+1910          // #if(_CONTRAST_6BIT_PANEL_COMPENSATE == _ON)
+1911          //     if(_PANEL_DISP_BIT_MODE == _PANEL_DISP_18_BIT)
+1912          //     {
+1913          // #if(_GAMMA_FUNCTION == _ON)
+1914          //         if(GET_OSD_GAMMA() == _GAMMA_OFF)
+1915          // #endif
+1916          //         {
+1917          //             pusData[0] = UserCommonAdjust6bitPanelCompensate(pusData[0]);
+1918          //             pusData[1] = UserCommonAdjust6bitPanelCompensate(pusData[1]);
+1919          //             pusData[2] = UserCommonAdjust6bitPanelCompensate(pusData[2]);
+1920          //         }
+1921          //     }
+1922          // #endif
+1923          // #endif
+1924          
+1925          //     ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+1926          
+1927          // #if(_CONTRAST_BY_SRGB_SUPPORT == _ON)
+1928          
+1929          //     pusData[0] = pusData[0] * 4;
+1930          //     pusData[1] = pusData[1] * 4;
+1931          //     pusData[2] = pusData[2] * 4;
+1932          //     UserCommonAdjustContrastBysRGB(pusData);
+1933          
+1934          // #else
+1935          
+1936          // #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+1937          //     if(GET_OSD_HLWIN_TYPE() == _HL_WIN_OFF)
+1938          //     {
+1939          //         ScalerColorContrastAdjust(_CONTRAST_COEF_A, pusData);
+1940          //         ScalerColorContrastAdjust(_CONTRAST_COEF_B, &pusData[3]);
+1941          //     }
+1942          //     else
+1943          //     {
+1944          //         ScalerColorContrastAdjust(_CONTRAST_COEF_B, pusData);
+1945          //         ScalerColorContrastAdjust(_CONTRAST_COEF_A, &pusData[3]);
+1946          //     }
+1947          // #else
+1948          //     ScalerColorContrastAdjust(_CONTRAST_COEF_A, pusData);
+1949          // #endif
+1950          
+1951          //     ScalerColorContrastEnable(_FUNCTION_ON);
+1952          // #endif
+1953          
+1954          // }
+1955          
+1956          /*
+1957          WORD UserAdjustContrastDataConvert(WORD usColorProcData, WORD usContrast)
+1958          {
+1959              BYTE ucTemp = 0;
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 34  
+
+1960              BYTE ucConMax = 0;
+1961              WORD usValue = 0;
+1962          
+1963              if(SysSourceGetSourceType() == _SOURCE_VGA)
+1964              {
+1965                  ucConMax = 100 + _MAX_CONTRAST_RATIO_VGA;
+1966              }
+1967              else
+1968              {
+1969                  ucConMax = 100 + _MAX_CONTRAST_RATIO;
+1970              }
+1971          
+1972              if(usColorProcData > ucConMax)
+1973              {
+1974                   return ucConMax;
+1975              }
+1976              
+1977              if(_COLOR_MAX > ucConMax)
+1978              {
+1979                   ucTemp = 0;
+1980              }
+1981              else
+1982              {
+1983                   ucTemp = ucConMax - _COLOR_MAX;
+1984              }
+1985              
+1986              if(usContrast >= _CONTRAST_DEFAULT)
+1987              {
+1988                          if(GET_COLOR_TEMP_TYPE() == _CT_USER)
+1989                          {
+1990                              usValue = (((((DWORD)usColorProcData)*ucTemp) * (usContrast - _CONTRAST_DEFAULT) /_COLOR_MAX / (_CON
+             -TRAST_MAX-_CONTRAST_DEFAULT)) + usColorProcData);
+1991                          }
+1992                          else
+1993                          {
+1994                              usValue = ((DWORD)(ucConMax - usColorProcData)  * (usContrast - _CONTRAST_DEFAULT)/ (_DEF_CONTRAST_R
+             -ATIO - _CONTRAST_DEFAULT) + usColorProcData);
+1995                          }
+1996              }
+1997              else
+1998              {
+1999                   usValue = (((DWORD)usColorProcData)*CONTRAST_RATIO_LO(usContrast)/100);
+2000              }
+2001          
+2002          #if 0//(_SPECIAL_CONTRAST_SUPPORT == _ON)    
+2003              if(GET_OSD_BACKLIGHT() <= _BACKLIGHT_THRESHOLD)
+2004              {
+2005                  ucConMax = tConTable[GET_OSD_BACKLIGHT()];
+2006                          
+2007                  if(ucConMax < usValue)
+2008                  {
+2009                      usValue = ucConMax;
+2010                  }
+2011              }
+2012          #endif
+2013          
+2014          #if 0//(_CTS_TYPE == _CTS_GEN_1_12BIT)
+2015                  return usValue<<4;
+2016          #else
+2017                  return usValue;
+2018          #endif
+2019          
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 35  
+
+2020          }
+2021          */
+2022          
+2023          
+2024          void UserAdjustContrast(WORD usContrast)
+2025          {
+2026   1      #if(_DEF_LOW_BLUE_DATA)
+                      BYTE i = 0;
+              #endif
+2029   1              BYTE cnt = 0;
+2030   1      
+2031   1      
+2032   1      #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+2033   1          WORD pusData[6] = {0};
+2034   1      
+2035   1      #if(_CTS_TYPE == _CTS_GEN_1_12BIT)
+                  pusData[3] = 0x800;
+                  pusData[4] = 0x800;
+                  pusData[5] = 0x800;
+              #else
+2040   1          pusData[3] = 0x80;
+2041   1          pusData[4] = 0x80;
+2042   1          pusData[5] = 0x80;
+2043   1      #endif
+2044   1      
+2045   1      #else
+                  WORD pusData[6] = {0};
+              #endif
+2048   1      
+2049   1      
+2050   1      
+2051   1      
+2052   1              if(GET_COLOR_TEMP_TYPE() == _CT_SRGB)
+2053   1              {
+2054   2                      usContrast = _SRGB_CONTRAST;
+2055   2              }
+2056   1              usCurrentContrast = usContrast;
+2057   1      
+2058   1      
+2059   1              //usContrast = UserCommonAdjustPercentToRealValue(usContrast, _CONTRAST_MAX, _CONTRAST_MIN, _CONTRAST_CEN
+             -TER);
+2060   1      
+2061   1              //DebugMessageOsd("1.UserAdjustContrast",GET_OSD_LOW_BLUE());
+2062   1      
+2063   1      
+2064   1      #if 0//(_CTS_TYPE == _CTS_GEN_1_12BIT)
+                  pusData[0] = (WORD)(((DWORD)g_stColorProcData.usColorTempR * usContrast / 2048) > 4095) ? 4095 : (WORD
+             -)((DWORD)g_stColorProcData.usColorTempR * usContrast / 2048);
+                  pusData[1] = (WORD)(((DWORD)g_stColorProcData.usColorTempG * usContrast / 2048) > 4095) ? 4095 : (WORD
+             -)((DWORD)g_stColorProcData.usColorTempG * usContrast / 2048);
+                  pusData[2] = (WORD)(((DWORD)g_stColorProcData.usColorTempB * usContrast / 2048) > 4095) ? 4095 : (WORD
+             -)((DWORD)g_stColorProcData.usColorTempB * usContrast / 2048);
+              
+                  if(_PANEL_DISP_BIT_MODE == _PANEL_DISP_30_BIT)
+                  {
+                      // 10-bit Panel
+                      pusData[0] = UserCommonAdjust10bitPanelCompensate(pusData[0]);
+                      pusData[1] = UserCommonAdjust10bitPanelCompensate(pusData[1]);
+                      pusData[2] = UserCommonAdjust10bitPanelCompensate(pusData[2]);
+                  }
+                      pusData[2] = pusData[2] - (pusData[2]/2 /100*GET_OSD_LOW_BLUE());
+              
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 36  
+
+              #else
+2079   1      
+2080   1      #if(_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+2081   1          if(GET_OSD_LOW_BLUE() != 0)
+2082   1          {                   
+2083   2              #if(_DEF_CT_SRGB_SUPPIRT == _ON)
+2084   2                 if(GET_COLOR_TEMP_TYPE() == _CT_SRGB)
+2085   2                      {
+2086   3                              SET_COLOR_TEMP_TYPE(_COLORTEMP_DEFAULT);
+2087   3                              RTDNVRamSaveOSDData();
+2088   3                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+2089   3                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+2090   3                      }
+2091   2              #endif
+2092   2      
+2093   2              pusData[3] = g_uc4500KColorTempR;
+2094   2              pusData[4] = g_uc4500KColorTempG;
+2095   2              pusData[5] = g_uc4500KColorTempB;
+2096   2      
+2097   2              cnt = GET_OSD_LOW_BLUE();
+2098   2      
+2099   2              if((WORD)g_stColorProcData.usColorTempR >= pusData[3])
+2100   2              {
+2101   3                  pusData[0] = (WORD)g_stColorProcData.usColorTempR - (WORD)((cnt)*abs((WORD)g_stColorProcData.u
+             -sColorTempR-pusData[3])/100);
+2102   3              }
+2103   2              else
+2104   2              {
+2105   3                  pusData[0] = (WORD)g_stColorProcData.usColorTempR + (WORD)((cnt)*abs((WORD)g_stColorProcData.u
+             -sColorTempR-pusData[3])/100);
+2106   3              }
+2107   2      
+2108   2              if((WORD)g_stColorProcData.usColorTempG >= pusData[4])
+2109   2              {
+2110   3                  pusData[1] = (WORD)g_stColorProcData.usColorTempG - (WORD)((cnt)*abs((WORD)g_stColorProcData.u
+             -sColorTempG-pusData[4])/100);
+2111   3              }
+2112   2              else
+2113   2              {
+2114   3                  pusData[1] = (WORD)g_stColorProcData.usColorTempG + (WORD)((cnt)*abs((WORD)g_stColorProcData.u
+             -sColorTempG-pusData[4])/100);
+2115   3              }
+2116   2      
+2117   2              if((WORD)g_stColorProcData.usColorTempB >= pusData[5])
+2118   2              {
+2119   3                  pusData[2] = (WORD)g_stColorProcData.usColorTempB - (WORD)((cnt)*abs((WORD)g_stColorProcData.u
+             -sColorTempB-pusData[5])/100);
+2120   3              }
+2121   2              else
+2122   2              {
+2123   3                  pusData[2] = (WORD)g_stColorProcData.usColorTempB + (WORD)((cnt)*abs((WORD)g_stColorProcData.u
+             -sColorTempB-pusData[5])/100);
+2124   3              }
+2125   2      
+2126   2      
+2127   2      
+2128   2                      if(usContrast >= _CONTRAST_DEFAULT)
+2129   2                      {
+2130   3                              pusData[0] = (((DWORD)pusData[0])*CONTRAST_RATIO_HI(usContrast)/100);
+2131   3                              pusData[1] = (((DWORD)pusData[1])*CONTRAST_RATIO_HI(usContrast)/100);
+2132   3                              pusData[2] = (((DWORD)pusData[2])*CONTRAST_RATIO_HI(usContrast)/100);
+2133   3                      }
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 37  
+
+2134   2                      else
+2135   2                      {
+2136   3                              pusData[0] = (((DWORD)pusData[0])*CONTRAST_RATIO_LO(usContrast)/100);
+2137   3                              pusData[1] = (((DWORD)pusData[1])*CONTRAST_RATIO_LO(usContrast)/100);
+2138   3                              pusData[2] = (((DWORD)pusData[2])*CONTRAST_RATIO_LO(usContrast)/100);
+2139   3                      }
+2140   2                      /*
+2141   2                      for(cnt = 0; cnt < 3; cnt++)
+2142   2                      {
+2143   2                          pusData[cnt] = UserAdjustContrastDataConvert(pusData[cnt], usContrast);
+2144   2                      }
+2145   2                      */
+2146   2          }
+2147   1              else
+2148   1      #endif
+2149   1          {           
+2150   2          /*
+2151   2      #if(_CTS_TYPE == _CTS_GEN_1_12BIT)      
+2152   2                      pusData[0] = UserAdjustContrastDataConvert(g_stColorProcData.usColorTempR>>4, usContrast);
+2153   2                      pusData[1] = UserAdjustContrastDataConvert(g_stColorProcData.usColorTempG>>4, usContrast);
+2154   2                      pusData[2] = UserAdjustContrastDataConvert(g_stColorProcData.usColorTempB>>4, usContrast);
+2155   2      #else           
+2156   2                      pusData[0] = UserAdjustContrastDataConvert(g_stColorProcData.usColorTempR, usContrast);
+2157   2                      pusData[1] = UserAdjustContrastDataConvert(g_stColorProcData.usColorTempG, usContrast);
+2158   2                      pusData[2] = UserAdjustContrastDataConvert(g_stColorProcData.usColorTempB, usContrast);
+2159   2      #endif
+2160   2      */
+2161   2              //pusData[0] = (WORD)(((DWORD)g_stColorProcData.usColorTempR * usContrast / 128) > 255) ? 255 : (W
+             -ORD)((DWORD)g_stColorProcData.usColorTempR * usContrast / 128);
+2162   2              //pusData[1] = (WORD)(((DWORD)g_stColorProcData.usColorTempG * usContrast / 128) > 255) ? 255 : (W
+             -ORD)((DWORD)g_stColorProcData.usColorTempG * usContrast / 128);
+2163   2              //pusData[2] = (WORD)(((DWORD)g_stColorProcData.usColorTempB * usContrast / 128) > 255) ? 255 : (W
+             -ORD)((DWORD)g_stColorProcData.usColorTempB * usContrast / 128);
+2164   2      
+2165   2                      #if(_HDR10_SUPPORT == _ON)
+                              if((GET_OSD_HDR_MODE() != _HDR10_MODE_OFF)&&(g_stHDR10SaticMetadata.ucEOTF !=0))
+                              {
+                                      g_stColorProcData.usColorTempR = _CTUSER_RED;
+                                      g_stColorProcData.usColorTempG = _CTUSER_GREEN;
+                                      g_stColorProcData.usColorTempB = _CTUSER_BLUE;
+                              }
+                              #endif
+2173   2      
+2174   2      #if(_GAMUT_POST_PROC == _ON && _OCC_SUPPORT == _ON)
+                              if(0);
+                              
+              #if(_DEF_PCM_ADOBE_RGB == _ON)
+                              else if(GET_OSD_PCM_STATUS() == _PCM_OSD_ADOBE_RGB)
+                              {
+                                      g_stColorProcData.usColorTempR = _GAMUT_POST_ADOBE_RGB_R;
+                                      g_stColorProcData.usColorTempG = _GAMUT_POST_ADOBE_RGB_G;
+                                      g_stColorProcData.usColorTempB = _GAMUT_POST_ADOBE_RGB_B;
+                                      
+                              }
+              #endif
+                              else if(GET_OSD_PCM_STATUS() == _PCM_OSD_DCI_P3)
+                              {
+                                      g_stColorProcData.usColorTempR = _GAMUT_POST_DCI_P3_R;
+                                      g_stColorProcData.usColorTempG = _GAMUT_POST_DCI_P3_G;
+                                      g_stColorProcData.usColorTempB = _GAMUT_POST_DCI_P3_B;
+                                      
+                              }
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 38  
+
+                              else if(GET_OSD_PCM_STATUS() == _PCM_OSD_SRGB)
+                              {
+                                      g_stColorProcData.usColorTempR = _GAMUT_POST_SRGB_R;
+                                      g_stColorProcData.usColorTempG = _GAMUT_POST_SRGB_G;
+                                      g_stColorProcData.usColorTempB = _GAMUT_POST_SRGB_B;
+              
+                              }
+              #endif
+2201   2      
+2202   2                      //DebugMessageOsd("4.RRRRRRR11",g_stColorProcData.usColorTempR);
+2203   2                      //DebugMessageOsd("4.GGGGGGGG22",g_stColorProcData.usColorTempG);
+2204   2                      //DebugMessageOsd("4.BBBBBBBBB33",g_stColorProcData.usColorTempG);
+2205   2      
+2206   2      
+2207   2                      
+2208   2                      if(usContrast >= _CONTRAST_DEFAULT)
+2209   2                      {
+2210   3                              pusData[0] = (((DWORD)g_stColorProcData.usColorTempR)*CONTRAST_RATIO_HI(usContrast)/100);
+2211   3                              pusData[1] = (((DWORD)g_stColorProcData.usColorTempG)*CONTRAST_RATIO_HI(usContrast)/100);
+2212   3                              pusData[2] = (((DWORD)g_stColorProcData.usColorTempB)*CONTRAST_RATIO_HI(usContrast)/100);
+2213   3                      }
+2214   2                      else
+2215   2                      {
+2216   3                              pusData[0] = (((DWORD)g_stColorProcData.usColorTempR)*CONTRAST_RATIO_LO(usContrast)/100);
+2217   3                              pusData[1] = (((DWORD)g_stColorProcData.usColorTempG)*CONTRAST_RATIO_LO(usContrast)/100);
+2218   3                              pusData[2] = (((DWORD)g_stColorProcData.usColorTempB)*CONTRAST_RATIO_LO(usContrast)/100);
+2219   3                      }      
+2220   2          }
+2221   1      
+2222   1              pusData[0] =(pusData[0] >= 0xff ? 0xff : pusData[0] );
+2223   1              pusData[1] =(pusData[1] >= 0xff ? 0xff : pusData[1] );
+2224   1              pusData[2] =(pusData[2] >= 0xff ? 0xff : pusData[2] );
+2225   1      
+2226   1      #if(_CTS_TYPE == _CTS_GEN_1_12BIT)
+                      pusData[0] <<=4;
+                      pusData[1] <<=4;
+                      pusData[2] <<=4;
+              #endif
+2231   1      
+2232   1      #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+2233   1          pusData[3] = 0x800;
+2234   1          pusData[4] = 0x800;
+2235   1          pusData[5] = 0x800;
+2236   1      #else
+                      pusData[3] =(pusData[3] >= 0xff ? 0xff : pusData[3] );
+                      pusData[4] =(pusData[4] >= 0xff ? 0xff : pusData[4] );
+                      pusData[5] =(pusData[5] >= 0xff ? 0xff : pusData[5] );
+              
+                      #if(_CTS_TYPE == _CTS_GEN_1_12BIT)
+                      pusData[3] <<=4;
+                      pusData[4] <<=4;
+                      pusData[5] <<=4;
+                      #endif
+              
+              #endif
+2248   1      
+2249   1      #if(_PANEL_DISP_BIT_MODE == _PANEL_DISP_30_BIT) //10  bit Panel
+                  pusData[0] = UserCommonAdjust10bitPanelCompensate(pusData[0]);
+                  pusData[1] = UserCommonAdjust10bitPanelCompensate(pusData[1]);
+                  pusData[2] = UserCommonAdjust10bitPanelCompensate(pusData[2]);
+              #endif
+2254   1      
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 39  
+
+2255   1              //usContrastData[0] = pusData[0];
+2256   1              //usContrastData[1] = pusData[1];
+2257   1              //usContrastData[2] = pusData[2];
+2258   1      
+2259   1      
+2260   1      #endif
+2261   1      
+2262   1              ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+2263   1              
+2264   1      
+2265   1      #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+2266   1          if(GET_OSD_HLWIN_TYPE() == _HL_WIN_OFF)
+2267   1          {
+2268   2              ScalerColorContrastAdjust(_CONTRAST_COEF_A, pusData);
+2269   2              ScalerColorContrastAdjust(_CONTRAST_COEF_B, &pusData[3]);
+2270   2          }
+2271   1          else
+2272   1          {
+2273   2              ScalerColorContrastAdjust(_CONTRAST_COEF_B, pusData);
+2274   2              ScalerColorContrastAdjust(_CONTRAST_COEF_A, &pusData[3]);
+2275   2          }
+2276   1      #else
+                  ScalerColorContrastAdjust(_CONTRAST_COEF_A, pusData);
+              #endif
+2279   1      
+2280   1          ScalerColorContrastEnable(_FUNCTION_ON);
+2281   1      
+2282   1      }
+2283          
+2284          #endif
+2285          
+2286          #if(_BRIGHTNESS_SUPPORT == _ON)
+2287          //--------------------------------------------------
+2288          // Description  : User Adjust Brightness
+2289          // Input Value  : 10 bit input, old 8 bit brightness input value must left shift 2 bit
+2290          //                -2048(00h) ~ 0(200h) ~  +2044(3FFh)
+2291          // Output Value : void
+2292          //--------------------------------------------------
+2293          void UserAdjustBrightness(WORD usBrightness)
+2294          {
+2295   1      #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+2296   1          WORD pusData[6] = {0};
+2297   1      
+2298   1      #if(_BRI_TYPE == _BRI_GEN_1_10BIT)
+                  pusData[3] = 0x200;
+                  pusData[4] = 0x200;
+                  pusData[5] = 0x200;
+              #else
+2303   1          pusData[3] = 0x80;
+2304   1          pusData[4] = 0x80;
+2305   1          pusData[5] = 0x80;
+2306   1      #endif
+2307   1      
+2308   1      #else
+                  WORD pusData[3] = {0};
+              #endif
+2311   1      
+2312   1          pusData[0] = usBrightness;
+2313   1          pusData[1] = usBrightness;
+2314   1          pusData[2] = usBrightness;
+2315   1      
+2316   1      #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 40  
+
+2317   1          if(GET_OSD_HLWIN_TYPE() == _HL_WIN_OFF)
+2318   1          {
+2319   2              ScalerColorBrightnessAdjust(_BRIGHTNESS_COEF_A, pusData);
+2320   2              ScalerColorBrightnessAdjust(_BRIGHTNESS_COEF_B, &pusData[3]);
+2321   2          }
+2322   1          else
+2323   1          {
+2324   2              ScalerColorBrightnessAdjust(_BRIGHTNESS_COEF_B, pusData);
+2325   2              ScalerColorBrightnessAdjust(_BRIGHTNESS_COEF_A, &pusData[3]);
+2326   2          }
+2327   1      #else
+                  ScalerColorBrightnessAdjust(_BRIGHTNESS_COEF_A, pusData);
+              #endif
+2330   1      
+2331   1          ScalerColorBrightnessEnable(_FUNCTION_ON);
+2332   1      }
+2333          #endif
+2334          
+2335          
+2336          #if(_GLOBAL_HUE_SATURATION == _ON)
+2337          //--------------------------------------------------
+2338          // Description  : Adjust Global Hue Saturation
+2339          // Input Value  : Hue and Saturation
+2340          // Output Value : None
+2341          //--------------------------------------------------
+2342          void UserAdjustGlobalHueSat(SWORD shHue, WORD usSat)  // for OSD Adjust & Dianliang:  Display Off & ON
+2343          {
+2344   1      #if(_GLOBAL_COLOR_CONVERT_HUE_SATURATION_FUNCTION == _ON)
+                  if(GET_OSD_PCM_STATUS() != _PCM_OSD_NATIVE)
+                  {
+                      UserCommonAdjustColorConvertHueSat(_DEFAULT_HUE - shHue, usSat);
+                  }
+              #if(_OCC_PCM_GAMMA_SUPPORT == _ON)
+                  else if(GET_OSD_PCM_STATUS() == _PCM_OSD_NATIVE)
+                  {
+                      UserCommonAdjustColorConvertHueSat(_DEFAULT_HUE - shHue, usSat);
+                  }
+              #endif
+                  else
+              #endif
+2357   1          {
+2358   2      #if(_DEF_GAMMA_TOOL_TEST==_OFF)
+2359   2                  if(GET_OSD_VIEWMODE_TYPE() == _VM_MOVIE)
+2360   2                  {
+2361   3                      usSat = (usSat * 60) /100;
+2362   3                  }
+2363   2      #endif
+2364   2              UserCommonAdjustGlobalHueSat(_DEFAULT_HUE - shHue, usSat);
+2365   2          }
+2366   1      }
+2367          #endif  // Enf of #if(_GLOBAL_HUE_SATURATION == _ON)
+2368          
+2369          #if(_OD_SUPPORT == _ON)
+2370          extern void UserAdjustOverDrive(void);
+2371          
+2372          
+2373          //--------------------------------------------------
+2374          // Description  : Load OD LUT
+2375          // Input Value  : None
+2376          // Output Value : None
+2377          //--------------------------------------------------
+2378          void UserAdjustLoadODTable(void)
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 41  
+
+2379          {
+2380   1      
+2381   1      #if(_FREESYNC_SUPPORT == _ON)
+2382   1              if(ScalerSyncGetFREESYNCEnable() == _TRUE)
+2383   1              {
+2384   2                      ScalerODLoadLUT(tOD_FREESYNC_TABLE[0], GET_CURRENT_BANK_NUMBER(), _OD_LUT_MODE);
+2385   2              }
+2386   1              else
+2387   1      #endif
+2388   1              {
+2389   2                      ScalerODLoadLUT(tOD_TABLE[0], GET_CURRENT_BANK_NUMBER(), _OD_LUT_MODE);
+2390   2              }
+2391   1      
+2392   1      }
+2393          
+2394          
+2395          //--------------------------------------------------
+2396          // Description  : Load OD LUT
+2397          // Input Value  : None
+2398          // Output Value : None
+2399          //--------------------------------------------------
+2400          void UserAdjustOD(void)
+2401          {
+2402   1              BYTE tempItem = g_usAdjustValue;
+2403   1      
+2404   1              if(g_usBackupValue != tempItem )
+2405   1              {
+2406   2      
+2407   2                      SET_OSD_OD_STATUS(tempItem);
+2408   2                      g_usBackupValue = GET_OSD_OD_STATUS();
+2409   2                      SET_BACKUP_OD_MODE(GET_OSD_OD_STATUS());
+2410   2      
+2411   2                      UserAdjustOverDrive();
+2412   2                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_BRICON_MSG);
+2413   2              }
+2414   1      
+2415   1          
+2416   1      }
+2417          #endif // End of #if(_OD_SUPPORT == _ON)
+2418          
+2419          #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+2420          //--------------------------------------------------
+2421          // Description  : Adjust High Light Window
+2422          // Input Value  : HLWinType
+2423          // Output Value : None
+2424          //--------------------------------------------------
+2425          void UserAdjustHLWinType(BYTE ucHLWinType)
+2426          {
+2427   1          ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_HLWIN_TYPE5_MOVE);
+2428   1      
+2429   1          if(ucHLWinType == _HL_WIN_OFF)
+2430   1          {
+2431   2              return;
+2432   2          }
+2433   1      
+2434   1          if(GET_MDOMAIN_OUTPUT_HWIDTH() == _PANEL_DH_WIDTH)
+2435   1          {
+2436   2              g_usHLWinHPos = 0;
+2437   2          }
+2438   1          else
+2439   1          {
+2440   2              g_usHLWinHPos = (_PANEL_DH_WIDTH - GET_MDOMAIN_OUTPUT_HWIDTH()) / 2;
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 42  
+
+2441   2          }
+2442   1      
+2443   1          if(GET_MDOMAIN_OUTPUT_VHEIGHT() == _PANEL_DV_HEIGHT)
+2444   1          {
+2445   2              g_usHLWinVPos = 0;
+2446   2          }
+2447   1          else
+2448   1          {
+2449   2              g_usHLWinVPos = (_PANEL_DV_HEIGHT - GET_MDOMAIN_OUTPUT_VHEIGHT()) / 2;
+2450   2          }
+2451   1      
+2452   1          switch(ucHLWinType)
+2453   1          {
+2454   2              case _HL_WIN_1:
+2455   2      
+2456   2                  g_usHLWinHWidth = GET_MDOMAIN_OUTPUT_HWIDTH() - _HL_WIN_BORDER_SIZE;
+2457   2                  g_usHLWinVHeight = GET_MDOMAIN_OUTPUT_VHEIGHT() - _HL_WIN_BORDER_SIZE;
+2458   2      
+2459   2                  break;
+2460   2      
+2461   2              case _HL_WIN_2:
+2462   2      
+2463   2                  g_usHLWinHWidth = GET_MDOMAIN_OUTPUT_HWIDTH() / 2;
+2464   2                  g_usHLWinVHeight = GET_MDOMAIN_OUTPUT_VHEIGHT() - _HL_WIN_BORDER_SIZE;
+2465   2      
+2466   2                  break;
+2467   2      
+2468   2              case _HL_WIN_3:
+2469   2      
+2470   2                  g_usHLWinHWidth = GET_MDOMAIN_OUTPUT_HWIDTH() - _HL_WIN_BORDER_SIZE;
+2471   2                  g_usHLWinVHeight = GET_MDOMAIN_OUTPUT_VHEIGHT() / 2;
+2472   2      
+2473   2                  break;
+2474   2      
+2475   2              case _HL_WIN_4:
+2476   2      
+2477   2                  g_usHLWinHWidth = GET_MDOMAIN_OUTPUT_HWIDTH() / 2;
+2478   2                  g_usHLWinVHeight = GET_MDOMAIN_OUTPUT_VHEIGHT() / 2;
+2479   2                  g_usHLWinHPos = ((GET_MDOMAIN_OUTPUT_HWIDTH() - g_usHLWinHWidth) / 2) + ((_PANEL_DH_WIDTH - GE
+             -T_MDOMAIN_OUTPUT_HWIDTH()) / 2) - 1;
+2480   2                  g_usHLWinVPos = (GET_MDOMAIN_OUTPUT_VHEIGHT() - g_usHLWinVHeight) / 2 - 1;
+2481   2      
+2482   2                  break;
+2483   2      
+2484   2              case _HL_WIN_5:
+2485   2      
+2486   2                  g_usHLWinHWidth = GET_MDOMAIN_OUTPUT_HWIDTH() / 6;
+2487   2                  g_usHLWinVHeight = GET_MDOMAIN_OUTPUT_VHEIGHT() - _HL_WIN_BORDER_SIZE;
+2488   2                  g_usHLWinHPos = (GET_MDOMAIN_OUTPUT_HWIDTH() - g_usHLWinHWidth) / 2;
+2489   2      
+2490   2                  ScalerTimerActiveTimerEvent(_HLWIN_TYPE5_MOVE_TIME, _USER_TIMER_EVENT_HLWIN_TYPE5_MOVE);
+2491   2      
+2492   2                  break;
+2493   2      
+2494   2              default:
+2495   2      
+2496   2                  break;
+2497   2          }
+2498   1      
+2499   1          ScalerColorHLWAdjust(g_usHLWinHPos, g_usHLWinHWidth, g_usHLWinVPos, g_usHLWinVHeight, _DB_APPLY_NONE);
+2500   1      }
+2501          
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 43  
+
+2502          //--------------------------------------------------
+2503          // Description  : High Light Window Type5 Move
+2504          // Input Value  : None
+2505          // Output Value : None
+2506          //--------------------------------------------------
+2507          void UserAdjustHLWinType5Move(void)
+2508          {
+2509   1          WORD usNonFullScreenOffset = 0;
+2510   1      
+2511   1          if(GET_MDOMAIN_OUTPUT_HWIDTH() == _PANEL_DH_WIDTH)
+2512   1          {
+2513   2              // Full screen
+2514   2              usNonFullScreenOffset = 0;
+2515   2          }
+2516   1          else
+2517   1          {
+2518   2              // Non full screen
+2519   2              usNonFullScreenOffset = (_PANEL_DH_WIDTH - GET_MDOMAIN_OUTPUT_HWIDTH()) / 2;
+2520   2          }
+2521   1      
+2522   1          if(g_bHLWinRLMove == _RIGHT)
+2523   1          {
+2524   2              g_usHLWinHPos++;
+2525   2      
+2526   2              if((GET_MDOMAIN_OUTPUT_HWIDTH() + usNonFullScreenOffset) <= (g_usHLWinHPos + g_usHLWinHWidth + _HL
+             -_WIN_BORDER_SIZE))
+2527   2              {
+2528   3                  g_bHLWinRLMove = _LEFT;
+2529   3                  g_usHLWinHPos = (GET_MDOMAIN_OUTPUT_HWIDTH() + usNonFullScreenOffset) - (g_usHLWinHWidth + _HL
+             -_WIN_BORDER_SIZE);
+2530   3              }
+2531   2          }
+2532   1          else // _LEFT
+2533   1          {
+2534   2              g_usHLWinHPos--;
+2535   2      
+2536   2              if(g_usHLWinHPos <= usNonFullScreenOffset)
+2537   2              {
+2538   3                  g_bHLWinRLMove = _RIGHT;
+2539   3                  g_usHLWinHPos = usNonFullScreenOffset;
+2540   3              }
+2541   2          }
+2542   1      
+2543   1          ScalerColorHLWAdjust(g_usHLWinHPos, g_usHLWinHWidth, g_usHLWinVPos, g_usHLWinVHeight, _DB_APPLY_NO_POL
+             -LING);
+2544   1      
+2545   1          ScalerTimerActiveTimerEvent(_HLWIN_TYPE5_MOVE_TIME, _USER_TIMER_EVENT_HLWIN_TYPE5_MOVE);
+2546   1      }
+2547          
+2548          //--------------------------------------------------
+2549          // Description  : Adjust All High Light Window Effect Space
+2550          // Input Value  : None
+2551          // Output Value : None
+2552          //--------------------------------------------------
+2553          void UserAdjustHighLightWindowEffectSpace(void)
+2554          {
+2555   1      #if((_CONTRAST_SUPPORT == _ON) || (_BRIGHTNESS_SUPPORT == _ON))
+2556   1          ScalerColorHLWBRICTSAdjust(_BRI_CON_B_ON_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+2557   1      #endif
+2558   1      
+2559   1      #if(_DCC_FUNCTION == _ON)
+2560   1          ScalerColorHLWDCCAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 44  
+
+2561   1      #endif
+2562   1      
+2563   1      #if(_GAMMA_FUNCTION == _ON)
+2564   1          ScalerColorHLWOutputGammaAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+2565   1      #endif
+2566   1      
+2567   1      #if(_GLOBAL_HUE_SATURATION == _ON)
+2568   1          ScalerColorHLWSRGBAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+2569   1      #endif
+2570   1      
+2571   1      #if(_IAPS_SUPPORT == _ON)
+                  ScalerColorHLWIAPSGainAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+              #endif
+2574   1      
+2575   1      #if(_ICM_SUPPORT == _ON)
+2576   1          ScalerColorHLWICMAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+2577   1      #endif
+2578   1      
+2579   1      #if((_DCR_SUPPORT == _ON) || (_IAPS_SUPPORT == _ON))
+2580   1          ScalerColorHLWDCRAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+2581   1      #endif
+2582   1      
+2583   1      #if(_ULTRA_VIVID_SUPPORT == _ON)
+2584   1          ScalerColorHLWUltraVividAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+2585   1      #endif
+2586   1      
+2587   1      #if(_YPEAKING_SUPPORT == _ON)
+2588   1          ScalerColorHLWYpeakingAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+2589   1      #endif
+2590   1      
+2591   1      #if(_UNIFORMITY_SUPPORT == _ON)
+                  ScalerColorHLWPanelUniformityAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+              #endif
+2594   1      
+2595   1      #if(_PCM_FUNCTION == _ON)
+2596   1          ScalerColorHLWPCMAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+2597   1      #endif
+2598   1      
+2599   1      #if(_RGB_3D_GAMMA == _ON)
+                  ScalerColorHLWRGB3DGammaAdjust(_HLW_INSIDE_WINDOW, _DB_APPLY_NO_POLLING);
+              #endif
+2602   1      }
+2603          #endif // End of #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+2604          
+2605          #if(_FREESYNC_OD_MEASURE == _ON)
+              //--------------------------------------------------
+              // Description  : Set FREESYNC OD Measure
+              // Input Value  : Current DHtotal(pixel)/ Current Dclk(kHz)/ Target Measure VFreq(0.1Hz)
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAdjustFREESYNCODMeasure(void)
+              {
+                  // Set Backlight
+                  UserAdjustBacklight(100);
+              
+                  // Enable Backlight
+                  UserCommonInterfacePanelPowerAction(_BACKLIGHT_ON);
+              
+                  // Disable OSD
+                  ScalerOsdDisableOsd();
+              
+                  // Disable D-domain Pattern Gen.
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 45  
+
+                  ScalerDDomainPatternGenEnable(_DISABLE);
+              
+                  // According FREESYNC setting to set accurate Htotal/ Dclk
+                  ScalerMDomainFREESYNCODSetDisplayFormat(((WORD)_PANEL_DH_TOTAL), ((DWORD)_PANEL_PIXEL_CLOCK_MAX_KHZ), 
+             -((WORD)_PANEL_FREESYNC_MIN_FRAME_RATE));
+              
+                  while(_TRUE)
+                  {
+                      ScalerDebug();
+                      ScalerDDomainFREESYNCODSetBackgroundGrayLevel();
+                  }
+              }
+              #endif
+2635          
+2636          
+2637          #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+              //--------------------------------------------------
+              // Description  : Set IR Table
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAdjusIR(void)
+              {
+                  ScalerIRHWModeDecoder(tIR_INITIAL_TABLE, GET_CURRENT_BANK_NUMBER());
+              }
+              #endif // End of #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+2648          
+2649          #if(_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+              //--------------------------------------------------
+              // Description  : Set embedded DP switch status
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAdjustEmbeddedDpSwitch(void)
+              {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                  if(ScalerSyncDpCableStatus(_D0_INPUT_PORT) == _TRUE)
+                  {
+                      if(GET_DP_EMBEDDED_SWITCH_SELECT() != _D0_INPUT_PORT)
+                      {
+                          SysSourceEmbeddedDpSwitch(_D0_INPUT_PORT);
+                      }
+                      return;
+                  }
+              #endif
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                  if(ScalerSyncDpCableStatus(_D1_INPUT_PORT) == _TRUE)
+                  {
+                      if(GET_DP_EMBEDDED_SWITCH_SELECT() != _D1_INPUT_PORT)
+                      {
+                          SysSourceEmbeddedDpSwitch(_D1_INPUT_PORT);
+                      }
+                      return;
+                  }
+              #endif
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                  if(ScalerSyncDpCableStatus(_D2_INPUT_PORT) == _TRUE)
+                  {
+                      if(GET_DP_EMBEDDED_SWITCH_SELECT() != _D2_INPUT_PORT)
+                      {
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 46  
+
+                          SysSourceEmbeddedDpSwitch(_D2_INPUT_PORT);
+                      }
+                      return;
+                  }
+              #endif
+              }
+              #endif
+2691          
+2692          #if(_PIXEL_SHIFT_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Pixel orbiting step as following
+              //  -2->
+              // ^    |
+              // |    3
+              // 1    |
+              // |    v
+              // < -0- <-7-
+              //      |     |
+              //      4     6
+              //      |     |
+              //      v -5->
+              // Input Value  :
+              // Output Value :
+              //--------------------------------------------------
+              void UserAdjustPixelShifting(void)
+              {
+              #if(_PIXEL_SHIFT_MODE == _PIXEL_SHIFT_IN_IDOMAIN)
+                  BYTE ucPixelShift = 0;
+              
+                  WORD usVdelay = 0;
+                  WORD usHdelay = 0;
+                  BYTE ucVstep = 2;
+                  BYTE ucHstep = 2;
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      ucVstep = (ucVstep + 1) & 0xFE;
+                  }
+              #endif
+              
+                  ScalerGlobalWatchDog(_DISABLE);
+              
+              #if(_VGA_SUPPORT == _ON)
+                  if(SysSourceGetSourceType() == _SOURCE_VGA)
+                  {
+                      usHdelay = ScalerVgaTopGetCaptureHDelay();
+                      usVdelay = ScalerVgaTopGetCaptureVDelay();
+                  }
+                  else
+              #endif
+                  {
+                      usHdelay = ScalerVgipGetCaptureHDelay();
+                      usVdelay = ScalerVgipGetCaptureVDelay();
+                  }
+              
+                  for(ucPixelShift = 0; ucPixelShift < 8; ucPixelShift++)
+                  {
+                      ScalerTimerDelayXms(200);
+              
+                      switch(ucPixelShift)
+                      {
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 47  
+
+                          case 0: // _PIXEL0_TURN_LEFT:
+                          case 7: // _PIXEL1_TURN_LEFT:
+                              usHdelay += ucHstep;
+                              break;
+              
+                          case 2: // _PIXEL0_TURN_RIGHT:
+                          case 5: // _PIXEL1_TURN_RIGHT:
+                              if(usHdelay >= ucHstep)
+                              {
+                                  usHdelay -= ucHstep;
+                              }
+                              else
+                              {
+                                  usHdelay = 0;
+                              }
+                              break;
+              
+                          case 1: // _PIXEL0_TURN_UP:
+                          case 6: // _PIXEL1_TURN_UP:
+                              usVdelay += ucVstep;
+                              break;
+              
+                          case 3: // _PIXEL0_TURN_DOWN:
+                          case 4: // _PIXEL1_TURN_DOWN:
+                              if(usVdelay >= ucVstep)
+                              {
+                                  usVdelay -= ucVstep;
+                              }
+                              else
+                              {
+                                  usVdelay = 0;
+                              }
+                              break;
+              
+                          default:
+                              break;
+                      }
+              
+              #if(_VGA_SUPPORT == _ON)
+                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+                      {
+                          ScalerVgaTopSetCaptureHDelay(usHdelay);
+                          ScalerVgaTopSetCaptureVDelay(usVdelay);
+                          ScalerVgaTopDoubleBufferApply();
+                      }
+                      else
+              #endif
+                      {
+                          ScalerVgipSetCaptureHDelay(usHdelay);
+                          ScalerVgipSetCaptureVDelay(usVdelay);
+                          ScalerGlobalIDomainDBApply(_DB_APPLY_POLLING);
+                      }
+                  }
+              
+                  ScalerTimerWaitForEvent(_EVENT_IVS);
+                  ScalerGlobalWatchDog(_ENABLE);
+              
+              #endif
+              
+              #if(_PIXEL_SHIFT_MODE == _PIXEL_SHIFT_IN_MDOMAIN)
+                  BYTE ucPixelShift = 0;
+                  WORD usDHstart = ScalerMDomainGetDisplayTimingGenActiveRegionHStart();
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 48  
+
+                  WORD usDHend = ScalerMDomainGetDisplayTimingGenActiveRegionHEnd();
+                  WORD usDVstart = ScalerMDomainGetDisplayTimingGenActiveRegionVStart();
+                  WORD usDVend = ScalerMDomainGetDisplayTimingGenActiveRegionVEnd();
+                  WORD usDVBGstart = GET_MDOMAIN_OUTPUT_VBSTART();
+                  WORD usDVBGend = GET_MDOMAIN_OUTPUT_VBSTART() + GET_MDOMAIN_OUTPUT_VBHEIGHT();
+                  WORD usDisplayHstart = usDHstart;
+                  WORD usDisplayVstart = usDVstart;
+              
+                  // usDVBGstart/usDVBGend
+                  ScalerMDomainSetDisplayTimingGenBackgroundVStart(HIBYTE(usDVBGstart), LOBYTE(usDVBGstart), _DB_APPLY_N
+             -ONE);
+                  ScalerMDomainSetDisplayTimingGenBackgroundVEnd(HIBYTE(usDVBGend), LOBYTE(usDVBGend), _DB_APPLY_NO_POLL
+             -ING);
+              
+                  // capture H start/end
+                  ScalerMDomainSetCaptureWindowHStart(HIBYTE(usDHstart), LOBYTE(usDHstart));
+                  ScalerMDomainSetCaptureWindowHEnd(HIBYTE(usDHend), LOBYTE(usDHend));
+                  // capture V start/end
+                  ScalerMDomainSetCaptureWindowVStart(HIBYTE(usDVstart), LOBYTE(usDVstart));
+                  ScalerMDomainSetCaptureWindowVEnd(HIBYTE(usDVend), LOBYTE(usDVend));
+              
+                  ScalerMDomainSetCaptureWindowEnable(_ENABLE);
+              
+                  for(ucPixelShift = 0; ucPixelShift < 8; ucPixelShift++)
+                  {
+                      ScalerTimerDelayXms(200);
+                      switch(ucPixelShift)
+                      {
+                          // H <-
+                          case 0: // _PIXEL0_TURN_LEFT:
+                              usDHend -= 1;
+                              usDisplayHstart -= 1;
+                              break;
+              
+                          // V ^
+                          case 1: // _PIXEL0_TURN_UP:
+                              usDVstart += 1;
+                              usDVBGstart += 1;
+                              usDVBGend += 1;
+                              break;
+              
+                          // H ->
+                          case 2: // _PIXEL0_TURN_RIGHT:
+                              usDHend += 1;
+                              usDisplayHstart += 1;
+                              break;
+              
+                          // V v
+                          case 3: // _PIXEL0_TURN_DOWN:
+                              usDVstart -= 1;
+                              usDVBGstart -= 1;
+                              usDVBGend -= 1;
+                              break;
+              
+                          // V v
+                          case 4: // _PIXEL1_TURN_DOWN:
+                              usDisplayVstart += 1;
+                              usDVstart += 1;
+                              break;
+              
+                          // H ->
+                          case 5: // _PIXEL1_TURN_RIGHT:
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 49  
+
+                              usDisplayHstart += 1;
+                              usDHstart += 1;
+                              break;
+              
+                          // V ^
+                          case 6: // _PIXEL1_TURN_UP:
+                              usDisplayVstart -= 1;
+                              usDVstart -= 1;
+                              break;
+              
+                          // H <-
+                          case 7: // _PIXEL1_TURN_LEFT:
+                              usDisplayHstart -= 1;
+                              usDHstart -= 1;
+                              break;
+              
+                          default:
+                              break;
+                      }
+              
+                      switch(ucPixelShift)
+                      {
+                          case 0: // _PIXEL0_TURN_LEFT:
+                          case 2: // _PIXEL0_TURN_RIGHT:
+                          case 5: // _PIXEL1_TURN_RIGHT:
+                          case 7: // _PIXEL1_TURN_LEFT:
+                              // Display H active start setting
+                              ScalerMDomainSetDisplayTimingGenActiveRegionHStart(HIBYTE(usDisplayHstart), LOBYTE(usDispl
+             -ayHstart), _DB_APPLY_POLLING);
+                              // Capture window H start setting
+                              ScalerMDomainSetCaptureWindowHStart(HIBYTE(usDHstart), LOBYTE(usDHstart));
+                              // Capture window H end setting
+                              ScalerMDomainSetCaptureWindowHEnd(HIBYTE(usDHend), LOBYTE(usDHend));
+              
+                              break;
+              
+                          case 1: // _PIXEL0_TURN_UP:
+                          case 3: // _PIXEL0_TURN_DOWN:
+                          case 4: // _PIXEL1_TURN_DOWN:
+                          case 6: // _PIXEL1_TURN_UP:
+                              // Display V active start setting
+                              ScalerMDomainSetDisplayTimingGenActiveRegionVStart(HIBYTE(usDisplayVstart), LOBYTE(usDispl
+             -ayVstart), _DB_APPLY_POLLING);
+                              // Capture window V start setting
+                              ScalerMDomainSetCaptureWindowVStart(HIBYTE(usDVstart), LOBYTE(usDVstart));
+                              // Display V background start setting
+                              ScalerMDomainSetDisplayTimingGenBackgroundVStart(HIBYTE(usDVBGstart), LOBYTE(usDVBGstart),
+             - _DB_APPLY_POLLING);
+                              // Display V background end setting
+                              ScalerMDomainSetDisplayTimingGenBackgroundVEnd(HIBYTE(usDVBGend), LOBYTE(usDVBGend), _DB_A
+             -PPLY_POLLING);
+                              break;
+              
+                          default:
+                              break;
+                      }
+                  }
+              
+                  ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+                  ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+                  ScalerMDomainSetCaptureWindowEnable(_DISABLE);
+              #endif
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 50  
+
+              }
+              #endif
+2928          
+2929          #if(_SDR_TO_HDR_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Set SDRToHDR parameter
+              // Input Value  : Adjust Option
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAdjustSDRToHDR(bit bOn)
+              {
+                  if(bOn == _ON)
+                  {
+              #if(_CONTRAST_SUPPORT == _ON)
+                      ScalerColorContrastEnable(_FUNCTION_OFF);
+              #endif
+                      UserCommonAdjustSDRToHDR(tSDRTOHDR_INPUTGAMMA, tSDRTOHDR_ICM, tSDRTOHDR_DCC, GET_CURRENT_BANK_NUMB
+             -ER());
+                  }
+                  else
+                  {
+                      UserAdjustColorEffectMode();
+                      OsdFuncColorPcmAdjust();
+                  }
+              }
+              #endif // End of #if(_SDR_TO_HDR_SUPPORT == _ON)
+2951          
+2952          #if(_DCR_SUPPORT == _ON)
+2953          #if(_LD_TUNNEL_DETECT_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : User Adjust DCR initial
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAdjustDCRTHD(void)
+              {
+                  // Adjust DCR Threshold & Source
+              #if(_DCR_BIT_MODE == _DCR_GEN_1_0_10BIT)
+                  ScalerColorDCRAdjust(_DCR_THESHOLD1, _DCR_THESHOLD2, _MEASURE_AVERAGE);
+              #elif((_DCR_BIT_MODE == _DCR_GEN_0_0_8BIT) || (_DCR_BIT_MODE == _DCR_GEN_0_1_8BIT))
+                  ScalerColorDCRAdjust((_DCR_THESHOLD1 >> 2), (_DCR_THESHOLD2 >> 2), _MEASURE_AVERAGE);
+              #endif
+              }
+              #endif // End of #if(_LD_TUNNEL_DETECT_SUPPORT == _ON)
+2969          #endif // End of #if(_DCR_SUPPORT == _ON)
+2970          
+2971          #if(_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+              #if((_PORT_CONTROLLER_RTS5400_SERIES_SUPPORT == _ON) || (_PORT_CONTROLLER_USERDECITION_SUPPORT == _ON))
+              #if(_TWO_CHIP_DATA_EXCHANGE_MODE == _DATA_EXCHANGE_MODE_NONE)
+              //--------------------------------------------------
+              // Description  : User Control Type-C Port Controller Power
+              // Input Value  : ucSwitch --> Power Action
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAjustTypeCPowerControl(EnumPowerAction enumSwitch)
+              {
+                  switch(enumSwitch)
+                  {
+                      case _POWER_ACTION_AC_ON_TO_NORMAL:
+              
+                          //Switch On Port Controller Power By PCB Control
+                          PCB_PORT_CTRL_POW_RTD_USER(_PORT_CTRL_POWER_ON);
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 51  
+
+                          CLR_TYPE_C_PORT_CTRL_POWER_OFF_FLG();
+              
+                          break;
+              
+                      case _POWER_ACTION_PS_TO_NORMAL:
+                      case _POWER_ACTION_OFF_TO_NORMAL:
+              
+                          if(GET_PCB_PORT_CTRL_POW_STATUS_RTD_USER() == _PORT_CTRL_POWER_OFF)
+                          {
+                              // Switch On Port Conroller Power By PCB Control
+                              PCB_PORT_CTRL_POW_RTD_USER(_PORT_CTRL_POWER_ON);
+                          }
+              
+                          break;
+              
+                      case _POWER_ACTION_AC_ON_TO_OFF:
+                      case _POWER_ACTION_NORMAL_TO_OFF:
+                      case _POWER_ACTION_PS_TO_OFF:
+                      case _POWER_ACTION_NORMAL_TO_PS:
+              
+              #if((_D0_INPUT_PORT_TYPE != _D0_NO_PORT) && ((_D0_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_RTS5400_SER
+             -IES) || (_D0_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_USER )))
+                          if(SysSourceGetCableDetect(_D0_INPUT_PORT) == _FALSE)
+              #elif((_D1_INPUT_PORT_TYPE != _D1_NO_PORT) && ((_D1_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_RTS5400_S
+             -ERIES) || (_D1_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_USER )))
+                          if(SysSourceGetCableDetect(_D1_INPUT_PORT) == _FALSE)
+              #elif((_D6_INPUT_PORT_TYPE != _D6_NO_PORT) && ((_D6_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_RTS5400_S
+             -ERIES) || (_D6_DP_TYPE_C_PORT_CTRL_TYPE == _PORT_CONTROLLER_USER )))
+                          if(SysSourceGetCableDetect(_D6_INPUT_PORT) == _FALSE)
+              #endif
+                          {
+                              // Switch Off Repeater Power By PCB Control
+                              PCB_PORT_CTRL_POW_RTD_USER(_PORT_CTRL_POWER_OFF);
+                              SET_TYPE_C_PORT_CTRL_POWER_OFF_FLG();
+                          }
+                          else
+                          {
+                              CLR_TYPE_C_PORT_CTRL_POWER_OFF_FLG();
+                          }
+              
+                          break;
+              
+                      default:
+              
+                          break;
+                  }
+              }
+              #endif // End of #if(_TWO_CHIP_DATA_EXCHANGE_MODE == _DATA_EXCHANGE_MODE_NONE)
+              #endif // End of #if((_PORT_CONTROLLER_RTS5400_SERIES_SUPPORT == _ON) || (_PORT_CONTROLLER_USERDECITION_SU
+             -PPORT == _ON))
+              #endif // End of #if(_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+3034          
+3035          #if((_EMBEDDED_EDID_SUPPORT == _ON) && (_DP_HDR10_SUPPORT == _ON) && (_DP_SUPPORT == _ON))
+              //--------------------------------------------------
+              // Description  : Switch Dp Version to 1.4, if HDR On
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAdjustHdrCheckDpVersion(WORD usHdrMode)
+              {
+                  // Switch Dp Version to 1.3, if HDR Function Support
+                  if(usHdrMode != _HDR10_MODE_OFF)
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 52  
+
+                  {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                      if(GET_OSD_DP_D0_VERSION() <= _DP_VER_1_DOT_2)
+                      {
+                          SET_OSD_DP_D0_VERSION(_DP_VER_1_DOT_3);
+              
+                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+              
+                          UserCommonInterfaceDpVersionSwitch(_D0_INPUT_PORT, UserInterfaceGetDPVersion(_D0_INPUT_PORT), 
+             -UserInterfaceGetDpMSTCapablePort());
+                      }
+              #endif
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                      if(GET_OSD_DP_D1_VERSION() <= _DP_VER_1_DOT_2)
+                      {
+                          SET_OSD_DP_D1_VERSION(_DP_VER_1_DOT_3);
+              
+                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+              
+                          UserCommonInterfaceDpVersionSwitch(_D1_INPUT_PORT, UserInterfaceGetDPVersion(_D1_INPUT_PORT), 
+             -UserInterfaceGetDpMSTCapablePort());
+                      }
+              #endif
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                      if(GET_OSD_DP_D2_VERSION() <= _DP_VER_1_DOT_2)
+                      {
+                          SET_OSD_DP_D2_VERSION(_DP_VER_1_DOT_3);
+              
+                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+              
+                          UserCommonInterfaceDpVersionSwitch(_D2_INPUT_PORT, UserInterfaceGetDPVersion(_D2_INPUT_PORT), 
+             -UserInterfaceGetDpMSTCapablePort());
+                      }
+              #endif
+                  }
+              }
+              #endif // End of #if((_EMBEDDED_EDID_SUPPORT == _ON) && (_DP_HDR10_SUPPORT == _ON) && (_DP_SUPPORT == _ON)
+             -)
+3081          
+3082          #if(_DP_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : DP Version Force Update
+              // Input Value  : enumInputPort, bEnable, enumDpVersionType
+              // Output Value : None
+              //--------------------------------------------------
+              void UserAdjustDpVersionForceUpdate(BYTE ucInputPort, bit bEnable, EnumDpVersionType enumDpVersionType)
+              {
+                  EnumOSDDpPortVersionDef enumOSDDpPortVersionDef = enumDpVersionType - 0x11;
+              
+                  switch(ucInputPort)
+                  {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                      case _D0_INPUT_PORT:
+              
+                          if((GET_OSD_DP_D0_VERSION() < enumOSDDpPortVersionDef) && (bEnable == _ENABLE))
+                          {
+                              SET_OSD_DP_D0_VERSION(enumOSDDpPortVersionDef);
+              
+                              UserCommonInterfaceDpVersionSwitch(_D0_INPUT_PORT, UserInterfaceGetDPVersion(_D0_INPUT_POR
+             -T), UserCommonInterfaceGetDpMstCapablePort());
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 53  
+
+                          }
+              
+                          break;
+              #endif
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                      case _D1_INPUT_PORT:
+              
+                          if((GET_OSD_DP_D1_VERSION() < enumOSDDpPortVersionDef) && (bEnable == _ENABLE))
+                          {
+                              SET_OSD_DP_D1_VERSION(enumOSDDpPortVersionDef);
+              
+                              UserCommonInterfaceDpVersionSwitch(_D1_INPUT_PORT, UserInterfaceGetDPVersion(_D1_INPUT_POR
+             -T), UserCommonInterfaceGetDpMstCapablePort());
+                          }
+              
+                          break;
+              #endif
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                      case _D2_INPUT_PORT:
+              
+                          if((GET_OSD_DP_D2_VERSION() < enumOSDDpPortVersionDef) && (bEnable == _ENABLE))
+                          {
+                              SET_OSD_DP_D2_VERSION(enumOSDDpPortVersionDef);
+              
+                              UserCommonInterfaceDpVersionSwitch(_D2_INPUT_PORT, UserInterfaceGetDPVersion(_D2_INPUT_POR
+             -T), UserCommonInterfaceGetDpMstCapablePort());
+                          }
+              
+                          break;
+              #endif
+              
+                      default:
+                          break;
+                  }
+              }
+              #endif // End of #if(_DP_SUPPORT == _ON)
+3138          
+3139          
+3140          //--------------------------------------------------
+3141          // Description  :
+3142          // Input Value  : None
+3143          // Output Value : None
+3144          //--------------------------------------------------
+3145          void UserAdjustColorNormal(void)
+3146          {
+3147   1              #if(_GAMMA_FUNCTION == _ON)
+3148   1          //UserAdjustGammaStatus();
+3149   1              if(GET_COLOR_TEMP_TYPE() == _CT_USER)
+3150   1                      UserCommonAdjustGammaRegionEnable(_FUNCTION_OFF);       //Gamma开关
+3151   1              else
+3152   1                      UserCommonAdjustGammaRegionEnable(_FUNCTION_ON);        //Gamma开关
+3153   1              #endif
+3154   1      
+3155   1              #if(_OD_SUPPORT == _ON)
+3156   1          UserAdjustOverDrive();
+3157   1              #endif
+3158   1      
+3159   1              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+3160   1      
+3161   1      #if(_sRGB_ADJ_BRIGHTNESS == _ON)
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 54  
+
+3162   1          RTDNVRamLoadSceneModeData(GET_OSD_GAME_MODE());
+3163   1      #endif
+3164   1          ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+3165   1      
+3166   1              UserAdjustContrast(GET_OSD_CONTRAST());
+3167   1      
+3168   1      #if(_DCR_SUPPORT == _ON)
+3169   1          if(GET_OSD_DCR_STATUS() == _DCR_Level_0)
+3170   1      #endif
+3171   1          {
+3172   2              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+3173   2          }
+3174   1      }
+3175          
+3176          //--------------------------------------------------
+3177          // Description  : switch to sRGB color parameter
+3178          // Input Value  : None
+3179          // Output Value : None
+3180          //--------------------------------------------------
+3181          void UserAdjustSelectsRGB(void)
+3182          {
+3183   1      #if(_GAMMA_FUNCTION == _ON)
+3184   1              //UserAdjustGammaStatus();
+3185   1      #endif
+3186   1      
+3187   1      #if(_OD_SUPPORT == _ON)
+3188   1              UserAdjustOverDrive();
+3189   1      #endif
+3190   1      
+3191   1              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+3192   1          ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+3193   1      
+3194   1              UserAdjustContrast(_SRGB_CONTRAST);
+3195   1      
+3196   1      #if 1//(_FACTORY_MODE_OWNER == _OWNER_TPV)
+3197   1              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+3198   1      #endif
+3199   1      
+3200   1      }
+3201          
+3202          
+3203          
+3204          //--------------------------------------------------
+3205          // Description  : Temporary turn on function when DFM mode is on
+3206          // Input Value  : None
+3207          // Output Value : None
+3208          //--------------------------------------------------
+3209          //==============[ Evan S ]==============
+3210          void UserAdjustColorTemp(void)
+3211          {
+3212   1      #if(_VIEWMODE_SUPPORT == _ON)
+3213   1              bit force_change_CT = _FALSE;
+3214   1      #endif
+3215   1      
+3216   1              BYTE tempItem = g_usAdjustValue;
+3217   1      
+3218   1              SET_COLOR_TEMP_TYPE((tempItem+(_DEF_COLOR_TEMP_SRGB_EANBLE == _OFF)));
+3219   1      
+3220   1          RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+3221   1      
+3222   1              //OsdDisplaySelectedItem(_OFF);
+3223   1      
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 55  
+
+3224   1      
+3225   1              if((g_usBackupValue != tempItem) 
+3226   1      #if(_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+3227   1              ||(GET_OSD_BLUELIGHT_STATUS() == _ENABLE)
+3228   1      #endif
+3229   1      #if(_VIEWMODE_SUPPORT == _ON)
+3230   1              ||(force_change_CT == _TRUE)
+3231   1      #endif
+3232   1              //||(GET_OSD_STATE() == _COLOR_USER))
+3233   1              ||(GET_COLOR_TEMP_TYPE() == _CT_USER))
+3234   1              {
+3235   2                      g_usBackupValue = tempItem;
+3236   2                      //SET_OSD_GAMER_CT_CHENGED(_TRUE);
+3237   2      
+3238   2      
+3239   2                      //SET_OSD_GAMMA_MODE
+3240   2                      //OsdDisplaySelectedItem(_ON);
+3241   2      /*
+3242   2                      if((GET_COLOR_TEMP_TYPE() >= _CT_GAME) && (GET_COLOR_TEMP_TYPE() <= _CT_GAME3))
+3243   2                      {
+3244   2                           return;
+3245   2                      }
+3246   2      */
+3247   2      
+3248   2      #if(_DEF_COLOR_TEMP_SRGB_EANBLE)
+3249   2                      if(GET_COLOR_TEMP_TYPE() == _CT_SRGB)
+3250   2                      {
+3251   3                              UserAdjustSelectsRGB();
+3252   3                      }
+3253   2                      else
+3254   2      #endif
+3255   2                      {
+3256   3                              UserAdjustColorNormal();
+3257   3                      }
+3258   2      
+3259   2      //================================================
+3260   2                      //if(PageNoBackUp != _HOTKEY_PAGE)
+3261   2                      {
+3262   3                              //SET_OSD_BLOCK_ITEM_CHECK(_TRUE);
+3263   3                              //OsdDisplayBlockItemCheck(_2ND_PAGE);
+3264   3                      }
+3265   2      //================================================
+3266   2      
+3267   2      
+3268   2              }
+3269   1      }
+3270          
+3271          
+3272          #if(_COLOR_FORMAT_CONVERT == _ON)
+3273          //--------------------------------------------------
+3274          // Description  : Get Color Space
+3275          // Input Value  : None
+3276          // Output Value : None
+3277          //--------------------------------------------------
+3278          BYTE OsdDisplayGetColorSpaceType(void)
+3279          {
+3280   1              switch(SysSourceGetInputPort())
+3281   1              {
+3282   2                      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+                              case _D0_INPUT_PORT:
+                                      return GET_OSD_D0_COLORSPACE_TYPE();
+                                      break;
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 56  
+
+                              #endif
+3287   2      
+3288   2                      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+3289   2                      case _D1_INPUT_PORT:
+3290   2                              return GET_OSD_D1_COLORSPACE_TYPE();
+3291   2                              break;
+3292   2                      #endif
+3293   2      
+3294   2                      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+                              case _D2_INPUT_PORT:
+                                      return GET_OSD_D2_COLORSPACE_TYPE();
+                                      break;
+                              #endif
+3299   2      
+3300   2                      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+                              case _D3_INPUT_PORT:
+                                      return GET_OSD_D3_COLORSPACE_TYPE();
+                                      break;
+                              #endif
+3305   2      
+3306   2                      default:
+3307   2                      break;
+3308   2          }
+3309   1              return _SPACE_DEFAULT;
+3310   1      }
+3311          //--------------------------------------------------
+3312          // Description  : Get Color Range
+3313          // Input Value  : None
+3314          // Output Value : None
+3315          //--------------------------------------------------
+3316          BYTE OsdDisplayGetColorRangeType(void)
+3317          {
+3318   1              switch(SysSourceGetInputPort())
+3319   1              {
+3320   2                      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+                              case _D0_INPUT_PORT:
+                                      return GET_OSD_D0_COLORRANGE_TYPE();
+                                      break;
+                              #endif
+3325   2      
+3326   2                      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+3327   2                      case _D1_INPUT_PORT:
+3328   2                              return GET_OSD_D1_COLORRANGE_TYPE();
+3329   2                              break;
+3330   2                      #endif
+3331   2      
+3332   2                      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+                              case _D2_INPUT_PORT:
+                                      return GET_OSD_D2_COLORRANGE_TYPE();
+                                      break;
+                              #endif
+3337   2      
+3338   2                      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+                              case _D3_INPUT_PORT:
+                                      return GET_OSD_D3_COLORRANGE_TYPE();
+                                      break;
+                              #endif
+3343   2      
+3344   2                      default:
+3345   2                      break;
+3346   2          }
+3347   1              return _RANGE_DEFAULT;
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 57  
+
+3348   1      }
+3349          
+3350          //--------------------------------------------------
+3351          // Description  : Get Color Space
+3352          // Input Value  : None
+3353          // Output Value : None
+3354          //--------------------------------------------------
+3355          void OsdDisplaySetColorSpaceType(void)
+3356          {
+3357   1              BYTE tempItem = g_usAdjustValue;
+3358   1      
+3359   1              switch(SysSourceGetInputPort())
+3360   1              {
+3361   2                      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+                              case _D0_INPUT_PORT:
+                                      SET_OSD_D0_COLORSPACE_TYPE(tempItem);
+                                      break;
+                              #endif
+3366   2      
+3367   2                      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+3368   2                      case _D1_INPUT_PORT:
+3369   2                              SET_OSD_D1_COLORSPACE_TYPE(tempItem);
+3370   2                              break;
+3371   2                      #endif
+3372   2      
+3373   2                      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+                              case _D2_INPUT_PORT:
+                                      SET_OSD_D2_COLORSPACE_TYPE(tempItem);
+                                      break;
+                              #endif
+3378   2      
+3379   2                      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+                              case _D3_INPUT_PORT:
+                                      SET_OSD_D3_COLORSPACE_TYPE(tempItem);
+                                      break;
+                              #endif
+3384   2      
+3385   2                      default:
+3386   2                      break;
+3387   2          }
+3388   1      }
+3389          //--------------------------------------------------
+3390          // Description  : set Color Space
+3391          // Input Value  : None
+3392          // Output Value : None
+3393          //--------------------------------------------------
+3394          void OsdDisplaySetColorSpaceType1(BYTE Spacetype)
+3395          {
+3396   1      
+3397   1              switch(SysSourceGetInputPort())
+3398   1              {
+3399   2                      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+                              case _D0_INPUT_PORT:
+                                      SET_OSD_D0_COLORSPACE_TYPE(Spacetype);
+                                      break;
+                              #endif
+3404   2      
+3405   2                      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+3406   2                      case _D1_INPUT_PORT:
+3407   2                              SET_OSD_D1_COLORSPACE_TYPE(Spacetype);
+3408   2                              break;
+3409   2                      #endif
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 58  
+
+3410   2      
+3411   2                      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+                              case _D2_INPUT_PORT:
+                                      SET_OSD_D2_COLORSPACE_TYPE(Spacetype);
+                                      break;
+                              #endif
+3416   2      
+3417   2                      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+                              case _D3_INPUT_PORT:
+                                      SET_OSD_D3_COLORSPACE_TYPE(Spacetype);
+                                      break;
+                              #endif
+3422   2      
+3423   2                      default:
+3424   2                      break;
+3425   2          }
+3426   1      }
+3427          
+3428          //--------------------------------------------------
+3429          // Description  : Get Color Range
+3430          // Input Value  : None
+3431          // Output Value : None
+3432          //--------------------------------------------------
+3433          void OsdDisplaySetColorRangeType1(BYTE tempItem)
+3434          {
+3435   1              switch(SysSourceGetInputPort())
+3436   1              {
+3437   2                      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+                              case _D0_INPUT_PORT:
+                                      SET_OSD_D0_COLORRANGE_TYPE(tempItem);
+                                      break;
+                              #endif
+3442   2      
+3443   2                      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+3444   2                      case _D1_INPUT_PORT:
+3445   2                              SET_OSD_D1_COLORRANGE_TYPE(tempItem);
+3446   2                              break;
+3447   2                      #endif
+3448   2      
+3449   2                      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+                              case _D2_INPUT_PORT:
+                                      SET_OSD_D2_COLORRANGE_TYPE(tempItem);
+                                      break;
+                              #endif
+3454   2      
+3455   2                      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+                              case _D3_INPUT_PORT:
+                                      SET_OSD_D3_COLORRANGE_TYPE(tempItem);
+                                      break;
+                              #endif
+3460   2      
+3461   2                      default:
+3462   2                      break;
+3463   2          }
+3464   1      }
+3465          //--------------------------------------------------
+3466          // Description  : Get Color Range
+3467          // Input Value  : None
+3468          // Output Value : None
+3469          //--------------------------------------------------
+3470          void OsdDisplaySetColorRangeType(void)
+3471          {
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 59  
+
+3472   1              BYTE tempItem = g_usAdjustValue;
+3473   1      
+3474   1              switch(SysSourceGetInputPort())
+3475   1              {
+3476   2                      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+                              case _D0_INPUT_PORT:
+                                      SET_OSD_D0_COLORRANGE_TYPE(tempItem);
+                                      break;
+                              #endif
+3481   2      
+3482   2                      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+3483   2                      case _D1_INPUT_PORT:
+3484   2                              SET_OSD_D1_COLORRANGE_TYPE(tempItem);
+3485   2                              break;
+3486   2                      #endif
+3487   2      
+3488   2                      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+                              case _D2_INPUT_PORT:
+                                      SET_OSD_D2_COLORRANGE_TYPE(tempItem);
+                                      break;
+                              #endif
+3493   2      
+3494   2                      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+                              case _D3_INPUT_PORT:
+                                      SET_OSD_D3_COLORRANGE_TYPE(tempItem);
+                                      break;
+                              #endif
+3499   2      
+3500   2                      default:
+3501   2                      break;
+3502   2          }
+3503   1      }
+3504          
+3505          
+3506          
+3507          
+3508          void UserAdjustColorSpace(void)
+3509          {
+3510   1              BYTE tempItem = g_usAdjustValue;
+3511   1      
+3512   1              if(g_usBackupValue != tempItem)
+3513   1              {
+3514   2                      OsdDisplaySetColorSpaceType();
+3515   2                      g_usBackupValue = OsdDisplayGetColorSpaceType();
+3516   2                      UserInterfaceColorFormatConvert();
+3517   2                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+3518   2              }
+3519   1      }
+3520          
+3521          //--------------------------------------------------
+3522          // Description  :
+3523          // Input Value  : None
+3524          // Output Value : None
+3525          //--------------------------------------------------
+3526          void UserAdjustColorRange(void)
+3527          {
+3528   1              BYTE tempItem = g_usAdjustValue;
+3529   1      
+3530   1              if(g_usBackupValue != tempItem)
+3531   1              {
+3532   2                      //OsdDisplaySelectedItem(_OFF);
+3533   2                      OsdDisplaySetColorRangeType();
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 60  
+
+3534   2                      g_usBackupValue = OsdDisplayGetColorRangeType();
+3535   2                      //OsdDisplaySelectedItem(_ON);
+3536   2                      UserInterfaceColorFormatConvert();
+3537   2      
+3538   2                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+3539   2              }
+3540   1      }
+3541          
+3542          #endif//End of #if(_COLOR_FORMAT_CONVERT == _ON)
+3543          
+3544          
+3545          
+3546          WORD UserGetBacklightRealValue(WORD usBacklight)
+3547          {
+3548   1              WORD usMaxBacklight = _BACKLIGHT_MAX_PWM;
+3549   1              if(GET_OSD_ECO_STATUS() != _ECO_STANDARD)
+3550   1              {
+3551   2                      if(GET_OSD_ECO_STATUS() == _ECO_OPTIMIZE)
+3552   2                      {
+3553   3                              usMaxBacklight = _BACKLIGHT_MAX_PWM * 75 / 100;
+3554   3                      }
+3555   2                      else if(GET_OSD_ECO_STATUS() == _ECO_CONSERVE)
+3556   2                      {
+3557   3                              usMaxBacklight = _BACKLIGHT_MAX_PWM * 50 / 100;
+3558   3                      }
+3559   2              }
+3560   1      
+3561   1      #if(_MPRT_SUPPORT == _ON)
+3562   1                 if((GET_OSD_MPRT() == _ON) && !OSD_ITEM_MASK_GET(_MENU_FUN_MPRT))
+3563   1                 {
+3564   2                              usBacklight = (WORD)((DWORD)(_MPRT_BACKLIGHT_PWM_MAX - _MPRT_BACKLIGHT_PWM_MIN) * usBacklight / 100 + _
+             -MPRT_BACKLIGHT_PWM_MIN);
+3565   2                 }
+3566   1      #endif
+3567   1      
+3568   1      
+3569   1      #if(_BACKLIGHT_DEFAULT == 100)
+3570   1              usBacklight =(WORD)((DWORD)(usMaxBacklight - _BACKLIGHT_MIN_PWM) * usBacklight / 100 + _BACKLIGHT_MIN_PWM
+             -);
+3571   1      
+3572   1      #else
+                      if(usBacklight<=_BACKLIGHT_DEFAULT)
+                              usBacklight = ((_BACKLIGHT_PWM_CENTER-_BACKLIGHT_MIN_PWM)*usBacklight/_BACKLIGHT_DEFAULT+_BACKLIGHT_MIN_
+             -PWM);
+                      else
+                              usBacklight = ((usMaxBacklight-_BACKLIGHT_PWM_CENTER)*(usBacklight-_BACKLIGHT_DEFAULT)/(100-_BACKLIGHT_D
+             -EFAULT)+_BACKLIGHT_PWM_CENTER);
+              #endif
+3578   1      
+3579   1              return usBacklight;
+3580   1      
+3581   1      }
+3582          
+3583          #if(_DEF_VIEW_SONIC_DCR)
+3584          #if(_DCR_SUPPORT == _ON)
+3585          void UserAdjustDCRBacklight(WORD uSDcrBacklight)
+3586          {
+3587   1      //    uSDcrBacklight = (WORD)(_BACKLIGHT_MAX_PWM - _BACKLIGHT_MIN_PWM) * uSDcrBacklight / 100 + _BACKLIGHT
+             -_MIN_PWM;
+3588   1          uSDcrBacklight = UserGetBacklightRealValue(uSDcrBacklight);
+3589   1      
+3590   1              //看看有没有开启ECO模式
+C51 COMPILER V8.12   RTD2014USERADJUST                                                     03/10/2025 13:51:00 PAGE 61  
+
+3591   1              //uSDcrBacklight = (((uSDcrBacklight*100) - (uSDcrBacklight * _DEF_JS_POWER_ECO_DATA * GET_OSD_ECO_STATUS
+             -())) / 100);
+3592   1      
+3593   1      #if(_BACKLIGHT_PWM_INVERSE == _ON)
+                      uSDcrBacklight = 255 - uSDcrBacklight;
+              #endif
+3596   1      
+3597   1              //DebugMessageOsd("55555555",  uSDcrBacklight);
+3598   1      
+3599   1              PCB_BACKLIGHT_PWM(uSDcrBacklight);
+3600   1      
+3601   1              OsdDisplayUpdatePowerBar(_FALSE);
+3602   1      }
+3603          #endif
+3604          #endif
+3605          
+3606          
+3607          
+3608          #endif//#if(_OSD_TYPE == _REALTEK_2014_OSD)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3091    ----
+   CONSTANT SIZE    =   3299    ----
+   XDATA SIZE       =     16      44
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

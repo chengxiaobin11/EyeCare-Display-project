@@ -1,0 +1,116 @@
+C51 COMPILER V8.12   RL6449_SERIES_AUTOMEASURECOLORVALUE                                   03/11/2025 19:56:24 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_AUTOMEASURECOLORVALUE
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_AutoMeasureColorValue.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Auto\RL6449_Series_AutoMeasureColorValue.c LARGE OPTIMIZ
+                    -E(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\S
+                    -calerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Seri
+                    -es_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_
+                    -Series_AutoMeasureColorValue.lst) OBJECT(.\Output\RL6449_Series_AutoMeasureColorValue.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_AutoMeasureColorValue.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          EnumAutoResult ScalerAutoMeasureColorValue(BYTE ucColor, bit bSelectMax, BYTE *pucResult);
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Description  : Measure color min/max from specific channel
+  49          // Input Value  : ucColor --> R/G/B
+  50          //                pucResult --> memory to store measure result
+  51          // Output Value : _AUTO_FAIL or _AUTO_SUCCESS
+C51 COMPILER V8.12   RL6449_SERIES_AUTOMEASURECOLORVALUE                                   03/11/2025 19:56:24 PAGE 2   
+
+  52          //--------------------------------------------------
+  53          EnumAutoResult ScalerAutoMeasureColorValue(BYTE ucColor, bit bSelectMax, BYTE *pucResult)
+  54          {
+  55   1          // Disable 121-LPF; Set to R channel for auto-balance new mode
+  56   1          ScalerSetBit(P30_CA_VGATOP_AUTO_ADJ_CTRL0, ~(_BIT5 | _BIT1 | _BIT0), _BIT1);
+  57   1      
+  58   1          // Enable image auto-balance new mode
+  59   1          ScalerSetBit(P30_C6_VGATOP_RED_NOISE_MARGIN, ~_BIT0, _BIT0);
+  60   1      
+  61   1          // Start Measure
+  62   1          if(ScalerAutoCompareMeasure((bSelectMax == _TRUE) ? _MEASURE_MAX : _MEASURE_RGB_MIN) == _AUTO_FAIL)
+  63   1          {
+  64   2              return _AUTO_FAIL;
+  65   2          }
+  66   1      
+  67   1          switch(ucColor)
+  68   1          {
+  69   2              case _AUTO_RED_CHANNEL:
+  70   2                  *pucResult = ScalerGetByte(P30_D4_VGATOP_AUTO_PHASE_3);
+  71   2                  break;
+  72   2      
+  73   2              case _AUTO_GREEN_CHANNEL:
+  74   2                  *pucResult = ScalerGetByte(P30_D5_VGATOP_AUTO_PHASE_2);
+  75   2                  break;
+  76   2      
+  77   2              case _AUTO_BLUE_CHANNEL:
+  78   2                  *pucResult = ScalerGetByte(P30_D6_VGATOP_AUTO_PHASE_1);
+  79   2                  break;
+  80   2      
+  81   2              default:
+  82   2                  return _AUTO_FAIL;
+  83   2          }
+  84   1      
+  85   1          return _AUTO_SUCCESS;
+  86   1      }
+  87          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     92    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

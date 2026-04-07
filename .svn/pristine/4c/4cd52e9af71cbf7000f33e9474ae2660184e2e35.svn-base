@@ -1,0 +1,223 @@
+C51 COMPILER V9.60.0.0   RTD2014USERINTERFACEDIMMING                                       08/27/2025 11:02:10 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE RTD2014USERINTERFACEDIMMING
+OBJECT MODULE PLACED IN .\Output\RL6432\RTD2014UserInterfaceDimming.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE User\RTD Series\RTD2014Function\Code\RTD2014UserInterfaceDimming.c LARGE
+                    - OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel
+                    -\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerF
+                    -unction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\
+                    -Scaler\RL6432_Series_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\
+                    -Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\He
+                    -ader;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Fact
+                    -ory\Header) DEFINE(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\RTD201
+                    -4UserInterfaceDimming.lst) TABS(2) OBJECT(.\Output\RL6432\RTD2014UserInterfaceDimming.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RTD2014UserInterDimming.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __USER_INTERFACE_DIMMING__
+  18          
+  19          #include "UserCommonInclude.h"
+  20          
+  21          #if((_OSD_TYPE == _REALTEK_2014_OSD) && (_BACKLIGHT_DIMMING_SUPPORT == _ON))
+              
+              //****************************************************************************
+              // DEFINITIONS / MACROS
+              //****************************************************************************
+              
+              
+              //****************************************************************************
+              // STRUCT / TYPE / ENUM DEFINITTIONS
+              //****************************************************************************
+              
+              
+              //****************************************************************************
+              // CODE TABLES
+              //****************************************************************************
+              
+              
+              //****************************************************************************
+              // VARIABLE DECLARATIONS
+              //****************************************************************************
+              
+              
+              //****************************************************************************
+              // FUNCTION DECLARATIONS
+              //****************************************************************************
+              EnumSDRCalibrationType UserInterfaceSDROCCOGCMode(void);
+              EnumSDRPCMStatus UserInterfaceGetSDRPCMMode(void);
+C51 COMPILER V9.60.0.0   RTD2014USERINTERFACEDIMMING                                       08/27/2025 11:02:10 PAGE 2   
+
+              EnumSDROGCStatus UserInterfaceGetSDROGCMode(void);
+              #if(_GLOBAL_DIMMING_SUPPORT == _ON)
+              #if(_OCC_PCM_GAMMA_SUPPORT == _ON)
+              EnumOCCPCMGammaCTMatrix UserInterfaceGetSDRPCMOCCGammaMode(void);
+              #endif
+              #endif
+              
+              //****************************************************************************
+              // FUNCTION DEFINITIONS
+              //****************************************************************************
+              //--------------------------------------------------
+              // Description  : whether SDR mode calibrated by OCC/OGC
+              // Input Value  : void
+              // Output Value : _SDR_CALIBRATION_BY_OGC_TOOL / _SDR_NONE_CALIBRATION_BY_OGC_TOOL,
+              //--------------------------------------------------
+              EnumSDRCalibrationType UserInterfaceSDROCCOGCMode(void)
+              {
+                  if((GET_OSD_PCM_STATUS() == _PCM_OSD_NATIVE) &&
+                     (GET_OSD_GAMMA() == _GAMMA_OFF))
+                  {
+                      return _SDR_NONE_CALIBRATION_BY_OGC_TOOL;
+                  }
+                  else
+                  {
+                      return _SDR_CALIBRATION_BY_OGC_TOOL;
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : which SDR mode calibrated by OCC selected
+              // Input Value  : void
+              // Output Value : EnumSDRPCMStatus
+              //--------------------------------------------------
+              EnumSDRPCMStatus UserInterfaceGetSDRPCMMode(void)
+              {
+              #if(_PCM_FUNCTION == _ON)
+                  if(GET_OSD_PCM_STATUS() != _PCM_OSD_NATIVE)
+                  {
+                      switch(GET_OSD_PCM_STATUS())
+                      {
+              #if(_OCC_SUPPORT == _ON)
+                          case _PCM_OSD_SRGB:
+                              return _SDR_SRGB;
+                      
+              #if(_DEF_PCM_ADOBE_RGB == _ON)
+                          case _PCM_OSD_ADOBE_RGB:
+                              return _SDR_ADOBE_RGB;
+              #endif
+              
+              #endif
+                    case _PCM_OSD_DCI_P3:
+              
+                      return _SDR_DCI_P3;
+              
+                          default:
+                              return _SDR_NONE_OCC;
+                      }
+                  }
+              #endif // End of #if(_PCM_FUNCTION == _ON)
+                  return _SDR_NONE_OCC;
+              }
+              
+C51 COMPILER V9.60.0.0   RTD2014USERINTERFACEDIMMING                                       08/27/2025 11:02:10 PAGE 3   
+
+              
+              //--------------------------------------------------
+              // Description  : which SDR mode calibrated by OGC be selected
+              // Input Value  : void
+              // Output Value : EnumSDROGCStatus
+              //--------------------------------------------------
+              EnumSDROGCStatus UserInterfaceGetSDROGCMode(void)
+              {
+                  switch(GET_OSD_GAMMA())
+                  {
+              #if(_OGC_SUPPORT == _ON)
+                      case _GAMMA_18:
+                          return _SDR_OGC_CASE_1;
+              #if(_OGC_TOTAL_GAMMA > 1)
+                      case _GAMMA_20:
+                          return _SDR_OGC_CASE_2;
+              #if(_OGC_TOTAL_GAMMA > 2)
+                      case _GAMMA_22:
+                          return _SDR_OGC_CASE_3;
+              #if(_OGC_TOTAL_GAMMA > 3)
+                      case _GAMMA_24:
+                          return _SDR_OGC_CASE_4;
+              #endif
+              #endif
+              #endif
+              #endif
+                      default:
+                          return _SDR_NONE_OGC;
+                  }
+              }
+              
+              #if(_GLOBAL_DIMMING_SUPPORT == _ON)
+              #if(_OCC_PCM_GAMMA_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : which SDR mode calibrated by OCC PCM Gamma be selected
+              // Input Value  : void
+              // Output Value : EnumOCCPCMGammaCTMatrix
+              //--------------------------------------------------
+              EnumOCCPCMGammaCTMatrix UserInterfaceGetSDRPCMOCCGammaMode(void)
+              {
+                  EnumOCCPCMGammaCTMatrix enumOCCPCMGammaCTMatrix = _OCC_PCM_GAMMA_CT_OFF;
+              
+                  switch(GET_COLOR_TEMP_TYPE())
+                  {
+                      case _CT_9300:
+                          enumOCCPCMGammaCTMatrix = _OCC_PCM_GAMMA_CT_MODE1;
+                          break;
+              
+                      case _CT_7500:
+                          enumOCCPCMGammaCTMatrix = _OCC_PCM_GAMMA_CT_MODE2;
+                          break;
+              
+                      case _CT_6500:
+                          enumOCCPCMGammaCTMatrix = _OCC_PCM_GAMMA_CT_MODE3;
+                          break;
+              
+                      case _CT_5000:
+                          enumOCCPCMGammaCTMatrix = _OCC_PCM_GAMMA_CT_MODE4;
+                          break;
+              
+                      case _CT_SRGB:
+                          enumOCCPCMGammaCTMatrix = _OCC_PCM_GAMMA_CT_MODE5;
+C51 COMPILER V9.60.0.0   RTD2014USERINTERFACEDIMMING                                       08/27/2025 11:02:10 PAGE 4   
+
+                          break;
+              
+                      case _CT_USER:
+                      default:
+                          enumOCCPCMGammaCTMatrix = _OCC_PCM_GAMMA_CT_MODE6;
+                          break;
+                  }
+              
+                  return enumOCCPCMGammaCTMatrix;
+              }
+              
+              #endif
+              #endif
+              #endif // End of #if((_OSD_TYPE == _REALTEK_2014_OSD) && (_BACKLIGHT_DIMMING_SUPPORT == _ON))
+ 186          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,984 @@
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE TYPEC_PMIC_SILERGY_SY9228
+OBJECT MODULE PLACED IN .\Output\RL6432\TypeC_Pmic_SILERGY_SY9228.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE User\Device\Code\TypeC_Pmic_SILERGY_SY9228.c LARGE OPTIMIZE(9,SPEED) INC
+                    -DIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kerne
+                    -l\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\K
+                    -ernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Series_C
+                    -ommon\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kernel\Us
+                    -er Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Factor
+                    -y\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_PR
+                    -OJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\TypeC_Pmic_SILERGY_SY9228.ls
+                    -t) TABS(2) OBJECT(.\Output\RL6432\TypeC_Pmic_SILERGY_SY9228.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : TypeC_Pmic_SILERGY_SY9228.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "UserCommonInclude.h"
+  18          
+  19          #if(_TYPE_C_PMIC_TYPE == _PMIC_SY9228)
+              
+              //****************************************************************************
+              // DEFINITIONS / MACROS
+              //****************************************************************************
+              //--------------------------------------------------
+              // Definitions of PMIC SY9228
+              //--------------------------------------------------
+              #define _SY9228_SUBADDR_LENGTH              0x01
+              #define _SY9228_FUNCTION_SETTING1           0x00
+              #define _SY9228_FUNCTION_SETTING2           0x01
+              #define _SY9228_VOUT_SETTING                0x02
+              #define _SY9228_PROTECT_REG1                0x03
+              #define _SY9228_PROTECT_REG2                0x04
+              #define _SY9228_STATE_REG                   0x05
+              #define _SY9228_INT_REG                     0x06
+              #define _SY9228_VIN_VALUE_REG               0x07
+              #define _SY9228_VOUT_VALUE_REG              0x08
+              #define _SY9228_CURRENT_VALUE_REG           0x09
+              #define _SY9228_VENDER_ID                   0x0A
+              
+              //--------------------------------------------------
+              // Initial Setting
+              //--------------------------------------------------
+              #define _ADDR_00_REGULATOR_ENABLE           0x00        // Disable
+              #define _ADDR_00_SWITCH_FREQ                0x00        // 250kHz
+              #define _ADDR_00_ADC_ACTIVE                 0x01        // Active
+              #define _ADDR_00_ADC_MODE                   0x01        // Auto Detect Mode
+              #define _ADDR_00_VBUS_DISCHARGE             0x01        // Inactive Discharge
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 2   
+
+              #define _ADDR_00_GATE_ENABLE                0x00        // Disable
+              #define _ADDR_01_CABLE_COMPENSATION         0x02        // 100m Ohm
+              #define _ADDR_02_VOUT_SETTING               0x32        // 5V
+              #define _ADDR_03_VOUT_OCP_SETTING           0x06        // 50mV
+              #define _ADDR_03_VOUT_OVP_SETTING           0x02        // 120%
+              #define _ADDR_03_SLEW_RATE                  0x03        // 4mV/uS
+              #define _ADDR_04_LOCP_SETTING               0x00        // 6A
+              #define _ADDR_04_VOUT_UVP_SETTING           0x02        // 70%
+              #define _ADDR_04_LOCP_MODE                  0x00        // Latch off
+              #define _ADDR_04_VOUT_UVP_MODE              0x00        // Latch off
+              #define _ADDR_04_OTP_MODE                   0x01        // Auto recover
+              #define _ADDR_04_VOUT_OVP_MODE              0x01        // Auto recover
+              
+              //--------------------------------------------------
+              // Definitions of Pmic SY9228 Control
+              //--------------------------------------------------
+              #define _PMIC_SOURCE                        1
+              #define _PMIC_SINK                          0
+              
+              
+              //****************************************************************************
+              // STRUCT / TYPE / ENUM DEFINITTIONS
+              //****************************************************************************
+              typedef struct
+              {
+                  BYTE b1FS1Reserved : 1;
+                  BYTE b1GateEnable : 1;
+                  BYTE b1VOUTDischarge : 1;
+                  BYTE b1ADCMode : 1;
+                  BYTE b1ADCEnable : 1;
+                  BYTE b2SwitchFreq : 2;
+                  BYTE b1PMICEnable : 1;
+              
+                  BYTE b5FS2Reserved : 5;
+                  BYTE b3CableCompensation : 3;
+              
+                  BYTE ucOutputVoltageSetting;
+              
+                  BYTE b1PS1Reserved : 1;
+                  BYTE b2SlewRate : 2;
+                  BYTE b2OVPSetting : 2;
+                  BYTE b3VOCPSetting : 3;
+              
+                  BYTE b1OVPMode : 1;
+                  BYTE b1OTPMode : 1;
+                  BYTE b1UVPMode : 1;
+                  BYTE b1LOCPMode : 1;
+                  BYTE b2UVPSetting : 2;
+                  BYTE b2LOCPSetting : 2;
+              
+                  BYTE b6SRReserved : 6;
+                  BYTE b1VinVoutRelation : 1;
+                  BYTE b1PowerGoodState : 1;
+              
+                  BYTE b2IRReserved : 2;
+                  BYTE b1OVPFlag : 1;
+                  BYTE b1OTPFlag : 1;
+                  BYTE b1UVPFlag : 1;
+                  BYTE b1LOCPFlag : 1;
+                  BYTE b1VOCPFlag : 1;
+                  BYTE b1ADCReady : 1;
+              
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 3   
+
+                  BYTE ucInputVoltageValue;
+              
+                  BYTE ucOutputVoltageValue;
+              
+                  BYTE ucOutputCurrentValue;
+              
+                  BYTE b4VenderID : 4;
+                  BYTE b4Product : 4;
+              } StructSY9228RegisterMap;
+              
+              //****************************************************************************
+              // CODE TABLES
+              //****************************************************************************
+              StructSY9228RegisterMap code g_stPmicInitialData =
+              {
+                  0x00,                              // Reserved
+                  _ADDR_00_GATE_ENABLE,              // Gate Enable by define
+                  _ADDR_00_VBUS_DISCHARGE,           // Discharge Enable by define
+                  _ADDR_00_ADC_MODE,                 // ADC Mode select by define
+                  _ADDR_00_ADC_ACTIVE,               // ADC Active select by define
+                  _ADDR_00_SWITCH_FREQ,              // Switching Freq by define
+                  _ADDR_00_REGULATOR_ENABLE,         // Regulator Enable by define
+              
+                  0x00,                              // Reserved
+                  _ADDR_01_CABLE_COMPENSATION,       // Cable Impedance Compensation by define
+              
+                  _ADDR_02_VOUT_SETTING,             // Output Voltage by define
+              
+                  0x00,                              // Reserved
+                  _ADDR_03_SLEW_RATE,                // OVP Threshold by define
+                  _ADDR_03_VOUT_OVP_SETTING,         // OVP Threshold by define
+                  _ADDR_03_VOUT_OCP_SETTING,         // OCP Threshold by define
+              
+                  _ADDR_04_VOUT_OVP_MODE,            // OVP mode by define
+                  _ADDR_04_OTP_MODE,                 // OTP mode by define
+                  _ADDR_04_VOUT_UVP_MODE,            // UVP mode by define
+                  _ADDR_04_LOCP_MODE,                // LOCP mode by define
+                  _ADDR_04_VOUT_UVP_SETTING,         // UVP Threshold by define
+                  _ADDR_04_LOCP_SETTING,             // LOCP by define
+              
+                  0x00,                              // Reserved
+                  0x00,                              // Input/Output Voltage relation (Read Only)
+                  0x00,                              // Power Good Status (Read Only)
+              
+                  0x00,                              // Reserved
+                  0x00,                              // OVP Flag (Read Only)
+                  0x00,                              // OTP Flag (Read Only)
+                  0x00,                              // UVP Flag (Read Only)
+                  0x00,                              // LOCP Flag (Read Only)
+                  0x00,                              // OCP Flag (Read Only)
+                  0x00,                              // ADC Data Ready (Read Only)
+              
+                  0x00,                              // Input Voltage Value (Read Only)
+                  0x00,                              // Output Voltage Value (Read Only)
+                  0x00,                              // Output Current Value (Read Only)
+              
+                  0x00,                              // Product (Read Only)
+                  0x00,                              // Vender ID (Read Only)
+              };
+              
+              
+              //****************************************************************************
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 4   
+
+              // VARIABLE DECLARATIONS
+              //****************************************************************************
+              StructSY9228RegisterMap g_stPMICData;
+              
+              //****************************************************************************
+              // FUNCTION DECLARATIONS
+              //****************************************************************************
+              void ExternalDeviceInterfaceTypeCPmicACOnInitial(void);
+              void ExternalDeviceInterfaceTypeCPmicUnattachReset(void);
+              void ExternalDeviceInterfaceTypeCPmicUnattachReset_EXINT0(void);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVoltageCurrentSetting(EnumTypeCPmicDirection en
+             -umPowerDirection, WORD usVoltage, WORD usCurrent);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicTurnOff(void);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVoltageCurrentSetting_EXINT0(EnumTypeCPmicDirec
+             -tion enumPowerDirection, WORD usVoltage, WORD usCurrent);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicTurnOff_EXINT0(void);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVoltageCurrentSetting_WDINT(EnumTypeCPmicDirect
+             -ion enumPowerDirection, WORD usVoltage, WORD usCurrent);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicTurnOff_WDINT(void);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVbusDischarge(EnumTypeCPmicDischarge enumEn);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVbusDischarge_EXINT0(EnumTypeCPmicDischarge enu
+             -mEn);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVbusDischarge_WDINT(EnumTypeCPmicDischarge enum
+             -En);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicSwitchControl(EnumTypeCPmicSwitchControl enumSw
+             -itchControl, EnumTypeCPmicDirection enumPowerDirection);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicSwitchControl_EXINT0(EnumTypeCPmicSwitchControl
+             - enumSwitchControl, EnumTypeCPmicDirection enumPowerDirection);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicSwitchControl_WDINT(EnumTypeCPmicSwitchControl 
+             -enumSwitchControl, EnumTypeCPmicDirection enumPowerDirection);
+              #if(_TYPE_C_EMB_PD3_PPS_SUPPORT == _ON)
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicPpsOutputModeSetting(EnumTypeCPmicDirection enu
+             -mPowerDirection, EnumPDPdoType enumOutputPdoType);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicPpsOutputModeSetting_EXINT0(EnumTypeCPmicDirect
+             -ion enumPowerDirection, EnumPDPdoType enumOutputPdoType);
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicPpsOutputModeSetting_WDINT(EnumTypeCPmicDirecti
+             -on enumPowerDirection, EnumPDPdoType enumOutputPdoType);
+              EnumTypeCPmicOperationMode ExternalDeviceInterfaceTypeCPmicReadPpsOperationModeStatus_EXINT0(void);
+              #endif
+              #if(_TYPE_C_PMIC_DEBUG == _ON)
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicDebugCheckStatus(void);
+              #endif
+              #if(_TYPE_C_PMIC_FW_OCP_PROTECT_METHOD == _TYPE_C_PMIC_FW_OCP_BY_POLLING_PMIC)
+              WORD ExternalDeviceInterfaceTypeCPmicReadPmicAdcCurrentValue(void);
+              #endif
+              
+              //****************************************************************************
+              // FUNCTION DEFINITIONS
+              //****************************************************************************
+              //--------------------------------------------------
+              // Description  : PMIC Initial Settings
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ExternalDeviceInterfaceTypeCPmicACOnInitial(void)
+              {
+                  // Set PMIC Data initial value
+                  g_stPMICData = g_stPmicInitialData;
+              
+                  PCB_PMIC_POWER(_POWER_ON);
+              
+                  // Delay 10ms for Silergy PMIC's Special Design
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 5   
+
+                  ScalerTimerDelayXms(10);
+              
+                  // Initial Pmic Value
+                  ScalerTypeCPmicIICWrite(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SUBADDR_LEN
+             -GTH, 5, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1);
+              
+                  // Clear INT Flag
+                  ScalerTypeCPmicIICRead(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_STATE_REG, _SY9228_SUBADDR_LENGTH, 2, (
+             -BYTE *)(&g_stPMICData) + _SY9228_STATE_REG);
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC Reset Settings
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ExternalDeviceInterfaceTypeCPmicUnattachReset(void)
+              {
+                  // Set PMIC Data initial value
+                  g_stPMICData = g_stPmicInitialData;
+              
+                  // Initial Pmic Value
+                  ScalerTypeCPmicIICWrite(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SUBADDR_LEN
+             -GTH, 5, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1);
+              
+                  // Clear INT Flag
+                  ScalerTypeCPmicIICRead(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_STATE_REG, _SY9228_SUBADDR_LENGTH, 2, (
+             -BYTE *)(&g_stPMICData) + _SY9228_STATE_REG);
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC Reset Settings
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ExternalDeviceInterfaceTypeCPmicUnattachReset_EXINT0(void) using 1
+              {
+                  // Set PMIC Data initial value
+                  g_stPMICData = g_stPmicInitialData;
+              
+                  // Initial Pmic Value
+                  ScalerTypeCPmicIICWrite_EXINT0(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SUBA
+             -DDR_LENGTH, 5, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1);
+              
+                  // Clear INT Flag
+                  ScalerTypeCPmicIICRead_EXINT0(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_STATE_REG, _SY9228_SUBADDR_LENGT
+             -H, 2, (BYTE *)(&g_stPMICData) + _SY9228_STATE_REG);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Control PMIC to Directed Voltage
+              // Input Value  : enumPowerDirection : _PD_POWER_SNK / _PD_POWER_SRC
+              //                usVoltage : 300 ~ 2100 (Unit = 10mV) / usCurrent : 0 ~ 500 (Unit = 10mA)
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVoltageCurrentSetting(EnumTypeCPmicDirection en
+             -umPowerDirection, WORD usVoltage, WORD usCurrent)
+              {
+                  enumPowerDirection = enumPowerDirection;
+              
+                  // Set Pmic config
+                  g_stPMICData.b1PMICEnable = _ON;
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 6   
+
+                  g_stPMICData.b1GateEnable = _ON;
+                  PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_ON);
+              
+                  if(enumPowerDirection == _PMIC_SOURCE)
+                  {
+                      if((usVoltage > 2100) || (usVoltage < 360))
+                      {
+                          return _FAIL;
+                      }
+              
+                      // Set VOUT Voltage
+                      g_stPMICData.ucOutputVoltageSetting = (BYTE)(usVoltage / 10);
+              
+                      // Set Switch Frequency
+                      if(usVoltage >= 1330)
+                      {
+                          g_stPMICData.b2SwitchFreq = 0x00;
+                      }
+                      else if(usVoltage >= 610)
+                      {
+                          g_stPMICData.b2SwitchFreq = 0x01;
+                      }
+                      else
+                      {
+                          g_stPMICData.b2SwitchFreq = 0x02;
+                      }
+              
+                      // Set VBUS Current Limit
+                      if(usCurrent <= 50)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x00;
+                      }
+                      else if(usCurrent <= 100)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x01;
+                      }
+                      else if(usCurrent <= 150)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x02;
+                      }
+                      else if(usCurrent <= 200)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x03;
+                      }
+                      else if(usCurrent <= 300)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x04;
+                      }
+                      else if(usCurrent <= 400)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x05;
+                      }
+                      else if(usCurrent <= 500)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x06;
+                      }
+                      else
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x07;
+                      }
+              
+                      if(ScalerTypeCPmicIICWrite(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SUBA
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 7   
+
+             -DDR_LENGTH, 4, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _FAIL)
+                      {
+                          return _TYPE_C_PMIC_CONTROL_FAIL;
+                      }
+              
+                  }
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Turn off PMIC
+              // Input Value  : None
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicTurnOff(void)
+              {
+                  g_stPMICData.b1PMICEnable = _OFF;
+              
+                  // Disable PMIC
+                  if(ScalerTypeCPmicIICWrite(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SUBADDR_
+             -LENGTH, 1, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _FAIL)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Control PMIC to Directed Voltage
+              // Input Value  : enumPowerDirection : _PD_POWER_SNK / _PD_POWER_SRC
+              //                usVoltage : 300 ~ 2100 (Unit = 10mV) / usCurrent : 0 ~ 500 (Unit = 10mA)
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVoltageCurrentSetting_EXINT0(EnumTypeCPmicDirec
+             -tion enumPowerDirection, WORD usVoltage, WORD usCurrent) using 1
+              {
+                  enumPowerDirection = enumPowerDirection;
+              
+                  // Set Pmic config
+                  g_stPMICData.b1PMICEnable = _ON;
+                  g_stPMICData.b1GateEnable = _ON;
+                  PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_ON);
+              
+                  if(enumPowerDirection == _PMIC_SOURCE)
+                  {
+                      if((usVoltage > 2100) || (usVoltage < 360))
+                      {
+                          return _FAIL;
+                      }
+              
+                      // Set VOUT Voltage
+                      g_stPMICData.ucOutputVoltageSetting = (BYTE)(usVoltage / 10);
+              
+                      // Set Switch Frequency
+                      if(usVoltage >= 1330)
+                      {
+                          g_stPMICData.b2SwitchFreq = 0x00;
+                      }
+                      else if(usVoltage >= 610)
+                      {
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 8   
+
+                          g_stPMICData.b2SwitchFreq = 0x01;
+                      }
+                      else
+                      {
+                          g_stPMICData.b2SwitchFreq = 0x02;
+                      }
+              
+                      // Set VBUS Current Limit
+                      if(usCurrent <= 50)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x00;
+                      }
+                      else if(usCurrent <= 100)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x01;
+                      }
+                      else if(usCurrent <= 150)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x02;
+                      }
+                      else if(usCurrent <= 200)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x03;
+                      }
+                      else if(usCurrent <= 300)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x04;
+                      }
+                      else if(usCurrent <= 400)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x05;
+                      }
+                      else if(usCurrent <= 500)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x06;
+                      }
+                      else
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x07;
+                      }
+              
+                      if(ScalerTypeCPmicIICWrite_EXINT0(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY92
+             -28_SUBADDR_LENGTH, 4, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _FAIL)
+                      {
+                          return _TYPE_C_PMIC_CONTROL_FAIL;
+                      }
+              
+                  }
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Turn off PMIC
+              // Input Value  : None
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicTurnOff_EXINT0(void) using 1
+              {
+                  g_stPMICData.b1PMICEnable = _OFF;
+              
+                  // Disable PMIC
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 9   
+
+                  if(ScalerTypeCPmicIICWrite_EXINT0(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_S
+             -UBADDR_LENGTH, 1, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _FAIL)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Control PMIC to Directed Voltage
+              // Input Value  : bAction : _ON / _OFF
+              //                usVoltage : 300 ~ 2100 (Unit = 10mV) / usCurrent : 0 ~ 500 (Unit = 10mA)
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVoltageCurrentSetting_WDINT(EnumTypeCPmicDirect
+             -ion enumPowerDirection, WORD usVoltage, WORD usCurrent) using 3
+              {
+                  enumPowerDirection = enumPowerDirection;
+              
+                  // Set Pmic config
+                  g_stPMICData.b1PMICEnable = _ON;
+                  g_stPMICData.b1GateEnable = _ON;
+                  PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_ON);
+              
+                  if(enumPowerDirection == _PMIC_SOURCE)
+                  {
+                      if((usVoltage > 2100) || (usVoltage < 360))
+                      {
+                          return _FAIL;
+                      }
+              
+                      // Set VOUT Voltage
+                      g_stPMICData.ucOutputVoltageSetting = (BYTE)(usVoltage / 10);
+              
+                      // Set Switch Frequency
+                      if(usVoltage >= 1330)
+                      {
+                          g_stPMICData.b2SwitchFreq = 0x00;
+                      }
+                      else if(usVoltage >= 610)
+                      {
+                          g_stPMICData.b2SwitchFreq = 0x01;
+                      }
+                      else
+                      {
+                          g_stPMICData.b2SwitchFreq = 0x02;
+                      }
+              
+                      // Set VBUS Current Limit
+                      if(usCurrent <= 50)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x00;
+                      }
+                      else if(usCurrent <= 100)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x01;
+                      }
+                      else if(usCurrent <= 150)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x02;
+                      }
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 10  
+
+                      else if(usCurrent <= 200)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x03;
+                      }
+                      else if(usCurrent <= 300)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x04;
+                      }
+                      else if(usCurrent <= 400)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x05;
+                      }
+                      else if(usCurrent <= 500)
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x06;
+                      }
+                      else
+                      {
+                          g_stPMICData.b3VOCPSetting = 0x07;
+                      }
+              
+                      if(ScalerTypeCPmicIICWrite_WDINT(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY922
+             -8_SUBADDR_LENGTH, 4, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _FAIL)
+                      {
+                          return _TYPE_C_PMIC_CONTROL_FAIL;
+                      }
+              
+                  }
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Turn off PMIC
+              // Input Value  : None
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicTurnOff_WDINT(void) using 3
+              {
+                  g_stPMICData.b1PMICEnable = _OFF;
+              
+                  // Disable PMIC
+                  if(ScalerTypeCPmicIICWrite_WDINT(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SU
+             -BADDR_LENGTH, 1, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _FAIL)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC VBUS Discharge Control
+              // Input Value  : enumEn : _ENABLE / _DISABLE
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVbusDischarge(EnumTypeCPmicDischarge enumEn)
+              {
+                  // Set PMIC VBUS Discharge status
+                  g_stPMICData.b1VOUTDischarge = !enumEn;
+              
+                  // PCB Control
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 11  
+
+                  if(enumEn == _TYPE_C_PMIC_DISCHARGE_ENABLE)
+                  {
+                      PCB_VBUS_DISCHARGE_CONTROL(_VBUS_DISCHARGE_ON);
+                  }
+                  else
+                  {
+                      PCB_VBUS_DISCHARGE_CONTROL(_VBUS_DISCHARGE_OFF);
+                  }
+              
+                  // Disable Pmic VBUS Discharge
+                  if(ScalerTypeCPmicIICWrite(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SUBADDR_
+             -LENGTH, 1, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _SUCCESS)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_SUCCESS;
+                  }
+                  else
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC VBUS Discharge Control
+              // Input Value  : enumEn : _ENABLE / _DISABLE
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVbusDischarge_EXINT0(EnumTypeCPmicDischarge enu
+             -mEn) using 1
+              {
+                  // Set PMIC VBUS Discharge status
+                  g_stPMICData.b1VOUTDischarge = !enumEn;
+              
+                  // PCB Control
+                  if(enumEn == _TYPE_C_PMIC_DISCHARGE_ENABLE)
+                  {
+                      PCB_VBUS_DISCHARGE_CONTROL(_VBUS_DISCHARGE_ON);
+                  }
+                  else
+                  {
+                      PCB_VBUS_DISCHARGE_CONTROL(_VBUS_DISCHARGE_OFF);
+                  }
+              
+                  // Disable Pmic VBUS Discharge
+                  if(ScalerTypeCPmicIICWrite_EXINT0(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_S
+             -UBADDR_LENGTH, 1, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _SUCCESS)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_SUCCESS;
+                  }
+                  else
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC VBUS Discharge Control
+              // Input Value  : enumEn : _ENABLE / _DISABLE
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicVbusDischarge_WDINT(EnumTypeCPmicDischarge enum
+             -En) using 3
+              {
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 12  
+
+                  // Set PMIC VBUS Discharge status
+                  g_stPMICData.b1VOUTDischarge = !enumEn;
+              
+                  // PCB Control
+                  if(enumEn == _TYPE_C_PMIC_DISCHARGE_ENABLE)
+                  {
+                      PCB_VBUS_DISCHARGE_CONTROL(_VBUS_DISCHARGE_ON);
+                  }
+                  else
+                  {
+                      PCB_VBUS_DISCHARGE_CONTROL(_VBUS_DISCHARGE_OFF);
+                  }
+              
+                  // Disable Pmic VBUS Discharge
+                  if(ScalerTypeCPmicIICWrite_WDINT(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SU
+             -BADDR_LENGTH, 1, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _SUCCESS)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_SUCCESS;
+                  }
+                  else
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC Switch Control
+              // Input Value  : enumEn : _ENABLE / _DISABLE
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicSwitchControl(EnumTypeCPmicSwitchControl enumSw
+             -itchControl, EnumTypeCPmicDirection enumPowerDirection)
+              {
+                  if(enumSwitchControl == _TYPE_C_PMIC_SWITCH_CONTROL_ENABLE)
+                  {
+                      g_stPMICData.b1GateEnable = _ON;
+              
+                      if(enumPowerDirection == _TYPE_C_PMIC_DIRECTION_SRC)
+                      {
+                          PCB_PMIC_VBUS_SINK_CONTROL(_VBUS_SINK_SWITCH_OFF);
+                          PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_ON);
+                      }
+                      else
+                      {
+                          PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_OFF);
+                          PCB_PMIC_VBUS_SINK_CONTROL(_VBUS_SINK_SWITCH_ON);
+                      }
+                  }
+                  else
+                  {
+                      g_stPMICData.b1GateEnable = _OFF;
+                      PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_OFF);
+                  }
+              
+                  if(ScalerTypeCPmicIICWrite(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SUBADDR_
+             -LENGTH, 1, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _FAIL)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 13  
+
+              
+              //--------------------------------------------------
+              // Description  : PMIC Switch Control
+              // Input Value  : enumEn : _ENABLE / _DISABLE
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicSwitchControl_EXINT0(EnumTypeCPmicSwitchControl
+             - enumSwitchControl, EnumTypeCPmicDirection enumPowerDirection) using 1
+              {
+                  if(enumSwitchControl == _TYPE_C_PMIC_SWITCH_CONTROL_ENABLE)
+                  {
+                      g_stPMICData.b1GateEnable = _ON;
+              
+                      if(enumPowerDirection == _TYPE_C_PMIC_DIRECTION_SRC)
+                      {
+                          PCB_PMIC_VBUS_SINK_CONTROL(_VBUS_SINK_SWITCH_OFF);
+                          PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_ON);
+                      }
+                      else
+                      {
+                          PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_OFF);
+                          PCB_PMIC_VBUS_SINK_CONTROL(_VBUS_SINK_SWITCH_ON);
+                      }
+                  }
+                  else
+                  {
+                      g_stPMICData.b1GateEnable = _OFF;
+                      PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_OFF);
+                  }
+              
+                  if(ScalerTypeCPmicIICWrite_EXINT0(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_S
+             -UBADDR_LENGTH, 1, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _FAIL)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC Switch Control
+              // Input Value  : enumEn : _ENABLE / _DISABLE
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicSwitchControl_WDINT(EnumTypeCPmicSwitchControl 
+             -enumSwitchControl, EnumTypeCPmicDirection enumPowerDirection) using 3
+              {
+                  if(enumSwitchControl == _TYPE_C_PMIC_SWITCH_CONTROL_ENABLE)
+                  {
+                      g_stPMICData.b1GateEnable = _ON;
+              
+                      if(enumPowerDirection == _TYPE_C_PMIC_DIRECTION_SRC)
+                      {
+                          PCB_PMIC_VBUS_SINK_CONTROL(_VBUS_SINK_SWITCH_OFF);
+                          PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_ON);
+                      }
+                      else
+                      {
+                          PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_OFF);
+                          PCB_PMIC_VBUS_SINK_CONTROL(_VBUS_SINK_SWITCH_ON);
+                      }
+                  }
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 14  
+
+                  else
+                  {
+                      g_stPMICData.b1GateEnable = _OFF;
+                      PCB_PMIC_VBUS_SOURCE_CONTROL(_VBUS_SOURCE_SWITCH_OFF);
+                  }
+              
+                  if(ScalerTypeCPmicIICWrite_WDINT(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_FUNCTION_SETTING1, _SY9228_SU
+             -BADDR_LENGTH, 1, (BYTE *)(&g_stPMICData) + _SY9228_FUNCTION_SETTING1) == _FAIL)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              #if(_TYPE_C_EMB_PD3_PPS_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : PMIC Output Mode Setting
+              // Input Value  : enumOutputMode : Output Mode (Fixed Voltage/PPS)
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicPpsOutputModeSetting(EnumTypeCPmicDirection enu
+             -mPowerDirection, EnumPDPdoType enumOutputPdoType)
+              {
+                  enumPowerDirection= enumPowerDirection;
+                  enumOutputPdoType = enumOutputPdoType;
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC Output Mode Setting
+              // Input Value  : enumOutputMode : Output Mode (Fixed Voltage/PPS)
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicPpsOutputModeSetting_EXINT0(EnumTypeCPmicDirect
+             -ion enumPowerDirection, EnumPDPdoType enumOutputPdoType) using 1
+              {
+                  enumPowerDirection= enumPowerDirection;
+                  enumOutputPdoType = enumOutputPdoType;
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC Output Mode Setting
+              // Input Value  : enumOutputMode : Output Mode (Fixed Voltage/PPS)
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicPpsOutputModeSetting_WDINT(EnumTypeCPmicDirecti
+             -on enumPowerDirection, EnumPDPdoType enumOutputPdoType) using 3
+              {
+                  enumPowerDirection= enumPowerDirection;
+                  enumOutputPdoType = enumOutputPdoType;
+              
+                  return _TYPE_C_PMIC_CONTROL_SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : PMIC Read Output Status
+              // Input Value  : None
+              // Output Value : Output Mode (Fixed Voltage/PPS)
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 15  
+
+              //--------------------------------------------------
+              EnumTypeCPmicOperationMode ExternalDeviceInterfaceTypeCPmicReadPpsOperationModeStatus_EXINT0(void) using 1
+              {
+                  return _TYPE_C_PMIC_NONE_MODE_OPERATION;
+              }
+              #endif // End of #if(_TYPE_C_EMB_PD3_PPS_SUPPORT == _ON)
+              
+              #if(_TYPE_C_PMIC_DEBUG == _ON)
+              //--------------------------------------------------
+              // Description  : PMIC Status
+              // Input Value  : None
+              // Output Value : Control result (Fail/Success)
+              //--------------------------------------------------
+              EnumTypeCPmicControlResult ExternalDeviceInterfaceTypeCPmicDebugCheckStatus(void)
+              {
+                  BYTE ucResult = 0;
+              
+                  ucResult = ScalerTypeCPmicIICRead(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_STATE_REG, _SY9228_SUBADDR_L
+             -ENGTH, 6, (BYTE *)(&g_stPMICData) + _SY9228_STATE_REG);
+              
+                  DebugMessageTypeC("5.Pmic:Power Good Status", g_stPMICData.b1PowerGoodState);
+                  DebugMessageTypeC("5.Pmic:Relation Status", g_stPMICData.b1VinVoutRelation);
+                  DebugMessageTypeC("6.Pmic:Output OCP Flag", g_stPMICData.b1VOCPFlag);
+                  DebugMessageTypeC("6.Pmic:Inductor OCP Flag", g_stPMICData.b1LOCPFlag);
+                  DebugMessageTypeC("6.Pmic:Output UVP Flag", g_stPMICData.b1UVPFlag);
+                  DebugMessageTypeC("6.Pmic:OTP Flag", g_stPMICData.b1OTPFlag);
+                  DebugMessageTypeC("6.Pmic:Output UVP Flag", g_stPMICData.b1OVPFlag);
+                  DebugMessageTypeC("7.Pmic:Input Voltage Value", g_stPMICData.ucInputVoltageValue);
+                  DebugMessageTypeC("8.Pmic:Output Voltage Value", g_stPMICData.ucOutputVoltageValue);
+                  DebugMessageTypeC("9.Pmic:Output Current Value", g_stPMICData.ucOutputCurrentValue);
+                  DebugMessageTypeC("A.Pmic:Product ID", g_stPMICData.b4Product);
+                  DebugMessageTypeC("A.Pmic:Vender ID", g_stPMICData.b4VenderID);
+              
+                  if (ucResult == _SUCCESS)
+                  {
+                      return _TYPE_C_PMIC_CONTROL_SUCCESS;
+                  }
+                  else
+                  {
+                      return _TYPE_C_PMIC_CONTROL_FAIL;
+                  }
+              }
+              #endif // End of #if(_TYPE_C_PMIC_DEBUG == _ON)
+              
+              #if(_TYPE_C_PMIC_FW_OCP_PROTECT_METHOD == _TYPE_C_PMIC_FW_OCP_BY_POLLING_PMIC)
+              //--------------------------------------------------
+              // Description  : PMIC VBUS Current Reading
+              // Input Value  : None
+              // Output Value : usCurrent : 0 ~ 500 (Unit = 10mA)
+              //--------------------------------------------------
+              WORD ExternalDeviceInterfaceTypeCPmicReadPmicAdcCurrentValue(void)
+              {
+                  WORD usCurrent = 0;
+              
+                  // Get Current value from PMIC's ADC
+                  ScalerTypeCPmicIICRead(_TYPE_C_RX0_PMIC_SLAVE_ADDRESS, _SY9228_CURRENT_VALUE_REG, _SY9228_SUBADDR_LENG
+             -TH, 1, (BYTE *)(&g_stPMICData) + _SY9228_CURRENT_VALUE_REG);
+              
+                  // Translate PMIC's Current Unit to 10mA/bit
+                  usCurrent = ((WORD)(((DWORD)g_stPMICData.ucOutputCurrentValue * 100 * 6) / 256));
+              
+                  // Show data
+C51 COMPILER V9.60.0.0   TYPEC_PMIC_SILERGY_SY9228                                         09/09/2025 18:05:05 PAGE 16  
+
+                  DebugMessageTypeC("Pmic:Current Value(Bit)", g_stPMICData.ucOutputCurrentValue);
+                  DebugMessageTypeC("Pmic:Current Value(10mA)", usCurrent);
+              
+                  return usCurrent;
+              }
+              #endif // End of #if(_TYPE_C_PMIC_FW_OCP_PROTECT_METHOD == _TYPE_C_PMIC_FW_OCP_BY_POLLING_PMIC)
+              #endif // End of #if(_TYPE_C_PMIC_TYPE == _PMIC_SY9228)
+ 881          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

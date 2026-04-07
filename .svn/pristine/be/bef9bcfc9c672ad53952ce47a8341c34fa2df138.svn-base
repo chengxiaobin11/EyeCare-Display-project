@@ -1,0 +1,2038 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6851_Series_ScalerDPRx0_ComboPhy.c No.0000
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+
+#include "ScalerFunctionInclude.h"
+
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+//****************************************************************************
+// CODE TABLES
+//****************************************************************************
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+#if(_D0_DP_EXIST == _ON)
+BYTE g_ucDpRx0PhyCtsCtrl;
+
+#if(_DP_ILLEGAL_IDLE_PATTERN_CHECK_SUPPORT == _ON)
+bit g_bDpRx0SourceTypeJudge = _FALSE;
+
+#if(_HW_DP_LANE_VALID_CHECK_SUPPORT == _OFF)
+bit g_bDpRx0SourceLTFirstRound = _FALSE;
+#endif
+#endif
+
+StructDpLanesMapping g_stDpRx0LanesMapping;
+StructDPRxMiscInfo g_stDpRx0MiscInfo;
+#endif
+
+BYTE g_ucDpRx0EQCRC;
+
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+#if(_D0_DP_EXIST == _ON)
+void ScalerDpRx0ChangeDpcdVersion(EnumDpVersionType enumDpVersion, EnumDPMSTPort enumDpRxMstPort);
+void ScalerDpRx0CpIRQ(EnumDpRxBStatusType enumBStatusType);
+bit ScalerDpRx0AlignCheck(void);
+bit ScalerDpRx0DecodeCheck(void);
+void ScalerDpRx0SetNoVideoStreamIRQ(bit bEn);
+void ScalerDpRx0DpcdLinkStatusReset(EnumDpResetStatus enumDpResetStatus);
+bit ScalerDpRx0FifoCheck(EnumDpFifoCheckCondition enumFifoCheckCondition);
+void ScalerDpRx0HDCPBlockReset(void);
+bit ScalerDpRx0HdcpCheck(void);
+bit ScalerDpRx0HdcpCheckValid(void);
+bit ScalerDpRx0HdcpCheckEnabled(void);
+bit ScalerDpRx0HdcpReAuthStatusCheck(void);
+void ScalerDpRx0Initial(EnumDpVersionType enumDpVersion, EnumDpLaneCount enumDpLaneCount, EnumDPMSTPort enumDpRxMstPort, EnumFreeSyncSupport enumFreeSyncSupport, EnumAudioDpDpcdSupport enumAudioSupport);
+void ScalerDpRx0SetDpLaneMapping(EnumTypeCPinCfgType enumPinAssignment, EnumTypeCOrientation enumOrientation);
+bit ScalerDpRx0MarginLinkCheck(void);
+void ScalerDpRx0LinkStatusIRQ(void);
+void ScalerDpRx0ActiveLinkStatusIRQ(void);
+void ScalerDpRx0AuxSet(void);
+bit ScalerDpRx0ChangeSrambleSeed(void);
+#if(_DP_RX0_ASSR_MODE_SUPPORT == _ON)
+bit ScalerDpRx0VbiosAssrCheck(bit bMSACheckResult);
+#endif
+bit ScalerDpRx0PSPreDetect(void);
+bit ScalerDpRx0PhyCtsTp2Check(void);
+void ScalerDpRx0SetFifoIRQ(bit bEn);
+void ScalerDpRx0SetFifoWD(bit bEn);
+void ScalerDpRx0HpdIrqAssert(void);
+EnumDpHotPlugTime ScalerDpRx0BeforeHpdToggleProc(EnumDpHotPlugAssertType enumHpdType);
+void ScalerDpRx0DisconnectReset(void);
+void ScalerDpRx0AfterHpdToggleProc(void);
+void ScalerDpRx0CancelValidSignalDetectTimerEvent(void);
+bit ScalerDpRx0AuxChSourcePowerCheck(void);
+void ScalerDpRx0AuxChPowerStatusCheck(bit bCableStatus);
+#endif
+
+//****************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+#if(_D0_DP_EXIST == _ON)
+//--------------------------------------------------
+// Description  : Dp Version Switch
+// Input Value  : _DP_VERSION_1_1 or _DP_VERSION_1_2
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0ChangeDpcdVersion(EnumDpVersionType enumDpVersion, EnumDPMSTPort enumDpRxMstPort)
+{
+    enumDpRxMstPort = _DP_MST_NO_PORT;
+
+    if(enumDpVersion >= _DP_VERSION_1_2)
+    {
+        // DPCD Version
+        ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x00, _DP_VERSION_1_2);
+
+        // Set EXTENDED_RECEIVER_CAPABILITY_FIELD_PRESENT bit
+        ScalerDpRx0SetDpcdBitValue(0x00, 0x00, 0x0E, ~_BIT7, 0x00);
+
+        if(_D0_DP_LINK_CLK_RATE > _DP_HIGH_SPEED2_540MHZ)
+        {
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x01, _DP_LINK_HBR2);
+        }
+        else
+        {
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x01, _D0_DP_LINK_CLK_RATE);
+        }
+
+        // _BIT3:0, Down Stream Port Counter
+        pData[0] = ScalerDpRx0GetDpcdInfo(0x00, 0x00, 0x07);
+        ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x07, ((pData[0] & ~(_BIT3 | _BIT2 | _BIT1 | _BIT0)) | _DP_1_2_DOWN_STREAM_PORT_COUNT));
+
+        ScalerDpRx0SetSinkDeviceSpecificField(enumDpVersion);
+
+#if(_EIZO_CUSTOMIZED_VALUE_OF_DPCD_SUPPORT == _ON)
+        ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x09, 0x00);
+        ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x28, 0x01);
+#endif
+    }
+    else
+    {
+        // DPCD Version
+        ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x00, _DP_VERSION_1_1);
+
+        // Set EXTENDED_RECEIVER_CAPABILITY_FIELD_PRESENT bit
+        ScalerDpRx0SetDpcdBitValue(0x00, 0x00, 0x0E, ~_BIT7, 0x00);
+
+        if(_D0_DP_LINK_CLK_RATE > _DP_HIGH_SPEED_270MHZ)
+        {
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x01, _DP_LINK_HBR);
+        }
+        else
+        {
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x01, _D0_DP_LINK_CLK_RATE);
+        }
+
+        // _BIT3:0, Down Stream Port Counter
+        pData[0] = ScalerDpRx0GetDpcdInfo(0x00, 0x00, 0x07);
+        ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x07, ((pData[0] & ~(_BIT3 | _BIT2 | _BIT1 | _BIT0)) | _DP_1_1_DOWN_STREAM_PORT_COUNT));
+
+        ScalerDpRx0SetSinkDeviceSpecificField(enumDpVersion);
+
+#if(_EIZO_CUSTOMIZED_VALUE_OF_DPCD_SUPPORT == _ON)
+        ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x09, 0x02);
+        ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x28, 0x01);
+#endif
+    }
+
+    if(ScalerDpRx0GetDpcdInfo(0x00, 0x00, 0x01) >= _DP_LINK_HBR2)
+    {
+        // TPS3 Support
+        ScalerDpRx0SetDpcdBitValue(0x00, 0x00, 0x02, ~_BIT6, _BIT6);
+    }
+    else
+    {
+        // TPS3 NonSupport
+        ScalerDpRx0SetDpcdBitValue(0x00, 0x00, 0x02, ~_BIT6, 0x00);
+    }
+
+    // Set TRAINING_AUX_RD_INTERVAL = 400us for EQ phase
+    ScalerDpRx0SetDpcdBitValue(0x00, 0x00, 0x0E, ~(_BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), _DP_LT_AUX_RD_INTVL_EQ_400US);
+
+    if(ScalerDpRx0GetDpcdBitInfo(0x00, 0x00, 0x0E, _BIT7) == 0x00)
+    {
+        // Clear Wildcard 0 IRQ Flag
+        ScalerSetBit(PB7_FB_DP0_MANUAL_DPCD_IRQ, ~(_BIT7 | _BIT5 | _BIT3 | _BIT1), _BIT7);
+
+        // Enable Wildcard 0 IRQ
+        ScalerSetBit(PB7_FB_DP0_MANUAL_DPCD_IRQ, ~(_BIT7 | _BIT6 | _BIT5 | _BIT3 | _BIT1), _BIT6);
+    }
+    else
+    {
+        // Disable Wildcard 0 IRQ
+        ScalerSetBit(PB7_FB_DP0_MANUAL_DPCD_IRQ, ~(_BIT7 | _BIT6 | _BIT5 | _BIT3 | _BIT1), 0x00);
+    }
+}
+//--------------------------------------------------
+// Description  : DP Content Protection Interrupt Request
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0CpIRQ(EnumDpRxBStatusType enumBStatusType)
+{
+    // Link Status CPIRQ Flag
+    ScalerDpRx0SetDpcdValue(0x00, 0x02, 0x01, (ScalerDpRx0GetDpcdInfo(0x00, 0x02, 0x01) | _BIT2));
+
+    // Set B Status
+    ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x29, (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x29) | enumBStatusType));
+
+    if((enumBStatusType == _DP_HDCP_BSTATUS_LINK_INTEGRITY_FAIL) || (enumBStatusType == _DP_HDCP_BSTATUS_REAUTH_REQ))
+    {
+        // Reset HDCP Block
+        ScalerSetBit(PB_01_PHY_DIG_RESET_CTRL, ~_BIT0, _BIT0);
+        ScalerSetBit(PB_01_PHY_DIG_RESET_CTRL, ~_BIT0, 0x00);
+
+        SET_DP_RX0_AUX_MANUAL_MODE();
+
+        // Clear Aksv
+        ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x07, 0x00);
+        ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x08, 0x00);
+        ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x09, 0x00);
+        ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x0A, 0x00);
+        ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x0B, 0x00);
+
+        SET_DP_RX0_AUX_AUTO_MODE();
+    }
+
+    ScalerDpRx0HpdIrqAssert();
+}
+
+//--------------------------------------------------
+// Description  : Check Valid Lane Alignment
+// Input Value  : None
+// Output Value : True --> Align
+//--------------------------------------------------
+bit ScalerDpRx0AlignCheck(void)
+{
+#if(_DP_ILLEGAL_IDLE_PATTERN_CHECK_SUPPORT == _ON)
+
+    if(GET_DP_ILLEGAL_IDLE_PATTERN_CHECK() == _TRUE)
+    {
+        if(GET_DP_RX0_SOURCE_TYPE_JUDGE() == _FALSE)
+        {
+#if(_HW_DP_LANE_VALID_CHECK_SUPPORT == _ON)
+            if(ScalerDpRx0LaneValidCheck() == _FALSE)
+            {
+                return _TRUE;
+            }
+#else
+            if(GET_DP_RX0_SOURCE_LT_FIRST_ROUND() == _TRUE)
+            {
+                return _TRUE;
+            }
+#endif
+        }
+    }
+
+#endif
+
+    if((ScalerDpRx0GetDpcdInfo(0x00, 0x01, 0x01) & 0x1F) == _DP_ONE_LANE)
+    {
+        return _TRUE;
+    }
+    else
+    {
+        if(ScalerGetBit(PB_0E_DESKEW_PHY, _BIT4) == 0x00)
+        {
+            if(ScalerGetBit(PB_0E_DESKEW_PHY, (_BIT7 | _BIT6)) != (_BIT7 | _BIT6))
+            {
+                ScalerSetBit(PB_0E_DESKEW_PHY, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+
+                ScalerTimerDelayXms(3);
+            }
+            else
+            {
+                return _FALSE;
+            }
+        }
+    }
+
+    return _TRUE;
+}
+
+//--------------------------------------------------
+// Description : check DP 8b/10b Decode Error
+//               It can not use pData to avoid cross-function usage
+// Input Value  : None
+// Output Value : True --> ok, False --> 8b/10b Decode Error
+//--------------------------------------------------
+bit ScalerDpRx0DecodeCheck(void)
+{
+    BYTE ucCount = 3;
+
+#if(_DP_ILLEGAL_IDLE_PATTERN_CHECK_SUPPORT == _ON)
+
+    if(GET_DP_ILLEGAL_IDLE_PATTERN_CHECK() == _TRUE)
+    {
+        if(GET_DP_RX0_SOURCE_TYPE_JUDGE() == _FALSE)
+        {
+#if(_HW_DP_LANE_VALID_CHECK_SUPPORT == _ON)
+            if(ScalerDpRx0LaneValidCheck() == _FALSE)
+            {
+                return _TRUE;
+            }
+#else
+            if(GET_DP_RX0_SOURCE_LT_FIRST_ROUND() == _TRUE)
+            {
+                return _TRUE;
+            }
+#endif
+        }
+    }
+
+#endif
+
+    while(ucCount > 0)
+    {
+        // Clear 8b/10b Decode Error Flag
+        ScalerSetBit(PB_06_DECODE_10B8B_ERROR, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT3 | _BIT2 | _BIT1 | _BIT0));
+
+        // Delay Time us [150,x]
+        DELAY_XUS(150);
+
+        switch(ScalerDpRx0GetDpcdInfo(0x00, 0x01, 0x01) & 0x1F)
+        {
+            case _DP_ONE_LANE:
+
+                if(((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE0) && (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, _BIT0) == 0x00)) ||
+                   ((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE1) && (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, _BIT1) == 0x00)) ||
+                   ((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE2) && (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, _BIT2) == 0x00)) ||
+                   ((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE3) && (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, _BIT3) == 0x00)))
+                {
+                    return _TRUE;
+                }
+
+                break;
+
+            case _DP_TWO_LANE:
+
+                if(((((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE0) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE1)) || ((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE1) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE0))) &&
+                    (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, (_BIT1 | _BIT0)) == 0x00)) ||
+                   ((((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE0) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE2)) || ((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE2) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE0))) &&
+                    (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, (_BIT2 | _BIT0)) == 0x00)) ||
+                   ((((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE0) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE3)) || ((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE3) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE0))) &&
+                    (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, (_BIT3 | _BIT0)) == 0x00)) ||
+                   ((((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE1) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE2)) || ((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE2) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE1))) &&
+                    (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, (_BIT2 | _BIT1)) == 0x00)) ||
+                   ((((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE1) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE3)) || ((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE3) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE1))) &&
+                    (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, (_BIT3 | _BIT1)) == 0x00)) ||
+                   ((((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE2) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE3)) || ((GET_DP_RX0_PCB_LANE0_MAPPING() == _DP_SCALER_LANE3) && (GET_DP_RX0_PCB_LANE1_MAPPING() == _DP_SCALER_LANE2))) &&
+                    (ScalerGetBit(PB_06_DECODE_10B8B_ERROR, (_BIT3 | _BIT2)) == 0x00)))
+                {
+                    return _TRUE;
+                }
+
+                break;
+
+            case _DP_FOUR_LANE:
+
+                if(ScalerGetBit(PB_06_DECODE_10B8B_ERROR, (_BIT3 | _BIT2 | _BIT1 | _BIT0)) == 0x00)
+                {
+                    return _TRUE;
+                }
+
+                break;
+
+            default:
+
+                return _FALSE;
+
+                break;
+        }
+
+        ucCount--;
+    }
+
+    DebugMessageRx0("7. DP 8b/10b Decode Error", 0);
+
+    return _FALSE;
+}
+
+//--------------------------------------------------
+// Description  : Enable DP Fifo Under/OverFlow IRQ
+// Input Value  : _ENABLE/ DISABLE
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0SetNoVideoStreamIRQ(bit bEn)
+{
+    // VB-ID[3] Change Flag
+    ScalerSetBit(PB6_36_DP_GLB_STATUS, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1), _BIT6);
+
+    // VB-ID[3] Change IRQ
+    ScalerSetBit(PB6_3B_DP_IRQ_CTRL1, ~_BIT4, ((bEn == _ENABLE) ? _BIT4 : 0x00));
+}
+
+//--------------------------------------------------
+// Description  : DPCD Link Status Field Reset
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0DpcdLinkStatusReset(EnumDpResetStatus enumDpResetStatus)
+{
+    BYTE ucBackup = ScalerGetByte(PB7_D0_AUX_MODE_SET);
+
+    SET_DP_RX0_AUX_MANUAL_MODE();
+
+    if(enumDpResetStatus == _DP_DPCD_LINK_STATUS_INITIAL)
+    {
+        // Set DPCD 00600h to 0x01
+        ScalerDpRx0SetDpcdBitValue(0x00, 0x06, 0x00, ~(_BIT2 | _BIT1 | _BIT0), _BIT0);
+    }
+
+    ScalerDpRx0SetDpcdValue(0x00, 0x02, 0x02, 0x00);
+    ScalerDpRx0SetDpcdValue(0x00, 0x02, 0x03, 0x00);
+    ScalerDpRx0SetDpcdValue(0x00, 0x02, 0x04, 0x80);
+    ScalerDpRx0SetDpcdWrite1ClearValue(0x00, 0x20, 0x05, (ScalerDpRx0GetDpcdInfo(0x00, 0x20, 0x05) | _BIT1));
+    ScalerDpRx0SetDpcdValue(0x00, 0x02, 0x05, 0x00);
+    ScalerDpRx0SetDpcdValue(0x00, 0x02, 0x06, 0x00);
+    ScalerDpRx0SetDpcdValue(0x00, 0x02, 0x07, 0x00);
+
+    SET_DP_RX0_LINK_TRAINING_STATUS(_DP_LINK_TRAINING_NONE);
+
+    CLR_DP_RX0_BACKUP_PD_LINK_STATUS_FLG();
+
+    if((ucBackup & _BIT1) == _BIT1)
+    {
+        SET_DP_RX0_AUX_AUTO_MODE();
+    }
+}
+//--------------------------------------------------
+// Description  : DP Video Fifo Check
+// Input Value  : Fifo Check Condition
+// Output Value : True --> Fifo not over/underflow
+//--------------------------------------------------
+bit ScalerDpRx0FifoCheck(EnumDpFifoCheckCondition enumFifoCheckCondition)
+{
+    BYTE ucCount = 0;
+
+    if(enumFifoCheckCondition == _DP_FIFO_DELAY_CHECK)
+    {
+        ScalerSetBit(PB5_21_PG_CTRL_1, ~(_BIT4 | _BIT2 | _BIT0), (_BIT4 | _BIT2 | _BIT0));
+
+#if(_AIO_MODERN_STANDBY_SUPPORT == _ON)
+        if(GET_AIO_MODERN_STANDBY_MODE() == _FALSE)
+#endif
+        {
+            if(ScalerDpRx0TimerDelayXmsLinkCheck(_DP_TWO_FRAME_TIME_MAX) == _FALSE)
+            {
+                return _FALSE;
+            }
+
+            while(ucCount < 6)
+            {
+                if(ScalerDpRx0TimerDelayXmsLinkCheck(10) == _FALSE)
+                {
+                    return _FALSE;
+                }
+
+                if((ScalerGetBit(PB5_21_PG_CTRL_1, _BIT4) == _BIT4) || (ScalerGetBit(PB5_21_PG_CTRL_1, _BIT2) == _BIT2))
+                {
+                    return _FALSE;
+                }
+
+                ucCount++;
+            }
+        }
+    }
+    else
+    {
+        if((ScalerGetBit(PB5_21_PG_CTRL_1, _BIT4) == _BIT4) || (ScalerGetBit(PB5_21_PG_CTRL_1, _BIT2) == _BIT2))
+        {
+            return _FALSE;
+        }
+    }
+
+    if(ScalerGetBit(PB6_3B_DP_IRQ_CTRL1, _BIT4) == 0x00)
+    {
+        // Enable DP No Video Stream IRQ
+        ScalerDpRx0SetNoVideoStreamIRQ(_ENABLE);
+    }
+
+    if(ScalerDpRx0GetDpcdBitInfo(0x00, 0x02, 0x05, _BIT0) == 0x00)
+    {
+        // Set DP Receive Port0 In Sync
+        ScalerDpRx0SinkStatusSet(_DP_SINK_REVEICE_PORT0, _DP_SINK_IN_SYNC);
+    }
+
+    return _TRUE;
+}
+
+//--------------------------------------------------
+// Description  : HDCP Reset For Dp Rx0
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0HDCPBlockReset(void)
+{
+    // Reset HDCP Block
+    ScalerSetBit(PB_01_PHY_DIG_RESET_CTRL, ~_BIT0, _BIT0);
+    ScalerSetBit(PB_01_PHY_DIG_RESET_CTRL, ~_BIT0, 0x00);
+
+    ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x29, 0x00);
+    ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x2A, 0x00);
+    ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x2B, 0x00);
+
+    for(pData[0] = 0; pData[0] < 20; pData[0]++)
+    {
+        ScalerDpRx0SetDpcdValue(0x06, 0x80, (0x14 + pData[0]), 0x00);
+    }
+
+    for(pData[0] = 0; pData[0] < 15; pData[0]++)
+    {
+        ScalerDpRx0SetDpcdValue(0x06, 0x80, (0x2C + pData[0]), 0x00);
+    }
+
+    SET_DP_RX0_AUX_MANUAL_MODE();
+
+    // Clear Aksv
+    ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x07, 0x00);
+    ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x08, 0x00);
+    ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x09, 0x00);
+    ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x0A, 0x00);
+    ScalerDpRx0SetDpcdValue(0x06, 0x80, 0x0B, 0x00);
+
+    SET_DP_RX0_AUX_AUTO_MODE();
+}
+
+//--------------------------------------------------
+// Description  : Check DP Link Integrity
+// Input Value  : None
+// Output Value : FALSE => DP Link Integrity Fail
+//--------------------------------------------------
+bit ScalerDpRx0HdcpCheck(void)
+{
+    if((ScalerGetByte(PB_1E_HDCP_INTGT_VRF_ANS_MSB) != 0x00) && (ScalerGetByte(PB_1F_HDCP_INTGT_VRF_ANS_LSB) != 0x00) &&
+       (ScalerGetByte(PB_1E_HDCP_INTGT_VRF_ANS_MSB) != 0x53) && (ScalerGetByte(PB_1F_HDCP_INTGT_VRF_ANS_LSB) != 0x1F) &&
+       ((ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x07) != 0x00) ||
+        (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x08) != 0x00) ||
+        (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x09) != 0x00) ||
+        (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x0A) != 0x00) ||
+        (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x0B) != 0x00)))
+    {
+        if((ScalerDpRx0GetDpcdInfo(0x00, 0x01, 0x11) & _BIT2) == 0x00)
+        {
+            return _FALSE;
+        }
+
+        if(ScalerDpRx0HdcpMeasureCheck() == _FALSE)
+        {
+            return _FALSE;
+        }
+    }
+
+    return _TRUE;
+}
+
+//--------------------------------------------------
+// Description  : Check whether HDCP is valid
+// Input Value  : None
+// Output Value : TRUE => HDCP valid
+//--------------------------------------------------
+bit ScalerDpRx0HdcpCheckValid(void)
+{
+    if(ScalerGetBit(PB_20_HDCP_DEBUG, (_BIT7 | _BIT6 | _BIT5)) == (_BIT7 | _BIT6 | _BIT5))
+    {
+        return _TRUE;
+    }
+
+    return _FALSE;
+}
+
+//--------------------------------------------------
+// Description  : Check whether HDCP is enabled
+// Input Value  : None
+// Output Value : TRUE => HDCP Enabled
+//--------------------------------------------------
+bit ScalerDpRx0HdcpCheckEnabled(void)
+{
+    if(ScalerGetBit(PB_20_HDCP_DEBUG, (_BIT7 | _BIT5)) == (_BIT7 | _BIT5))
+    {
+        if((ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x07) != 0x00) ||
+           (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x08) != 0x00) ||
+           (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x09) != 0x00) ||
+           (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x0A) != 0x00) ||
+           (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x0B) != 0x00))
+        {
+            return _TRUE;
+        }
+    }
+
+    return _FALSE;
+}
+//--------------------------------------------------
+// Description  : Check DP Hdcp ReAuth Process
+// Input Value  : None
+// Output Value : TRUE or FALSE
+//--------------------------------------------------
+bit ScalerDpRx0HdcpReAuthStatusCheck(void)
+{
+    if((ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x07) != 0x00) || (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x08) != 0x00) ||
+       (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x09) != 0x00) || (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x0A) != 0x00) ||
+       (ScalerDpRx0GetDpcdInfo(0x06, 0x80, 0x0B) != 0x00))
+    {
+        return _TRUE;
+    }
+    else
+    {
+        return _FALSE;
+    }
+}
+//--------------------------------------------------
+// Description  : Initial Setting for DP
+// Input Value  : _DP_VERSION_1_1 or _DP_VERSION_1_2
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0Initial(EnumDpVersionType enumDpVersion, EnumDpLaneCount enumDpLaneCount, EnumDPMSTPort enumDpRxMstPort, EnumFreeSyncSupport enumFreeSyncSupport, EnumAudioDpDpcdSupport enumAudioSupport)
+{
+    ScalerDpRx0AuxPowerOnInitial();
+
+#if(_AUDIO_SUPPORT == _ON)
+    SET_AUDIO_DP_D0_SUPPORT(enumAudioSupport);
+#else
+    enumAudioSupport = enumAudioSupport;
+#endif // End of #if(_AUDIO_SUPPORT == _ON)
+
+    ScalerDpRx0DpcdInitial(enumDpVersion, enumDpLaneCount, enumDpRxMstPort, enumFreeSyncSupport);
+
+    // Must be initialized "AFTER DPCD setting" to avoid entering interruption unexpectively
+    ScalerDpRx0AuxIntInitial();
+
+    SET_DP_RX0_LINK_TRAINING_STATUS(_DP_LINK_TRAINING_NONE);
+
+    SET_DP_RX0_FAKE_LINK_TRAINING();
+
+    SET_DP_RX_TARGET_MST_PORT(enumDpRxMstPort);
+    SET_DP_RX_D0_PORT_TARGET_VERSION(enumDpVersion);
+    SET_DP_RX_D0_PORT_TARGET_LANE_COUNT(enumDpLaneCount);
+
+    ScalerDpRx0SetDpLaneMapping(_TYPE_C_PIN_ASSIGNMENT_C, _TYPE_C_ORIENTATION_UNFLIP);
+
+    CLR_DP_RX0_CHECK_AUX_CH_NO_POWER_DEBOUNCE();
+    CLR_DP_RX0_CHECK_AUX_CH_POWER_STATUS();
+    CLR_DP_RX0_AUX_CH_POWER_ON_WAKE_UP();
+    CLR_DP_RX0_SOURCE_FIRST_POWER_ON();
+}
+
+//--------------------------------------------------
+// Description  : Set DP Lane Mapping Type
+// Input Value  : ucLanetype --> Lane Mapping Type
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0SetDpLaneMapping(EnumTypeCPinCfgType enumPinAssignment, EnumTypeCOrientation enumOrientation)
+{
+    // Aux Pin-Share Setting
+    ScalerPinshareRx0TypeCPinAssert(enumPinAssignment, enumOrientation);
+
+    if(enumOrientation == _TYPE_C_ORIENTATION_UNFLIP)
+    {
+        if(enumPinAssignment == _TYPE_C_PIN_ASSIGNMENT_E)
+        {
+            switch(GET_DP_EMBEDDED_SWITCH_SELECT())
+            {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                case _D0_INPUT_PORT:
+#if(_D0_DP_TYPE_C_EXT_LANE_SWAP_FOR_PIN_E == _SWAP_BY_SCALER)
+                    // Lane 0 <--> Lane 2
+                    // Lane 1 <--> Lane 3
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D0_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D0_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D0_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D0_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(!_D0_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(!_D0_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(!_D0_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(!_D0_DP_PCB_LANE3_PN_SWAP);
+#else
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D0_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D0_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D0_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D0_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(_D0_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(_D0_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(_D0_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(_D0_DP_PCB_LANE3_PN_SWAP);
+#endif
+
+#if(_D0_DP_TYPE_C_PIN_E_AUXPN_SWAP == _SWAP_BY_SCALER)
+                    // Enable Aux PN Pull High Low Swap PCB Function
+                    PCB_D0_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_ON);
+
+                    // Enable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, _BIT0);
+#else
+                    // Disable Aux PN Pull High Low Swap PCB Function
+                    PCB_D0_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_OFF);
+
+                    // Disable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, 0x00);
+#endif
+
+                    break;
+#endif
+
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                case _D1_INPUT_PORT:
+#if(_D1_DP_TYPE_C_EXT_LANE_SWAP_FOR_PIN_E == _SWAP_BY_SCALER)
+                    // Lane 0 <--> Lane 2
+                    // Lane 1 <--> Lane 3
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D1_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D1_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D1_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D1_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(!_D1_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(!_D1_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(!_D1_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(!_D1_DP_PCB_LANE3_PN_SWAP);
+#else
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D1_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D1_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D1_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D1_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(_D1_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(_D1_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(_D1_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(_D1_DP_PCB_LANE3_PN_SWAP);
+#endif
+
+#if(_D1_DP_TYPE_C_PIN_E_AUXPN_SWAP == _SWAP_BY_SCALER)
+                    // Enable Aux PN Pull High Low Swap PCB Function
+                    PCB_D1_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_ON);
+
+                    // Enable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, _BIT0);
+#else
+                    // Disable Aux PN Pull High Low Swap PCB Function
+                    PCB_D1_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_OFF);
+
+                    // Disable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, 0x00);
+#endif
+
+                    break;
+#endif
+
+                default:
+                    break;
+            }
+        }
+        else // Normal Cable Mode
+        {
+            switch(GET_DP_EMBEDDED_SWITCH_SELECT())
+            {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                case _D0_INPUT_PORT:
+
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D0_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D0_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D0_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D0_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(_D0_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(_D0_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(_D0_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(_D0_DP_PCB_LANE3_PN_SWAP);
+
+                    // Disable Aux PN Pull High Low Swap PCB Function
+                    PCB_D0_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_OFF);
+
+                    // Disable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, 0x00);
+
+                    break;
+#endif
+
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                case _D1_INPUT_PORT:
+
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D1_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D1_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D1_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D1_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(_D1_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(_D1_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(_D1_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(_D1_DP_PCB_LANE3_PN_SWAP);
+
+                    // Disable Aux PN Pull High Low Swap PCB Function
+                    PCB_D1_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_OFF);
+
+                    // Disable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, 0x00);
+
+                    break;
+#endif
+
+                default:
+                    break;
+            }
+        }
+    }
+    else
+    {
+        if(enumPinAssignment == _TYPE_C_PIN_ASSIGNMENT_E)
+        {
+            switch(GET_DP_EMBEDDED_SWITCH_SELECT())
+            {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                case _D0_INPUT_PORT:
+
+#if(_D0_DP_TYPE_C_EXT_LANE_SWAP_FOR_PIN_E == _SWAP_BY_SCALER)
+                    // Lane 0 <--> Lane 2
+                    // Lane 1 <--> Lane 3
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D0_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D0_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D0_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D0_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(!_D0_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(!_D0_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(!_D0_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(!_D0_DP_PCB_LANE3_PN_SWAP);
+#else
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D0_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D0_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D0_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D0_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(_D0_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(_D0_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(_D0_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(_D0_DP_PCB_LANE3_PN_SWAP);
+#endif
+
+                    // Disable Aux PN Pull High Low Swap PCB Function
+                    PCB_D0_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_OFF);
+
+                    // Disable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, 0x00);
+
+                    break;
+#endif
+
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                case _D1_INPUT_PORT:
+
+#if(_D1_DP_TYPE_C_EXT_LANE_SWAP_FOR_PIN_E == _SWAP_BY_SCALER)
+                    // Lane 0 <--> Lane 2
+                    // Lane 1 <--> Lane 3
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D1_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D1_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D1_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D1_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(!_D1_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(!_D1_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(!_D1_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(!_D1_DP_PCB_LANE3_PN_SWAP);
+#else
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D1_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D1_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D1_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D1_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(_D1_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(_D1_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(_D1_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(_D1_DP_PCB_LANE3_PN_SWAP);
+#endif
+
+                    // Disable Aux PN Pull High Low Swap PCB Function
+                    PCB_D1_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_OFF);
+
+                    // Disable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, 0x00);
+
+                    break;
+#endif
+
+                default:
+                    break;
+            }
+        }
+        else // Normal Cable Mode
+        {
+            switch(GET_DP_EMBEDDED_SWITCH_SELECT())
+            {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                case _D0_INPUT_PORT:
+
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D0_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D0_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D0_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D0_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(_D0_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(_D0_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(_D0_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(_D0_DP_PCB_LANE3_PN_SWAP);
+
+                    // Enable Aux PN Pull High Low Swap PCB Function
+                    PCB_D0_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_ON);
+
+                    // Enable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, _BIT0);
+
+                    break;
+#endif
+
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                case _D1_INPUT_PORT:
+
+                    SET_DP_RX0_PCB_LANE0_MAPPING(_D1_DP_PCB_LANE3_MAPPING);
+                    SET_DP_RX0_PCB_LANE1_MAPPING(_D1_DP_PCB_LANE2_MAPPING);
+                    SET_DP_RX0_PCB_LANE2_MAPPING(_D1_DP_PCB_LANE1_MAPPING);
+                    SET_DP_RX0_PCB_LANE3_MAPPING(_D1_DP_PCB_LANE0_MAPPING);
+                    SET_DP_RX0_PCB_LANE0_PN_SWAP(_D1_DP_PCB_LANE0_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE1_PN_SWAP(_D1_DP_PCB_LANE1_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE2_PN_SWAP(_D1_DP_PCB_LANE2_PN_SWAP);
+                    SET_DP_RX0_PCB_LANE3_PN_SWAP(_D1_DP_PCB_LANE3_PN_SWAP);
+
+                    // Enable Aux PN Pull High Low Swap PCB Function
+                    PCB_D1_AUX_PN_1M_PULL_H_L_SWAP(_AUX_PN_1M_PULL_HI_LOW_SWAP_ON);
+
+                    // Enable Aux Digital Phy PN Swap
+                    ScalerSetBit(PB7_72_AUX_DIG_PHY2, ~_BIT0, _BIT0);
+
+                    break;
+#endif
+
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------
+// Description  : DP Margin Link Check
+// Input Value  : None
+// Output Value : _TRUE : Link ok ; _FALSE : Margin Link
+//--------------------------------------------------
+bit ScalerDpRx0MarginLinkCheck(void)
+{
+    return _TRUE;
+}
+
+//--------------------------------------------------
+// Description  : Dp Interrupt Request
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0LinkStatusIRQ(void)
+{
+    SET_DP_RX0_AUX_MANUAL_MODE();
+
+    if((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_LINK_TRAINING_FAIL) || (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_LINK_STATUS_FAIL))
+    {
+        ScalerDpRx0DpcdLinkStatusReset(_DP_DPCD_LINK_STATUS_RESET);
+
+        SET_DP_RX0_AUX_AUTO_MODE();
+
+        ScalerDpRx0HDCPBlockReset();
+
+        if((ScalerDpRx0GetDpcdBitInfo(0x00, 0x06, 0x00, (_BIT2 | _BIT1 | _BIT0)) != _BIT1) &&
+           (ScalerDpRx0GetDpcdBitInfo(0x00, 0x06, 0x00, (_BIT2 | _BIT1 | _BIT0)) != (_BIT2 | _BIT0)))
+        {
+            if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D0_INPUT_PORT)
+            {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX0_HDCP_LONG_HOTPLUG_EVENT);
+#endif
+            }
+            else if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D1_INPUT_PORT)
+            {
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX1_HDCP_LONG_HOTPLUG_EVENT);
+#endif
+            }
+            else if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D2_INPUT_PORT)
+            {
+#if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX2_HDCP_LONG_HOTPLUG_EVENT);
+#endif
+            }
+
+            CLR_DP_RX0_HDCP_CPIRQ();
+
+            ScalerDpRx0HpdIrqAssert();
+        }
+    }
+
+    SET_DP_RX0_AUX_AUTO_MODE();
+}
+
+//--------------------------------------------------
+// Description  : Active DP IRQ
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0ActiveLinkStatusIRQ(void)
+{
+    WORD usTime = 0;
+
+    if(GET_DP_RX0_HDCP_CPIRQ() == _TRUE)
+    {
+        CLR_DP_RX0_HDCP_CPIRQ();
+
+        usTime = 350;
+    }
+    else
+    {
+#if(_DP_LINK_INTERVAL_CHECK_SUPPORT == _ON)
+        usTime = 50;
+#else
+        usTime = 100;
+#endif
+    }
+
+    if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D0_INPUT_PORT)
+    {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+        ScalerTimerActiveTimerEvent(usTime, _SCALER_TIMER_EVENT_DP_RX0_LINK_STATUS_IRQ);
+#endif
+    }
+    else if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D1_INPUT_PORT)
+    {
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+        ScalerTimerActiveTimerEvent(usTime, _SCALER_TIMER_EVENT_DP_RX1_LINK_STATUS_IRQ);
+#endif
+    }
+}
+
+//-------------------------------------------------------
+// Description  : Set Aux Diff mode or Single-eneded mode
+// Input Value  : None
+// Output Value : None
+//-------------------------------------------------------
+void ScalerDpRx0AuxSet(void)
+{
+    EnumDpAuxMode enumDpRxAuxMode = _DP_AUX_RX1_MODE;
+
+#if(_HW_DP_AUX_SINGLE_ENDED_MODE_SUPPORT == _ON)
+    if(GET_DP_AUX_DIFF_MODE() == _FALSE)
+    {
+        enumDpRxAuxMode = _DP_AUX_SE_MODE;
+    }
+    else
+#endif
+    {
+        enumDpRxAuxMode = g_stDpRxAuxModeSetting.enumDpAuxMode;
+    }
+
+    switch(enumDpRxAuxMode)
+    {
+        default:
+        case _DP_AUX_RX1_MODE:
+            // Set TX VLDO = 1.05V
+            ScalerSetBit(PB7_65_AUX_5, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), _DP_RX_AUX_REPLY_SWING_LEVEL);
+
+            // Rx Common Mode from 3.3V
+            ScalerSetBit(PB7_61_AUX_1, ~_BIT5, _BIT5);
+
+            // Select Rx1 Mode
+            ScalerSetBit(PB7_62_AUX_2, ~_BIT5, 0x00);
+
+            // Set Vth follow OTP code
+            ScalerSetBit(PB7_62_AUX_2, ~(_BIT4 | _BIT3), (g_stDpRxAuxModeSetting.enumDpAuxVth << 3));
+
+            // AUX RX0 P Channel Resistance Setting follow OTP code
+            ScalerSetBit(PB7_61_AUX_1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), g_stDpRxAuxModeSetting.b4DpAuxAdjr);
+
+            // AUX RX0 N Channel Resistance Setting follow OTP code
+            ScalerSetBit(PB7_66_AUX_6, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), g_stDpRxAuxModeSetting.b4DpAuxAdjr);
+
+            break;
+
+        case _DP_AUX_SE_MODE:
+            // Set TX VLDO = 1.05V
+            ScalerSetBit(PB7_65_AUX_5, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), _DP_RX_AUX_REPLY_SWING_LEVEL);
+
+            // Rx Common Mode from 3.3V
+            ScalerSetBit(PB7_61_AUX_1, ~_BIT5, _BIT5);
+
+            // Select Single-Ended Mode
+            ScalerSetBit(PB7_6C_AUX_REV_3, ~_BIT7, 0x00);
+
+            // Enable Single-Ended Mode
+            ScalerSetBit(PB7_62_AUX_2, ~_BIT5, _BIT5);
+
+            // Set Vth follow OTP code
+            ScalerSetBit(PB7_60_DIG_TX_04, ~(_BIT1 | _BIT0), g_stDpRxAuxModeSetting.enumDpAuxVth);
+
+            // [3:0]Open ADJR
+            ScalerSetBit(PB7_61_AUX_1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+            ScalerSetBit(PB7_66_AUX_6, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+
+            break;
+
+        case _DP_AUX_RX2_MODE:
+            // Set TX VLDO = 1.05V
+            ScalerSetBit(PB7_65_AUX_5, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), _DP_RX_AUX_REPLY_SWING_LEVEL);
+
+            // Rx Common Mode from 3.3V
+            ScalerSetBit(PB7_61_AUX_1, ~_BIT5, _BIT5);
+
+            // Select Rx2 Mode
+            ScalerSetBit(PB7_6C_AUX_REV_3, ~_BIT7, _BIT7);
+
+            // Enable Rx2 Mode
+            ScalerSetBit(PB7_62_AUX_2, ~_BIT5, _BIT5);
+
+            // Set Vth follow OTP code
+            ScalerSetBit(PB7_60_DIG_TX_04, ~(_BIT1 | _BIT0), g_stDpRxAuxModeSetting.enumDpAuxVth);
+
+            // AUX RX0 P Channel Resistance Setting follow OTP code
+            ScalerSetBit(PB7_61_AUX_1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), g_stDpRxAuxModeSetting.b4DpAuxAdjr);
+
+            // AUX RX0 N Channel Resistance Setting follow OTP code
+            ScalerSetBit(PB7_66_AUX_6, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), g_stDpRxAuxModeSetting.b4DpAuxAdjr);
+
+            break;
+    }
+}
+
+//--------------------------------------------------
+// Description  : Change Dp Scramble Seed
+// Input Value  : None
+// Output Value : False --> Change Scrmable Seed Finish
+//--------------------------------------------------
+bit ScalerDpRx0ChangeSrambleSeed(void)
+{
+    if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D0_INPUT_PORT)
+    {
+#if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_D0_DP_ASSR_MODE_SUPPORT == _ON))
+
+        if(ScalerGetBit(PB_07_SCRAMBLE_CTRL, _BIT4) == 0x00)
+        {
+            // Try Scramble Seed = 0xFFFE
+            ScalerSetBit(PB_07_SCRAMBLE_CTRL, ~_BIT4, _BIT4);
+
+            return _TRUE;
+        }
+
+#endif
+    }
+    else if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D1_INPUT_PORT)
+    {
+#if((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_D1_DP_ASSR_MODE_SUPPORT == _ON))
+
+        if(ScalerGetBit(PB_07_SCRAMBLE_CTRL, _BIT4) == 0x00)
+        {
+            // Try Scramble Seed = 0xFFFE
+            ScalerSetBit(PB_07_SCRAMBLE_CTRL, ~_BIT4, _BIT4);
+
+            return _TRUE;
+        }
+
+#endif
+    }
+    else if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D2_INPUT_PORT)
+    {
+#if((_D2_INPUT_PORT_TYPE == _D2_DP_PORT) && (_D2_DP_ASSR_MODE_SUPPORT == _ON))
+
+        if(ScalerGetBit(PB_07_SCRAMBLE_CTRL, _BIT4) == 0x00)
+        {
+            // Try Scramble Seed = 0xFFFE
+            ScalerSetBit(PB_07_SCRAMBLE_CTRL, ~_BIT4, _BIT4);
+
+            return _TRUE;
+        }
+
+#endif
+    }
+
+    return _FALSE;
+}
+
+#if(_DP_RX0_ASSR_MODE_SUPPORT == _ON)
+//--------------------------------------------------
+// Description  : VBIOS ASSR Detect
+// Input Value  : bMSACheckResult
+// Output Value : _TRUE or _FALSE
+//--------------------------------------------------
+bit ScalerDpRx0VbiosAssrCheck(bit bMSACheckResult)
+{
+    if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D0_INPUT_PORT)
+    {
+#if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_D0_DP_ASSR_MODE_SUPPORT == _ON))
+
+        SET_DP_RX0_AUX_MANUAL_MODE();
+
+        if((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_LINK_TRAINING_NONE) &&
+           (ScalerDpRx0GetDpcdInfo(0x00, 0x01, 0x00) == 0x00))
+        {
+            if(bMSACheckResult == _TRUE)
+            {
+                if(ScalerGetBit(PB_07_SCRAMBLE_CTRL, _BIT4) == _BIT4)
+                {
+                    ScalerDpRx0SetDpcdBitValue(0x00, 0x01, 0x0A, ~_BIT0, _BIT0);
+                }
+                else
+                {
+                    ScalerDpRx0SetDpcdBitValue(0x00, 0x01, 0x0A, ~_BIT0, 0x00);
+                }
+            }
+            else
+            {
+                // Set Scramble Seed = Default 0xFFFF
+                ScalerSetBit(PB_07_SCRAMBLE_CTRL, ~_BIT4, 0x00);
+
+                ScalerDpRx0SetDpcdBitValue(0x00, 0x01, 0x0A, ~_BIT0, 0x00);
+            }
+        }
+        else
+        {
+            bMSACheckResult = _FALSE;
+        }
+
+        SET_DP_RX0_AUX_AUTO_MODE();
+
+#endif
+    }
+    else if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D1_INPUT_PORT)
+    {
+#if((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_D1_DP_ASSR_MODE_SUPPORT == _ON))
+
+        SET_DP_RX0_AUX_MANUAL_MODE();
+
+        if((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_LINK_TRAINING_NONE) &&
+           (ScalerDpRx0GetDpcdInfo(0x00, 0x01, 0x00) == 0x00))
+        {
+            if(bMSACheckResult == _TRUE)
+            {
+                if(ScalerGetBit(PB_07_SCRAMBLE_CTRL, _BIT4) == _BIT4)
+                {
+                    ScalerDpRx0SetDpcdBitValue(0x00, 0x01, 0x0A, ~_BIT0, _BIT0);
+                }
+                else
+                {
+                    ScalerDpRx0SetDpcdBitValue(0x00, 0x01, 0x0A, ~_BIT0, 0x00);
+                }
+            }
+            else
+            {
+                // Set Scramble Seed = Default 0xFFFF
+                ScalerSetBit(PB_07_SCRAMBLE_CTRL, ~_BIT4, 0x00);
+
+                ScalerDpRx0SetDpcdBitValue(0x00, 0x01, 0x0A, ~_BIT0, 0x00);
+            }
+        }
+        else
+        {
+            bMSACheckResult = _FALSE;
+        }
+
+        SET_DP_RX0_AUX_AUTO_MODE();
+
+#endif
+    }
+    else if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D2_INPUT_PORT)
+    {
+#if((_D2_INPUT_PORT_TYPE == _D2_DP_PORT) && (_D2_DP_ASSR_MODE_SUPPORT == _ON))
+
+        SET_DP_RX0_AUX_MANUAL_MODE();
+
+        if((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_LINK_TRAINING_NONE) &&
+           (ScalerDpRx0GetDpcdInfo(0x00, 0x01, 0x00) == 0x00))
+        {
+            if(bMSACheckResult == _TRUE)
+            {
+                if(ScalerGetBit(PB_07_SCRAMBLE_CTRL, _BIT4) == _BIT4)
+                {
+                    ScalerDpRx0SetDpcdBitValue(0x00, 0x01, 0x0A, ~_BIT0, _BIT0);
+                }
+                else
+                {
+                    ScalerDpRx0SetDpcdBitValue(0x00, 0x01, 0x0A, ~_BIT0, 0x00);
+                }
+            }
+            else
+            {
+                // Set Scramble Seed = Default 0xFFFF
+                ScalerSetBit(PB_07_SCRAMBLE_CTRL, ~_BIT4, 0x00);
+
+                ScalerDpRx0SetDpcdBitValue(0x00, 0x01, 0x0A, ~_BIT0, 0x00);
+            }
+        }
+        else
+        {
+            bMSACheckResult = _FALSE;
+        }
+
+        SET_DP_RX0_AUX_AUTO_MODE();
+
+#endif
+    }
+
+    return bMSACheckResult;
+}
+#endif
+
+//--------------------------------------------------
+// Description  : Signal Detection for DP(Power Saving)
+// Input Value  : None
+// Output Value : True : DP Signal Detected
+//              : False : No Signal
+//--------------------------------------------------
+bit ScalerDpRx0PSPreDetect(void)
+{
+    // Back to noraml for DP PHY CTS
+    if(GET_DP_RX0_PHY_CTS_FLG() == _TRUE)
+    {
+        return _TRUE;
+    }
+
+    if(GET_DP_RX0_VALID_VIDEO_CHECK() == _TRUE)
+    {
+        DebugMessageRx0("7. Valid Video Check", 0);
+
+        return _TRUE;
+    }
+
+#if(_DEBUG_MESSAGE_SUPPORT == _ON)
+    if(ScalerDebugCheckDebugPort(GET_DP_EMBEDDED_SWITCH_SELECT()) == _FALSE)
+#endif
+    {
+        if(GET_DP_RX0_PS_AUX_TOGGLE() == _TRUE)
+        {
+            DebugMessageRx0("7. Power Saving Aux Handshake", 0);
+
+            return _TRUE;
+        }
+    }
+
+    if(GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_LINK_TRAINING_PASS)
+    {
+        DebugMessageRx0("7. Normal Link Training under Fake Power Saving Case", 0);
+
+        return _TRUE;
+    }
+
+    if((((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_FAKE_LINK_TRAINING_PASS) ||
+         (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_LINK_STATUS_FAIL)) &&
+        ((ScalerDpRx0GetDpcdBitInfo(0x00, 0x06, 0x00, (_BIT2 | _BIT1 | _BIT0)) != _BIT1) &&
+         (ScalerDpRx0GetDpcdBitInfo(0x00, 0x06, 0x00, (_BIT2 | _BIT1 | _BIT0)) != (_BIT2 | _BIT0)))) ||
+       (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_FAKE_LINK_TRAINING_PASS_VBIOS))
+    {
+#if((_SLEEP_AUDIO_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_AUDIO_INPUT == _PS_AUDIO_DP)))
+
+        if(ScalerAudioGetDigitalAudioSource(_D0_INPUT_PORT) == _DIGITAL_AUDIO_SOURCE_DP)
+        {
+            DebugMessageAudio("00. DP Power Saving Audio : Idle Pattern Case", ScalerAudioGetDigitalAudioSource(_D0_INPUT_PORT));
+            return _TRUE;
+        }
+#endif
+        DebugMessageRx0("7. Idle Pattern Case", 0);
+
+        return _TRUE;
+    }
+
+    return _FALSE;
+}
+//--------------------------------------------------
+// Description  : Check Dp Training Pattern 2 for PHY CTS
+// Input Value  : None
+// Output Value : TRUE --> TP2 Pass
+//--------------------------------------------------
+bit ScalerDpRx0PhyCtsTp2Check(void)
+{
+    ScalerTimerDelayXms(10);
+
+    switch(g_ucDpRx0PhyCtsCtrl & 0x30)
+    {
+        case 0x00: // Lane0 Test
+
+            ScalerSetBit(PB_08_BIST_PATTERN_SEL, ~(_BIT4 | _BIT3), 0x00);
+
+            break;
+
+        case 0x10: // Lane1 Test
+
+            ScalerSetBit(PB_08_BIST_PATTERN_SEL, ~(_BIT4 | _BIT3), _BIT3);
+
+            break;
+
+        case 0x20: // Lane2 Test
+
+            ScalerSetBit(PB_08_BIST_PATTERN_SEL, ~(_BIT4 | _BIT3), _BIT4);
+
+            break;
+
+        case 0x30: // Lane3 Test
+
+            ScalerSetBit(PB_08_BIST_PATTERN_SEL, ~(_BIT4 | _BIT3), (_BIT4 | _BIT3));
+
+            break;
+
+        default:
+            break;
+    }
+
+    // Clear EQ-CRC
+    ScalerSetBit(PB_12_EQ_CRC_1, ~(_BIT7 | _BIT6), _BIT6);
+
+    // Start Calculate EQ-CRC
+    ScalerSetBit(PB_12_EQ_CRC_1, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+
+    ScalerTimerDelayXms(2);
+
+    switch(g_ucDpRx0PhyCtsCtrl & 0x30)
+    {
+        case 0x00: // Lane0 Test
+
+            pData[0] = 0x01;
+
+            break;
+
+        case 0x10: // Lane1 Test
+
+            pData[0] = 0x02;
+
+            break;
+
+        case 0x20: // Lane2 Test
+
+            pData[0] = 0x04;
+
+            break;
+
+        case 0x30: // Lane3 Test
+
+            pData[0] = 0x08;
+
+            break;
+
+        default:
+
+            pData[0] = 0x00;
+
+            break;
+    }
+
+    if((ScalerGetByte(PB_12_EQ_CRC_1) & pData[0]) != 0x00)
+    {
+        return _TRUE;
+    }
+
+    return _FALSE;
+}
+//--------------------------------------------------
+// Description  : Enable DP Fifo Under/OverFlow IRQ
+// Input Value  : _ENABLE/ DISABLE
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0SetFifoIRQ(bit bEn)
+{
+    ScalerSetBit(PB6_3A_DP_IRQ_CTRL0, ~(_BIT1 | _BIT0), ((bEn == _ENABLE) ? (_BIT1 | _BIT0) : 0x00));
+}
+//--------------------------------------------------
+// Description  : Enable DP Fifo Under/OverFlow Watch Dog
+// Input Value  : _ENABLE/ DISABLE
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0SetFifoWD(bit bEn)
+{
+    ScalerSetBit(PB6_38_DP_VWD_CTRL, ~(_BIT5 | _BIT4), ((bEn == _ENABLE) ? (_BIT5 | _BIT4) : 0x00));
+}
+
+//--------------------------------------------------
+// Description  : Dp IRQ Assert Proc
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0HpdIrqAssert(void)
+{
+    if((GET_DP_EMBEDDED_SWITCH_SELECT() == _D0_INPUT_PORT) && (PCB_D0_HOTPLUG_DETECT() == _D0_HOT_PLUG_HIGH))
+    {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+
+#if(_DP_IRQ_HPD_MODE == _DP_IRQ_HPD_T2_MODE)
+        SET_DP_D0_HPD_IRQ_ASSERT_T2_EVENT();
+#else
+
+        BYTE ucBackUp = ScalerGetByte(PB7_D0_AUX_MODE_SET);
+
+        SET_DP_RX0_AUX_MANUAL_MODE();
+
+        PCB_D0_HOTPLUG(_D0_HOT_PLUG_LOW);
+
+        // Default = 750us
+        switch(GET_DP_IRQ_TIME_10US())
+        {
+            case 55:
+                DELAY_XUS(500);
+                break;
+
+            case 60:
+                DELAY_XUS(546);
+                break;
+
+            case 65:
+                DELAY_XUS(588);
+                break;
+
+            case 70:
+                DELAY_XUS(634);
+                break;
+
+            case 75:
+                DELAY_XUS(682);
+                break;
+
+            case 80:
+                DELAY_XUS(728);
+                break;
+
+            case 85:
+                DELAY_XUS(768);
+                break;
+
+            case 90:
+                DELAY_XUS(816);
+                break;
+
+            case 95:
+                DELAY_XUS(862);
+                break;
+
+            default:
+                DELAY_XUS(682);
+                break;
+        }
+
+        PCB_D0_HOTPLUG(_D0_HOT_PLUG_HIGH);
+
+        if((ucBackUp & _BIT1) == _BIT1)
+        {
+            SET_DP_RX0_AUX_AUTO_MODE();
+        }
+#endif
+
+        // For Meeting Spec of HPD_IRQ Minimum Spacing >= 2 ms
+        ScalerTimerDelayXms(3);
+#endif
+    }
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+    else if((GET_DP_EMBEDDED_SWITCH_SELECT() == _D1_INPUT_PORT) && (PCB_D1_HOTPLUG_DETECT() == _D1_HOT_PLUG_HIGH))
+    {
+#if(_DP_IRQ_HPD_MODE == _DP_IRQ_HPD_T2_MODE)
+        SET_DP_D1_HPD_IRQ_ASSERT_T2_EVENT();
+#else
+
+        BYTE ucBackUp = ScalerGetByte(PB7_D0_AUX_MODE_SET);
+
+        SET_DP_RX0_AUX_MANUAL_MODE();
+
+        PCB_D1_HOTPLUG(_D1_HOT_PLUG_LOW);
+
+        // Default = 750us
+        switch(GET_DP_IRQ_TIME_10US())
+        {
+            case 55:
+                DELAY_XUS(500);
+                break;
+
+            case 60:
+                DELAY_XUS(546);
+                break;
+
+            case 65:
+                DELAY_XUS(588);
+                break;
+
+            case 70:
+                DELAY_XUS(634);
+                break;
+
+            case 75:
+                DELAY_XUS(682);
+                break;
+
+            case 80:
+                DELAY_XUS(728);
+                break;
+
+            case 85:
+                DELAY_XUS(768);
+                break;
+
+            case 90:
+                DELAY_XUS(816);
+                break;
+
+            case 95:
+                DELAY_XUS(862);
+                break;
+
+            default:
+                DELAY_XUS(682);
+                break;
+        }
+
+        PCB_D1_HOTPLUG(_D1_HOT_PLUG_HIGH);
+
+        if((ucBackUp & _BIT1) == _BIT1)
+        {
+            SET_DP_RX0_AUX_AUTO_MODE();
+        }
+#endif
+
+        // For Meeting Spec of HPD_IRQ Minimum Spacing >= 2 ms
+        ScalerTimerDelayXms(3);
+    }
+#endif
+#if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+    else if((GET_DP_EMBEDDED_SWITCH_SELECT() == _D2_INPUT_PORT) && (PCB_D2_HOTPLUG_DETECT() == _D2_HOT_PLUG_HIGH))
+    {
+#if(_DP_IRQ_HPD_MODE == _DP_IRQ_HPD_T2_MODE)
+        SET_DP_D2_HPD_IRQ_ASSERT_T2_EVENT();
+#else
+
+        BYTE ucBackUp = ScalerGetByte(PB7_D0_AUX_MODE_SET);
+
+        SET_DP_RX0_AUX_MANUAL_MODE();
+
+        PCB_D2_HOTPLUG(_D2_HOT_PLUG_LOW);
+
+        // Default = 750us
+        switch(GET_DP_IRQ_TIME_10US())
+        {
+            case 55:
+                DELAY_XUS(500);
+                break;
+
+            case 60:
+                DELAY_XUS(546);
+                break;
+
+            case 65:
+                DELAY_XUS(588);
+                break;
+
+            case 70:
+                DELAY_XUS(634);
+                break;
+
+            case 75:
+                DELAY_XUS(682);
+                break;
+
+            case 80:
+                DELAY_XUS(728);
+                break;
+
+            case 85:
+                DELAY_XUS(768);
+                break;
+
+            case 90:
+                DELAY_XUS(816);
+                break;
+
+            case 95:
+                DELAY_XUS(862);
+                break;
+
+            default:
+                DELAY_XUS(682);
+                break;
+        }
+
+        PCB_D2_HOTPLUG(_D2_HOT_PLUG_HIGH);
+
+        if((ucBackUp & _BIT1) == _BIT1)
+        {
+            SET_DP_RX0_AUX_AUTO_MODE();
+        }
+#endif
+
+        // For Meeting Spec of HPD_IRQ Minimum Spacing >= 2 ms
+        ScalerTimerDelayXms(3);
+    }
+#endif
+}
+
+//--------------------------------------------------
+// Description  : Dp Before Hpd Toggle Process
+// Input Value  : EnumDpHotPlugAssertType
+// Output Value : None
+//--------------------------------------------------
+EnumDpHotPlugTime ScalerDpRx0BeforeHpdToggleProc(EnumDpHotPlugAssertType enumHpdType)
+{
+    if(enumHpdType == _DP_HPD_NONE)
+    {
+        return _DP_HPD_TIME_NONE;
+    }
+
+    if(enumHpdType == _DP_HPD_ASSERTED)
+    {
+        if(ScalerSyncDpGetHotPlugStatus(GET_DP_EMBEDDED_SWITCH_SELECT()) == _HIGH)
+        {
+            if(ScalerSyncDpRxGetHotPlugPinDetect(GET_DP_EMBEDDED_SWITCH_SELECT()) == _HIGH)
+            {
+                return _DP_HPD_TIME_NONE;
+            }
+        }
+    }
+
+#if(_DP_WD_REBUILD_PHY_4PART_FOR_UCD400 == _ON)
+    ScalerTimerWDCancelTimerEvent(_SCALER_WD_TIMER_EVENT_RX0_DP_LINK_TRAINING_REBUILD_PHY_PART1);
+    ScalerTimerWDCancelTimerEvent(_SCALER_WD_TIMER_EVENT_RX0_DP_LINK_TRAINING_REBUILD_PHY_PART2);
+    ScalerTimerWDCancelTimerEvent(_SCALER_WD_TIMER_EVENT_RX0_DP_LINK_TRAINING_REBUILD_PHY_PART3);
+    ScalerTimerWDCancelTimerEvent(_SCALER_WD_TIMER_EVENT_RX0_DP_LINK_TRAINING_REBUILD_PHY_PART4);
+#else
+    ScalerTimerWDCancelTimerEvent(_SCALER_WD_TIMER_EVENT_RX0_DP_LINK_TRAINING_REBUILD_PHY);
+#endif
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX0_VALID_SIGNAL_DETECT_CHECK);
+
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED);
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX0_HDCP_LONG_HOTPLUG_EVENT);
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX0_LINK_STATUS_IRQ);
+#endif
+
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX1_HOTPLUG_ASSERTED);
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX1_HDCP_LONG_HOTPLUG_EVENT);
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX1_LINK_STATUS_IRQ);
+#endif
+
+#if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX2_HOTPLUG_ASSERTED);
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX2_HDCP_LONG_HOTPLUG_EVENT);
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX2_LINK_STATUS_IRQ);
+#endif
+
+    CLR_DP_RX0_HDCP_CPIRQ();
+
+    if(enumHpdType != _DP_HPD_ASSERTED)
+    {
+        ScalerDpRx0AVMute();
+
+        ScalerDpRx0DisconnectReset();
+
+        ScalerDpRx0DpcdLinkStatusReset(_DP_DPCD_LINK_STATUS_INITIAL);
+
+#if(_DP_HPD_LOW_AUX_NOT_REPLY_SUPPORT == _ON)
+        // Reset Aux Phy
+        ScalerSetBit(PB7_65_AUX_5, ~_BIT7, 0x00);
+#endif
+    }
+
+    if(enumHpdType == _DP_HPD_LOW)
+    {
+        ScalerSyncDpRxSetHotPlug(GET_DP_EMBEDDED_SWITCH_SELECT(), _LOW, 0);
+
+        return _DP_HPD_TIME_NONE;
+    }
+    else if(enumHpdType == _DP_HPD_LOW_RESET_AUX)
+    {
+        // Reset Aux Phy
+        ScalerSetBit(PB7_65_AUX_5, ~_BIT7, 0x00);
+
+        ScalerSyncDpRxSetHotPlug(GET_DP_EMBEDDED_SWITCH_SELECT(), _LOW, 0);
+
+        return _DP_HPD_TIME_NONE;
+    }
+
+    // Reset DDC0
+    MCU_FF1F_DDC0_DDC_CONTROL_1 |= _BIT1;
+
+    if(enumHpdType == _DP_LONG_HPD_EVENT)
+    {
+        return _DP_LONG_HPD_TIME;
+    }
+    else if(enumHpdType == _DP_HDCP_LONG_HPD_EVENT)
+    {
+        return _DP_HDCP_LONG_HPD_TIME;
+    }
+    else if(enumHpdType == _DP_MST_LONG_HPD_EVENT)
+    {
+        return _DP_MST_LONG_HPD_TIME;
+    }
+    else if(enumHpdType == _DP_HPD_ASSERTED)
+    {
+        return _DP_HPD_ASSERTED_TIME;
+    }
+
+    return _DP_HPD_TIME_NONE;
+}
+
+//--------------------------------------------------
+// Description  : Disconnect Reset
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0DisconnectReset(void)
+{
+    BYTE ucBackUp = 0;
+
+    ucBackUp = ScalerGetByte(PB7_D0_AUX_MODE_SET);
+
+    if((ucBackUp & _BIT1) == _BIT1)
+    {
+        SET_DP_RX0_AUX_MANUAL_MODE();
+    }
+
+    // GUID Reset 00030-0003F
+    ScalerDpRx0DpcdGroupReset(0x00, 0x00, 0x30, 16);
+
+    // Link Configuration Reset 100~106
+    ScalerDpRx0DpcdLinkConfigReset();
+
+#if((_DP_FREESYNC_SUPPORT == _ON) || (_DP_ADAPTIVESYNC_SUPPORT == _ON))
+    ScalerDpRx0SetDpcdValue(0x00, 0x01, 0x07, 0x00);
+#endif
+
+    switch(GET_DP_EMBEDDED_SWITCH_SELECT())
+    {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+
+        case _D0_INPUT_PORT:
+
+#if(_D0_DP_ASSR_MODE_SUPPORT == _ON)
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x0D, 0x01);
+
+            SET_DP_RX0_AUX_MANUAL_MODE();
+            ScalerDpRx0SetDpcdValue(0x00, 0x01, 0x0A, 0x00);
+            SET_DP_RX0_AUX_AUTO_MODE();
+#else
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x0D, 0x00);
+#endif
+
+            break;
+#endif
+
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+
+        case _D1_INPUT_PORT:
+
+#if(_D1_DP_ASSR_MODE_SUPPORT == _ON)
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x0D, 0x01);
+
+            SET_DP_RX0_AUX_MANUAL_MODE();
+            ScalerDpRx0SetDpcdValue(0x00, 0x01, 0x0A, 0x00);
+            SET_DP_RX0_AUX_AUTO_MODE();
+#else
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x0D, 0x00);
+#endif
+
+            break;
+#endif
+
+#if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+
+        case _D2_INPUT_PORT:
+
+#if(_D2_DP_ASSR_MODE_SUPPORT == _ON)
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x0D, 0x01);
+
+            SET_DP_RX0_AUX_MANUAL_MODE();
+            ScalerDpRx0SetDpcdValue(0x00, 0x01, 0x0A, 0x00);
+            SET_DP_RX0_AUX_AUTO_MODE();
+#else
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x0D, 0x00);
+#endif
+
+            break;
+#endif
+
+        default:
+            break;
+    }
+
+    // DP_PWR_NOT_NEEDED_BY_UPSTREAM_DEVICE Reset
+    ScalerDpRx0SetDpcdValue(0x00, 0x01, 0x18, 0x00);
+
+    // Hot Plug/Hot Unplug Event Notification Type Reset
+    ScalerDpRx0SetDpcdValue(0x00, 0x01, 0xA1, 0x00);
+
+    // Source OUI Reset
+    ScalerDpRx0DpcdSourceOUIReset();
+
+    ScalerDpRx0HDCPUnplugReset();
+
+    if((ucBackUp & _BIT1) == _BIT1)
+    {
+        SET_DP_RX0_AUX_AUTO_MODE();
+    }
+}
+
+//--------------------------------------------------
+// Description  : Dp After Hpd Toggle Process
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0AfterHpdToggleProc(void)
+{
+    // Release Aux Phy
+    ScalerSetBit(PB7_65_AUX_5, ~_BIT7, _BIT7);
+
+    SET_DP_RX0_AUX_MANUAL_MODE();
+
+    if((GET_DP_RX0_LINK_TRAINING_STATUS() != _DP_NORMAL_LINK_TRAINING_PASS) && (GET_DP_RX0_LINK_TRAINING_STATUS() != _DP_FAKE_LINK_TRAINING_PASS))
+    {
+        ScalerDpRx0SetDpcdValue(0x00, 0x01, 0x00, 0x00);
+        ScalerDpRx0SetDpcdValue(0x00, 0x01, 0x01, (ScalerDpRx0GetDpcdInfo(0x00, 0x01, 0x01) & 0xE0));
+    }
+
+    SET_DP_RX0_AUX_AUTO_MODE();
+
+#if(_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+    if(GET_DP_AUTO_SEARCH_SWITCH() == _FALSE)
+#endif
+    {
+        if(((GET_DP_EMBEDDED_SWITCH_SELECT() == _D0_INPUT_PORT) && (ScalerSyncDpCableStatus(_D0_INPUT_PORT) == _TRUE)) ||
+           ((GET_DP_EMBEDDED_SWITCH_SELECT() == _D1_INPUT_PORT) && (ScalerSyncDpCableStatus(_D1_INPUT_PORT) == _TRUE)) ||
+           ((GET_DP_EMBEDDED_SWITCH_SELECT() == _D2_INPUT_PORT) && (ScalerSyncDpCableStatus(_D2_INPUT_PORT) == _TRUE)))
+        {
+            ScalerTimerActiveTimerEvent(SEC(1.2), _SCALER_TIMER_EVENT_DP_RX0_VALID_SIGNAL_DETECT_CHECK);
+        }
+    }
+}
+
+//--------------------------------------------------
+// Description  : Dp Rx0 Cancel ValidSignalDetect TimerEvent
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0CancelValidSignalDetectTimerEvent(void)
+{
+#if(_D0_DP_EXIST == _ON)
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX0_VALID_SIGNAL_DETECT_CHECK);
+#endif
+#if(_D1_DP_EXIST == _ON)
+    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX1_VALID_SIGNAL_DETECT_CHECK);
+#endif
+}
+
+//--------------------------------------------------
+// Description  : Dp Rx Aux Ch Source Power Check
+// Input Value  : None
+// Output Value : _ON / _OFF
+//--------------------------------------------------
+bit ScalerDpRx0AuxChSourcePowerCheck(void)
+{
+    switch(GET_DP_EMBEDDED_SWITCH_SELECT())
+    {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+        case _D0_INPUT_PORT:
+
+            if(PCB_GET_D0_AUX_PN_1M_PULL_H_L_SWAP() == _AUX_PN_1M_PULL_HI_LOW_SWAP_ON)
+            {
+                return GET_PCB_D0_DP_SOURCE_POWER_PN_SWAP();
+            }
+            else
+            {
+                return GET_PCB_D0_DP_SOURCE_POWER();
+            }
+#endif
+
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+        case _D1_INPUT_PORT:
+
+            if(PCB_GET_D1_AUX_PN_1M_PULL_H_L_SWAP() == _AUX_PN_1M_PULL_HI_LOW_SWAP_ON)
+            {
+                return GET_PCB_D1_DP_SOURCE_POWER_PN_SWAP();
+            }
+            else
+            {
+                return GET_PCB_D1_DP_SOURCE_POWER();
+            }
+#endif
+
+        default:
+            return _LOW;
+    }
+}
+
+//--------------------------------------------------
+// Description  : Dp Rx Aux Ch Power Status Check
+// Input Value  : bCableStatus
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpRx0AuxChPowerStatusCheck(bit bCableStatus)
+{
+    BYTE ucDebounceCnt = 0;
+
+    if(bCableStatus == _TRUE)
+    {
+        if(ScalerSyncDpGetHotPlugStatus(GET_DP_EMBEDDED_SWITCH_SELECT()) == _HIGH)
+        {
+            // First time check power on with debounce to avoid AUX N always low case
+            if((GET_DP_RX0_CHECK_AUX_CH_POWER_STATUS() == _DP_RX_AUX_POWER_STATUS_NONE) && (ScalerDpRx0AuxChSourcePowerCheck() == _ON))
+            {
+                // Debounce for 10ms
+                for(ucDebounceCnt = 0; ucDebounceCnt < 5; ucDebounceCnt++)
+                {
+                    ScalerTimerDelayXms(2);
+
+                    if(ScalerDpRx0AuxChSourcePowerCheck() == _OFF)
+                    {
+                        break;
+                    }
+                }
+
+                if(ucDebounceCnt == 5)
+                {
+                    SET_DP_RX0_CHECK_AUX_CH_POWER_STATUS(_DP_RX_AUX_POWER_STATUS_ON);
+                }
+            }
+
+            // Whether to Start Debounce
+            if((ScalerDpRx0AuxChSourcePowerCheck() == _OFF) &&
+               (GET_DP_RX0_CHECK_AUX_CH_NO_POWER_DEBOUNCE() == _FALSE) &&
+               (GET_DP_RX0_CHECK_AUX_CH_POWER_STATUS() == _DP_RX_AUX_POWER_STATUS_ON))
+            {
+                SET_DP_RX0_CHECK_AUX_CH_NO_POWER_DEBOUNCE();
+
+                ScalerTimerActiveTimerEvent(200, _SCALER_TIMER_EVENT_DP_RX0_AUX_CH_NO_POWER_CHECK_DEBOUNCE);
+            }
+
+            // Debouncing
+            if(GET_DP_RX0_CHECK_AUX_CH_NO_POWER_DEBOUNCE() == _TRUE)
+            {
+                if(ScalerDpRx0AuxChSourcePowerCheck() == _ON)
+                {
+                    CLR_DP_RX0_CHECK_AUX_CH_NO_POWER_DEBOUNCE();
+                    ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX0_AUX_CH_NO_POWER_CHECK_DEBOUNCE);
+                }
+            }
+
+            // 1.5s HotPlug has been removed because NVIDIA GTX-1080 failed while HPD togglled at the moment of PC waked up from sleep.
+            if((GET_DP_RX0_CHECK_AUX_CH_POWER_STATUS() == _DP_RX_AUX_POWER_STATUS_OFF) && (ScalerDpRx0AuxChSourcePowerCheck() == _ON))
+            {
+                SET_DP_RX0_CHECK_AUX_CH_POWER_STATUS(_DP_RX_AUX_POWER_STATUS_ON);
+
+                SET_DP_RX0_AUX_CH_POWER_ON_WAKE_UP();
+
+                SET_DP_RX0_SOURCE_FIRST_POWER_ON();
+            }
+        }
+    }
+    else
+    {
+        CLR_DP_RX0_CHECK_AUX_CH_NO_POWER_DEBOUNCE();
+        CLR_DP_RX0_CHECK_AUX_CH_POWER_STATUS();
+
+        ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_DP_RX0_AUX_CH_NO_POWER_CHECK_DEBOUNCE);
+    }
+}
+#endif

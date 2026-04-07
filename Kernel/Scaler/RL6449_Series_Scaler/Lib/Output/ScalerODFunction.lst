@@ -1,0 +1,232 @@
+C51 COMPILER V8.12   SCALERODFUNCTION                                                      03/11/2025 19:55:49 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERODFUNCTION
+OBJECT MODULE PLACED IN .\Output\ScalerODFunction.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerFunction\Lib\Code\ScalerOD\ScalerODFunction.c LARGE OPTIMIZE(9,
+                    -SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\Scale
+                    -rCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Series_C
+                    -ommon\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\ScalerODFun
+                    -ction.lst) OBJECT(.\Output\ScalerODFunction.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerODFunction.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "ScalerODLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          // OD parameter default value
+  22          #define _OD_PRE_SRC_RES_DEFAULT             _OD_PRE_SRC_RES_8_BIT
+  23          #define _OD_CUR_SRC_RES_DEFAULT             _OD_CUR_SRC_RES_8_BIT
+  24          #define _OD_CMP_METHOD_DEFAULT              _OD_CMP_METHOD_444_TO_422
+  25          #define _OD_CMP_MODE_DEFAULT                _OD_CMP_MODE_AVG
+  26          #define _OD_DECMP_MODE_DEFAULT              _OD_DECMP_MODE_INTERP
+  27          
+  28          #define GET_OD_USE_PARAM()                  ((GET_OD_USE_BIT() == _OD_SUPERPIXEL1X2_75BIT_BIT_NUM) ? _OD_P
+             -ARAM_7_5_BPP :\
+  29                                                       ((GET_OD_USE_BIT() == _OD_SUPERPIXEL1X4_60BIT_BIT_NUM) ? _OD_
+             -PARAM_6_0_BPP : _OD_PARAM_OFF))
+  30          
+  31          //****************************************************************************
+  32          // STRUCT / TYPE / ENUM DEFINITTIONS
+  33          //****************************************************************************
+  34          typedef enum
+  35          {
+  36              _OD_PARAM_OFF,
+  37              _OD_PARAM_6_0_BPP,
+  38              _OD_PARAM_7_5_BPP,
+  39          } EnumOdParamIndex;
+  40          
+  41          typedef enum
+  42          {
+  43              _OD_PRE_SRC_RES_8_BIT = 0x00,
+  44              _OD_PRE_SRC_RES_6_BIT = _BIT0,
+  45              _OD_PRE_SRC_RES_5_BIT = _BIT1,
+  46              _OD_PRE_SRC_RES_4_BIT = (_BIT1 | _BIT0),
+  47          } EnumOdPreSrcRes;
+  48          
+  49          typedef enum
+C51 COMPILER V8.12   SCALERODFUNCTION                                                      03/11/2025 19:55:49 PAGE 2   
+
+  50          {
+  51              _OD_CUR_SRC_RES_8_BIT = 0x00,
+  52              _OD_CUR_SRC_RES_6_BIT = _BIT6,
+  53              _OD_CUR_SRC_RES_5_BIT = _BIT7,
+  54              _OD_CUR_SRC_RES_4_BIT = (_BIT7 | _BIT6),
+  55          } EnumOdCurSrcRes;
+  56          
+  57          typedef enum
+  58          {
+  59              _OD_CMP_METHOD_444_TO_422 = 0x00,
+  60              _OD_CMP_METHOD_444_TO_411 = _BIT1,
+  61              _OD_CMP_METHOD_SP_1X2 = _BIT2,
+  62              _OD_CMP_METHOD_SP_1X3 = (_BIT2 | _BIT1),
+  63              _OD_CMP_METHOD_SP_1X4 = _BIT3,
+  64          } EnumOdCmpMethod;
+  65          
+  66          typedef enum
+  67          {
+  68              _OD_CMP_MODE_AVG = 0x00,
+  69              _OD_CMP_MODE_DROP = _BIT6,
+  70          } EnumOdCmpMode;
+  71          
+  72          typedef enum
+  73          {
+  74              _OD_DECMP_MODE_INTERP = 0x00,
+  75              _OD_DECMP_MODE_DUP = (_BIT6 | _BIT2),
+  76          } EnumOdDecmpMode;
+  77          
+  78          typedef enum
+  79          {
+  80              _OD_EST_RANGE_BYPASS = 0x00,
+  81              _OD_EST_RANGE_8 = _BIT4,
+  82              _OD_EST_RANGE_16 = _BIT5,
+  83              _OD_EST_RANGE_32 = (_BIT5 | _BIT4),
+  84          } EnumOdEstRange;
+  85          
+  86          typedef struct
+  87          {
+  88              BYTE ucOdBit10x;
+  89              EnumOdCmpMethod enumCmpMethod;
+  90              EnumOdPreSrcRes enumPreSrcRes;
+  91              EnumOdCurSrcRes enumCurSrcRes;
+  92              EnumOdCmpMode enumCmpMode;
+  93              EnumOdDecmpMode enumDecmpMode;
+  94              BYTE ucNRThreshold;
+  95              BYTE ucLvlEstValue;
+  96          } StructOdParam;
+  97          
+  98          //****************************************************************************
+  99          // CODE TABLES
+ 100          //****************************************************************************
+ 101          StructOdParam code tOdCmpParam[] =
+ 102          {
+ 103              // OD_BIT_10X   CMP_METHOD    PRE_SOURCE_RES           CUR_SOURCE_RES           CMP_MODE              
+             -DECMP_MODE          NR_TH  EST_VALUE
+ 104              // |                |         |                        |                        |                     
+             -|                       |  |
+ 105              { 0U, _OD_CMP_METHOD_DEFAULT, _OD_PRE_SRC_RES_DEFAULT, _OD_CUR_SRC_RES_DEFAULT, _OD_CMP_MODE_DEFAULT, 
+             -_OD_DECMP_MODE_DEFAULT, 0, 0}, // _OD_PARAM_OFF
+ 106              {60U, _OD_CMP_METHOD_SP_1X4,  _OD_PRE_SRC_RES_8_BIT,   _OD_CUR_SRC_RES_8_BIT,   _OD_CMP_MODE_AVG,     
+             -_OD_DECMP_MODE_DUP,     2, 2}, // _OD_PARAM_6_0_BPP
+ 107              {75U, _OD_CMP_METHOD_SP_1X2,  _OD_PRE_SRC_RES_5_BIT,   _OD_CUR_SRC_RES_5_BIT,   _OD_CMP_MODE_AVG,     
+C51 COMPILER V8.12   SCALERODFUNCTION                                                      03/11/2025 19:55:49 PAGE 3   
+
+             -_OD_DECMP_MODE_DUP,     4, 4}, // _OD_PARAM_7_5_BPP
+ 108          };
+ 109          
+ 110          StructOdParam code tOdCmpParam_6_0_BitImproved[] =
+ 111          {
+ 112              // OD_BIT_10X   CMP_METHOD    PRE_SOURCE_RES           CUR_SOURCE_RES           CMP_MODE              
+             -DECMP_MODE          NR_TH  EST_VALUE
+ 113              // |                |         |                        |                        |                     
+             -|                       |  |
+ 114              { 0U, _OD_CMP_METHOD_DEFAULT, _OD_PRE_SRC_RES_DEFAULT, _OD_CUR_SRC_RES_DEFAULT, _OD_CMP_MODE_DEFAULT, 
+             -_OD_DECMP_MODE_DEFAULT, 0, 0}, // _OD_PARAM_OFF
+ 115              {60U, _OD_CMP_METHOD_SP_1X2,  _OD_PRE_SRC_RES_4_BIT,   _OD_CUR_SRC_RES_5_BIT,   _OD_CMP_MODE_AVG,     
+             -_OD_DECMP_MODE_INTERP,  5, 5}, // _OD_PARAM_6_0_BPP
+ 116              {75U, _OD_CMP_METHOD_SP_1X2,  _OD_PRE_SRC_RES_5_BIT,   _OD_CUR_SRC_RES_5_BIT,   _OD_CMP_MODE_AVG,     
+             -_OD_DECMP_MODE_DUP,     4, 4}, // _OD_PARAM_7_5_BPP
+ 117          };
+ 118          
+ 119          StructOdParam * code tOdCmpParamList[] =
+ 120          {
+ 121              tOdCmpParam, // _OD_CMP_PARAM_MODE_DEFAULT
+ 122              tOdCmpParam_6_0_BitImproved, // _OD_CMP_PARAM_MODE_6_0_BIT_IMPROVE
+ 123          };
+ 124          
+ 125          //****************************************************************************
+ 126          // VARIABLE DECLARATIONS
+ 127          //****************************************************************************
+ 128          BYTE g_ucMemoryODUseBit;
+ 129          
+ 130          //****************************************************************************
+ 131          // FUNCTION DECLARATIONS
+ 132          //****************************************************************************
+ 133          void ScalerODCompressionSetting(void);
+ 134          
+ 135          //****************************************************************************
+ 136          // FUNCTION DEFINITIONS
+ 137          //****************************************************************************
+ 138          
+ 139          //--------------------------------------------------
+ 140          // Description  : OD compression, level estimation, noise reduction setting
+ 141          // Input Value  : None
+ 142          // Output Value : None
+ 143          //--------------------------------------------------
+ 144          void ScalerODCompressionSetting(void)
+ 145          {
+ 146   1          StructOdParam stOdParam;
+ 147   1          stOdParam = tOdCmpParamList[ScalerODGetCmpParamMode()][GET_OD_USE_PARAM()];
+ 148   1      
+ 149   1          // Enable level estimation, delta gain. Set previous frame source pixel resolution
+ 150   1          ScalerSetByte(P3_A1_LS_CTRL0, (_BIT5 | _BIT3 | stOdParam.enumPreSrcRes));
+ 151   1      
+ 152   1          // Current path: enable compression, set compression mode/method
+ 153   1          ScalerSetByte(P3_B0_LS_FRAME0, (stOdParam.enumCmpMode | _BIT4 | stOdParam.enumCmpMethod));
+ 154   1      
+ 155   1          // Enable previous/current frame decompression, set decompression mode
+ 156   1          ScalerSetByte(P3_B1_LS_FRAME1, (_BIT7 | _BIT3 | stOdParam.enumDecmpMode));
+ 157   1      
+ 158   1          // Set current frame source pixel resolution
+ 159   1          ScalerSetByte(P3_B2_LS_FRAME2, (stOdParam.enumCurSrcRes));
+ 160   1      
+ 161   1          // Set level estimation range, level estimation gain
+ 162   1          ScalerSetByte(P3_B3_LS_FRAME4, (_OD_EST_RANGE_BYPASS | 0x00));
+ 163   1      
+C51 COMPILER V8.12   SCALERODFUNCTION                                                      03/11/2025 19:55:49 PAGE 4   
+
+ 164   1          // Set level estimation value
+ 165   1          ScalerSetByte(P3_B4_LS_FRAME5, (stOdParam.ucLvlEstValue & 0x3F));
+ 166   1      
+ 167   1          // Set OD apply on full window
+ 168   1          ScalerODHLWinSetting(_HLW_FULL_WINDOW, _DB_APPLY_NO_POLLING);
+ 169   1      
+ 170   1          // Set noise reduction threshold
+ 171   1          {
+ 172   2              BYTE ucNrEn = (stOdParam.ucNRThreshold > 1) ? _ENABLE : _DISABLE;
+ 173   2              BYTE ucNrThd_B_3 = 0;
+ 174   2              BYTE ucNrThd_B_2_0 = 0;
+ 175   2      
+ 176   2              if(ucNrEn == _ENABLE)
+ 177   2              {
+ 178   3                  ucNrThd_B_3 = ((stOdParam.ucNRThreshold - 1) & 0x08) >> 3;
+ 179   3                  ucNrThd_B_2_0 = (stOdParam.ucNRThreshold - 1) & 0x07;
+ 180   3              }
+ 181   2              ScalerSetByte(P3_A2_LS_CTRL1, ((ucNrThd_B_3 << 5) | (ucNrEn << 4) | _BIT3 | ucNrThd_B_2_0));
+ 182   2          }
+ 183   1      
+ 184   1          // Clear flag
+ 185   1          ScalerSetByte(P3_A4_LS_STATUS0, _BIT0);
+ 186   1      }
+ 187          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    227    ----
+   CONSTANT SIZE    =     54    ----
+   XDATA SIZE       =      1      11
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

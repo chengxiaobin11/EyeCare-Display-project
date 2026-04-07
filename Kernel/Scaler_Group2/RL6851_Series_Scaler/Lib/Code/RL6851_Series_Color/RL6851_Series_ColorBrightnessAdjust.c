@@ -1,0 +1,73 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6851_Series_ColorBrightnessAdjust.c
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+#include "RL6851_Series_ColorLibInternalInclude.h"
+
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// CODE TABLES
+//****************************************************************************
+
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+void ScalerColorBrightnessAdjust(EnumBriConCoefType enumBriConCoefType, WORD *pusData);
+
+
+//****************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+//--------------------------------------------------
+// Description  : Adjust Brightness
+// Input Value  : EnumBriConCoefTypem, Coefficient
+//                10 bit input, old 8 bit brightness input value must left shift 2 bit
+//                -2048(00h) ~ 0(200h) ~  +2044(3FFh)
+// Output Value : void
+//--------------------------------------------------
+void ScalerColorBrightnessAdjust(EnumBriConCoefType enumBriConCoefType, WORD *pusData)
+{
+    switch(enumBriConCoefType)
+    {
+        case _BRIGHTNESS_COEF_A:
+            ScalerSetDataPortByte(P0_64_CTS_BRI_PORT_ADD, _P0_65_PT_00_BRI_RED_COE_SETA_H, pusData[0] & 0x00FF);
+            ScalerSetDataPortByte(P0_64_CTS_BRI_PORT_ADD, _P0_65_PT_01_BRI_GRN_COE_SETA_H, pusData[1] & 0x00FF);
+            ScalerSetDataPortByte(P0_64_CTS_BRI_PORT_ADD, _P0_65_PT_02_BRI_BLU_COE_SETA_H, pusData[2] & 0x00FF);
+            break;
+
+        case _BRIGHTNESS_COEF_B:
+            ScalerSetDataPortByte(P0_64_CTS_BRI_PORT_ADD, _P0_65_PT_06_BRI_RED_COE_SETB_H, pusData[0] & 0x00FF);
+            ScalerSetDataPortByte(P0_64_CTS_BRI_PORT_ADD, _P0_65_PT_07_BRI_GRN_COE_SETB_H, pusData[1] & 0x00FF);
+            ScalerSetDataPortByte(P0_64_CTS_BRI_PORT_ADD, _P0_65_PT_08_BRI_BLU_COE_SETB_H, pusData[2] & 0x00FF);
+            break;
+
+        default:
+            break;
+    }
+}

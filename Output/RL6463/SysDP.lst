@@ -1,0 +1,1026 @@
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SYSDP
+OBJECT MODULE PLACED IN .\Output\RL6463\SysDP.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\System\Code\SysDP.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\R
+                    -L6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kernel\Scaler\Scale
+                    -rFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\Kernel\Scaler\S
+                    -calerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Lib\Head
+                    -er;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\U
+                    -ser\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Head
+                    -er) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6463\SysDP.lst) OBJ
+                    -ECT(.\Output\RL6463\SysDP.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : SysDP.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SYSTEM_DP__
+  18          
+  19          #include "SysInclude.h"
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          
+  25          
+  26          //--------------------------------------------------
+  27          // Definitions of mode search status
+  28          //--------------------------------------------------
+  29          
+  30          
+  31          //****************************************************************************
+  32          // STRUCT / TYPE / ENUM DEFINITTIONS
+  33          //****************************************************************************
+  34          
+  35          
+  36          //****************************************************************************
+  37          // CODE TABLES
+  38          //****************************************************************************
+  39          
+  40          //****************************************************************************
+  41          // VARIABLE DECLARATIONS
+  42          //****************************************************************************
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DECLARATIONS
+  46          //****************************************************************************
+  47          #if(_DP_SUPPORT == _ON)
+              void SysDpRxHandler(void);
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 2   
+
+              void SysDpCableDetection(void);
+              bit SysDpCableStatus(EnumSourceSearchPort enumInputPort);
+              void SysDpJudgeHPDToggle(void);
+              void SysDpDcOffHPDToggleProc(EnumPowerAction enumSwitch);
+              bit SysDpSourceKeepDetectingCheck(void);
+              
+              #if(_HW_DP_MAC_ARBITER_SUPPORT == _ON)
+              void SysDpMacArbiter(EnumSourceSearchPort enumInputPort);
+              #endif
+              
+              #if(_TWO_CHIP_DATA_EXCHANGE_MODE != _DATA_EXCHANGE_MODE_NONE)
+              bit SysDpCheckTwoChipDataExchangePort(BYTE ucInputPort);
+              #endif
+              #endif
+  63          
+  64          #if(_DP_TX_SUPPORT == _ON)
+              void SysDpTxHandler(void);
+              bit SysDpTxCloneOutputStatus(void);
+              #if(_DP_HDCP_2_2_SUPPORT == _ON)
+              void SysDpTxHdcp2Handler(void);
+              #endif
+              #endif
+  71          
+  72          #if(_DP_MST_SUPPORT == _ON)
+              void SysDpMstHandler(void);
+              
+              #if(_DP_MST_AUTO_SEARCH_SUPPORT == _ON)
+              void SysDpMstAutoSwitch(void);
+              #endif
+              #endif
+  79          
+  80          //****************************************************************************
+  81          // FUNCTION DEFINITIONS
+  82          //****************************************************************************
+  83          #if(_DP_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : DP Rx Handler
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysDpRxHandler(void)
+              {
+                  SysDpCableDetection();
+              
+              #if(_DP_TX_SUPPORT == _ON)
+                  ScalerSyncDpTxHdcpUpstreamSwitchProc(SysSourceGetInputPort());
+                  ScalerSyncDpRxSinkCountUpdateProc(SysSourceGetInputPort());
+              #endif
+              
+                  if((GET_MODE_STATE() == _MODE_STATUS_SEARCH) || (GET_MODE_STATE() == _MODE_STATUS_NOSIGNAL) || (GET_MO
+             -DE_STATE() == _MODE_STATUS_FACTORY))
+                  {
+                      ScalerDpMainLinkQualityManagement(SysSourceGetInputPort());
+                  }
+              
+              #if(_DP_MST_AUTO_SEARCH_SUPPORT == _ON)
+                  if((GET_MODE_STATE() == _MODE_STATUS_SEARCH) || (GET_MODE_STATE() == _MODE_STATUS_NOSIGNAL) || (GET_MO
+             -DE_STATE() == _MODE_STATUS_POWER_SAVING))
+                  {
+                      SysDpMstAutoSwitch();
+                  }
+              #endif
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 3   
+
+              
+                  ScalerSyncDpCapabilitySwitchProc();
+              
+                  // DP Judge HPD Toggle
+                  SysDpJudgeHPDToggle();
+              
+              #if((_DP_TX_SUPPORT == _ON) && (_DP_HDCP_2_2_SUPPORT == _ON))
+                  if(GET_POWER_STATUS() == _POWER_STATUS_NORMAL)
+                  {
+                      ScalerSyncDpHdcpRepeaterCapableProc();
+                  }
+              #endif
+              
+                  ScalerDpHotPlugHandler();
+              
+              #if(_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+              
+                  // Set Embedded switch select to the target after HPD low of current port toggled by HotPlugHandler
+                  if(GET_DP_EMBEDDED_SWITCH_SELECT() != GET_DP_EMBEDDED_SWITCH_TARGET())
+                  {
+                      ScalerDpEmbeddedSwitchSetting(GET_DP_EMBEDDED_SWITCH_TARGET());
+                  }
+              #endif
+              
+              #if(_DP_TX_SUPPORT == _ON)
+                  if(GET_MODE_STATE() == _MODE_STATUS_ACTIVE)
+                  {
+                      ScalerDpTxCloneOutputProc(SysSourceGetInputPort(), GET_PORT_TYPE(SysSourceGetInputPortType(SysSour
+             -ceGetInputPort())), SysDpTxCloneOutputStatus());
+                  }
+              
+              #if((_SLEEP_AUDIO_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_DP) || (_PS_AUDIO_INPUT == _PS_AUDIO_B
+             -OTH)))
+                  ScalerDpTxAudioSetSleepAudioState(UserInterfaceGetAudioStandAloneStatus());
+              #endif
+              
+              #endif
+              }
+              
+              //--------------------------------------------------
+              // Description  : DP Cable Detection
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysDpCableDetection(void)
+              {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+              #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+             -)
+                  if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D0_INPUT_PORT)
+              #endif
+                  {
+                      if(ScalerSyncDpCableStatus(_D0_INPUT_PORT) != SysDpCableStatus(_D0_INPUT_PORT))
+                      {
+                          if(SysDpCableStatus(_D0_INPUT_PORT) == _TRUE)
+                          {
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                              if(GET_D6_SWITCH_SELECT() == _D0_INPUT_PORT)
+              #endif
+                              {
+                                  if((GET_DP_DC_OFF_HPD_HIGH() == _ON) || (SysPowerGetPowerStatus() != _POWER_STATUS_OFF
+             -))
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 4   
+
+                                  {
+              #if(_DP_MST_AUTO_SEARCH_SUPPORT == _ON)
+                                      if(!((SysPowerGetPowerStatus() == _POWER_STATUS_OFF) && (ScalerDpRxMstGetMstCapabi
+             -lity(_D0_INPUT_PORT) == _TRUE)))
+              #else
+                                      if(!((SysPowerGetPowerStatus() == _POWER_STATUS_OFF) && (UserCommonInterfaceGetDpM
+             -stCapablePort() == _DP_MST_RX0_PORT)))
+              #endif
+                                      {
+              #if(_D0_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                                          DebugMessageSystem("HPD - High Event", SysTypeCGetAltModeReady(_D0_INPUT_PORT)
+             -);
+              #endif
+              
+              #if(_D0_DP_CONNECTOR_TYPE == _DP_CONNECTOR_EMBEDDED)
+                                          ScalerTimerReactiveTimerEvent(0, _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED);
+              #else
+                                          ScalerTimerReactiveTimerEvent(SEC(0.1), _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASS
+             -ERTED);
+              #endif
+                                      }
+                                  }
+                              }
+                          }
+                          else
+                          {
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                              if(GET_D6_SWITCH_SELECT() == _D0_INPUT_PORT)
+              #endif
+                              {
+              #if(_DP_MST_SUPPORT == _ON)
+                                  // Fake Off to Off while MST port unplug
+                                  if((SysPowerGetPowerStatus() == _POWER_STATUS_OFF) && (GET_DP_RX_MST_DC_OFF_HPD_TOGGLE
+             -_HOLD() == _TRUE))
+                                  {
+                                      if(ScalerDpRxMstGetCapablePort() == _DP_MST_RX0_PORT)
+                                      {
+                                          ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_POWER_FAKE_OFF_TO_OFF);
+              
+                                          ScalerDpMstFakeOffDoneProc();
+              
+                                          SET_TARGET_POWER_STATUS(_POWER_STATUS_OFF);
+                                      }
+                                  }
+              
+                                  // Cable Unplug Reset
+                                  ScalerDpRxMstCableUnplugReset(_D0_INPUT_PORT);
+              
+                                  // Reset MST Backup
+                                  ScalerDpRxMstInfoBackup(_D0_INPUT_PORT, _DP_MST_BACKUP_INFO_RESET);
+              #endif
+              
+              #if(_AUDIO_SUPPORT == _ON)
+                                  SysAudioDpAudioSecDataResetProc(_D0_INPUT_PORT);
+              #else
+                                  ScalerDpSecDataReset(_D0_INPUT_PORT);
+              #endif
+                                  ScalerDpSetHotPlugEvent(_D0_INPUT_PORT, _DP_HPD_LOW);
+              
+              #if(_D0_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                                  DebugMessageSystem("HPD - Low", SysTypeCGetAltModeReady(_D0_INPUT_PORT));
+              #endif
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 5   
+
+              
+                                  ScalerDpHDCPUnplugReset(_D0_INPUT_PORT);
+                              }
+                          }
+              
+                          ScalerSyncDpSetCableStatus(_D0_INPUT_PORT, SysDpCableStatus(_D0_INPUT_PORT));
+                      }
+              
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      if((GET_D6_SWITCH_POWER_STATUS() == _DIGITAL_D6_SWITCH_POWER_DOWN) && (GET_D6_SWITCH_SELECT() == _
+             -D0_INPUT_PORT))
+                      {
+              #if(_D6_DP_CONNECTOR_TYPE == _DP_CONNECTOR_EMBEDDED)
+                          ScalerTimerActiveTimerEvent(0, _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED);
+              #else
+                          ScalerTimerActiveTimerEvent(SEC(0.1), _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED);
+              #endif
+                      }
+              #elif((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_DP_EMBEDDED_SWITCH_SUPPORT_TYPE != _DP_EMBEDDED_SWITCH_NON
+             -E))
+                      if((GET_DP_EMBEDDED_SWITCH_EVENT() == _TRUE) && (GET_DP_EMBEDDED_SWITCH_SELECT() == _D0_INPUT_PORT
+             -))
+                      {
+              #if(_D0_DP_CONNECTOR_TYPE == _DP_CONNECTOR_EMBEDDED)
+                          ScalerTimerActiveTimerEvent(0, _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED);
+              #else
+                          ScalerTimerActiveTimerEvent(SEC(0.1), _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED);
+              #endif
+                          SET_DP_EMBEDDED_SWITCH_EVENT(_FALSE);
+                      }
+              #endif
+              
+                      ScalerDpAuxChPowerStatusCheck(_D0_INPUT_PORT, ScalerSyncDpCableStatus(_D0_INPUT_PORT));
+                  }
+              #endif // End of #if(_D0_DP_SUPPORT == _ON)
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+              #if((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+             -)
+                  if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D1_INPUT_PORT)
+              #endif
+                  {
+                      if(ScalerSyncDpCableStatus(_D1_INPUT_PORT) != SysDpCableStatus(_D1_INPUT_PORT))
+                      {
+                          if(SysDpCableStatus(_D1_INPUT_PORT) == _TRUE)
+                          {
+                              if((GET_DP_DC_OFF_HPD_HIGH() == _ON) || (SysPowerGetPowerStatus() != _POWER_STATUS_OFF))
+                              {
+              #if(_DP_MST_AUTO_SEARCH_SUPPORT == _ON)
+                                  if(!((SysPowerGetPowerStatus() == _POWER_STATUS_OFF) && (ScalerDpRxMstGetMstCapability
+             -(_D1_INPUT_PORT) == _TRUE)))
+              #else
+                                  if(!((SysPowerGetPowerStatus() == _POWER_STATUS_OFF) && (UserCommonInterfaceGetDpMstCa
+             -pablePort() == _DP_MST_RX1_PORT)))
+              #endif
+                                  {
+              #if(_D1_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                                      DebugMessageSystem("HPD - High Event", SysTypeCGetAltModeReady(_D1_INPUT_PORT));
+              #endif
+              #if(_D1_DP_CONNECTOR_TYPE == _DP_CONNECTOR_EMBEDDED)
+                                      ScalerTimerReactiveTimerEvent(0, _SCALER_TIMER_EVENT_DP_RX1_HOTPLUG_ASSERTED);
+              #else
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 6   
+
+                                      ScalerTimerReactiveTimerEvent(SEC(0.1), _SCALER_TIMER_EVENT_DP_RX1_HOTPLUG_ASSERTE
+             -D);
+              #endif
+                                  }
+                              }
+                          }
+                          else
+                          {
+              #if(_DP_MST_SUPPORT == _ON)
+                              // Fake Off to Off while MST port unplug
+                              if((SysPowerGetPowerStatus() == _POWER_STATUS_OFF) && (GET_DP_RX_MST_DC_OFF_HPD_TOGGLE_HOL
+             -D() == _TRUE))
+                              {
+                                  if(ScalerDpRxMstGetCapablePort() == _DP_MST_RX1_PORT)
+                                  {
+                                      ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_POWER_FAKE_OFF_TO_OFF);
+              
+                                      ScalerDpMstFakeOffDoneProc();
+              
+                                      SET_TARGET_POWER_STATUS(_POWER_STATUS_OFF);
+                                  }
+                              }
+              
+                              // Cable Unplug Reset
+                              ScalerDpRxMstCableUnplugReset(_D1_INPUT_PORT);
+              
+                              // Reset MST Backup
+                              ScalerDpRxMstInfoBackup(_D1_INPUT_PORT, _DP_MST_BACKUP_INFO_RESET);
+              #endif
+              
+              #if(_AUDIO_SUPPORT == _ON)
+                              SysAudioDpAudioSecDataResetProc(_D1_INPUT_PORT);
+              #else
+                              ScalerDpSecDataReset(_D1_INPUT_PORT);
+              #endif
+                              ScalerDpSetHotPlugEvent(_D1_INPUT_PORT, _DP_HPD_LOW);
+              
+              #if(_D1_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                              DebugMessageSystem("HPD - Low", SysTypeCGetAltModeReady(_D1_INPUT_PORT));
+              #endif
+              
+                              ScalerDpHDCPUnplugReset(_D1_INPUT_PORT);
+                          }
+              
+                          ScalerSyncDpSetCableStatus(_D1_INPUT_PORT, SysDpCableStatus(_D1_INPUT_PORT));
+                      }
+              
+              #if((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_DP_EMBEDDED_SWITCH_SUPPORT_TYPE != _DP_EMBEDDED_SWITCH_NONE)
+             -)
+                      if((GET_DP_EMBEDDED_SWITCH_EVENT() == _TRUE) && (GET_DP_EMBEDDED_SWITCH_SELECT() == _D1_INPUT_PORT
+             -))
+                      {
+              #if(_D1_DP_CONNECTOR_TYPE == _DP_CONNECTOR_EMBEDDED)
+                          ScalerTimerActiveTimerEvent(0, _SCALER_TIMER_EVENT_DP_RX1_HOTPLUG_ASSERTED);
+              #else
+                          ScalerTimerActiveTimerEvent(SEC(0.1), _SCALER_TIMER_EVENT_DP_RX1_HOTPLUG_ASSERTED);
+              #endif
+                          SET_DP_EMBEDDED_SWITCH_EVENT(_FALSE);
+                      }
+              #endif
+              
+                      ScalerDpAuxChPowerStatusCheck(_D1_INPUT_PORT, ScalerSyncDpCableStatus(_D1_INPUT_PORT));
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 7   
+
+                  }
+              #endif // End of #if(_D1_DP_SUPPORT == _ON)
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+              #if((_D2_INPUT_PORT_TYPE == _D2_DP_PORT) && (_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+             -)
+                  if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D2_INPUT_PORT)
+              #endif
+                  {
+                      if(ScalerSyncDpCableStatus(_D2_INPUT_PORT) != SysDpCableStatus(_D2_INPUT_PORT))
+                      {
+                          if(SysDpCableStatus(_D2_INPUT_PORT) == _TRUE)
+                          {
+                              if((GET_DP_DC_OFF_HPD_HIGH() == _ON) || (SysPowerGetPowerStatus() != _POWER_STATUS_OFF))
+                              {
+              #if(_D2_DP_CONNECTOR_TYPE == _DP_CONNECTOR_EMBEDDED)
+                                  ScalerTimerReactiveTimerEvent(0, _SCALER_TIMER_EVENT_DP_RX2_HOTPLUG_ASSERTED);
+              #else
+                                  ScalerTimerReactiveTimerEvent(SEC(0.1), _SCALER_TIMER_EVENT_DP_RX2_HOTPLUG_ASSERTED);
+              #endif
+                              }
+                          }
+                          else
+                          {
+              #if(_DP_MST_SUPPORT == _ON)
+                              // Cable Unplug Reset
+                              ScalerDpRxMstCableUnplugReset(_D2_INPUT_PORT);
+              
+                              // Reset MST Backup
+                              ScalerDpRxMstInfoBackup(_D2_INPUT_PORT, _DP_MST_BACKUP_INFO_RESET);
+              #endif
+              
+              #if(_AUDIO_SUPPORT == _ON)
+                              SysAudioDpAudioSecDataResetProc(_D2_INPUT_PORT);
+              #else
+                              ScalerDpSecDataReset(_D2_INPUT_PORT);
+              #endif
+                              ScalerDpSetHotPlugEvent(_D2_INPUT_PORT, _DP_HPD_LOW);
+              
+                              ScalerDpHDCPUnplugReset(_D2_INPUT_PORT);
+                          }
+              
+                          ScalerSyncDpSetCableStatus(_D2_INPUT_PORT, SysDpCableStatus(_D2_INPUT_PORT));
+                      }
+              
+              #if((_D2_INPUT_PORT_TYPE == _D2_DP_PORT) && (_DP_EMBEDDED_SWITCH_SUPPORT_TYPE != _DP_EMBEDDED_SWITCH_NONE)
+             -)
+                      if((GET_DP_EMBEDDED_SWITCH_EVENT() == _TRUE) && (GET_DP_EMBEDDED_SWITCH_SELECT() == _D2_INPUT_PORT
+             -))
+                      {
+              #if(_D2_DP_CONNECTOR_TYPE == _DP_CONNECTOR_EMBEDDED)
+                          ScalerTimerActiveTimerEvent(0, _SCALER_TIMER_EVENT_DP_RX2_HOTPLUG_ASSERTED);
+              #else
+                          ScalerTimerActiveTimerEvent(SEC(0.1), _SCALER_TIMER_EVENT_DP_RX2_HOTPLUG_ASSERTED);
+              #endif
+                          SET_DP_EMBEDDED_SWITCH_EVENT(_FALSE);
+                      }
+              #endif
+                  }
+              #endif // End of #if(_D2_DP_SUPPORT == _ON)
+              
+              #if(_D6_INPUT_PORT_TYPE == _D6_DP_PORT)
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 8   
+
+                  if(ScalerSyncDpCableStatus(_D6_INPUT_PORT) != SysDpCableStatus(_D6_INPUT_PORT))
+                  {
+                      if(SysDpCableStatus(_D6_INPUT_PORT) == _TRUE)
+                      {
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                          if(GET_D6_SWITCH_SELECT() == _D6_INPUT_PORT)
+              #endif
+                          {
+                              if((GET_DP_DC_OFF_HPD_HIGH() == _ON) || (SysPowerGetPowerStatus() != _POWER_STATUS_OFF))
+                              {
+              #if(_DP_MST_AUTO_SEARCH_SUPPORT == _ON)
+                                  if(!((SysPowerGetPowerStatus() == _POWER_STATUS_OFF) && (ScalerDpRxMstGetMstCapability
+             -(_D6_INPUT_PORT) == _TRUE)))
+              #else
+                                  if(!((SysPowerGetPowerStatus() == _POWER_STATUS_OFF) && (UserCommonInterfaceGetDpMstCa
+             -pablePort() == _DP_MST_RX0_PORT)))
+              #endif
+                                  {
+              #if(_D6_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                                      DebugMessageSystem("HPD - High Event", SysTypeCGetAltModeReady(_D6_INPUT_PORT));
+              #endif
+              #if(_D6_DP_CONNECTOR_TYPE == _DP_CONNECTOR_EMBEDDED)
+                                      ScalerTimerReactiveTimerEvent(0, _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED);
+              #else
+                                      ScalerTimerReactiveTimerEvent(SEC(0.1), _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTE
+             -D);
+              #endif
+                                  }
+                              }
+                          }
+                      }
+                      else
+                      {
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                          if(GET_D6_SWITCH_SELECT() == _D6_INPUT_PORT)
+              #endif
+                          {
+              #if((_DP_MST_SUPPORT == _ON) && ((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _S
+             -WITCH_FROM_D0)))
+                              // Fake Off to Off while MST port unplug
+                              if((SysPowerGetPowerStatus() == _POWER_STATUS_OFF) && (GET_DP_RX_MST_DC_OFF_HPD_TOGGLE_HOL
+             -D() == _TRUE))
+                              {
+                                  if(ScalerDpRxMstGetCapablePort() == _DP_MST_RX0_PORT)
+                                  {
+                                      ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_POWER_FAKE_OFF_TO_OFF);
+              
+                                      ScalerDpMstFakeOffDoneProc();
+              
+                                      SET_TARGET_POWER_STATUS(_POWER_STATUS_OFF);
+                                  }
+                              }
+              
+                              // Cable Unplug Reset
+                              ScalerDpRxMstCableUnplugReset(_D0_INPUT_PORT);
+              
+                              // Reset MST Backup
+                              ScalerDpRxMstInfoBackup(_D6_INPUT_PORT, _DP_MST_BACKUP_INFO_RESET);
+              #endif
+              
+              #if(_AUDIO_SUPPORT == _ON)
+                              SysAudioDpAudioSecDataResetProc(_D0_INPUT_PORT);
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 9   
+
+              #else
+                              ScalerDpSecDataReset(_D0_INPUT_PORT);
+              #endif
+                              ScalerDpSetHotPlugEvent(_D0_INPUT_PORT, _DP_HPD_LOW);
+              
+              #if(_D6_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                              DebugMessageSystem("HPD - Low", SysTypeCGetAltModeReady(_D6_INPUT_PORT));
+              #endif
+              
+                              ScalerDpHDCPUnplugReset(_D0_INPUT_PORT);
+                          }
+                      }
+              
+                      ScalerSyncDpSetCableStatus(_D6_INPUT_PORT, SysDpCableStatus(_D6_INPUT_PORT));
+                  }
+              
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                  if((GET_D6_SWITCH_SELECT() == _D6_INPUT_PORT) && (GET_D6_SWITCH_POWER_STATUS() == _DIGITAL_D6_SWITCH_P
+             -OWER_DOWN))
+                  {
+              #if(_D6_DP_CONNECTOR_TYPE == _DP_CONNECTOR_EMBEDDED)
+                      ScalerTimerActiveTimerEvent(0, _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED);
+              #else
+                      ScalerTimerActiveTimerEvent(SEC(0.1), _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED);
+              #endif
+                  }
+              #endif
+              
+                  ScalerDpAuxChPowerStatusCheck(_D6_INPUT_PORT, ScalerSyncDpCableStatus(_D6_INPUT_PORT));
+              #endif // End of #if(_D6_DP_SUPPORT == _ON)
+              }
+              
+              //--------------------------------------------------
+              // Description  : DP Port Cable Status
+              // Input Value  : enumInputPort
+              // Output Value : _TRUE / _FALSE
+              //--------------------------------------------------
+              bit SysDpCableStatus(EnumSourceSearchPort enumInputPort)
+              {
+                  switch(enumInputPort)
+                  {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                      case _D0_INPUT_PORT:
+              
+              #if(_D0_DP_REPEATER_TYPE == _REPEATER_RTS_TRANSLATOR)
+                          return _TRUE;
+              #endif
+              
+              #if(_DP_MST_CAP_ON_INACTIVE_PORT_HPD_LOW == _ON)
+                          if((UserInterfaceGetDpMstTargetPort() != _DP_MST_NO_PORT) && (SysSourceGetInputPort() != _D0_I
+             -NPUT_PORT))
+                          {
+                              return _FALSE;
+                          }
+              #endif
+              
+              #if(_D0_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                          return SysTypeCGetAltModeReady(_D0_INPUT_PORT);
+              #else
+                          return GET_D0_CABLE_STATUS();
+              #endif
+              #endif
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 10  
+
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                      case _D1_INPUT_PORT:
+              
+              #if(_D1_DP_REPEATER_TYPE == _REPEATER_RTS_TRANSLATOR)
+                          return _TRUE;
+              #endif
+              
+              #if(_DP_MST_CAP_ON_INACTIVE_PORT_HPD_LOW == _ON)
+                          if((UserInterfaceGetDpMstTargetPort() != _DP_MST_NO_PORT) && (SysSourceGetInputPort() != _D1_I
+             -NPUT_PORT))
+                          {
+                              return _FALSE;
+                          }
+              #endif
+              
+              #if(_D1_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                          return SysTypeCGetAltModeReady(_D1_INPUT_PORT);
+              #else
+                          return GET_D1_CABLE_STATUS();
+              #endif
+              #endif
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                      case _D2_INPUT_PORT:
+              
+              #if(_DP_MST_CAP_ON_INACTIVE_PORT_HPD_LOW == _ON)
+                          if((UserInterfaceGetDpMstTargetPort() != _DP_MST_NO_PORT) && (SysSourceGetInputPort() != _D2_I
+             -NPUT_PORT))
+                          {
+                              return _FALSE;
+                          }
+              #endif
+                          return GET_D2_CABLE_STATUS();
+              #endif
+              
+              #if(_D6_INPUT_PORT_TYPE == _D6_DP_PORT)
+                      case _D6_INPUT_PORT:
+              
+              #if(_DP_MST_CAP_ON_INACTIVE_PORT_HPD_LOW == _ON)
+                          if((UserInterfaceGetDpMstTargetPort() != _DP_MST_NO_PORT) && (SysSourceGetInputPort() != _D6_I
+             -NPUT_PORT))
+                          {
+                              return _FALSE;
+                          }
+              #endif
+              
+              #if(_D6_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+                          return SysTypeCGetAltModeReady(_D6_INPUT_PORT);
+              #else
+                          return GET_D6_CABLE_STATUS();
+              #endif
+              #endif
+                      default:
+                          break;
+                  }
+              
+                  return _FALSE;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Decide DP Rx Judge HPD Toggle
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 11  
+
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysDpJudgeHPDToggle(void)
+              {
+                  if(GET_DP_DC_OFF_HPD_TOGGLE_FLAG() == _TRUE)
+                  {
+                      CLR_DP_DC_OFF_HPD_TOGGLE_FLAG();
+              
+                      switch(GET_POWER_STATUS())
+                      {
+                          case _POWER_STATUS_OFF:
+              
+                              ScalerDpJudgeHPDToggle(_POWER_ACTION_NORMAL_TO_OFF);
+                              break;
+              
+                          case _POWER_STATUS_NORMAL:
+              
+                              if(GET_POWER_SWITCH_TO_FAKE_OFF() == _TRUE)
+                              {
+                                  ScalerDpJudgeHPDToggle(_POWER_ACTION_NORMAL_TO_FAKE_OFF);
+                              }
+                              else
+                              {
+              #if(_DP_MST_SUPPORT == _ON)
+                                  if(GET_DP_RX_MST_DC_OFF_HPD_TOGGLE_HOLD() == _FALSE)
+              #endif
+                                  {
+                                      ScalerDpJudgeHPDToggle(_POWER_ACTION_OFF_TO_NORMAL);
+                                  }
+                              }
+              
+                              break;
+              
+                          default:
+              
+                              break;
+                      }
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Decide DP Rx Dc Off Set HPD Toggle Flag
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysDpDcOffHPDToggleProc(EnumPowerAction enumSwitch)
+              {
+                  switch(enumSwitch)
+                  {
+                      case _POWER_ACTION_OFF_TO_NORMAL:
+                      case _POWER_ACTION_FAKE_OFF_TO_NORMAL:
+              
+                          SET_DP_DC_OFF_HPD_TOGGLE_FLAG();
+              
+              #if(_DP_DC_ON_HPD_CONTROL_BY_USER_SUPPORT == _ON)
+                          SET_DP_DC_ON_HPD_TOGGLE_MODE(UserInterfaceGetDpDcOnHpdMode());
+              #endif
+                          break;
+              
+                      default:
+              
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 12  
+
+                          break;
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Check DP Source Keep Detecting or Not
+              // Input Value  : None
+              // Output Value : _TRUE: keep detecting, _FALSE: stop detecting
+              //--------------------------------------------------
+              bit SysDpSourceKeepDetectingCheck(void)
+              {
+              #if((_SLEEP_AUDIO_SUPPORT == _ON) && (_DP_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_
+             -AUDIO_INPUT == _PS_AUDIO_DP)))
+                  if((GET_AUDIO_PLAYING_ALONE() == _TRUE) && (UserInterfaceGetAudioSource() == _DIGITAL_AUDIO))
+                  {
+                      return _TRUE;
+                  }
+              #endif
+              
+              #if(_DP_MST_AUTO_SEARCH_SUPPORT == _ON)
+                  if((GET_SOURCE_SCAN_TYPE() != _SOURCE_SWITCH_FIXED_PORT) &&
+                     (GET_SOURCE_JUDGE(g_ucSearchIndex) == _FALSE) &&
+                     (SysSourceGetInputPort() == ScalerDpRxMstGetInputPort(ScalerDpRxMstGetCapablePort())))
+                  {
+                      if((ScalerDpRxMstGetSrcMsgEnable(SysSourceGetInputPort()) == _TRUE) &&
+                         (ScalerDpGetPowerStatus(SysSourceGetInputPort()) == _DP_POWER_NORMAL))
+                      {
+                          return _TRUE;
+                      }
+                  }
+              #endif
+              
+                  return _FALSE;
+              }
+              
+              #if(_HW_DP_MAC_ARBITER_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : DP Mac Arbitration
+              // Input Value  : EnumInputPort, StructDpSwitchedStatus
+              // Output Value : None
+              //--------------------------------------------------
+              void SysDpMacArbiter(EnumSourceSearchPort enumInputPort)
+              {
+                  // Get Inputport Mac Status
+                  if(ScalerDpGetMacSwitch(enumInputPort) == _FALSE)
+                  {
+                      if(SysSourceGetCableDetect(enumInputPort) == _TRUE)
+                      {
+                          ScalerDpMacSwitch(enumInputPort);
+                      }
+                  }
+              
+              #if(_DP_HDCP_ARBITER_SUPPORT == _ON)
+                  if(GET_SOURCE_SEARCH_DELAY_MODE() != _SOURCE_SEARCH_POLLING_MODE)
+                  {
+                      if(ScalerDpGetMacSwitch(enumInputPort) == _TRUE)
+                      {
+                          ScalerDpHdcpCapSwitch(enumInputPort);
+                      }
+                  }
+              #endif
+              }
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 13  
+
+              #endif
+              
+              #if(_TWO_CHIP_DATA_EXCHANGE_MODE != _DATA_EXCHANGE_MODE_NONE)
+              //--------------------------------------------------
+              // Description  : Check if Specific ucInputPort is TwoChip Data Exchange Port or Not
+              // Input Value  : ucInputPort
+              // Output Value : TwoChip Data Exchange Port _TRUE / _FALSE
+              //--------------------------------------------------
+              bit SysDpCheckTwoChipDataExchangePort(BYTE ucInputPort)
+              {
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+              #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_D0_TWO_CHIP_DATA_EXCHANGE_MODE != _DATA_EXCHANGE_MODE_NONE))
+                          return _TRUE;
+              #else
+                          return _FALSE;
+              #endif
+                          break;
+              
+                      case _D1_INPUT_PORT:
+              #if((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_D1_TWO_CHIP_DATA_EXCHANGE_MODE != _DATA_EXCHANGE_MODE_NONE))
+                          return _TRUE;
+              #else
+                          return _FALSE;
+              #endif
+                          break;
+              
+                      default:
+              
+                          return _FALSE;
+              
+                          break;
+                  }
+                  return _FALSE;
+              }
+              #endif // End of #if(_TWO_CHIP_DATA_EXCHANGE_MODE != _DATA_EXCHANGE_MODE_NONE)
+              
+              #endif // End of #if(_DP_SUPPORT == _ON)
+ 735          
+ 736          #if(_DP_TX_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : DP Tx Handler
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysDpTxHandler(void)
+              {
+                  if(GET_POWER_STATUS() == _POWER_STATUS_NORMAL)
+                  {
+                      // HPD Detection Function
+                      ScalerDpTxHPDProc();
+              
+                      ScalerDpTxJudgeHandler();
+              
+                      ScalerDpTxModeHandler();
+              
+              #if(_DP_HDCP_2_2_SUPPORT == _ON)
+                      SysDpTxHdcp2Handler();
+              #endif
+              
+              #if(_DP_MST_SUPPORT == _ON)
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 14  
+
+                      ScalerDpHDCPHandler();
+              #endif
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Decide whether to Clone output to DP Tx
+              // Input Value  : None
+              // Output Value : _TRUE or _FALSE
+              //--------------------------------------------------
+              bit SysDpTxCloneOutputStatus(void)
+              {
+                  if(UserInterfaceGetDpCloneOutputStatus() == _FALSE)
+                  {
+                      return _FALSE;
+                  }
+              
+                  if(ScalerSyncDpTxCloneOutputPortCheck(SysSourceGetInputPort()) == _FALSE)
+                  {
+                      return _FALSE;
+                  }
+              
+                  if(GET_PORT_TYPE(SysSourceGetInputPortType(SysSourceGetInputPort())) == _PORT_DP)
+                  {
+              #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_D0_DP_MST_PORT_SUPPORT == _OFF))
+                      if(SysSourceGetInputPort() == _D0_INPUT_PORT)
+                      {
+                          return _FALSE;
+                      }
+              #endif
+              
+              #if((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_D1_DP_MST_PORT_SUPPORT == _OFF))
+                      if(SysSourceGetInputPort() == _D1_INPUT_PORT)
+                      {
+                          return _FALSE;
+                      }
+              #endif
+                  }
+              
+                  return _TRUE;
+              }
+              
+              #if(_DP_HDCP_2_2_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : DP Rx MST Handler
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysDpTxHdcp2Handler(void)
+              {
+                  BYTE pucDpTxHdcp2Key[384];
+              
+                  if(GET_DP_TX_HDCP2_LOAD_KEY_EN() == _TRUE)
+                  {
+                      CLR_DP_TX_HDCP2_LOAD_KEY_EN();
+              
+                      ScalerDpTxHdcp2DcpLlcRsaInit();
+              
+                      UserCommonInterfaceGetDpTxHdcp2RRMODN(0, 0x180, pucDpTxHdcp2Key);
+                      ScalerDpTxHdcp2LoadKeyProc(_DP_TX_HDCP2_KEY_RRMODN, pucDpTxHdcp2Key);
+              
+                      UserCommonInterfaceGetDpTxHdcp2DcpLlcN(0, 0x180, pucDpTxHdcp2Key);
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 15  
+
+                      ScalerDpTxHdcp2LoadKeyProc(_DP_TX_HDCP2_KEY_DCP_LLC_N, pucDpTxHdcp2Key);
+              
+                      ScalerDpTxHdcp2LoadKeyProc(_DP_TX_HDCP2_KEY_EKEY1, pucDpTxHdcp2Key);
+              
+                      UserCommonInterfaceGetDpTxHdcp2EKey(0, 0x80, pucDpTxHdcp2Key);
+                      ScalerDpTxHdcp2LoadKeyProc(_DP_TX_HDCP2_KEY_EKEY2, pucDpTxHdcp2Key);
+              
+                      UserCommonInterfaceGetDpTxHdcp2NPinv(0, 0x04, pucDpTxHdcp2Key);
+                      ScalerDpTxHdcp2LoadKeyProc(_DP_TX_HDCP2_KEY_NPINV, pucDpTxHdcp2Key);
+              
+                      SET_DP_TX_HDCP2_LOAD_KEY_FINISH();
+                  }
+              }
+              #endif
+              #endif
+ 835          
+ 836          #if(_DP_MST_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : DP Rx MST Handler
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysDpMstHandler(void)
+              {
+                  if(GET_POWER_STATUS() == _POWER_STATUS_NORMAL)
+                  {
+                      ScalerDpRxMstHandler();
+              
+                      ScalerDpRxMstStreamsHandler();
+              
+                      ScalerSyncDpSourceWritePowerUpProc();
+              
+                      if(SysPowerGetPowerStatus() != _POWER_STATUS_OFF)
+                      {
+                          ScalerDpRxMstStreamMuxChangeHandler();
+                      }
+                  }
+              }
+              
+              #if(_DP_MST_AUTO_SEARCH_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : DP MST Auto Switch
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysDpMstAutoSwitch(void)
+              {
+                  bit bMstForceSwitchEn = _FALSE;
+              
+              #if(_HP_SOURCE_SCAN_SUPPORT == _ON)
+                  // For some of HP scan type, the first loop of source search for checking monitor status
+                  if(SysSourceHpGetMonitorStatusCheckProcessing() == _TRUE)
+                  {
+                      if(GET_SOURCE_HP_PORT_SWITCH_TARGET() == g_ucSearchIndex)
+                      {
+                          bMstForceSwitchEn = _TRUE;
+                      }
+                      else
+                      {
+                          return;
+                      }
+                  }
+C51 COMPILER V8.12   SYSDP                                                                 03/10/2025 13:50:13 PAGE 16  
+
+              #endif
+              
+                  if((GET_SOURCE_JUDGE(g_ucSearchIndex) == _TRUE) || (GET_SOURCE_SCAN_TYPE() == _SOURCE_SWITCH_FIXED_POR
+             -T) || (bMstForceSwitchEn == _TRUE))
+                  {
+                      // Disable other ports
+              #if(_D0_DP_EXIST == _ON)
+              
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      if((SysSourceGetInputPort() != _D0_INPUT_PORT) && (SysSourceGetInputPort() != _D6_INPUT_PORT))
+              #else
+                      if(SysSourceGetInputPort() != _D0_INPUT_PORT)
+              #endif
+                      {
+                          ScalerDpRxMstCapabilitySwitch(_D0_INPUT_PORT, _DISABLE);
+                      }
+              #endif
+              
+              #if(_D1_DP_EXIST == _ON)
+                      if(SysSourceGetInputPort() != _D1_INPUT_PORT)
+                      {
+                          ScalerDpRxMstCapabilitySwitch(_D1_INPUT_PORT, _DISABLE);
+                      }
+              #endif
+              
+                      if(ScalerDpRxMstGetCapablePort() == _DP_MST_NO_PORT)
+                      {
+                          if(ScalerDpRxMstGetMstCapability(SysSourceGetInputPort()) == _TRUE)
+                          {
+                              ScalerDpRxMstInitial(UserCommonInterfaceGetDpMstCapablePort());
+                          }
+                      }
+                      else if(ScalerDpRxMstGetInputPort(ScalerDpRxMstGetCapablePort()) != SysSourceGetInputPort())
+                      {
+                          ScalerDpMstReset(ScalerDpRxMstGetCapablePort());
+                      }
+                  }
+              
+                  // Input port has the right to become a MST capable port
+                  if(SysSourceGetInputPort() == ScalerDpRxMstGetInputPort(UserCommonInterfaceGetDpMstCapablePort()))
+                  {
+                      ScalerDpRxMstCapabilitySwitch(SysSourceGetInputPort(), _ENABLE);
+                  }
+                  else
+                  {
+                      ScalerDpRxMstCapabilitySwitch(SysSourceGetInputPort(), _DISABLE);
+                  }
+              }
+              #endif
+              #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

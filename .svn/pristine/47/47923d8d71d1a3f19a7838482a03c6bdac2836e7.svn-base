@@ -1,0 +1,234 @@
+C51 COMPILER V8.12   RL6449_SERIES_ODFUNCTION                                              03/11/2025 19:56:17 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_ODFUNCTION
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ODFunction.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_OD\RL6449_Series_ODFunction.c LARGE OPTIMIZE(9,SPEED) IN
+                    -CDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\ScalerCommonFu
+                    -nction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Series_Common\Hea
+                    -der) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_Series_ODFunc
+                    -tion.lst) OBJECT(.\Output\RL6449_Series_ODFunction.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ODFunction.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ODLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          #define _OD_8BIT_LUT_LENGTH                 289
+  22          #define _OD_10BIT_LUT_LENGTH                578
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          
+  38          
+  39          //****************************************************************************
+  40          // FUNCTION DECLARATIONS
+  41          //****************************************************************************
+  42          void ScalerODInitial(WORD usPanelHWidth, WORD usPanelVHeight);
+  43          void ScalerODAdjustDeltaGain(BYTE ucValue);
+  44          void ScalerODLoadLUT(BYTE code *pucODTable, BYTE ucBankNum, bit bLUTMode);
+  45          void ScalerODSetFIFO(WORD usWidth, WORD usHeight);
+  46          void ScalerODHLWinSetting(EnumHLWType enumHLWType, EnumDBApply enumDBApply);
+  47          
+  48          //****************************************************************************
+  49          // FUNCTION DEFINITIONS
+  50          //****************************************************************************
+  51          
+C51 COMPILER V8.12   RL6449_SERIES_ODFUNCTION                                              03/11/2025 19:56:17 PAGE 2   
+
+  52          //--------------------------------------------------
+  53          // Description  : OD initialization setting
+  54          // Input Value  : None
+  55          // Output Value : None
+  56          //--------------------------------------------------
+  57          void ScalerODInitial(WORD usPanelHWidth, WORD usPanelVHeight)
+  58          {
+  59   1          ScalerODEnable(_FUNCTION_OFF);
+  60   1      
+  61   1          if(GET_OD_USE_BIT() != _OFF)
+  62   1          {
+  63   2              // Set OD compression settings
+  64   2              ScalerODCompressionSetting();
+  65   2      
+  66   2              // Set OD FIFO settings
+  67   2              ScalerODSetFIFO(usPanelHWidth, usPanelVHeight);
+  68   2          }
+  69   1      }
+  70          
+  71          //--------------------------------------------------
+  72          // Description  : Adjust OD delta gain
+  73          // Input Value  : Delta gain
+  74          // Output Value : None
+  75          //--------------------------------------------------
+  76          void ScalerODAdjustDeltaGain(BYTE ucValue)
+  77          {
+  78   1          ScalerSetByte(P3_A3_DELTA_GAIN, ucValue);
+  79   1      }
+  80          
+  81          //--------------------------------------------------
+  82          // Description  : Load OD LUT
+  83          // Input Value  :
+  84          //                pODTable -> OD TABLE Pointer
+  85          //                ucBankNum -> Bank number
+  86          //                bLUTMode -> OD LUT Type (8bit/10bit LUT)
+  87          // Output Value : None
+  88          //--------------------------------------------------
+  89          void ScalerODLoadLUT(BYTE code *pucODTable, BYTE ucBankNum, bit bLUTMode)
+  90          {
+  91   1          // Set OD LUT Mode
+  92   1          ScalerSetBit(P3_BF_LS_LUT_CTRL, ~_BIT0, ((bLUTMode == _OD_10BIT_LUT) ? _BIT0 : 0x00));
+  93   1      
+  94   1          // Enable LUT access
+  95   1          ScalerSetBit(P3_BF_LS_LUT_CTRL, ~(_BIT7 | _BIT6), _BIT7);
+  96   1      
+  97   1          ScalerBurstWrite(pucODTable, ((bLUTMode == _OD_10BIT_LUT) ? _OD_10BIT_LUT_LENGTH : _OD_8BIT_LUT_LENGTH
+             -), ucBankNum, P3_C0_LS_LUT_DATA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  98   1      
+  99   1          // Disable LUT access
+ 100   1          ScalerSetBit(P3_BF_LS_LUT_CTRL, ~_BIT7, 0x00);
+ 101   1      }
+ 102          
+ 103          //--------------------------------------------------
+ 104          // Description  : OD memory & FIFO setting
+ 105          // Input Value  : usWidth -> Display Width
+ 106          //                usHeight -> Display Height
+ 107          // Output Value : None
+ 108          //--------------------------------------------------
+ 109          void ScalerODSetFIFO(WORD usWidth, WORD usHeight)
+ 110          {
+ 111   1          // Even/odd mode, effective V_HEIGHT of each OD path
+ 112   1          WORD usODVHeightPerPath = CEILING_OF_INT_DIVISION(usHeight, _OD_PATH_NUM);
+C51 COMPILER V8.12   RL6449_SERIES_ODFUNCTION                                              03/11/2025 19:56:17 PAGE 3   
+
+ 113   1      
+ 114   1          // Calculate Memory usage of each OD path
+ 115   1          PDATA_DWORD(0) = ((DWORD)CEILING(usWidth, _OD_PIXEL_PER_COMP)) * GET_OD_USE_BIT() / 10 * usODVHeightPe
+             -rPath;
+ 116   1          PDATA_DWORD(0) = CEILING_OF_INT_DIVISION(PDATA_DWORD(0), _OD_FIFO_BUS_WIDTH);
+ 117   1      
+ 118   1          // Calculate Number and Remain --> (Number x Length + Remain) x OD_FIFO_BUS_WIDTH = Total size
+ 119   1          PDATA_DWORD(0) = ScalerMemoryCalculateNumberAndRemain(PDATA_DWORD(0), _OD_FIFO_WR_LENGTH, 1);
+ 120   1      
+ 121   1          // Set FIFO Write Water Level
+ 122   1          // M1
+ 123   1          ScalerSetByte(P3_D0_LS_DDR_FIFO_WTLVL_W_H, (((_OD_FIFO_WR_LENGTH / 2) & _BIT8) >> 8));
+ 124   1          ScalerSetByte(P3_D1_LS_DDR_FIFO_WTLVL_W_L, ((_OD_FIFO_WR_LENGTH / 2) & 0xFF));
+ 125   1          // M2
+ 126   1          ScalerSetByte(P43_D0_LS_DDR_FIFO_WTLVL_W_H, (((_OD_FIFO_WR_LENGTH / 2) & _BIT8) >> 8));
+ 127   1          ScalerSetByte(P43_D1_LS_DDR_FIFO_WTLVL_W_L, ((_OD_FIFO_WR_LENGTH / 2) & 0xFF));
+ 128   1      
+ 129   1          // Set FIFO Read Water Level
+ 130   1          // M1
+ 131   1          ScalerSetByte(P3_D2_LS_DDR_FIFO_WTLVL_R_H, ((_OD_FIFO_WR_LENGTH & _BIT8) >> 8));
+ 132   1          ScalerSetByte(P3_D3_LS_DDR_FIFO_WTLVL_R_L, (_OD_FIFO_WR_LENGTH & 0xFF));
+ 133   1          // M2
+ 134   1          ScalerSetByte(P43_D2_LS_DDR_FIFO_WTLVL_R_H, ((_OD_FIFO_WR_LENGTH & _BIT8) >> 8));
+ 135   1          ScalerSetByte(P43_D3_LS_DDR_FIFO_WTLVL_R_L, (_OD_FIFO_WR_LENGTH & 0xFF));
+ 136   1      
+ 137   1          // Set FIFO RW Number
+ 138   1          // M1
+ 139   1          ScalerSetByte(P3_D4_LS_DDR_FIFO_RW_NUM_H, pData[2]);
+ 140   1          ScalerSetByte(P3_D5_LS_DDR_FIFO_RW_NUM_L, pData[3]);
+ 141   1          // M2
+ 142   1          ScalerSetByte(P43_D4_LS_DDR_FIFO_RW_NUM_H, pData[2]);
+ 143   1          ScalerSetByte(P43_D5_LS_DDR_FIFO_RW_NUM_L, pData[3]);
+ 144   1      
+ 145   1          // Set FIFO RW Length
+ 146   1          // M1
+ 147   1          ScalerSetByte(P3_D6_LS_DDR_FIFO_RW_LEN_H, ((_OD_FIFO_WR_LENGTH & _BIT8) >> 8));
+ 148   1          ScalerSetByte(P3_D7_LS_DDR_FIFO_RW_LEN_L, (_OD_FIFO_WR_LENGTH & 0xFF));
+ 149   1          // M2
+ 150   1          ScalerSetByte(P43_D6_LS_DDR_FIFO_RW_LEN_H, ((_OD_FIFO_WR_LENGTH & _BIT8) >> 8));
+ 151   1          ScalerSetByte(P43_D7_LS_DDR_FIFO_RW_LEN_L, (_OD_FIFO_WR_LENGTH & 0xFF));
+ 152   1      
+ 153   1          // Set FIFO RW Remain
+ 154   1          // M1
+ 155   1          ScalerSetByte(P3_D8_LS_DDR_FIFO_RW_REMAIN_H, pData[0]);
+ 156   1          ScalerSetByte(P3_D9_LS_DDR_FIFO_RW_REMAIN_L, pData[1]);
+ 157   1          // M2
+ 158   1          ScalerSetByte(P43_D8_LS_DDR_FIFO_RW_REMAIN_H, pData[0]);
+ 159   1          ScalerSetByte(P43_D9_LS_DDR_FIFO_RW_REMAIN_L, pData[1]);
+ 160   1      }
+ 161          
+ 162          //--------------------------------------------------
+ 163          // Description  : OD HLW type select
+ 164          // Input Value  : enumHLWType --> _FULL_WINDOW, _INSIDE_WINDOW or _OUTSIDE_WINDOW
+ 165          // Output Value : None
+ 166          //--------------------------------------------------
+ 167          void ScalerODHLWinSetting(EnumHLWType enumHLWType, EnumDBApply enumDBApply)
+ 168          {
+ 169   1          // Select OD HLW type
+ 170   1          switch(enumHLWType)
+ 171   1          {
+ 172   2              case _HLW_FULL_WINDOW:
+ 173   2      
+C51 COMPILER V8.12   RL6449_SERIES_ODFUNCTION                                              03/11/2025 19:56:17 PAGE 4   
+
+ 174   2                  ScalerSetDataPortBit(P0_60_HLW_ADDR_PORT, _P0_61_PT_10_HLW_CONTROL3, ~(_BIT5 | _BIT4), 0x00);
+ 175   2      
+ 176   2                  break;
+ 177   2      
+ 178   2              case _HLW_INSIDE_WINDOW:
+ 179   2      
+ 180   2                  ScalerSetDataPortBit(P0_60_HLW_ADDR_PORT, _P0_61_PT_10_HLW_CONTROL3, ~(_BIT5 | _BIT4), 0x01 <<
+             - 4);
+ 181   2      
+ 182   2                  break;
+ 183   2      
+ 184   2              case _HLW_OUTSIDE_WINDOW:
+ 185   2      
+ 186   2                  ScalerSetDataPortBit(P0_60_HLW_ADDR_PORT, _P0_61_PT_10_HLW_CONTROL3, ~(_BIT5 | _BIT4), 0x02 <<
+             - 4);
+ 187   2      
+ 188   2                  break;
+ 189   2      
+ 190   2              default:
+ 191   2      
+ 192   2                  break;
+ 193   2          }
+ 194   1      
+ 195   1          ScalerGlobalDDomainDBApply(enumDBApply);
+ 196   1      }
+ 197          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    495    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,64 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6449_Series_ColorGlobalDoubleBufferStatus.c
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+#include "RL6449_Series_ColorLibInternalInclude.h"
+
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// CODE TABLES
+//****************************************************************************
+
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+bit ScalerColorGlobalDBStatus(void);
+
+
+
+//****************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+//--------------------------------------------------
+// Description  : Get D-Domain double buffer status
+// Input Value  : None
+// Output Value : Wait/ Not Wait
+//--------------------------------------------------
+bit ScalerColorGlobalDBStatus(void)
+{
+    if(ScalerGlobalGetIDCode() >= _RL6449_VER_D_ID_CODE)
+    {
+        return ((bit)ScalerGetBit(P31_C0_I_DB_CTRL, _BIT6));
+    }
+    else
+    {
+        return _DISABLE;
+    }
+}
+

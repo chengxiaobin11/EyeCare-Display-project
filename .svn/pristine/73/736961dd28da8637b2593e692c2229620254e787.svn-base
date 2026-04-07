@@ -1,0 +1,654 @@
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE RL6432_SERIES_DP
+OBJECT MODULE PLACED IN .\Output\RL6432\RL6432_Series_DP.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\Scaler\RL6432_Series_Scaler\Code\RL6432_Series_DP.c LARGE OPTIMIZE(9
+                    -,SPEED) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Hea
+                    -der;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib
+                    -\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL64
+                    -32_Series_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;
+                    -.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User
+                    -\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header)
+                    - DEFINE(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\RL6432_Series_DP.
+                    -lst) OBJECT(.\Output\RL6432\RL6432_Series_DP.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6432_Series_DP.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          #if(_DP_SUPPORT == _ON)
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          
+  25          //****************************************************************************
+  26          // STRUCT / TYPE / ENUM DEFINITTIONS
+  27          //****************************************************************************
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerDpScanInitial(BYTE ucInputPort);
+  42          void ScalerDpSecDataReset(BYTE ucInputPort);
+  43          bit ScalerDpNormalPreDetect(BYTE ucInputPort);
+  44          BYTE ScalerDpScanInputPort(BYTE ucInputPort);
+  45          bit ScalerDpPSPreDetect(BYTE ucInputPort);
+  46          bit ScalerDpStableDetect(BYTE ucInputPort);
+  47          bit ScalerDpHdcpCheckValid(BYTE ucInputPort);
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 2   
+
+  48          void ScalerDpFirstActiveProc(BYTE ucInputPort);
+  49          void ScalerDpPowerSwitch(EnumPowerAction enumPowerAction);
+  50          
+  51          #if(_DP_LINK_INTERVAL_CHECK_SUPPORT == _ON)
+              bit ScalerDpRxLinkStatusLoss(void);
+              #endif
+  54          
+  55          void ScalerDpAuxChPowerStatusCheck(BYTE ucInputPort, bit bCableStatus);
+  56          
+  57          #if(_DP_FREESYNC_SUPPORT == _ON)
+  58          #if(_DP_TX_SUPPORT == _ON)
+              void ScalerDpTxSSTSetAmdSpdInfo(bit bPlayback);
+              #endif
+  61          #endif
+  62          
+  63          //****************************************************************************
+  64          // FUNCTION DEFINITIONS
+  65          //****************************************************************************
+  66          //--------------------------------------------------
+  67          // Description  : Initial Setting for DP Scanning Port(Power Normal)
+  68          // Input Value  : _D0_INPUT_PORT or _D1_INPUT_PORT
+  69          // Output Value : None
+  70          //--------------------------------------------------
+  71          void ScalerDpScanInitial(BYTE ucInputPort)
+  72          {
+  73   1          switch(ucInputPort)
+  74   1          {
+  75   2      #if(_D0_DP_EXIST == _ON)
+  76   2      
+  77   2              case _D0_INPUT_PORT:
+  78   2      
+  79   2      #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+  82   2                  ScalerDpRx0MacInitial();
+  83   2      
+  84   2                  ScalerDpRx0PhyInitial();
+  85   2      
+  86   2                  CLR_DP_RX0_FAKE_LINK_TRAINING();
+  87   2      
+  88   2                  break;
+  89   2      #endif
+  90   2      
+  91   2      #if(_D1_DP_EXIST == _ON)
+              
+                      case _D1_INPUT_PORT:
+              
+                          ScalerDpRx1MacInitial();
+              
+                          ScalerDpRx1PhyInitial();
+              
+                          CLR_DP_RX1_FAKE_LINK_TRAINING();
+              
+                          break;
+              #endif
+ 103   2      
+ 104   2              default:
+ 105   2      
+ 106   2                  break;
+ 107   2          }
+ 108   1      }
+ 109          
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 3   
+
+ 110          //--------------------------------------------------
+ 111          // Description  : DP Sec Data Reset
+ 112          // Input Value  : ucInputPort
+ 113          // Output Value : None
+ 114          //--------------------------------------------------
+ 115          void ScalerDpSecDataReset(BYTE ucInputPort)
+ 116          {
+ 117   1          switch(ucInputPort)
+ 118   1          {
+ 119   2              case _D0_INPUT_PORT:
+ 120   2      
+ 121   2      #if((_D6_INPUT_PORT_TYPE != _D6_NO_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+ 124   2      
+ 125   2      #if(_D0_DP_EXIST == _ON)
+ 126   2                  ScalerDpRx0SecDataBlockReset();
+ 127   2      #endif
+ 128   2                  break;
+ 129   2      
+ 130   2              case _D1_INPUT_PORT:
+ 131   2      
+ 132   2      #if(_D1_DP_EXIST == _ON)
+                          ScalerDpRx1SecDataBlockReset();
+              #endif
+ 135   2                  break;
+ 136   2      
+ 137   2              default:
+ 138   2                  break;
+ 139   2          }
+ 140   1      }
+ 141          
+ 142          
+ 143          //--------------------------------------------------
+ 144          // Description  : Signal PreDetection for DP(Power Normal)
+ 145          // Input Value  : _D0_INPUT_PORT or _D1_INPUT_PORT
+ 146          // Output Value : True : DP Signal Detected
+ 147          //              : False : No Signal
+ 148          //--------------------------------------------------
+ 149          bit ScalerDpNormalPreDetect(BYTE ucInputPort)
+ 150          {
+ 151   1          switch(ucInputPort)
+ 152   1          {
+ 153   2      #if(_D0_DP_EXIST == _ON)
+ 154   2      
+ 155   2              case _D0_INPUT_PORT:
+ 156   2      
+ 157   2      #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              
+                          if(GET_D6_SWITCH_POWER_STATUS() == _DIGITAL_D6_SWITCH_POWER_DOWN)
+                          {
+                              return _FALSE;
+                          }
+              #endif
+ 165   2                  return ScalerDpRx0NormalPreDetect();
+ 166   2      #endif
+ 167   2      
+ 168   2      #if(_D1_DP_EXIST == _ON)
+              
+                      case _D1_INPUT_PORT:
+              
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 4   
+
+                          return ScalerDpRx1NormalPreDetect();
+              #endif
+ 174   2              default:
+ 175   2      
+ 176   2                  break;
+ 177   2          }
+ 178   1      
+ 179   1          return _FALSE;
+ 180   1      }
+ 181          
+ 182          //--------------------------------------------------
+ 183          // Description  : DP Port Source/Sync Scanning and Setting
+ 184          // Input Value  : _D0_INPUT_PORT or _D1_INPUT_PORT
+ 185          // Output Value : Source DP --> DP Sync Stable
+ 186          //                Source None --> No Stable Sync
+ 187          //--------------------------------------------------
+ 188          BYTE ScalerDpScanInputPort(BYTE ucInputPort)
+ 189          {
+ 190   1          switch((ucInputPort))
+ 191   1          {
+ 192   2      #if(_D0_DP_EXIST == _ON)
+ 193   2              case _D0_INPUT_PORT:
+ 194   2      
+ 195   2      #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+ 198   2                  return ScalerDpRx0ScanInputPort();
+ 199   2      #endif
+ 200   2      
+ 201   2      #if(_D1_DP_EXIST == _ON)
+                      case _D1_INPUT_PORT:
+              
+                          return ScalerDpRx1ScanInputPort();
+              #endif
+ 206   2      
+ 207   2              default:
+ 208   2      
+ 209   2                  break;
+ 210   2          }
+ 211   1      
+ 212   1          return _FALSE;
+ 213   1      }
+ 214          
+ 215          //--------------------------------------------------
+ 216          // Description  : Signal Detection for DP(Power Saving)
+ 217          // Input Value  : _D0_INPUT_PORT or _D1_INPUT_PORT
+ 218          // Output Value : True : DP Signal Detected
+ 219          //              : False : No Signal
+ 220          //--------------------------------------------------
+ 221          bit ScalerDpPSPreDetect(BYTE ucInputPort)
+ 222          {
+ 223   1          switch((ucInputPort))
+ 224   1          {
+ 225   2      #if(_D0_DP_EXIST == _ON)
+ 226   2              case _D0_INPUT_PORT:
+ 227   2      
+ 228   2      #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              
+                          if(GET_D6_SWITCH_POWER_STATUS() == _DIGITAL_D6_SWITCH_POWER_DOWN)
+                          {
+                              return _FALSE;
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 5   
+
+                          }
+              #endif
+ 236   2                  return ScalerDpRx0PSPreDetect();
+ 237   2      #endif
+ 238   2      
+ 239   2      #if(_D1_DP_EXIST == _ON)
+                      case _D1_INPUT_PORT:
+              
+                          return ScalerDpRx1PSPreDetect();
+              #endif
+ 244   2      
+ 245   2              default:
+ 246   2      
+ 247   2                  break;
+ 248   2          }
+ 249   1      
+ 250   1          return _FALSE;
+ 251   1      }
+ 252          
+ 253          //--------------------------------------------------
+ 254          // Description  : On Line Check DP stability
+ 255          // Input Value  : _D0_INPUT_PORT or _D1_INPUT_PORT
+ 256          // Output Value : True --> DP Stable
+ 257          //                False --> DP Unstable
+ 258          //--------------------------------------------------
+ 259          bit ScalerDpStableDetect(BYTE ucInputPort)
+ 260          {
+ 261   1          switch((ucInputPort))
+ 262   1          {
+ 263   2      #if(_D0_DP_EXIST == _ON)
+ 264   2              case _D0_INPUT_PORT:
+ 265   2      
+ 266   2      #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+ 269   2                  return ScalerDpRx0StableDetect();
+ 270   2      #endif
+ 271   2      
+ 272   2      #if(_D1_DP_EXIST == _ON)
+                      case _D1_INPUT_PORT:
+              
+                          return ScalerDpRx1StableDetect();
+              #endif
+ 277   2      
+ 278   2              default:
+ 279   2      
+ 280   2                  break;
+ 281   2          }
+ 282   1      
+ 283   1          return _FALSE;
+ 284   1      }
+ 285          
+ 286          //--------------------------------------------------
+ 287          // Description  : Check whether HDCP is valid
+ 288          // Input Value  : Input Port
+ 289          // Output Value : TRUE => HDCP valid
+ 290          //--------------------------------------------------
+ 291          bit ScalerDpHdcpCheckValid(BYTE ucInputPort)
+ 292          {
+ 293   1          if(ucInputPort == _D0_INPUT_PORT)
+ 294   1          {
+ 295   2      #if(_D0_DP_EXIST == _ON)
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 6   
+
+ 296   2              return ScalerDpRx0HdcpCheckValid();
+ 297   2      #endif
+ 298   2          }
+ 299   1          else if(ucInputPort == _D1_INPUT_PORT)
+ 300   1          {
+ 301   2      #if(_D1_DP_EXIST == _ON)
+                      return ScalerDpRx1HdcpCheckValid();
+              #endif
+ 304   2          }
+ 305   1          else if(ucInputPort == _D6_INPUT_PORT)
+ 306   1          {
+ 307   2      #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      return ScalerDpRx0HdcpCheckValid();
+              #endif
+ 310   2          }
+ 311   1      
+ 312   1          return _FALSE;
+ 313   1      }
+ 314          
+ 315          //--------------------------------------------------
+ 316          // Description  : DP First Active Process
+ 317          // Input Value  : ucInputPort
+ 318          // Output Value : None
+ 319          //--------------------------------------------------
+ 320          void ScalerDpFirstActiveProc(BYTE ucInputPort)
+ 321          {
+ 322   1          switch(ucInputPort)
+ 323   1          {
+ 324   2      #if(_D0_DP_EXIST == _ON)
+ 325   2      
+ 326   2              case _D0_INPUT_PORT:
+ 327   2      
+ 328   2      #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+ 331   2                  // Enable DP Fifo Under/OverFlow Watch Dog
+ 332   2                  ScalerDpRx0SetFifoWD(_ENABLE);
+ 333   2      
+ 334   2                  // Enable DP Fifo Under/OverFlow IRQ
+ 335   2                  ScalerDpRx0SetFifoIRQ(_ENABLE);
+ 336   2      
+ 337   2                  break;
+ 338   2      #endif
+ 339   2      
+ 340   2      #if(_D1_DP_EXIST == _ON)
+                      case _D1_INPUT_PORT:
+              
+                          // Enable DP Fifo Under/OverFlow Watch Dog
+                          ScalerDpRx1SetFifoWD(_ENABLE);
+              
+                          // Enable DP Fifo Under/OverFlow IRQ
+                          ScalerDpRx1SetFifoIRQ(_ENABLE);
+              
+                          break;
+              #endif
+ 351   2      
+ 352   2              default:
+ 353   2      
+ 354   2                  break;
+ 355   2          }
+ 356   1      }
+ 357          
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 7   
+
+ 358          //--------------------------------------------------
+ 359          // Description  : Check DP Into Power Saving
+ 360          // Input Value  : None
+ 361          // Output Value : None
+ 362          //--------------------------------------------------
+ 363          void ScalerDpPowerSwitch(EnumPowerAction enumPowerAction)
+ 364          {
+ 365   1          switch(enumPowerAction)
+ 366   1          {
+ 367   2              case _POWER_ACTION_NORMAL_TO_OFF:
+ 368   2              case _POWER_ACTION_AC_ON_TO_OFF:
+ 369   2              case _POWER_ACTION_PS_TO_OFF:
+ 370   2      
+ 371   2                  SET_DP_DC_OFF_HPD_TOGGLE_FLAG();
+ 372   2      
+ 373   2      #if(_D0_DP_EXIST == _ON)
+ 374   2      #if((_DP_HDMI_COMPATIBLE_MODE == _OFF) && (_DP_POWER_OFF_HDCP_SUPPORT == _OFF))
+ 375   2      
+ 376   2                  // Disable HDCP support
+ 377   2                  ScalerDpRx0ChangeHdcpDpcdCapability(_DISABLE);
+ 378   2      
+ 379   2                  // Power Down HDCP Reset
+ 380   2                  ScalerDpRx0HDCPBlockReset();
+ 381   2      
+ 382   2      #if(_DP_HDCP_2_2_SUPPORT == _ON)
+ 383   2                  ScalerDpRx0Hdcp2ResetProc();
+ 384   2      #endif
+ 385   2      
+ 386   2      #endif // End of #if((_DP_HDMI_COMPATIBLE_MODE == _OFF) && (_DP_POWER_OFF_HDCP_SUPPORT == _OFF))
+ 387   2      
+ 388   2      #endif // End of #if(_D0_DP_EXIST == _ON)
+ 389   2      
+ 390   2      #if(_D1_DP_EXIST == _ON)
+              #if((_DP_HDMI_COMPATIBLE_MODE == _OFF) && (_DP_POWER_OFF_HDCP_SUPPORT == _OFF))
+              
+                          // Disable HDCP support
+                          ScalerDpRx1ChangeHdcpDpcdCapability(_DISABLE);
+              
+                          // Power Down HDCP Reset
+                          ScalerDpRx1HDCPBlockReset();
+              
+              #if(_DP_HDCP_2_2_SUPPORT == _ON)
+                          ScalerDpRx1Hdcp2ResetProc();
+              #endif
+              
+              #endif // End of #if((_DP_HDMI_COMPATIBLE_MODE == _OFF) && (_DP_POWER_OFF_HDCP_SUPPORT == _OFF))
+              
+              #endif // End of #if(_D1_DP_EXIST == _ON)
+ 406   2      
+ 407   2                  ScalerDpLowPowerProc();
+ 408   2      
+ 409   2                  break;
+ 410   2      
+ 411   2              case _POWER_ACTION_NORMAL_TO_PS:
+ 412   2      
+ 413   2                  ScalerDpLowPowerProc();
+ 414   2      
+ 415   2                  break;
+ 416   2      
+ 417   2              case _POWER_ACTION_AC_ON_TO_NORMAL:
+ 418   2              case _POWER_ACTION_OFF_TO_NORMAL:
+ 419   2              case _POWER_ACTION_PS_TO_NORMAL:
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 8   
+
+ 420   2      
+ 421   2                  if(enumPowerAction == _POWER_ACTION_PS_TO_NORMAL)
+ 422   2                  {
+ 423   3                      ScalerDpJudgeHPDToggle(_POWER_ACTION_PS_TO_NORMAL);
+ 424   3                  }
+ 425   2      
+ 426   2      #if(_D0_DP_EXIST == _ON)
+ 427   2      
+ 428   2                  // Disable Aux Power Saving Mode
+ 429   2                  ScalerSetBit(PB7_62_AUX_2, ~_BIT1, 0x00);
+ 430   2      
+ 431   2                  // Switch Aux PHY to GDI BandGap
+ 432   2                  ScalerSetBit(PB7_63_AUX_3, ~_BIT7, 0x00);
+ 433   2      
+ 434   2                  // Disable Aux INT
+ 435   2                  ScalerSetBit(PB7_7A_AUX_DIG_PHYA, ~_BIT4, 0x00);
+ 436   2      
+ 437   2                  // Stream Load By 63th MTPH
+ 438   2                  ScalerSetBit(PB5_02_STHD_CTRL_1, ~_BIT7, 0x00);
+ 439   2      
+ 440   2                  if(enumPowerAction == _POWER_ACTION_OFF_TO_NORMAL)
+ 441   2                  {
+ 442   3                      // Enable HDCP support
+ 443   3                      ScalerDpRx0ChangeHdcpDpcdCapability(_ENABLE);
+ 444   3                  }
+ 445   2      
+ 446   2      #endif // End of #if(_D0_DP_EXIST == _ON)
+ 447   2      
+ 448   2      #if(_D1_DP_EXIST == _ON)
+              
+                          // Disable Aux Power Saving Mode
+                          ScalerSetBit(PBA_62_AUX_2, ~_BIT1, 0x00);
+              
+                          // Switch Aux PHY to GDI BandGap
+                          ScalerSetBit(PBA_63_AUX_3, ~_BIT7, 0x00);
+              
+                          // Disable Aux INT
+                          ScalerSetBit(PBA_7A_AUX_DIG_PHYA, ~_BIT4, 0x00);
+              
+                          // Stream Load By 63th MTPH
+                          ScalerSetBit(PB8_02_STHD_CTRL_1, ~_BIT7, 0x00);
+              
+                          if(enumPowerAction == _POWER_ACTION_OFF_TO_NORMAL)
+                          {
+                              // Enable HDCP support
+                              ScalerDpRx1ChangeHdcpDpcdCapability(_ENABLE);
+                          }
+              
+              #endif // End of #if(_D1_DP_EXIST == _ON)
+ 469   2      
+ 470   2      #if((_DP_TX_SUPPORT == _ON) && (_DP_FREESYNC_SUPPORT == _ON))
+              
+                          // Specify Packet Detect Type
+                          ScalerSetByte(PBC_53_DP_INFO_FM_RSV0, _SPD_INFO_TYPE);
+              
+              #endif
+ 476   2                  IP = 0xA0;
+ 477   2      
+ 478   2                  break;
+ 479   2      
+ 480   2              case _POWER_ACTION_NORMAL_TO_FAKE_OFF:
+ 481   2      
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 9   
+
+ 482   2                  SET_DP_DC_OFF_HPD_TOGGLE_FLAG();
+ 483   2      
+ 484   2                  break;
+ 485   2      
+ 486   2              default:
+ 487   2                  break;
+ 488   2          }
+ 489   1      }
+ 490          
+ 491          #if(_DP_LINK_INTERVAL_CHECK_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Check CDR, Signal, Align Link, DFE, Margin Link, Decode
+              // Input Value  : _D0_INPUT_PORT or _D1_INPUT_PORT
+              // Output Value : True --> DP Link Loss
+              //                False --> DP Stable
+              //--------------------------------------------------
+              bit ScalerDpRxLinkStatusLoss(void)
+              {
+                  bit bLinkStatusLoss = _FALSE;
+              
+              #if(_D0_DP_EXIST == _ON)
+                  if(GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_LINK_TRAINING_PASS)
+                  {
+                      bLinkStatusLoss |= ScalerDpRx0LinkStatusLoss();
+                  }
+              #endif
+              
+              #if(_D1_DP_EXIST == _ON)
+                  if(GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_LINK_TRAINING_PASS)
+                  {
+                      bLinkStatusLoss |= ScalerDpRx1LinkStatusLoss();
+                  }
+              #endif
+              
+                  return bLinkStatusLoss;
+              }
+              #endif
+ 519          
+ 520          //--------------------------------------------------
+ 521          // Description  : Dp Rx Aux Ch Power Status Check
+ 522          // Input Value  : None
+ 523          // Output Value : None
+ 524          //--------------------------------------------------
+ 525          void ScalerDpAuxChPowerStatusCheck(BYTE ucInputPort, bit bCableStatus)
+ 526          {
+ 527   1      #if(_D0_DP_EXIST == _ON)
+ 528   1          if(ucInputPort == _D0_INPUT_PORT)
+ 529   1          {
+ 530   2              ScalerDpRx0AuxChPowerStatusCheck(bCableStatus);
+ 531   2          }
+ 532   1      
+ 533   1      #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                  if(ucInputPort == _D6_INPUT_PORT)
+                  {
+                      ScalerDpRx6AuxChPowerStatusCheck(bCableStatus);
+                  }
+              #endif
+ 539   1      
+ 540   1      #endif
+ 541   1      
+ 542   1      #if(_D1_DP_EXIST == _ON)
+                  if(ucInputPort == _D1_INPUT_PORT)
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 10  
+
+                  {
+                      ScalerDpRx1AuxChPowerStatusCheck(bCableStatus);
+                  }
+              #endif
+ 548   1      }
+ 549          
+ 550          #if(_DP_FREESYNC_SUPPORT == _ON)
+ 551          #if(_DP_TX_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Set DP TX AMD SPD info, using MPEG info
+              // Input Value  : On/ Off
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerDpTxSSTSetAmdSpdInfo(bit bPlayback)
+              {
+                  BYTE pucData[9];
+              
+                  memset(pucData, 0, sizeof(pucData));
+              
+                  // Disable DP TX MPEG and timestamp
+                  ScalerSetBit(PBC_00_SEC_FUNCTION_CTRL, ~(_BIT5 | _BIT0), 0x00);
+              
+                  if(bPlayback == _ON)
+                  {
+                      if(GET_DP_MST_FREESYNC_ENABLED() == _TRUE)
+                      {
+                          // Get MST2SST AMD SPD Info frame, only support in RL6410 & RL6432
+                          ScalerGetDataPortByte(PBC_55_DP_INFO_FM_ADR, 0x21, 3, &pucData[1], _AUTOINC);
+              
+                          if((pucData[1] == 0x1A) && (pucData[2] == 0x00) && (pucData[3] == 0x00))
+                          {
+                              // Get MST2SST AMD SPD Info frame, only support in RL6410 & RL6432
+                              ScalerGetDataPortByte(PBC_55_DP_INFO_FM_ADR, 0x21, 9, pucData, _AUTOINC);
+              
+                              // Set AMD SPD INFO
+                              ScalerSetByte(PBC_3D_SEC_INFO_MPEG_DB0, pucData[0]);
+                              ScalerSetByte(PBC_3E_SEC_INFO_MPEG_DB1, pucData[1]);
+                              ScalerSetByte(PBC_3F_SEC_INFO_MPEG_DB2, pucData[2]);
+                              ScalerSetByte(PBC_40_SEC_INFO_MPEG_DB3, pucData[3]);
+                              ScalerSetByte(PBC_41_SEC_INFO_MPEG_DB4, pucData[4]);
+                              ScalerSetByte(PBC_42_SEC_INFO_MPEG_DB5, pucData[5]);
+                              ScalerSetByte(PBC_43_SEC_INFO_MPEG_DB6, pucData[6]);
+                              ScalerSetByte(PBC_44_SEC_INFO_MPEG_DB7, pucData[7]);
+                              ScalerSetByte(PBC_45_SEC_INFO_MPEG_DB8, pucData[8]);
+              
+                              // Set Header for AMD SPD Info
+                              ScalerDpTxSetSecDataHeader(_SEC_PACKET_TYPE_INFOFRAME_RSV);
+              
+                              // DP TX MPEG and timestamp enable
+                              ScalerSetBit(PBC_00_SEC_FUNCTION_CTRL, ~(_BIT5 | _BIT0), (_BIT5 | _BIT0));
+                          }
+                      }
+                  }
+              }
+              #endif
+ 599          
+ 600          #endif // #if(_DP_FREESYNC_SUPPORT == _ON)
+ 601          
+ 602          #endif // #if(_DP_SUPPORT == _ON)
+ 603          
+
+
+C51 COMPILER V9.01   RL6432_SERIES_DP                                                      08/18/2025 18:01:47 PAGE 11  
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    222    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

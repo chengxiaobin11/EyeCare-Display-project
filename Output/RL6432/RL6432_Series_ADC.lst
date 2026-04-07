@@ -1,0 +1,118 @@
+C51 COMPILER V9.00   RL6432_SERIES_ADC                                                     02/26/2026 13:42:41 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE RL6432_SERIES_ADC
+OBJECT MODULE PLACED IN .\Output\RL6432\RL6432_Series_ADC.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE Kernel\Scaler\RL6432_Series_Scaler\Code\RL6432_Series_ADC.c LARGE OPTIMIZE(
+                    -9,SPEED) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\He
+                    -ader;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Li
+                    -b\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6
+                    -432_Series_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header
+                    -;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\Use
+                    -r\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header
+                    -) DEFINE(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\RL6432_Series_AD
+                    -C.lst) OBJECT(.\Output\RL6432\RL6432_Series_ADC.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6432_Series_ADC.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          //****************************************************************************
+  32          // VARIABLE DECLARATIONS
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // FUNCTION DECLARATIONS
+  37          //****************************************************************************
+  38          #if(_VGA_CHROMA_PATTERN12_SUPPORT == _ON)
+              void ScalerADCSetClampToTopStatus(bit bEn);
+              #endif
+  41          
+  42          //****************************************************************************
+  43          // FUNCTION DEFINITIONS
+  44          //****************************************************************************
+  45          #if(_VGA_CHROMA_PATTERN12_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Set clamp-to-top status
+C51 COMPILER V9.00   RL6432_SERIES_ADC                                                     02/26/2026 13:42:41 PAGE 2   
+
+              // Input Value  : _ENABLE or _DISABLE
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerADCSetClampToTopStatus(bit bEn)
+              {
+                  if(bEn == _TRUE)
+                  {
+                      // Enable clamp-to-top
+                      ScalerSetBit(P0_D6_ADC_CLAMP_TOP, ~(_BIT2 | _BIT1 | _BIT0), (_BIT2 | _BIT1 | _BIT0));
+              
+                      // Enable YPbPr clamp
+                      ScalerSetBit(P0_CF_ADC_CTL_RED, ~_BIT7, _BIT7);
+                      ScalerSetBit(P0_D0_ADC_CTL_GRN, ~_BIT7, _BIT7);
+                      ScalerSetBit(P0_D1_ADC_CTL_BLU, ~_BIT7, _BIT7);
+                  }
+                  else
+                  {
+                      // Disable clamp-to-top
+                      ScalerSetBit(P0_D6_ADC_CLAMP_TOP, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+              
+                      // Restore to RGB/YPbPr clamp, according to I-domain color conversion output select bit,
+                      // D-domain color enable bit, and D-domain identity matrix enable bit
+                      if((ScalerGetBit(P14_A1_SR_YCC2RGB_CTRL, _BIT0) == ScalerGetBit(P0_9C_RGB2YCC_CTRL, _BIT0)) ||
+                         (ScalerGetBit(P14_A1_SR_YCC2RGB_CTRL, _BIT4) == _BIT4))
+                      {
+                          pData[0] = 0; // RGB
+                      }
+                      else
+                      {
+                          pData[0] = _BIT7; // YPbPr
+                      }
+              
+                      ScalerSetBit(P0_CF_ADC_CTL_RED, ~_BIT7, pData[0]);
+                      ScalerSetBit(P0_D0_ADC_CTL_GRN, ~_BIT7, 0x00);
+                      ScalerSetBit(P0_D1_ADC_CTL_BLU, ~_BIT7, pData[0]);
+                  }
+              }
+              #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

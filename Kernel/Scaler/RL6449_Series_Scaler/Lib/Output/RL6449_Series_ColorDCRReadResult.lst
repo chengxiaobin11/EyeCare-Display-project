@@ -1,0 +1,252 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORDCRREADRESULT                                      03/11/2025 19:56:04 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORDCRREADRESULT
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorDCRReadResult.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorDCRReadResult.c LARGE OPTIMIZE(
+                    -9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\Sca
+                    -lerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Series
+                    -_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_Se
+                    -ries_ColorDCRReadResult.lst) OBJECT(.\Output\RL6449_Series_ColorDCRReadResult.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorDCRReadResult.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          //****************************************************************************
+  38          // FUNCTION DECLARATIONS
+  39          //****************************************************************************
+  40          DWORD ScalerColorDCRReadResult(EnumDCRAdjOption enumDCRReadOption);
+  41          
+  42          
+  43          //****************************************************************************
+  44          // FUNCTION DEFINITIONS
+  45          //****************************************************************************
+  46          //--------------------------------------------------
+  47          // Description  : Read DCR Histogram Result
+  48          // Input Value  : DCR Histogram Information Option
+  49          // Output Value : DCR Histogram Information
+  50          // Note         : When get _DCR_ABOVE_TH_VAL(8bit or 10bit), should get _DCR_ABOVE_TH_VAL_HIGH / _DCR_ABOV
+             -E_TH_VAL_10BIT_HIGH first
+C51 COMPILER V8.12   RL6449_SERIES_COLORDCRREADRESULT                                      03/11/2025 19:56:04 PAGE 2   
+
+  51          //              : then get _DCR_ABOVE_TH_VAL / _DCR_ABOVE_TH_VAL_10BIT
+  52          //--------------------------------------------------
+  53          DWORD ScalerColorDCRReadResult(EnumDCRAdjOption enumDCRReadOption)
+  54          {
+  55   1          DWORD ulResult = 0;
+  56   1      
+  57   1          if((GET_DCR_READY_STATUS() == _FALSE) ||
+  58   1             (ScalerGetDataPortBit(P0_64_CTS_BRI_PORT_ADD, _P0_65_PT_27_CTS_BRI_SET, _BIT0) == _BIT0))
+  59   1          {
+  60   2              return 0;
+  61   2          }
+  62   1      
+  63   1          switch(enumDCRReadOption)
+  64   1          {
+  65   2              case _DCR_ABOVE_TH1_NUM:
+  66   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_02_DCR_ABOVE_TH1_NUM_2 << 2) | _BIT1 | _BIT0)
+             -;
+  67   2                  ScalerRead(P7_D9_DCR_DATA_PORT, 3, pData, _NON_AUTOINC);
+  68   2      
+  69   2                  ulResult = TO_DWORD(0, pData[0], pData[1], pData[2]);
+  70   2                  break;
+  71   2      
+  72   2              case _DCR_ABOVE_TH1_VAL:
+  73   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_05_DCR_ABOVE_TH1_VAL_4 << 2) | _BIT1 | _BIT0)
+             -;
+  74   2                  ScalerRead(P7_D9_DCR_DATA_PORT, 4, pData, _NON_AUTOINC);
+  75   2                  ulResult = TO_DWORD(pData[0], pData[1], pData[2], pData[3]);
+  76   2      
+  77   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_2B_DCR_ABOVE_TH_VAL_0 << 2) | _BIT1 | _BIT0);
+  78   2                  pData[0] = ScalerGetBit(P7_D9_DCR_DATA_PORT, (_BIT7 | _BIT6));
+  79   2      
+  80   2                  ulResult = (ulResult << 2) | (pData[0] >> 6);
+  81   2                  break;
+  82   2      
+  83   2              case _DCR_ABOVE_TH1_VAL_HIGH:
+  84   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_05_DCR_ABOVE_TH1_VAL_4 << 2) | _BIT1 | _BIT0)
+             -;
+  85   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+  86   2      
+  87   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_2A_DCR_ABOVE_TH_VAL_5 << 2) | _BIT1 | _BIT0);
+  88   2                  pData[0] = ScalerGetBit(P7_D9_DCR_DATA_PORT, (_BIT7 | _BIT6 | _BIT5));
+  89   2      
+  90   2                  ulResult = ((pData[0] >> 3) | ((pData[1] & 0xC0) >> 6));
+  91   2                  break;
+  92   2      
+  93   2              case _DCR_ABOVE_TH2_NUM:
+  94   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_09_DCR_ABOVE_TH2_NUM_2 << 2) | _BIT1 | _BIT0)
+             -;
+  95   2                  ScalerRead(P7_D9_DCR_DATA_PORT, 3, pData, _NON_AUTOINC);
+  96   2      
+  97   2                  ulResult = TO_DWORD(0, pData[0], pData[1], pData[2]);
+  98   2                  break;
+  99   2      
+ 100   2              case _DCR_ABOVE_TH2_VAL:
+ 101   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_0C_DCR_ABOVE_TH2_VAL_4 << 2) | _BIT1 | _BIT0)
+             -;
+ 102   2                  ScalerRead(P7_D9_DCR_DATA_PORT, 4, pData, _NON_AUTOINC);
+ 103   2                  ulResult = TO_DWORD(pData[0], pData[1], pData[2], pData[3]);
+ 104   2      
+ 105   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_2B_DCR_ABOVE_TH_VAL_0 << 2) | _BIT1 | _BIT0);
+ 106   2                  pData[0] = ScalerGetBit(P7_D9_DCR_DATA_PORT, (_BIT3 | _BIT2));
+ 107   2      
+C51 COMPILER V8.12   RL6449_SERIES_COLORDCRREADRESULT                                      03/11/2025 19:56:04 PAGE 3   
+
+ 108   2                  ulResult = (ulResult << 2) | (pData[0] >> 2);
+ 109   2                  break;
+ 110   2      
+ 111   2              case _DCR_ABOVE_TH2_VAL_HIGH:
+ 112   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_0C_DCR_ABOVE_TH2_VAL_4 << 2) | _BIT1 | _BIT0)
+             -;
+ 113   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 114   2      
+ 115   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_2A_DCR_ABOVE_TH_VAL_5 << 2) | _BIT1 | _BIT0);
+ 116   2                  pData[0] = ScalerGetBit(P7_D9_DCR_DATA_PORT, (_BIT3 | _BIT2 | _BIT1));
+ 117   2      
+ 118   2                  ulResult = (pData[0] << 1) | ((pData[1] & 0xC0) >> 6);
+ 119   2                  break;
+ 120   2      
+ 121   2              case _DCR_HIGH_LV_VAL_R:
+ 122   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_14_DCR_HIGH_LV_VAL_R_1 << 2) | _BIT1 | _BIT0)
+             -;
+ 123   2                  pData[0] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 124   2      
+ 125   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_2C_DCR_HIGH_LV_VAL_R_0 << 2) | _BIT1 | _BIT0)
+             -;
+ 126   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 127   2      
+ 128   2                  ulResult = (TO_WORD(pData[0], pData[1]) >> 6);
+ 129   2                  break;
+ 130   2      
+ 131   2              case _DCR_LOW_LV_VAL_R:
+ 132   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_15_DCR_LOW_LV_VAL_R_1 << 2) | _BIT1 | _BIT0);
+ 133   2                  pData[0] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 134   2      
+ 135   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_2D_DCR_LOW_LV_VAL_R_0 << 2) | _BIT1 | _BIT0);
+ 136   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 137   2      
+ 138   2                  ulResult = (TO_WORD(pData[0], pData[1]) >> 6);
+ 139   2                  break;
+ 140   2      
+ 141   2              case _DCR_HIGH_LV_VAL_G:
+ 142   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_1A_DCR_HIGH_LV_VAL_G_1 << 2) | _BIT1 | _BIT0)
+             -;
+ 143   2                  pData[0] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 144   2      
+ 145   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_2E_DCR_HIGH_LV_VAL_G_0 << 2) | _BIT1 | _BIT0)
+             -;
+ 146   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 147   2      
+ 148   2                  ulResult = (TO_WORD(pData[0], pData[1]) >> 6);
+ 149   2                  break;
+ 150   2      
+ 151   2              case _DCR_LOW_LV_VAL_G:
+ 152   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_1B_DCR_LOW_LV_VAL_G_1 << 2) | _BIT1 | _BIT0);
+ 153   2                  pData[0] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 154   2      
+ 155   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_2F_DCR_LOW_LV_VAL_G_0 << 2) | _BIT1 | _BIT0);
+ 156   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 157   2      
+ 158   2                  ulResult = (TO_WORD(pData[0], pData[1]) >> 6);
+ 159   2                  break;
+ 160   2      
+ 161   2              case _DCR_HIGH_LV_VAL_B:
+ 162   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_20_DCR_HIGH_LV_VAL_B_1 << 2) | _BIT1 | _BIT0)
+             -;
+ 163   2                  pData[0] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+C51 COMPILER V8.12   RL6449_SERIES_COLORDCRREADRESULT                                      03/11/2025 19:56:04 PAGE 4   
+
+ 164   2      
+ 165   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_30_DCR_HIGH_LV_VAL_B_0 << 2) | _BIT1 | _BIT0)
+             -;
+ 166   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 167   2      
+ 168   2                  ulResult = (TO_WORD(pData[0], pData[1]) >> 6);
+ 169   2                  break;
+ 170   2      
+ 171   2              case _DCR_LOW_LV_VAL_B:
+ 172   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_21_DCR_LOW_LV_VAL_B_1 << 2) | _BIT1 | _BIT0);
+ 173   2                  pData[0] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 174   2      
+ 175   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_31_DCR_LOW_LV_VAL_B_0 << 2) | _BIT1 | _BIT0);
+ 176   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 177   2      
+ 178   2                  ulResult = (TO_WORD(pData[0], pData[1]) >> 6);
+ 179   2                  break;
+ 180   2      
+ 181   2              case _DCR_Y_MAX_VAL:
+ 182   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_28_DCR_Y_MAX_1 << 2) | _BIT1 | _BIT0);
+ 183   2                  pData[0] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 184   2      
+ 185   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_32_DCR_Y_MAX_0 << 2) | _BIT1 | _BIT0);
+ 186   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 187   2      
+ 188   2                  ulResult = (TO_WORD(pData[0], pData[1]) >> 6);
+ 189   2                  break;
+ 190   2      
+ 191   2              case _DCR_Y_MIN_VAL:
+ 192   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_29_DCR_Y_MIN_1 << 2) | _BIT1 | _BIT0);
+ 193   2                  pData[0] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 194   2      
+ 195   2                  ScalerSetByte(P7_D8_DCR_ADDRESS_PORT, (_P7_D9_PT_33_DCR_Y_MIN_0 << 2) | _BIT1 | _BIT0);
+ 196   2                  pData[1] = ScalerGetByte(P7_D9_DCR_DATA_PORT);
+ 197   2      
+ 198   2                  ulResult = (TO_WORD(pData[0], pData[1]) >> 6);
+ 199   2                  break;
+ 200   2      
+ 201   2              default:
+ 202   2                  break;
+ 203   2          }
+ 204   1      
+ 205   1          return ulResult;
+ 206   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    786    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       5
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

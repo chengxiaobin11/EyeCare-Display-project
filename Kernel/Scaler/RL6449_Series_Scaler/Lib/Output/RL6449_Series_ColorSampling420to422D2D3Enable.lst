@@ -1,0 +1,122 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORSAMPLING420TO422D2D3EN                             03/11/2025 19:56:10 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORSAMPLING420TO422D2D3EN
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorSampling420to422D2D3Enable.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorSampling420to422D2D3Enable.c LA
+                    -RGE OPTIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Hea
+                    -der;..\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\
+                    -RL6449_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Out
+                    -put\RL6449_Series_ColorSampling420to422D2D3Enable.lst) OBJECT(.\Output\RL6449_Series_ColorSampling420to422D2D3Enable.obj
+                    -)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorSampling420to422D2D3Enable.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          //****************************************************************************
+  23          // STRUCT / TYPE / ENUM DEFINITTIONS
+  24          //****************************************************************************
+  25          
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          
+  32          //****************************************************************************
+  33          // VARIABLE DECLARATIONS
+  34          //****************************************************************************
+  35          
+  36          
+  37          //****************************************************************************
+  38          // FUNCTION DECLARATIONS
+  39          //****************************************************************************
+  40          void ScalerColor420To422D2D3Enable(EnumSourceSearchPort enumSourceSearchPort, EnumFunctionOnOFF enumFuncti
+             -onOnOFF);
+  41          
+  42          
+  43          //****************************************************************************
+  44          // FUNCTION DEFINITIONS
+  45          //****************************************************************************
+  46          //--------------------------------------------------
+  47          // Description  : Enable / Disable 420To422 for D2 source
+  48          // Input Value  : Enable or Disable
+  49          // Output Value : None
+C51 COMPILER V8.12   RL6449_SERIES_COLORSAMPLING420TO422D2D3EN                             03/11/2025 19:56:10 PAGE 2   
+
+  50          //--------------------------------------------------
+  51          void ScalerColor420To422D2D3Enable(EnumSourceSearchPort enumSourceSearchPort, EnumFunctionOnOFF enumFuncti
+             -onOnOFF)
+  52          {
+  53   1          enumSourceSearchPort = enumSourceSearchPort;
+  54   1      
+  55   1          if(enumFunctionOnOFF == _FUNCTION_ON)
+  56   1          {
+  57   2              WORD usCount = 0;
+  58   2              WORD usOutctl = (enumSourceSearchPort == _D2_INPUT_PORT) ? P71_A6_TMDS_OUTCTL : P72_A6_TMDS_OUTCTL
+             -;
+  59   2      
+  60   2              ScalerSetBit(P31_31_YUV420_TO_422_CTL, ~_BIT6, _BIT6);
+  61   2              ScalerSetBit(P31_32_YUV420_TO_YUV422, ~(_BIT5 | _BIT4 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0)); 
+             -// Set FIFO start point = 3
+  62   2      
+  63   2              do
+  64   2              {
+  65   3                  if(usCount != 0)
+  66   3                  {
+  67   4                      ScalerSetBit(usOutctl, ~_BIT3, _BIT3); // Enable Clock
+  68   4                      ScalerSetBit(P31_32_YUV420_TO_YUV422, ~(_BIT7 | _BIT5 | _BIT4 | _BIT3), 0x00); // Disable 
+             -420 function & FIFO
+  69   4                  }
+  70   3      
+  71   3                  ScalerSetBit(usOutctl, ~_BIT3, 0x00); // Clock gated
+  72   3                  ScalerSetBit(P31_32_YUV420_TO_YUV422, ~(_BIT7 | _BIT5 | _BIT4), _BIT7); // Enable 420 function
+  73   3                  ScalerSetBit(P31_32_YUV420_TO_YUV422, ~(_BIT5 | _BIT4 | _BIT3), _BIT3); // Enable FIFO
+  74   3                  ScalerSetBit(P31_32_YUV420_TO_YUV422, ~(_BIT5 | _BIT4), (_BIT5 | _BIT4)); // Clear underflow/o
+             -verflow flag
+  75   3                  usCount = usCount + 1;
+  76   3              }
+  77   2              while(ScalerGetBit(P31_32_YUV420_TO_YUV422, _BIT5) == _BIT5); // if underflow occured
+  78   2      
+  79   2              ScalerSetBit(usOutctl, ~_BIT3, _BIT3); // Enable clock
+  80   2          }
+  81   1          else
+  82   1          {
+  83   2              ScalerSetBit(P31_32_YUV420_TO_YUV422, ~(_BIT7 | _BIT5 | _BIT4 | _BIT3), 0x00);
+  84   2              ScalerSetBit(P31_34_YUV420_TO_YUV422_HSTM0, ~_BIT7, 0x00); // reset duplicate mode
+  85   2          }
+  86   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    173    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

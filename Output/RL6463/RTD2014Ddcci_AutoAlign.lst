@@ -1,0 +1,1941 @@
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RTD2014DDCCI_AUTOALIGN
+OBJECT MODULE PLACED IN .\Output\RL6463\RTD2014Ddcci_AutoAlign.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE User\RTD Series\RTD2014Osd\Code\RTD2014Ddcci_AutoAlign.c LARGE OPTIM
+                    -IZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Syste
+                    -m\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunctio
+                    -n\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler
+                    -\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RT
+                    -D Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\H
+                    -eader;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(
+                    -.\Output\RL6463\RTD2014Ddcci_AutoAlign.lst) OBJECT(.\Output\RL6463\RTD2014Ddcci_AutoAlign.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   The  Software  is  proprietary,  confidential,  and  valuable to Realtek   */
+   3          /*   Semiconductor  Corporation  ("Realtek").  All  rights, including but not   */
+   4          /*   limited  to  copyrights,  patents,  trademarks, trade secrets, mask work   */
+   5          /*   rights, and other similar rights and interests, are reserved to Realtek.   */
+   6          /*   Without  prior  written  consent  from  Realtek,  copying, reproduction,   */
+   7          /*   modification,  distribution,  or  otherwise  is strictly prohibited. The   */
+   8          /*   Software  shall  be  kept  strictly  in  confidence,  and  shall  not be   */
+   9          /*   disclosed to or otherwise accessed by any third party.                     */
+  10          /*   c<2003> - <2012>                                                           */
+  11          /*   The Software is provided "AS IS" without any warranty of any kind,         */
+  12          /*   express, implied, statutory or otherwise.                                  */
+  13          /********************************************************************************/
+  14          
+  15          #define __RTD2011_ALIGN__
+  16          
+  17          #include "UserCommonInclude.h"
+  18          
+  19          
+  20          extern void OsdDispOsdReset(void);
+  21          bit ddcci_reset=0;
+  22          
+  23          #if(_CTX_TPV==_OFF)
+              
+              #if(_DEF_DDCCI_WB_TOOL)
+              
+              #if(_OSD_TYPE == _REALTEK_2014_OSD)
+              
+              //****************************************************************************
+              // VARIABLE DECLARATIONS
+              //****************************************************************************
+              
+              bit ubAutoAlign=_FALSE;
+              
+              void RTDDdcciAutoAlignPro(void);
+              extern void RTDDdccireply(BYTE Flag);
+              //*****************************************************
+              
+              //--------------------------------------------------
+              // Description  : 
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void CAlignSendAckCmd(BYTE Status)
+              {
+              
+                      if(Status == _SUCCESS)
+                      {
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 2   
+
+                              g_pucDdcciTxBuf[0] = 0x6E;
+                              g_pucDdcciTxBuf[1] = 0x82;      
+                              g_pucDdcciTxBuf[2] = 0x00;      
+                              g_pucDdcciTxBuf[3] = 0x4f;
+                              g_pucDdcciTxBuf[4] =0xF3;
+                      }
+                      else
+                      {
+                              g_pucDdcciTxBuf[0] = 0x6E;
+                              g_pucDdcciTxBuf[1] = 0x82;      
+                              g_pucDdcciTxBuf[2] = 0x03;      
+                              g_pucDdcciTxBuf[3] = 0x58;
+                              g_pucDdcciTxBuf[4] =0xE7;
+              
+                      }
+              
+              
+              
+                  ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+                      ScalerMcuDdcciReleaseScl();
+              
+              }
+              
+              
+              
+              
+              bit IS_OSD_RESET(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0xFF)&&(g_pucDdcciRxBuf[5]==0x01));
+              }
+              
+              bit IS_AUTO_COLOR(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0xFF)&&(g_pucDdcciRxBuf[5]==0x02));
+              }
+              /********************************************************************/
+              bit IS_TEST_LIGHTMAX(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0xFF)&&(g_pucDdcciRxBuf[5]==0x03));
+              }
+              
+              bit IS_LOAD_RGB(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0xff)&&(g_pucDdcciRxBuf[5]==0x04));
+              }
+              bit IS_ALIGN_FINISH(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0xFF)&&(g_pucDdcciRxBuf[5]==0x05));
+              }
+              
+              bit IS_TIME_CLEAR(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0xFF)&&(g_pucDdcciRxBuf[5]==0x06));
+              }
+              
+              bit IS_CHANGE_LANGUAGE(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0xFF)&&(g_pucDdcciRxBuf[5]==0x07));
+              }
+                      
+              
+              
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 3   
+
+              bit IS_START(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0xff)&&(g_pucDdcciRxBuf[5]==0xFF));
+              }
+              
+              /*******************************************************************/
+              
+              bit IS_RGB_ADJ(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0x20)&&(g_pucDdcciRxBuf[5]==0x01));
+              }
+              
+              /*******************************************************************/
+              bit IS_SAVE_9300(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0x30)&&(g_pucDdcciRxBuf[5]==0x00));
+              }
+              
+              bit IS_SAVE_7500(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0x30)&&(g_pucDdcciRxBuf[5]==0x01));
+              }
+              
+              bit IS_SAVE_6500(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0x30)&&(g_pucDdcciRxBuf[5]==0x02));
+              }
+              
+              bit IS_SAVE_5800(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0x30)&&(g_pucDdcciRxBuf[5]==0x03));
+              }
+              
+              bit IS_SAVE_sRGB(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0x30)&&(g_pucDdcciRxBuf[5]==0x04));
+              }
+              
+              bit IS_SAVE_USER(void)
+              {
+                      return ((g_pucDdcciRxBuf[4]==0x30)&&(g_pucDdcciRxBuf[5]==0x05));
+              }
+              
+              
+              //--------------------------------------------------
+              // Description  : 
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              //--------------------------------------------------
+              // Description  : 
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDDdcciAutoAlignPro(void)
+              {  
+                      
+                      BYTE uctempData,ucR_Gain,ucG_Gain,ucB_Gain;
+              
+              /************************FUNC***********************************/
+                      if(IS_TIME_CLEAR())//清除时间
+                      {
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 4   
+
+                              SET_PANEL_TIME_HOUR(0);
+                              SET_PANEL_TIME_MIN(0);
+                              CAlignSendAckCmd(_SUCCESS); 
+                      }
+                      else if(IS_CHANGE_LANGUAGE())
+                      {
+                              SET_OSD_LANGUAGE(g_pucDdcciRxBuf[6]);
+                              //SET_OSD_LANGUAGE_INIT(g_pucDdcciRxBuf[6]);
+                              RTDNVRamSaveOSDData();
+                              RTDDdccireply(_TRUE);
+                      }
+              
+                      else if(IS_OSD_RESET())
+                      {
+                              OsdDispOsdReset();
+                              RTDDdccireply(_TRUE);
+                      }
+                      else if(IS_AUTO_COLOR())
+                      {
+              
+              #if(_VGA_SUPPORT != _ON)
+                              RTDDdccireply(0X02);
+                              return;
+              #endif
+                              if(SysSourceGetSourceType() != _SOURCE_VGA)
+                              {       
+                                      RTDDdccireply(_FALSE);
+                              }
+                              else
+                              {
+              
+              #if(_VGA_SUPPORT == _ON)
+                                      //OsdDisplayAutoBalanceProc();
+                                      OsdDisplayAutoBalanceProc_DDCCI();
+              
+                                      RTDDdccireply(_TRUE);
+              #endif
+                              }
+                      }
+              
+              /****************************CT**********************************/
+                      else  if(IS_TEST_LIGHTMAX())
+                      {
+              
+                         if(ScalerTimerSearchActiveTimerEvent(_USER_TIMER_EVENT_BUININ_MSG) == _TRUE)
+                         {
+                                 ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_BUININ_MSG);
+                                 OsdFuncDisableOsd();
+                                 ScalerDDomainPatternGenAdjustColor(255,255,255);
+                                 ScalerDDomainPatternGenEnable(_ENABLE);
+                                 ScalerDDomainBackgroundEnable(_DISABLE);
+                         
+                         }
+                         else
+                         {
+                                 OsdFuncDisableOsd();
+                         }                       
+                         SET_COLOR_TEMP_TYPE_USER_R(128);
+                         SET_COLOR_TEMP_TYPE_USER_G(128);
+                         SET_COLOR_TEMP_TYPE_USER_B(128);
+                         UserAdjustContrast(_CONTRAST_DEFAULT);
+                         UserAdjustBacklight(100);
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 5   
+
+                         RTDDdccireply(_TRUE);
+                      }
+                      else  if(IS_START())
+                      {
+                         
+                         RTDNVRamRestoreBriCon();
+              
+                         UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                              //UserAdjustBrightness(GET_OSD_BRIGHTNESS());      
+                         RTDDdccireply(_TRUE);
+                         
+                      }
+                      else  if(IS_LOAD_RGB())
+                      {
+              
+                         SET_COLOR_TEMP_TYPE_USER_R(g_pucDdcciRxBuf[6]);
+                         SET_COLOR_TEMP_TYPE_USER_G(g_pucDdcciRxBuf[7]);
+                         SET_COLOR_TEMP_TYPE_USER_B(g_pucDdcciRxBuf[8]); 
+                         UserAdjustContrast(GET_OSD_CONTRAST());
+                         RTDDdccireply(_TRUE);
+                      }
+              /************************************R G B**************************/    
+                      else if(IS_RGB_ADJ())
+                      {
+              
+                              SET_COLOR_TEMP_TYPE_USER_R(g_pucDdcciRxBuf[6]);
+                              SET_COLOR_TEMP_TYPE_USER_G(g_pucDdcciRxBuf[7]);
+                              SET_COLOR_TEMP_TYPE_USER_B(g_pucDdcciRxBuf[8]); 
+              
+                              UserAdjustContrast(GET_OSD_CONTRAST());
+                              RTDDdccireply(_TRUE);
+                      }
+              /***********************************SAVE****************************/
+                      else  if(IS_SAVE_9300())
+                      {
+              
+                              SET_COLOR_TEMP_TYPE(_CT_9300);
+                              RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+                              RTDDdccireply(_TRUE);
+                      }
+                      else  if(IS_SAVE_7500())
+                      {
+              
+                              SET_COLOR_TEMP_TYPE(_CT_7500);
+                              RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+                              RTDDdccireply(_TRUE);
+                      }
+                      else  if(IS_SAVE_6500())
+                      {
+                              RTDDdccireply(_TRUE);
+                               SET_COLOR_TEMP_TYPE(_CT_6500);
+                               RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+                               
+                       }
+                       else  if(IS_SAVE_5800())
+                       {
+              
+                              SET_COLOR_TEMP_TYPE(_CT_5000);
+                              RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+              #if(_DEF_COLOR_TEMP_SRGB_EANBLE)
+                              UserAdjustBacklight(_SRGB_BACKLIGHT);//?SRGB??
+              #endif
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 6   
+
+                              RTDDdccireply(_TRUE);
+                      }
+              #if(_DEF_CT_SRGB_SUPPIRT == _ON)
+                      else  if(IS_SAVE_sRGB())
+                      {
+                              SET_COLOR_TEMP_TYPE(_CT_SRGB);
+                              RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+              #if(_DEF_COLOR_TEMP_SRGB_EANBLE)
+                              UserAdjustBacklight(_OSD_BACKLIGHT_DEFAULE);//????
+              #endif
+                              RTDDdccireply(_TRUE);
+                      }
+              #endif
+                      else  if(IS_SAVE_USER())
+                      {
+              #if(_DEF_DDC_COLOR_USER_4500)
+                              SET_COLOR_TEMP_TYPE(_CT_4500);
+              #else
+                              SET_COLOR_TEMP_TYPE(_CT_USER);
+              #endif
+                              RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+                               if(DFM_BURN_IN())
+                               {
+                                       //ScalerTimerActiveTimerEvent(SEC(0.01),_USER_TIMER_EVENT_BUININ_MSG);
+                                       //OsdFuncEnableOsd();
+                                       SET_FACTORY_BURNIN(_OFF);
+                                       SET_FACTORY_MODE(_OFF);
+                                       TPVNVRamSaveFactoryDate();
+                               }
+                              RTDDdccireply(_TRUE);
+                      }
+                      else  if(IS_ALIGN_FINISH())
+                      {
+              
+                              SET_COLOR_TEMP_TYPE(_COLORTEMP_DEFAULT);        // 20211019
+                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                              UserAdjustContrast(_CONTRAST_DEFAULT);
+                              //if(DFM_BURN_IN() && SysModeGetModeState() == _MODE_STATUS_NOSIGNAL)
+                              if(GET_FACTORY_BURNIN() && SysModeGetModeState() == _MODE_STATUS_ACTIVE)                                        
+                              {
+                                      //ScalerTimerActiveTimerEvent(SEC(0.01),_USER_TIMER_EVENT_BUININ_MSG);
+                                      //OsdFuncEnableOsd();
+                                      OsdFuncDisableOsd();
+                                      SET_FACTORY_MODE(_OFF);
+                                      SET_FACTORY_BURNIN(_OFF);
+                                       TPVNVRamSaveFactoryDate();
+                                      UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+                              }
+                              else if((SysModeGetModeState() == _MODE_STATUS_NOSIGNAL) && (GET_FACTORY_BURNIN() == _ON))
+                              {
+                                      ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_BURN_IN_DDCTOOL);
+                                              
+                      }
+                              RTDNVRamSaveOSDData();
+                              RTDDdccireply(_TRUE);
+                      }
+                      else if(IS_TIME_CLEAR())
+                      {
+                      
+                              RTDDdccireply(_TRUE);
+                      }
+              
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 7   
+
+                      else if(IS_CHANGE_LANGUAGE())
+                      {
+              
+                              RTDDdccireply(_TRUE);
+                      }
+              //*******************************JRY Command**********************// 
+                      else
+                      {
+                              //DDcciOsdDispOsdMessage();
+                              if(ubAutoAlign==0)
+                              {
+                                      if((g_pucDdcciRxBuf[4]==0x35)&&(g_pucDdcciRxBuf[5]==0x1f)&&(g_pucDdcciRxBuf[6]==0))//enter align mode
+                                      {
+              
+                                          ubAutoAlign=1;
+                                          CAlignSendAckCmd(_SUCCESS);
+              
+                                                      return ;
+                                      }
+                                      else
+                                      {
+                                              //OsdDispOsdMessage(_OSD_DISP_NOSIGNAL_MSG);
+                                              return ;
+                                      }
+                               }
+              
+                              //OsdDispOsdMessage(_OSD_DISP_NOSIGNAL_MSG);
+              
+                              if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x13)&&(g_pucDdcciRxBuf[6]==0))//auto color
+                              {
+              #if(_VGA_SUPPORT == _ON)
+              
+                                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+                                      {
+                                      if(ScalerAutoDoWhiteBalance(_AUTO_TUNE_RGB) != _AUTO_SUCCESS)       
+                                              {
+                                              
+                                                      CAlignSendAckCmd(_FAIL);
+                                              }
+                                              else
+                                              {
+                          
+                                                      
+                                  ScalerAutoGetAutoColorResult(&g_stAdcData);
+                        
+                                  //If you want add ADC offset , please refer _PANEL_ADC_OFFSET_BIAS
+              
+                                  // Adjust ADC gain for user define
+                                  // ===============================================================
+                                  g_stAdcData.pucAdcGainMSB[0] = g_stAdcData.pucAdcGainMSB[0];
+                                  g_stAdcData.pucAdcGainMSB[1] = g_stAdcData.pucAdcGainMSB[1];
+                                  g_stAdcData.pucAdcGainMSB[2] = g_stAdcData.pucAdcGainMSB[2];
+                                              
+                                  // Adjust ADC OFFSET for user define
+                                  // ===============================================================
+                                  g_stAdcData.pucAdcOffsetMSB[0] = g_stAdcData.pucAdcOffsetMSB[0];
+                                  g_stAdcData.pucAdcOffsetMSB[1] = g_stAdcData.pucAdcOffsetMSB[1];
+                                  g_stAdcData.pucAdcOffsetMSB[2] = g_stAdcData.pucAdcOffsetMSB[2];
+                                              
+                                 UserCommonNVRamSaveADCSetting(_COLOR_SPACE_RGB);
+                                              
+                                                      CAlignSendAckCmd(_SUCCESS);
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 8   
+
+                                              }
+                                      }
+              #endif
+                                      
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x14)&&(g_pucDdcciRxBuf[6]==0))//set CT
+                              {
+              
+                                      SET_COLOR_TEMP_TYPE(_CT_9300);
+                                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                                      UserAdjustContrast(GET_OSD_CONTRAST());
+                                      UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x14)&&(g_pucDdcciRxBuf[6]==1))//set CT
+                              {
+              
+                                      SET_COLOR_TEMP_TYPE(_CT_6500);
+                                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                                      UserAdjustContrast(GET_OSD_CONTRAST());
+                                      UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+              #if  1//Adj_5400K_Temp  
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x14)&&(g_pucDdcciRxBuf[6]==2))//set CT
+                              {
+              
+                                      SET_COLOR_TEMP_TYPE(_CT_5000);
+                                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                                      UserAdjustContrast(GET_OSD_CONTRAST());
+                                      UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+              #endif
+              
+              #if 1//Adj_7500K_Temp   
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x14)&&(g_pucDdcciRxBuf[6]==3))//set CT
+                              {
+                                              
+                                      SET_COLOR_TEMP_TYPE(_CT_7500);
+                                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                                      UserAdjustContrast(GET_OSD_CONTRAST());
+                                      UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                              CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+              #endif
+              #if(_DEF_CT_SRGB_SUPPIRT == _ON)
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x14)&&(g_pucDdcciRxBuf[6]==4))//set CT
+                              {
+                                              
+                                      SET_COLOR_TEMP_TYPE(_CT_SRGB);
+                                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                                      UserAdjustContrast(GET_OSD_CONTRAST());
+                                      //UserAdjustBacklight(GET_OSD_BRIGHTNESS());
+                                      UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                              CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 9   
+
+              #endif
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x14)&&(g_pucDdcciRxBuf[6]==5))//set CT
+                              {
+              #if(_DEF_DDC_COLOR_USER_4500)
+                                      SET_COLOR_TEMP_TYPE(_CT_4500);
+              #else
+                                      SET_COLOR_TEMP_TYPE(_CT_USER);
+              #endif
+                                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                                      UserAdjustContrast(GET_OSD_CONTRAST());
+                                      UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                                   CAlignSendAckCmd(_SUCCESS);
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x32)&&(g_pucDdcciRxBuf[5]==0x15))//read R gain
+                              {
+              
+                                      g_pucDdcciTxBuf[0] = 0x6E;
+                                      g_pucDdcciTxBuf[1] = 0x82;
+                                      g_pucDdcciTxBuf[2] = 0x00;      
+                                      g_pucDdcciTxBuf[3] = GET_COLOR_TEMP_TYPE_USER_R();
+                                      g_pucDdcciTxBuf[4] = UserCommonDdcciCalCheckSum();
+                                      ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+                                      
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x32)&&(g_pucDdcciRxBuf[5]==0x16))//read G gain
+                              {
+              
+                                      g_pucDdcciTxBuf[0] = 0x6E;
+                                      g_pucDdcciTxBuf[1] = 0x82;
+                                      g_pucDdcciTxBuf[2] = 0x00;      
+                                      g_pucDdcciTxBuf[3] = GET_COLOR_TEMP_TYPE_USER_G();
+                                      g_pucDdcciTxBuf[4] = UserCommonDdcciCalCheckSum();
+                                      ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x32)&&(g_pucDdcciRxBuf[5]==0x17))//read B gain
+                              {
+              
+                                      g_pucDdcciTxBuf[0] = 0x6E;
+                                      g_pucDdcciTxBuf[1] = 0x82;
+                                      g_pucDdcciTxBuf[2] = 0x00;      
+                                      g_pucDdcciTxBuf[3] = GET_COLOR_TEMP_TYPE_USER_B();
+                                      g_pucDdcciTxBuf[4] = UserCommonDdcciCalCheckSum();
+                                      ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x15))//write R gain
+                              {
+              
+                                      ucR_Gain=g_pucDdcciRxBuf[6];
+                                      if((ucR_Gain >= 0) && (ucR_Gain <= 255))
+                                      {
+              
+                                      //需注意COLOR_TEMP接收的数值范围
+                                      //长城code的接收范围是0-100
+                                      //(x > 50) ? (DWORD)(x*0xFF)/100 : (x + 78)---input--0:78;50:128;100:256
+                                      //switch 0-255--->0-100------0:0;128:50;255:100
+                                              CAlignSendAckCmd(_SUCCESS);
+                                          SET_COLOR_TEMP_TYPE_USER_R(ucR_Gain);
+                                              UserAdjustContrast(GET_OSD_CONTRAST());
+              
+                                      }
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 10  
+
+                                      else
+                                      {
+                                              CAlignSendAckCmd(_FAIL);
+                                      }
+                                                      
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x16))//write G gain
+                              {
+              
+                                      ucG_Gain=g_pucDdcciRxBuf[6];
+                                      if((ucG_Gain >= 0) && (ucG_Gain <= 255))
+                                      {
+                                      //需注意COLOR_TEMP接收的数值范围
+                                      //长城code的接收范围是0-100
+                                      //(x > 50) ? (DWORD)(x*0xFF)/100 : (x + 78)---input--0:78;50:128;100:256
+                                      //switch 0-255--->0-100------0:0;128:50;255:100
+                                              CAlignSendAckCmd(_SUCCESS);
+                                              SET_COLOR_TEMP_TYPE_USER_G(ucG_Gain);
+                                              UserAdjustContrast(GET_OSD_CONTRAST());
+              
+                                      }
+                                      else
+                                      {
+                                              CAlignSendAckCmd(_FAIL);
+                                      }       
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x17))//write B gain
+                              {
+              
+                                      ucB_Gain=g_pucDdcciRxBuf[6];
+                                      if((ucB_Gain >= 0) && (ucB_Gain <= 255))
+                                      {
+              
+                                      //需注意COLOR_TEMP接收的数值范围
+                                      //长城code的接收范围是0-100
+                                      //(x > 50) ? (DWORD)(x*0xFF)/100 : (x + 78)---input--0:78;50:128;100:256
+                                      //switch 0-255--->0-100------0:0;128:50;255:100
+                                              CAlignSendAckCmd(_SUCCESS);
+                                      SET_COLOR_TEMP_TYPE_USER_B(ucB_Gain);
+                                              UserAdjustContrast(GET_OSD_CONTRAST());
+              
+                                      }
+                                      else
+                                      {
+                                              CAlignSendAckCmd(_FAIL);
+                                      }
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x18)&&(g_pucDdcciRxBuf[6]==0))//save CT
+                              {
+              
+                                      RTDNVRamSaveColorSetting(_CT_9300);
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x18)&&(g_pucDdcciRxBuf[6]==1))//save CT
+                              {
+              
+                                      RTDNVRamSaveColorSetting(_CT_6500);//GET_COLOR_TEMP_TYPE(GET_OSD_SELECT_REGION())
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 11  
+
+              #if 1
+                              //Adj_5000K_Temp        
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x18)&&(g_pucDdcciRxBuf[6]==2))//save CT
+                              {
+              
+                                      RTDNVRamSaveColorSetting(_CT_5000);//GET_COLOR_TEMP_TYPE(GET_OSD_SELECT_REGION())
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+              #endif
+              
+              #if  1//Adj_7500K_Temp  
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x18)&&(g_pucDdcciRxBuf[6]==3))//save CT
+                              {
+              
+                                      RTDNVRamSaveColorSetting(_CT_7500);//GET_COLOR_TEMP_TYPE(GET_OSD_SELECT_REGION())
+                                  CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+              #endif
+              #if(_DEF_CT_SRGB_SUPPIRT == _ON)
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x18)&&(g_pucDdcciRxBuf[6]==4))//save CT
+                              {
+              
+                                      RTDNVRamSaveColorSetting(_CT_SRGB);//GET_COLOR_TEMP_TYPE(GET_OSD_SELECT_REGION())
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+              #endif
+              
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x18)&&(g_pucDdcciRxBuf[6]==5))//save CT
+                              {
+              
+                                  RTDNVRamSaveColorSetting(_CT_4500);
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x19)&&(g_pucDdcciRxBuf[6]==0))//set brightness
+             - and contrast default
+                              {
+              
+                                      RTDNVRamRestoreBriCon();
+                                      //UserAdjustBlackLevel();
+                                      UserAdjustContrast(GET_OSD_CONTRAST());
+                                      UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                                      CAlignSendAckCmd(_SUCCESS);
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x32)&&(g_pucDdcciRxBuf[5]==0x1A))//read adjust brightness 
+                              {
+              
+                                      g_pucDdcciTxBuf[0] = 0x6E;
+                                      g_pucDdcciTxBuf[1] = 0x82;
+                                      g_pucDdcciTxBuf[2] = 0x00;      
+                                      g_pucDdcciTxBuf[3] = GET_OSD_BACKLIGHT();
+                                  g_pucDdcciTxBuf[4] = UserCommonDdcciCalCheckSum();
+                                  ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+              
+                                      //_CHECK_CT_DATA_RANGE
+              
+                                      //g_stColorTempDefaultData
+              
+                              }
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 12  
+
+                              else if((g_pucDdcciRxBuf[4]==0x32)&&(g_pucDdcciRxBuf[5]==0x1B))//read adjust contrast
+                              {
+                              
+                                      g_pucDdcciTxBuf[0] = 0x6E;
+                                      g_pucDdcciTxBuf[1] = 0x82;
+                                      g_pucDdcciTxBuf[2] = 0x00;      
+                                      g_pucDdcciTxBuf[3] = GET_OSD_CONTRAST();
+                                  g_pucDdcciTxBuf[4] = UserCommonDdcciCalCheckSum();
+                                  ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x1A))//write adjust brightness 
+                              {
+              
+                                      uctempData=g_pucDdcciRxBuf[6];
+                                      if((uctempData >= 0) && (uctempData <= 100))
+                                      {
+                                              CAlignSendAckCmd(_SUCCESS);
+                                              SET_OSD_BACKLIGHT(uctempData);
+                                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+                                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_EEPROM_BRICON_MSG);
+              
+                                      }
+                                      else
+                                      {
+                                      /*
+                                 if(GET_COLOR_TEMP_TYPE() == _CT_SRGB)
+                                             {
+                                                              SET_OSD_BACKLIGHT(_SRGB_BACKLIGHT);
+                                                              RTDNVRamSaveSrgbBrightness(GET_OSD_GAME_MODE());
+                                                              SET_OSD_BACKUP_SRGB_BRI(_SRGB_BACKLIGHT);
+                                                              RTDNVRamSaveOSDData();
+                                             }
+              */
+                                              CAlignSendAckCmd(_FAIL);
+                                      }                       
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x1B))//write adjust contrast
+                              {
+              
+                                      uctempData=g_pucDdcciRxBuf[6];
+                                      if((uctempData >= 0) && (uctempData <= 100))
+                                      {
+                                      
+                                            CAlignSendAckCmd(_SUCCESS);
+                                        SET_OSD_CONTRAST(uctempData);
+                                                UserAdjustContrast(GET_OSD_CONTRAST());
+              
+              
+                                      }
+                                      else
+                                      {
+              
+                                              CAlignSendAckCmd(_FAIL);
+                                      }                       
+              
+                                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_EEPROM_BRICON_MSG);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x1C))//set default language or select reset la
+             -nguage
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 13  
+
+                              {
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x1D)&&(g_pucDdcciRxBuf[6]==0))//enter burn mod
+             -e
+                              {
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x1D)&&(g_pucDdcciRxBuf[6]==1))//exit burn mode
+                              {
+              
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x35)&&(g_pucDdcciRxBuf[5]==0x1F)&&(g_pucDdcciRxBuf[6]==0))//enter align mo
+             -de
+                              {
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x21)&&(g_pucDdcciRxBuf[6]==0))//factory mode o
+             -n
+                              {
+              
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x21)&&(g_pucDdcciRxBuf[6]==1))//factory mode o
+             -ff
+                              {
+              
+                                  ubAutoAlign=0;
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x23)&&(g_pucDdcciRxBuf[6]==0))//change source 
+             -vga
+                              {
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x39)&&(g_pucDdcciRxBuf[5]==0x23)&&(g_pucDdcciRxBuf[6]==1))//change source 
+             -dvi
+                              {
+                                      CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else if((g_pucDdcciRxBuf[4]==0x35)&&(g_pucDdcciRxBuf[5]==0x1F)&&(g_pucDdcciRxBuf[6]==1))//exit align mod
+             -e
+                              //else if((g_pucDdcciRxBuf[4]==0x00)&&(g_pucDdcciRxBuf[5]==0x01)&&(g_pucDdcciRxBuf[6]==1))//exit align m
+             -ode
+                              {
+              
+                                      ubAutoAlign=0;
+                                      
+                                      if((SysModeGetModeState() == _MODE_STATUS_NOSIGNAL) && (GET_FACTORY_BURNIN() == _ON))
+                                      {
+                                              ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_BURN_IN_DDCTOOL);
+                                      
+                                      }
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 14  
+
+                                  else if((SysModeGetModeState() == _MODE_STATUS_ACTIVE)&& (GET_FACTORY_BURNIN() == _ON))
+                                  {
+              
+                                              SET_FACTORY_MODE(_OFF);
+                                              SET_FACTORY_BURNIN(_OFF);
+                                              TPVNVRamSaveFactoryDate();
+                                              UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+                                              SET_COLOR_TEMP_TYPE(_COLORTEMP_DEFAULT);        // 20211019
+                                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                                              UserAdjustContrast(_CONTRAST_DEFAULT);
+                                  }
+              
+              
+                                  CAlignSendAckCmd(_SUCCESS);
+              
+                              }
+                              else
+                              {
+              
+                                      CAlignSendAckCmd(_FAIL);
+              
+                              }
+              
+                      }
+              }
+              
+              #endif //end of #if(_OSD_TYPE == _HKC_OSD)
+              
+              #endif
+              
+              #else
+ 814          #if(_OSD_TYPE == _REALTEK_2014_OSD)
+ 815          BYTE Ct4500Flag = 0;
+ 816          
+ 817          //****************************************************************************
+ 818          // VARIABLE DECLARATIONS
+ 819          //****************************************************************************
+ 820          //ENABLE_CTX_ALIGN_CONTROL
+ 821          
+ 822          void CTXAlignControl(void);
+ 823          
+ 824          
+ 825          bit FC_READ_R_GAIN()
+ 826          {
+ 827   1          return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x02);
+ 828   1      }
+ 829          
+ 830          bit FC_READ_G_GAIN()
+ 831          {
+ 832   1          return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x03);
+ 833   1      }
+ 834          
+ 835          bit FC_READ_B_GAIN()
+ 836          {
+ 837   1          return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x04);
+ 838   1      }
+ 839          
+ 840          bit FC_READ_CONTRAST()
+ 841          {
+ 842   1          return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x0e);
+ 843   1      }
+ 844          
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 15  
+
+ 845          bit FC_READ_BRIGHTNESS()
+ 846          {
+ 847   1          return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x0d);
+ 848   1      }
+ 849          
+ 850          bit FC_ADJUST_R_GAIN()
+ 851          {
+ 852   1          return (g_pucDdcciRxBuf[3]==0x40&&g_pucDdcciRxBuf[4]==0x02);
+ 853   1      }
+ 854          
+ 855          bit FC_ADJUST_G_GAIN()
+ 856          {
+ 857   1              return (g_pucDdcciRxBuf[3]==0x40&&g_pucDdcciRxBuf[4]==0x03);
+ 858   1      }
+ 859          
+ 860          bit FC_ADJUST_B_GAIN()
+ 861          {
+ 862   1              return (g_pucDdcciRxBuf[3]==0x40&&g_pucDdcciRxBuf[4]==0x04);
+ 863   1      }
+ 864          
+ 865          bit FC_ADJUST_CONTRAST()
+ 866          {
+ 867   1              return (g_pucDdcciRxBuf[3]==0x40&&g_pucDdcciRxBuf[4]==0x01);
+ 868   1      }
+ 869          
+ 870          bit FC_ADJUST_BRIGHTNESS()
+ 871          {
+ 872   1              return (g_pucDdcciRxBuf[3]==0x40&&g_pucDdcciRxBuf[4]==0x00);
+ 873   1      }
+ 874          /*
+ 875          bit FC_ADJUST_LANGUAGE(BYTE )
+ 876          {
+ 877                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x36);
+ 878          }
+ 879          */
+ 880          bit FC_AUTO_COLOR()
+ 881          {
+ 882   1              return (g_pucDdcciRxBuf[3]==0x0d&&g_pucDdcciRxBuf[4]==0x01);
+ 883   1      }
+ 884          /*
+ 885          bit FC_CHANGE_TO_9300(BYTE )
+ 886          {
+ 887                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x21&&g_pucMcuDdcciRxBuf[5]==0x00);
+ 888          }
+ 889          
+ 890          bit FC_CHANGE_TO_6500(BYTE )
+ 891          {
+ 892                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x21&&g_pucMcuDdcciRxBuf[5]==0x01);
+ 893          }
+ 894          
+ 895          bit FC_CHANGE_TO_5800(BYTE )
+ 896          {
+ 897                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x21&&g_pucMcuDdcciRxBuf[5]==0x02);
+ 898          }
+ 899          ////////
+ 900          bit FC_CHANGE_TO_7500(BYTE )
+ 901          {
+ 902                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x21&&g_pucMcuDdcciRxBuf[5]==0x03);
+ 903          }
+ 904          
+ 905          bit FC_INIT_EEPROM(BYTE )
+ 906          {
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 16  
+
+ 907                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x34&&g_pucMcuDdcciRxBuf[5]==0x00);
+ 908          }
+ 909          */
+ 910          bit FC_SAVE_9300()
+ 911          {
+ 912   1              return (g_pucDdcciRxBuf[3]==0x19&&g_pucDdcciRxBuf[4]==0x13);
+ 913   1      }
+ 914          
+ 915          bit FC_SAVE_6500()
+ 916          {
+ 917   1              return (g_pucDdcciRxBuf[3]==0x16&&g_pucDdcciRxBuf[4]==0x15);
+ 918   1      }
+ 919          bit FC_SAVE_USER()
+ 920          {
+ 921   1              return (g_pucDdcciRxBuf[3]==0x11&&g_pucDdcciRxBuf[4]==0x10);
+ 922   1      }
+ 923          bit FC_SAVE_7500()
+ 924          {
+ 925   1              return (g_pucDdcciRxBuf[3]==0x17&&g_pucDdcciRxBuf[4]==0x15);
+ 926   1      }
+ 927          bit FC_SAVE_5000()
+ 928          {
+ 929   1              return (g_pucDdcciRxBuf[3]==0x15&&g_pucDdcciRxBuf[4]==0x15);
+ 930   1      }
+ 931          bit FC_SAVE_4500()
+ 932          {
+ 933   1              return (g_pucDdcciRxBuf[3]==0x14&&g_pucDdcciRxBuf[4]==0x15);
+ 934   1      }
+ 935          
+ 936          bit FC_SAVE_sRGB()
+ 937          {
+ 938   1              return (g_pucDdcciRxBuf[3]==0x11&&g_pucDdcciRxBuf[4]==0x11);
+ 939   1      }
+ 940          
+ 941          bit FC_SAVE_8200()
+ 942          {
+ 943   1              return (g_pucDdcciRxBuf[3]==0x18&&g_pucDdcciRxBuf[4]==0x12);
+ 944   1      }
+ 945          
+ 946          bit FC_SAVE_11500()
+ 947          {
+ 948   1              return (g_pucDdcciRxBuf[3]==0x1B&&g_pucDdcciRxBuf[4]==0x15);
+ 949   1      }
+ 950          
+ 951          
+ 952          
+ 953          /*
+ 954          bit FC_BRICONT_DEFAULT(BYTE )
+ 955          {
+ 956                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x18&&g_pucMcuDdcciRxBuf[5]==0x00);
+ 957          }
+ 958          */
+ 959          bit FC_ENTER_BURNIN()
+ 960          {
+ 961   1              return (g_pucDdcciRxBuf[3]==0x0d&&g_pucDdcciRxBuf[4]==0x04);
+ 962   1      }
+ 963          
+ 964          bit FC_EXIT_BURNIN()
+ 965          {
+ 966   1              return (g_pucDdcciRxBuf[3]==0x0d&&g_pucDdcciRxBuf[4]==0x05);
+ 967   1      }
+ 968          
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 17  
+
+ 969          bit FC_ENTER_FACTORY()
+ 970          {
+ 971   1              return (g_pucDdcciRxBuf[3]==0x00&&g_pucDdcciRxBuf[4]==0x00);
+ 972   1      }
+ 973          
+ 974          bit FC_EXIT_FACTORY()
+ 975          {
+ 976   1              return (g_pucDdcciRxBuf[3]==0x00&&g_pucDdcciRxBuf[4]==0x01);
+ 977   1      }
+ 978          /*
+ 979          bit FC_ENTER_AUTOALIGN(BYTE )
+ 980          {
+ 981                  return (g_pucMcuDdcciRxBuf[2]==0x00&&g_pucMcuDdcciRxBuf[3]==0x00);
+ 982          }
+ 983          
+ 984          bit FC_EXIT_AUTOALIGN(BYTE )
+ 985          {
+ 986                  return ((g_pucMcuDdcciRxBuf[3]==0x55&&g_pucMcuDdcciRxBuf[4]==0x84&&g_pucMcuDdcciRxBuf[5]==0x01);
+ 987          }
+ 988          
+ 989          bit FC_DVIFUNC_ON(BYTE )
+ 990          {
+ 991                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x37&&g_pucMcuDdcciRxBuf[5]==0x00);
+ 992          }
+ 993          
+ 994          bit FC_DVIFUNC_OFF(BYTE )
+ 995          {
+ 996                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x37&&g_pucMcuDdcciRxBuf[5]==0x01);
+ 997          }
+ 998          
+ 999          bit FC_AUDIOFUNC_ON(BYTE )
+1000          {
+1001                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x38&&g_pucMcuDdcciRxBuf[5]==0x00);
+1002          }
+1003          
+1004          bit FC_AUDIOFUNC_OFF(BYTE )
+1005          {
+1006                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x38&&g_pucMcuDdcciRxBuf[5]==0x01);
+1007          }
+1008          
+1009          bit FC_DCRFUNC_ON(BYTE )
+1010          {
+1011                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x39&&g_pucMcuDdcciRxBuf[5]==0x00);
+1012          }
+1013          
+1014          bit FC_DCRFUNC_OFF(BYTE )
+1015          {
+1016                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x39&&g_pucMcuDdcciRxBuf[5]==0x01);
+1017          }
+1018          
+1019          bit FC_SOURCE_VGA(BYTE )
+1020          {
+1021                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x3A&&g_pucMcuDdcciRxBuf[5]==0x00);
+1022          }
+1023          
+1024          bit FC_SOURCE_DVI(BYTE )
+1025          {
+1026                  return ((g_pucMcuDdcciRxBuf[3]==0x57&&g_pucMcuDdcciRxBuf[4]==0x3A&&g_pucMcuDdcciRxBuf[5]==0x01);
+1027          }
+1028          */
+1029          bit FC_SET_6500K()
+1030          {
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 18  
+
+1031   1              return (g_pucDdcciRxBuf[3]== 0x06&& g_pucDdcciRxBuf[4] == 0x05);
+1032   1      }
+1033          bit FC_SET_7500K()
+1034          {
+1035   1              return (g_pucDdcciRxBuf[3] == 0x07&& g_pucDdcciRxBuf[4] == 0x05);       
+1036   1      }
+1037          bit FC_SET_9300K()
+1038          {
+1039   1              return (g_pucDdcciRxBuf[3] == 0x09&& g_pucDdcciRxBuf[4] == 0x03);
+1040   1      }
+1041          bit FC_SET_USER()
+1042          {
+1043   1              return (g_pucDdcciRxBuf[3] == 0x01&& g_pucDdcciRxBuf[4] == 0x00);
+1044   1      }
+1045          bit FC_SET_5000K()
+1046          {
+1047   1              return (g_pucDdcciRxBuf[3] == 0x05&& g_pucDdcciRxBuf[4] == 0x05);
+1048   1      }
+1049          
+1050          bit FC_SET_sRGB()
+1051          {
+1052   1              return (g_pucDdcciRxBuf[3] == 0x01&& g_pucDdcciRxBuf[4] == 0x01);
+1053   1      }
+1054          
+1055          bit FC_SET_4500()
+1056          {
+1057   1              return (g_pucDdcciRxBuf[3] == 0x04&& g_pucDdcciRxBuf[4] == 0x05);
+1058   1      }
+1059          
+1060          bit FC_SET_8200()
+1061          {
+1062   1              return (g_pucDdcciRxBuf[3] == 0x08&& g_pucDdcciRxBuf[4] == 0x02);
+1063   1      }
+1064          
+1065          bit FC_SET_11500()
+1066          {
+1067   1              return (g_pucDdcciRxBuf[3] == 0x0B&& g_pucDdcciRxBuf[4] == 0x05);
+1068   1      }
+1069          
+1070          /*
+1071          bit FC_SET_COLOR_TEMP()
+1072          {
+1073                  return (g_pucMcuDdcciRxBuf[2]& 0xF0 == 0) && g_pucMcuDdcciRxBuf[3]&0xF0 == 0);
+1074          }
+1075          bit FC_SAVE_COLOR_TEMP()
+1076          {
+1077                  return (g_pucMcuDdcciRxBuf[2]&0xf0 == 0x10) && g_pucMcuDdcciRxBuf[3]&0xF0 == 0x10);
+1078          }
+1079          */
+1080          bit FC_GET_ADC_RGAIN()
+1081          {
+1082   1              return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x12);
+1083   1      }
+1084          bit FC_GET_ADC_GGAIN()
+1085          {
+1086   1              return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x13);
+1087   1      }
+1088          bit FC_GET_ADC_BGAIN()
+1089          {
+1090   1              return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x14);
+1091   1      }
+1092          
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 19  
+
+1093          bit FC_GET_ADC_ROFFSET()
+1094          {
+1095   1              return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x15);
+1096   1      }
+1097          bit FC_GET_ADC_GOFFSET()
+1098          {
+1099   1              return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x16);
+1100   1      }
+1101          bit FC_GET_ADC_BOFFSET()
+1102          {
+1103   1              return (g_pucDdcciRxBuf[3]==0x50&&g_pucDdcciRxBuf[4]==0x17);
+1104   1      }
+1105          
+1106          
+1107          
+1108          bit FC_RESET_CMD()
+1109          {
+1110   1              return (g_pucDdcciRxBuf[3]==0x0E&&g_pucDdcciRxBuf[4]==0x00);
+1111   1      }
+1112          
+1113          void CAlignSendAckCmd(BYTE Status)
+1114          {
+1115   1              g_pucDdcciRxBuf[0]=0x6E;
+1116   1          g_pucDdcciTxBuf[1]=0x83;
+1117   1              if(Status == _TRUE)
+1118   1              {
+1119   2                      g_pucDdcciTxBuf[2] = 'e';
+1120   2                      g_pucDdcciTxBuf[3] = 'n';
+1121   2                      g_pucDdcciTxBuf[4] = 'a';
+1122   2      
+1123   2              }
+1124   1              else
+1125   1              {
+1126   2                      g_pucDdcciTxBuf[2] = 'e';
+1127   2                      g_pucDdcciTxBuf[3] = 'x'; 
+1128   2                      g_pucDdcciTxBuf[4] = 'a';
+1129   2              }
+1130   1      
+1131   1              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1132   1              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1133   1              
+1134   1      }
+1135          
+1136          
+1137          void CTXAlignControl(void)
+1138          {
+1139   1          BYTE value = 0;
+1140   1              BYTE ucR_Gain,ucG_Gain,ucB_Gain;
+1141   1      
+1142   1          if(FC_READ_R_GAIN())
+1143   1              {
+1144   2              
+1145   2                  g_pucDdcciTxBuf[0] = 0x6E;
+1146   2                      g_pucDdcciTxBuf[1]=0x83;
+1147   2                      g_pucDdcciTxBuf[2] = GET_COLOR_TEMP_TYPE_USER_R();
+1148   2                      g_pucDdcciTxBuf[3]=' ';//0x4F;
+1149   2                      g_pucDdcciTxBuf[4]=' ';//0x4F;
+1150   2                      g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1151   2                      ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1152   2      
+1153   2                      
+1154   2      
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 20  
+
+1155   2              }
+1156   1              else if(FC_READ_G_GAIN())
+1157   1              {
+1158   2                  g_pucDdcciTxBuf[0] = 0x6E;
+1159   2                      g_pucDdcciTxBuf[1]=0x83;
+1160   2                      g_pucDdcciTxBuf[2] = GET_COLOR_TEMP_TYPE_USER_G();
+1161   2                      g_pucDdcciTxBuf[3]=' ';//0x4F;
+1162   2                      g_pucDdcciTxBuf[4]=' ';//0x4F;
+1163   2                      g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1164   2                      ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1165   2      
+1166   2      
+1167   2              }
+1168   1              else if(FC_READ_B_GAIN())
+1169   1              {
+1170   2                  g_pucDdcciTxBuf[0] = 0x6E;
+1171   2                      g_pucDdcciTxBuf[1]=0x83;
+1172   2                      g_pucDdcciTxBuf[2] = GET_COLOR_TEMP_TYPE_USER_B();
+1173   2                      g_pucDdcciTxBuf[3]=' ';//0x4F;
+1174   2                      g_pucDdcciTxBuf[4]=' ';//0x4F;
+1175   2                      g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1176   2              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1177   2      
+1178   2      
+1179   2              }
+1180   1                      else if(FC_READ_CONTRAST())
+1181   1                      {
+1182   2                         g_pucDdcciTxBuf[0] = 0x6E;
+1183   2                         g_pucDdcciTxBuf[1]=0x83;
+1184   2                 g_pucDdcciTxBuf[2]  =GET_OSD_CONTRAST();
+1185   2                 g_pucDdcciTxBuf[3]=' ';//0x4F;
+1186   2                         g_pucDdcciTxBuf[4]=' ';//0x4F;
+1187   2                         g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1188   2                         ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1189   2                         
+1190   2                      }
+1191   1                      else if(FC_READ_BRIGHTNESS())
+1192   1                      {
+1193   2                              g_pucDdcciTxBuf[0] = 0x6E;
+1194   2                              g_pucDdcciTxBuf[1]=0x83;
+1195   2                              g_pucDdcciTxBuf[2]  =GET_OSD_BACKLIGHT();
+1196   2                              g_pucDdcciTxBuf[3]=' ';//0x4F;
+1197   2                              g_pucDdcciTxBuf[4]=' ';//0x4F;
+1198   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1199   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1200   2                      }
+1201   1                      else if(FC_ADJUST_R_GAIN())
+1202   1                      {
+1203   2                      ucR_Gain=g_pucDdcciRxBuf[5];
+1204   2                      
+1205   2                              if((ucR_Gain >= 0) && (ucR_Gain <= 255))
+1206   2                              {
+1207   3      
+1208   3                              //需注意COLOR_TEMP接收的数值范围
+1209   3                              //长城code的接收范围是0-100
+1210   3                              //(x > 50) ? (DWORD)(x*0xFF)/100 : (x + 78)---input--0:78;50:128;100:256
+1211   3                              //switch 0-255--->0-100------0:0;128:50;255:100
+1212   3                                      CAlignSendAckCmd(_SUCCESS);
+1213   3                                  SET_COLOR_TEMP_TYPE_USER_R(ucR_Gain);
+1214   3                                  UserAdjustContrast(GET_OSD_CONTRAST());
+1215   3      
+1216   3      
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 21  
+
+1217   3                              }
+1218   2      
+1219   2                              /*g_pucMcuDdcciTxBuf[ 0 ]  = 0x84;               
+1220   2                      g_pucMcuDdcciTxBuf[ 1 ]  = ' ';                 
+1221   2                      g_pucMcuDdcciTxBuf[ 2 ]  = 'w';
+1222   2                      g_pucMcuDdcciTxBuf[ 3 ]  = 'r';
+1223   2                      g_pucMcuDdcciTxBuf[ 4 ]  = 'r';*/
+1224   2      
+1225   2                              g_pucDdcciTxBuf[0] = 0x6E;
+1226   2                              g_pucDdcciTxBuf[1]=0x83;
+1227   2                  g_pucDdcciTxBuf[ 2 ]  = 'w';
+1228   2                  g_pucDdcciTxBuf[ 3 ]  = 'r';
+1229   2                  g_pucDdcciTxBuf[ 4 ]  = 'g';
+1230   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1231   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1232   2                              
+1233   2                              
+1234   2                      }
+1235   1                      else if(FC_ADJUST_G_GAIN())
+1236   1                      {
+1237   2                      ucG_Gain=g_pucDdcciRxBuf[5];
+1238   2                      
+1239   2                              if((ucG_Gain >= 0) && (ucG_Gain <= 255))
+1240   2                              {
+1241   3                              //需注意COLOR_TEMP接收的数值范围
+1242   3                              //长城code的接收范围是0-100
+1243   3                              //(x > 50) ? (DWORD)(x*0xFF)/100 : (x + 78)---input--0:78;50:128;100:256
+1244   3                              //switch 0-255--->0-100------0:0;128:50;255:100
+1245   3                                    CAlignSendAckCmd(_SUCCESS);
+1246   3                                   SET_COLOR_TEMP_TYPE_USER_G(ucG_Gain);
+1247   3                                   UserAdjustContrast(GET_OSD_CONTRAST());
+1248   3      
+1249   3      
+1250   3                              }
+1251   2      
+1252   2      
+1253   2                              g_pucDdcciTxBuf[0] = 0x6E;
+1254   2                              g_pucDdcciTxBuf[1]=0x83;
+1255   2                  g_pucDdcciTxBuf[ 2 ]  = 'w';
+1256   2                  g_pucDdcciTxBuf[ 3 ]  = 'g';
+1257   2                  g_pucDdcciTxBuf[ 4 ]  = 'g';
+1258   2                      g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1259   2                          ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1260   2      
+1261   2                      }
+1262   1                      else if(FC_ADJUST_B_GAIN())
+1263   1                      {
+1264   2                          ucB_Gain=g_pucDdcciRxBuf[5];
+1265   2                      
+1266   2                              if((ucB_Gain >= 0) && (ucB_Gain <= 255))
+1267   2                              {
+1268   3      
+1269   3                              //需注意COLOR_TEMP接收的数值范围
+1270   3                              //长城code的接收范围是0-100
+1271   3                              //(x > 50) ? (DWORD)(x*0xFF)/100 : (x + 78)---input--0:78;50:128;100:256
+1272   3                              //switch 0-255--->0-100------0:0;128:50;255:100
+1273   3                                 SET_COLOR_TEMP_TYPE_USER_B(ucB_Gain);
+1274   3                                  UserAdjustContrast(GET_OSD_CONTRAST());
+1275   3      
+1276   3      
+1277   3                  }
+1278   2      
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 22  
+
+1279   2      
+1280   2                              /*g_pucMcuDdcciTxBuf[ 0 ]  = 0x84;               
+1281   2                      g_pucMcuDdcciTxBuf[ 1 ]  = ' ';                 
+1282   2                      g_pucMcuDdcciTxBuf[ 2 ]  = 'w';
+1283   2                      g_pucMcuDdcciTxBuf[ 3 ]  = 'r';
+1284   2                      g_pucMcuDdcciTxBuf[ 4 ]  = 'b';*/
+1285   2      
+1286   2                                      g_pucDdcciTxBuf[0] = 0x6E;
+1287   2                                      g_pucDdcciTxBuf[1]=0x83;
+1288   2                  g_pucDdcciTxBuf[ 2 ]  = 'w';
+1289   2                  g_pucDdcciTxBuf[ 3 ]  = 'b';
+1290   2                  g_pucDdcciTxBuf[ 4 ]  = 'g';
+1291   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1292   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1293   2                                  
+1294   2                      }
+1295   1                      else if(FC_ADJUST_CONTRAST())
+1296   1                      {
+1297   2                          BYTE uctempData;
+1298   2                              uctempData=g_pucDdcciRxBuf[5];
+1299   2                      if((uctempData <= 100))
+1300   2                              {
+1301   3                                      SET_OSD_CONTRAST(uctempData);
+1302   3                                      UserAdjustContrast(GET_OSD_CONTRAST());
+1303   3                                      
+1304   3                                      g_pucDdcciTxBuf[2]='w';
+1305   3                                      g_pucDdcciTxBuf[3]='c';
+1306   3                                      g_pucDdcciTxBuf[4]='o';
+1307   3                              }
+1308   2                              else
+1309   2                              {
+1310   3                                      g_pucDdcciTxBuf[2]='C';
+1311   3                                      g_pucDdcciTxBuf[3]='O';
+1312   3                                      g_pucDdcciTxBuf[4]='X';
+1313   3                              }
+1314   2                              g_pucDdcciTxBuf[1]=0x83;
+1315   2                              g_pucDdcciTxBuf[0]=0x6E;
+1316   2                              
+1317   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1318   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1319   2                      }
+1320   1                      else if(FC_ADJUST_BRIGHTNESS())
+1321   1                      {
+1322   2                  BYTE uctempData;
+1323   2                      uctempData=g_pucDdcciRxBuf[5];
+1324   2                      if(uctempData <= 100)
+1325   2                              {
+1326   3                      SET_OSD_BACKLIGHT(uctempData);
+1327   3                                      UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1328   3                                      g_pucDdcciTxBuf[2]='w';
+1329   3                                      g_pucDdcciTxBuf[3]='b';
+1330   3                                      g_pucDdcciTxBuf[4]='r';
+1331   3                              }
+1332   2                              else
+1333   2                              {
+1334   3                                      g_pucDdcciTxBuf[2]='B';
+1335   3                                      g_pucDdcciTxBuf[3]='R';
+1336   3                                      g_pucDdcciTxBuf[4]='X';
+1337   3                              }
+1338   2                              g_pucDdcciTxBuf[1]=0x83;
+1339   2                              g_pucDdcciTxBuf[0]=0x6E;
+1340   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 23  
+
+1341   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1342   2                      }
+1343   1                      else if(FC_AUTO_COLOR())
+1344   1                      {
+1345   2                              if(     (SysSourceGetInputPort() != _A0_INPUT_PORT)
+1346   2      #if(_VGA_SUPPORT == _ON)
+1347   2                                      || (ScalerAutoDoWhiteBalance(_AUTO_TUNE_RGB) == _AUTO_SUCCESS) 
+1348   2      #endif
+1349   2                                      )                
+1350   2                              {
+1351   3      #if(_VGA_SUPPORT == _ON)
+1352   3                                  ScalerAutoGetAutoColorResult(&g_stAdcData);
+1353   3                      UserCommonNVRamSaveADCSetting(_COLOR_SPACE_RGB);
+1354   3      #endif
+1355   3      
+1356   3                                      g_pucDdcciTxBuf[2] = 'a';//0;   
+1357   3                                      g_pucDdcciTxBuf[3] = 'c';//0x4f;
+1358   3                                      g_pucDdcciTxBuf[4] = 'o';//UserCommonDdcciCalCheckSum();   
+1359   3      
+1360   3                              }
+1361   2                              else
+1362   2                              {
+1363   3                                      g_pucDdcciTxBuf[2] = 'A';//0;   
+1364   3                                      g_pucDdcciTxBuf[3] = 'C';//0x4f;
+1365   3                                      g_pucDdcciTxBuf[4] = 'X';//UserCommonDdcciCalCheckSum();   
+1366   3                              }
+1367   2                               g_pucDdcciTxBuf[0]=0x6E;
+1368   2                               g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1369   2                      
+1370   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1371   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1372   2      
+1373   2                      }
+1374   1                      else if(FC_ENTER_BURNIN())
+1375   1                      { 
+1376   2                          SET_FACTORY_MODE(_ON);
+1377   2                  SET_FACTORY_BURNIN(_ON);
+1378   2                              TPVNVRamSaveFactoryDate();
+1379   2                              UserInterfaceKeyPadLedControl(_LED_POWER_SAVING);
+1380   2                          g_pucDdcciTxBuf[0]=0x6E;
+1381   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1382   2                  g_pucDdcciTxBuf[ 2 ]  = 'b';
+1383   2                  g_pucDdcciTxBuf[ 3 ]  = 'o';
+1384   2                  g_pucDdcciTxBuf[ 4 ]  = 'n';
+1385   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1386   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1387   2      
+1388   2      
+1389   2                      }
+1390   1                      else if(FC_EXIT_BURNIN())
+1391   1                      {
+1392   2                          SET_FACTORY_MODE(_OFF);
+1393   2                      SET_FACTORY_BURNIN(_OFF);
+1394   2                              TPVNVRamSaveFactoryDate();
+1395   2                              UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+1396   2                              SET_COLOR_TEMP_TYPE( _COLORTEMP_DEFAULT);
+1397   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1398   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1399   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1400   2      
+1401   2                          g_pucDdcciTxBuf[0]=0x6E;
+1402   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 24  
+
+1403   2                  g_pucDdcciTxBuf[ 2 ]  = 'b';
+1404   2                  g_pucDdcciTxBuf[ 3 ]  = 'o';
+1405   2                  g_pucDdcciTxBuf[ 4 ]  = 'f';
+1406   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1407   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1408   2                      }
+1409   1                      else if(FC_ENTER_FACTORY())
+1410   1                      {
+1411   2                           //ubAutoAlign = 1;
+1412   2                      CAlignSendAckCmd(_TRUE);
+1413   2                          SET_FACTORY_MODE(_ON);
+1414   2                      SET_FACTORY_BURNIN(_ON);
+1415   2                              TPVNVRamSaveFactoryDate();
+1416   2                              UserInterfaceKeyPadLedControl(_LED_POWER_SAVING);
+1417   2                              SET_COLOR_TEMP_TYPE( _COLORTEMP_DEFAULT);
+1418   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1419   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1420   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1421   2                      }
+1422   1                      else if(FC_EXIT_FACTORY())
+1423   1                      { 
+1424   2                              //SaveFactorySetting();
+1425   2                              CAlignSendAckCmd(_TRUE);
+1426   2                          SET_FACTORY_MODE(_OFF);
+1427   2                  SET_FACTORY_BURNIN(_OFF);
+1428   2                              TPVNVRamSaveFactoryDate();                              
+1429   2                              UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+1430   2                              //ubAutoAlign = 0;
+1431   2                              SET_COLOR_TEMP_TYPE( _COLORTEMP_DEFAULT);
+1432   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1433   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1434   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1435   2                              if(Ct4500Flag==1)
+1436   2                              {
+1437   3                                      Ct4500Flag=0;
+1438   3                                      //SET_CT4500_STATUS(_ON);
+1439   3                              }
+1440   2                              else
+1441   2                              {
+1442   3                                      //SET_CT4500_STATUS(_OFF);   
+1443   3                              }
+1444   2                              RTDNVRamSaveOSDData();
+1445   2      
+1446   2      
+1447   2              
+1448   2                      }
+1449   1                      else if(FC_SET_6500K())
+1450   1                      {
+1451   2                              SET_COLOR_TEMP_TYPE( _CT_6500);
+1452   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1453   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1454   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1455   2      
+1456   2                              /*g_pucMcuDdcciRxBuf[ 0 ]  = 0x84;   
+1457   2                  g_pucMcuDdcciRxBuf[ 1 ]  = ' ';                     
+1458   2                  g_pucMcuDdcciRxBuf[ 2 ]  = 't';
+1459   2                  g_pucMcuDdcciRxBuf[ 3 ]  = '6';
+1460   2                  g_pucMcuDdcciRxBuf[ 4 ]  = '5';*/
+1461   2                          g_pucDdcciTxBuf[0]=0x6E;
+1462   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1463   2                  g_pucDdcciTxBuf[ 2 ]  = 't';
+1464   2                  g_pucDdcciTxBuf[ 3 ]  = '6';
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 25  
+
+1465   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1466   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1467   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1468   2      
+1469   2                      }
+1470   1                      else if(FC_SET_7500K())
+1471   1                      {   
+1472   2                              SET_COLOR_TEMP_TYPE( _CT_7500);
+1473   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1474   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1475   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1476   2                              /*g_pucMcuDdcciRxBuf[ 0 ]  = 0x84;   
+1477   2                  g_pucMcuDdcciRxBuf[ 1 ]  = ' ';                     
+1478   2                  g_pucMcuDdcciRxBuf[ 2 ]  = 't';
+1479   2                  g_pucMcuDdcciRxBuf[ 3 ]  = '7';
+1480   2                  g_pucMcuDdcciRxBuf[ 4 ]  = '5';     */
+1481   2                              g_pucDdcciTxBuf[0]=0x6E;
+1482   2                              g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1483   2                  g_pucDdcciTxBuf[ 2 ]  = 't';
+1484   2                  g_pucDdcciTxBuf[ 3 ]  = '7';
+1485   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1486   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1487   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1488   2      
+1489   2      
+1490   2                      }
+1491   1                      else if(FC_SET_9300K())
+1492   1                      {
+1493   2                              SET_COLOR_TEMP_TYPE( _CT_9300);
+1494   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1495   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1496   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1497   2                              /*g_pucMcuDdcciRxBuf[ 0 ]  = 0x84;   
+1498   2                  g_pucMcuDdcciRxBuf[ 1 ]  = ' ';                     
+1499   2                  g_pucMcuDdcciRxBuf[ 2 ]  = 't';
+1500   2                  g_pucMcuDdcciRxBuf[ 3 ]  = '9';
+1501   2                  g_pucMcuDdcciRxBuf[ 4 ]  = '3';*/
+1502   2                              g_pucDdcciTxBuf[0]=0x6E;
+1503   2                              g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1504   2                  g_pucDdcciTxBuf[ 2 ]  = 't';
+1505   2                  g_pucDdcciTxBuf[ 3 ]  = '9';
+1506   2                  g_pucDdcciTxBuf[ 4]  = '3';
+1507   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1508   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1509   2                      }
+1510   1                      else if(FC_SET_5000K())
+1511   1                      {
+1512   2                              SET_COLOR_TEMP_TYPE( _CT_5000);
+1513   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1514   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1515   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1516   2                              /*g_pucMcuDdcciRxBuf[ 0 ]  = 0x84;   
+1517   2                  g_pucMcuDdcciRxBuf[ 1 ]  = ' ';                     
+1518   2                  g_pucMcuDdcciRxBuf[ 2 ]  = 't';
+1519   2                  g_pucMcuDdcciRxBuf[ 3 ]  = '5';
+1520   2                  g_pucMcuDdcciRxBuf[ 4 ]  = '5';*/
+1521   2                              g_pucDdcciTxBuf[0]=0x6E;
+1522   2                              g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1523   2                  g_pucDdcciTxBuf[ 2 ]  = 't';
+1524   2                  g_pucDdcciTxBuf[ 3 ]  = '5';
+1525   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1526   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 26  
+
+1527   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1528   2      
+1529   2                      }       
+1530   1                      else if(FC_SET_8200())
+1531   1                      {
+1532   2                              //SET_COLOR_TEMP_TYPE( _CT_8200);
+1533   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1534   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1535   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1536   2                              /*g_pucMcuDdcciRxBuf[ 0 ]  = 0x84;   
+1537   2                  g_pucMcuDdcciRxBuf[ 1 ]  = ' ';                     
+1538   2                  g_pucMcuDdcciRxBuf[ 2 ]  = 't';
+1539   2                  g_pucMcuDdcciRxBuf[ 3 ]  = '4';
+1540   2                  g_pucMcuDdcciRxBuf[ 4 ]  = '5';*/
+1541   2                              g_pucDdcciTxBuf[0]=0x6E;
+1542   2                              g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1543   2                  g_pucDdcciTxBuf[ 2 ]  = 't';
+1544   2                  g_pucDdcciTxBuf[ 3 ]  = '8';
+1545   2                  g_pucDdcciTxBuf[ 4 ]  = '2';
+1546   2                  
+1547   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1548   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1549   2      
+1550   2                      }
+1551   1                      else if(FC_SET_11500())
+1552   1                      {
+1553   2                              //SET_COLOR_TEMP_TYPE( _CT_11500);
+1554   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1555   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1556   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1557   2                              /*g_pucMcuDdcciRxBuf[ 0 ]  = 0x84;   
+1558   2                  g_pucMcuDdcciRxBuf[ 1 ]  = ' ';                     
+1559   2                  g_pucMcuDdcciRxBuf[ 2 ]  = 't';
+1560   2                  g_pucMcuDdcciRxBuf[ 3 ]  = '4';
+1561   2                  g_pucMcuDdcciRxBuf[ 4 ]  = '5';*/
+1562   2                              g_pucDdcciTxBuf[0]=0x6E;
+1563   2                              g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1564   2                  g_pucDdcciTxBuf[ 2 ]  = 't';
+1565   2                  g_pucDdcciTxBuf[ 3 ]  = 'B';
+1566   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1567   2                  
+1568   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1569   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1570   2      
+1571   2                      }
+1572   1                      else if(FC_SET_sRGB())
+1573   1                      {
+1574   2                              SET_COLOR_TEMP_TYPE( _CT_SRGB);
+1575   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1576   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1577   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1578   2                              /*g_pucMcuDdcciRxBuf[ 0 ]  = 0x84;   
+1579   2                  g_pucMcuDdcciRxBuf[ 1 ]  = ' ';                     
+1580   2                  g_pucMcuDdcciRxBuf[ 2 ]  = 't';
+1581   2                  g_pucMcuDdcciRxBuf[ 3 ]  = '4';
+1582   2                  g_pucMcuDdcciRxBuf[ 4 ]  = '5';*/
+1583   2                              g_pucDdcciTxBuf[0]=0x6E;
+1584   2                              g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1585   2                  g_pucDdcciTxBuf[ 2 ]  = 't';
+1586   2                  g_pucDdcciTxBuf[ 3 ]  = '1';
+1587   2                  g_pucDdcciTxBuf[ 4 ]  = '1';
+1588   2                  
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 27  
+
+1589   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1590   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1591   2                      }       
+1592   1      
+1593   1                      else if(FC_SET_4500())
+1594   1                      {
+1595   2                      
+1596   2                              SET_COLOR_TEMP_TYPE( _CT_4500);
+1597   2                              RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1598   2                              UserAdjustContrast(GET_OSD_CONTRAST());
+1599   2                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1600   2                              /*g_pucMcuDdcciRxBuf[ 0 ]  = 0x84;   
+1601   2                  g_pucMcuDdcciRxBuf[ 1 ]  = ' ';                     
+1602   2                  g_pucMcuDdcciRxBuf[ 2 ]  = 't';
+1603   2                  g_pucMcuDdcciRxBuf[ 3 ]  = '4';
+1604   2                  g_pucMcuDdcciRxBuf[ 4 ]  = '5';*/
+1605   2                              g_pucDdcciTxBuf[0]=0x6E;
+1606   2                              g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1607   2                  g_pucDdcciTxBuf[ 2 ]  = 't';
+1608   2                  g_pucDdcciTxBuf[ 3 ]  = '4';
+1609   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1610   2                  
+1611   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1612   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1613   2                      }       
+1614   1      
+1615   1      
+1616   1                      
+1617   1              else if(FC_SET_USER())
+1618   1                      {
+1619   2      
+1620   2                      }
+1621   1                      else if(FC_SAVE_6500())
+1622   1                      {
+1623   2      
+1624   2                              RTDNVRamSaveColorSetting(_CT_6500);
+1625   2                              
+1626   2      #if(_DEF_CT_5800_SUPPORT == _OFF)
+                                      SET_COLOR_TEMP_TYPE_USER_B(GET_COLOR_TEMP_TYPE_USER_B()-35);    
+                                      RTDNVRamSaveColorSetting(_CT_4500);
+              #endif
+1630   2      
+1631   2                          g_pucDdcciTxBuf[0]=0x6E;
+1632   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1633   2                  g_pucDdcciTxBuf[ 2 ]  = 's';
+1634   2                  g_pucDdcciTxBuf[ 3 ]  = '6';
+1635   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1636   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1637   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1638   2      
+1639   2                      }
+1640   1                      else if(FC_SAVE_7500())
+1641   1                      {
+1642   2      
+1643   2                              RTDNVRamSaveColorSetting(_CT_7500);
+1644   2      
+1645   2                          g_pucDdcciTxBuf[0]=0x6E;
+1646   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1647   2                  g_pucDdcciTxBuf[ 2 ]  = 's';
+1648   2                  g_pucDdcciTxBuf[ 3 ]  = '7';
+1649   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1650   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 28  
+
+1651   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1652   2                                      
+1653   2      
+1654   2                      }
+1655   1                      else if(FC_SAVE_9300())
+1656   1                      {
+1657   2      
+1658   2                              RTDNVRamSaveColorSetting(_CT_9300);
+1659   2      
+1660   2                          g_pucDdcciTxBuf[0]=0x6E;
+1661   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1662   2                  g_pucDdcciTxBuf[ 2 ]  = 's';
+1663   2                  g_pucDdcciTxBuf[ 3 ]  = '9';
+1664   2                  g_pucDdcciTxBuf[ 4 ]  = '3';
+1665   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1666   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1667   2                                      
+1668   2                      }
+1669   1                      else if(FC_SAVE_5000())
+1670   1                      {
+1671   2      
+1672   2                              RTDNVRamSaveColorSetting(_CT_5000);
+1673   2      #if(_DEF_CT_5800_SUPPORT == _ON)
+1674   2                              g_stColorProcData.usColorTempB =g_stColorProcData.usColorTempB - 15;
+1675   2                              SET_COLOR_TEMP_TYPE( _CT_4500);
+1676   2                              RTDNVRamSaveOSDData();
+1677   2                              RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+1678   2      #endif
+1679   2                          g_pucDdcciTxBuf[0]=0x6E;
+1680   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1681   2                  g_pucDdcciTxBuf[ 2 ]  = 's';
+1682   2                  g_pucDdcciTxBuf[ 3 ]  = '5';
+1683   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1684   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1685   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1686   2                              
+1687   2                      }
+1688   1                      else if(FC_SAVE_8200())
+1689   1                      {
+1690   2                      //      RTDNVRamSaveColorSetting(_CT_8200);
+1691   2      
+1692   2                          g_pucDdcciTxBuf[0]=0x6E;
+1693   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1694   2                  g_pucDdcciTxBuf[ 2 ]  = 's';
+1695   2                  g_pucDdcciTxBuf[ 3 ]  = '8';
+1696   2                  g_pucDdcciTxBuf[ 4 ]  = '2';
+1697   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1698   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1699   2                              
+1700   2                              
+1701   2                      }
+1702   1                      else if(FC_SAVE_11500())
+1703   1                      {
+1704   2                      //      RTDNVRamSaveColorSetting(_CT_11500);
+1705   2      
+1706   2                          g_pucDdcciTxBuf[0]=0x6E;
+1707   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1708   2                  g_pucDdcciTxBuf[ 2 ]  = 's';
+1709   2                  g_pucDdcciTxBuf[ 3 ]  = 'B';
+1710   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1711   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1712   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 29  
+
+1713   2                              
+1714   2                      }
+1715   1                      else if(FC_SAVE_sRGB())
+1716   1                      {
+1717   2                              RTDNVRamSaveColorSetting(_CT_SRGB);
+1718   2      
+1719   2                          g_pucDdcciTxBuf[0]=0x6E;
+1720   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1721   2                  g_pucDdcciTxBuf[ 2 ]  = 's';
+1722   2                  g_pucDdcciTxBuf[ 3 ]  = '1';
+1723   2                  g_pucDdcciTxBuf[ 4 ]  = '1';
+1724   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1725   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1726   2                      }
+1727   1      
+1728   1                      else if(FC_SAVE_4500())
+1729   1                      {
+1730   2                              RTDNVRamSaveColorSetting(_CT_4500);
+1731   2                          Ct4500Flag=1;
+1732   2      
+1733   2                          g_pucDdcciTxBuf[0]=0x6E;
+1734   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1735   2                  g_pucDdcciTxBuf[ 2 ]  = 's';
+1736   2                  g_pucDdcciTxBuf[ 3 ]  = '4';
+1737   2                  g_pucDdcciTxBuf[ 4 ]  = '5';
+1738   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1739   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1740   2                      }
+1741   1      
+1742   1                      
+1743   1              else if(FC_SAVE_USER())
+1744   1                      {
+1745   2                              RTDNVRamSaveColorSetting(_CT_USER);
+1746   2      
+1747   2                          g_pucDdcciTxBuf[0]=0x6E;
+1748   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1749   2                  g_pucDdcciTxBuf[ 2 ]  = 's';
+1750   2                  g_pucDdcciTxBuf[ 3 ]  = 'u';
+1751   2                  g_pucDdcciTxBuf[ 4 ]  = 's';
+1752   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1753   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1754   2                      }               
+1755   1                      else if(FC_GET_ADC_RGAIN())
+1756   1                      {
+1757   2                          g_pucDdcciTxBuf[0]=0x6E;
+1758   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1759   2                   g_pucDdcciTxBuf[ 2 ] =99;//UserPrefAdcRedGain;
+1760   2      
+1761   2                               g_pucDdcciTxBuf[3]=' ';//0x4F;
+1762   2                           g_pucDdcciTxBuf[4]=' ';//0x4F;
+1763   2                               g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1764   2                               ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1765   2                      }
+1766   1                      else if(FC_GET_ADC_GGAIN())
+1767   1                      {
+1768   2                          g_pucDdcciTxBuf[0]=0x6E;
+1769   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1770   2                   g_pucDdcciTxBuf[ 2 ] =103;//UserPrefAdcGreenGain;
+1771   2      
+1772   2                               g_pucDdcciTxBuf[3]=' ';//0x4F;
+1773   2                           g_pucDdcciTxBuf[4]=' ';//0x4F;
+1774   2                               g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 30  
+
+1775   2                               ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1776   2                      }
+1777   1                      else if(FC_GET_ADC_BGAIN())
+1778   1                      {
+1779   2                          g_pucDdcciTxBuf[0]=0x6E;
+1780   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1781   2                  g_pucDdcciTxBuf[ 2 ] = 105;//UserPrefAdcBlueGain;
+1782   2      
+1783   2                              g_pucDdcciTxBuf[3]=' ';//0x4F;
+1784   2                          g_pucDdcciTxBuf[4]=' ';//0x4F;
+1785   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1786   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1787   2                      }
+1788   1                      else if(FC_GET_ADC_ROFFSET())
+1789   1                      {
+1790   2                          g_pucDdcciTxBuf[0]=0x6E;
+1791   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1792   2                  g_pucDdcciTxBuf[ 2 ] =99;// UserPrefAdcRedOffset;
+1793   2      
+1794   2                              g_pucDdcciTxBuf[3]=' ';//0x4F;
+1795   2                          g_pucDdcciTxBuf[4]=' ';//0x4F;
+1796   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1797   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1798   2                      }
+1799   1                      else if(FC_GET_ADC_GOFFSET())
+1800   1                      {
+1801   2                          g_pucDdcciTxBuf[0]=0x6E;
+1802   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1803   2                  g_pucDdcciTxBuf[ 2 ] =103;//UserPrefAdcGreenGain;
+1804   2      
+1805   2                              g_pucDdcciTxBuf[3]=' ';//0x4F;
+1806   2                          g_pucDdcciTxBuf[4]=' ';//0x4F;
+1807   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1808   2                              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1809   2                      }
+1810   1                      else if(FC_GET_ADC_BOFFSET())   
+1811   1                      {
+1812   2                          g_pucDdcciTxBuf[0]=0x6E;
+1813   2                  g_pucDdcciTxBuf[ 1 ]  = 0x83;
+1814   2                  g_pucDdcciTxBuf[ 2 ] =  105;//UserPrefAdcBlueGain;
+1815   2      
+1816   2                              g_pucDdcciTxBuf[3]=' ';//0x4F;
+1817   2                          g_pucDdcciTxBuf[4]=' ';//0x4F;
+1818   2                              g_pucDdcciTxBuf[5] = UserCommonDdcciCalCheckSum();
+1819   2                          ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1820   2                      }
+1821   1      
+1822   1                  else if(FC_RESET_CMD())     
+1823   1                      {
+1824   2                  ddcci_reset=1;
+1825   2                          OsdDispOsdReset();
+1826   2                          g_pucDdcciTxBuf[0]=0x83;
+1827   2                  g_pucDdcciTxBuf[1]= 0x00;
+1828   2                  g_pucDdcciTxBuf[2] =0x00;
+1829   2                              g_pucDdcciTxBuf[3]=0x00;
+1830   2                              //return 1;
+1831   2                      
+1832   2                      }
+1833   1      }
+1834          #endif
+1835          
+1836          
+C51 COMPILER V8.12   RTD2014DDCCI_AUTOALIGN                                                03/10/2025 13:51:09 PAGE 31  
+
+1837          
+1838          
+1839          
+1840          #endif //end of #if(_OSD_TYPE == _HKC_OSD)
+1841          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2425    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      1       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

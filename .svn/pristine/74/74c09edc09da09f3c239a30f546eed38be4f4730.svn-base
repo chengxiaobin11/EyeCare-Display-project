@@ -1,0 +1,20 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6492_Series_ODLibInternalInclude.h
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+#include "ScalerFunctionCommonInclude.h"
+#include "ScalerCommonRegLibInclude.h"
+#include "ScalerODLibInclude.h"
+#include "RL6492_Series_ODLibInclude.h"
+#include "RL6492_Series_MemoryLibInclude.h"

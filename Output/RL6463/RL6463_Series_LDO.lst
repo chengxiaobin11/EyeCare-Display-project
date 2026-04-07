@@ -1,0 +1,141 @@
+C51 COMPILER V8.12   RL6463_SERIES_LDO                                                     03/10/2025 13:50:46 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_LDO
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_LDO.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_LDO.c LARGE OP
+                    -TIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Sy
+                    -stem\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunc
+                    -tion\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Sca
+                    -ler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User
+                    -\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOs
+                    -d\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRI
+                    -NT(.\Output\RL6463\RL6463_Series_LDO.lst) OBJECT(.\Output\RL6463\RL6463_Series_LDO.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_LDO.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RL6463_SERIES_LDO__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          #ifndef _76PIN_PIN_21
+              #if(_IMD_DOMAIN_ULTRA_HIGH_SPEED_SUPPORT == _ON)
+              #warning "NOTE: PCB_EMBEDDED_LDO_DETECT() Should Be _EMBEDDED_LDO_OFF when _IMD_DOMAIN_ULTRA_HIGH_SPEED_SU
+             -PPORT is _ON!!!"
+              #endif
+              #endif
+  29          
+  30          
+  31          //****************************************************************************
+  32          // STRUCT / TYPE / ENUM DEFINITTIONS
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // CODE TABLES
+  37          //****************************************************************************
+  38          
+  39          //****************************************************************************
+  40          // VARIABLE DECLARATIONS
+  41          //****************************************************************************
+  42          
+  43          //****************************************************************************
+  44          // FUNCTION DECLARATIONS
+  45          //****************************************************************************
+  46          void ScalerLDOPowerControl(EnumPowerStatus enumPorStatus);
+  47          
+C51 COMPILER V8.12   RL6463_SERIES_LDO                                                     03/10/2025 13:50:46 PAGE 2   
+
+  48          
+  49          //****************************************************************************
+  50          // FUNCTION DEFINITIONS
+  51          //****************************************************************************
+  52          
+  53          //--------------------------------------------------
+  54          // Description  : LDO Power Control.
+  55          // Input Value  : ucPorStatus    --> _POWER_STATUS_NORMAL/_POWER_STATUS_SAVING/_POWER_STATUS_OFF Select.
+  56          // Output Value : None
+  57          //--------------------------------------------------
+  58          void ScalerLDOPowerControl(EnumPowerStatus enumPorStatus)
+  59          {
+  60   1          bit bLDOSupport = (_IMD_DOMAIN_ULTRA_HIGH_SPEED_SUPPORT == _OFF);
+  61   1      
+  62   1      #ifdef _76PIN_PIN_21
+  63   1          bLDOSupport = _TRUE;
+  64   1      #endif
+  65   1      
+  66   1          if((bLDOSupport == _TRUE) &&
+  67   1             ((bit)PCB_EMBEDDED_LDO_DETECT() == _EMBEDDED_LDO_ON))
+  68   1          {
+  69   2              switch(enumPorStatus)
+  70   2              {
+  71   3                  case _POWER_STATUS_NORMAL:
+  72   3      
+  73   3      #if(_IMD_DOMAIN_ULTRA_HIGH_SPEED_SUPPORT == _ON)
+  74   3                      // Select LDO-D voltage output is 1.04V
+  75   3                      ScalerSetBit(P62_03_EBD_REGLATOR_D_CTRL1, ~(_BIT2 | _BIT1 | _BIT0), (_BIT2 | _BIT0));
+  76   3      #else
+                              // Select LDO-D voltage output is 1.0V
+                              ScalerSetBit(P62_03_EBD_REGLATOR_D_CTRL1, ~(_BIT2 | _BIT1 | _BIT0), _BIT2);
+              #endif
+  80   3      
+  81   3                      break;
+  82   3      
+  83   3                  case _POWER_STATUS_OFF:
+  84   3                  case _POWER_STATUS_SAVING:
+  85   3      
+  86   3                      // Select LDO-D voltage output is 0.96V
+  87   3                      ScalerSetBit(P62_03_EBD_REGLATOR_D_CTRL1, ~(_BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+  88   3      
+  89   3                      break;
+  90   3      
+  91   3                  default:
+  92   3      
+  93   3                      break;
+  94   3              }
+  95   2          }
+  96   1          else
+  97   1          {
+  98   2              // Avoiding Complier Error
+  99   2              enumPorStatus = enumPorStatus;
+ 100   2      
+ 101   2              // Disable LDO-D
+ 102   2              ScalerSetBit(P62_03_EBD_REGLATOR_D_CTRL1, ~_BIT7, 0x00);
+ 103   2          }
+ 104   1      }
+ 105          
+ 106          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+C51 COMPILER V8.12   RL6463_SERIES_LDO                                                     03/10/2025 13:50:46 PAGE 3   
+
+   CODE SIZE        =     46    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

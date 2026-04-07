@@ -1,0 +1,377 @@
+C51 COMPILER V9.01   RL6449_SERIES_OD                                                      05/24/2025 15:52:03 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE RL6449_SERIES_OD
+OBJECT MODULE PLACED IN .\Output\RL6449\RL6449_Series_OD.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\Scaler\RL6449_Series_Scaler\Code\RL6449_Series_OD.c LARGE OPTIMIZE(9
+                    -,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Hea
+                    -der;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib
+                    -\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kernel\Scaler\RL64
+                    -49_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Common\Lib\Header;
+                    -.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User
+                    -\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header)
+                    - DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449\RL6449_Series_OD.
+                    -lst) OBJECT(.\Output\RL6449\RL6449_Series_OD.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_OD.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RL6449_SERIES_OD__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          #if(_OD_SUPPORT == _ON)
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          #define _OD_ROW_ADDR_SHIFT_BIT_NUM                  9
+  26          
+  27          
+  28          //****************************************************************************
+  29          // STRUCT / TYPE / ENUM DEFINITTIONS
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // CODE TABLES
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // VARIABLE DECLARATIONS
+  40          //****************************************************************************
+  41          
+  42          
+  43          //****************************************************************************
+  44          // FUNCTION DECLARATIONS
+  45          //****************************************************************************
+  46          void ScalerODEnable(EnumFunctionOnOFF enumOn);
+  47          void ScalerODSetMemoryStartAddress(void);
+C51 COMPILER V9.01   RL6449_SERIES_OD                                                      05/24/2025 15:52:03 PAGE 2   
+
+  48          
+  49          #if(_FRC_SUPPORT == _ON)
+  50          void ScalerODIntHandler_EXINT0(void);
+  51          #endif
+  52          
+  53          //****************************************************************************
+  54          // FUNCTION DEFINITIONS
+  55          //****************************************************************************
+  56          
+  57          //--------------------------------------------------
+  58          // Description  : OD on/off
+  59          // Input Value  : enumOn --> _FUNCTION_ON/_FUNCTION_OFF
+  60          // Output Value : None
+  61          //--------------------------------------------------
+  62          void ScalerODEnable(EnumFunctionOnOFF enumOn)
+  63          {
+  64   1          //=================
+  65   1          // Enable OD
+  66   1          //=================
+  67   1          if((enumOn == _FUNCTION_ON) && (GET_OD_USE_BIT() != _OFF))
+  68   1          {
+  69   2              // Disable OD clock gated
+  70   2              ScalerSetBit(P1_DC_DCLK_GATED_CTRL2, ~_BIT2, _BIT2);
+  71   2      
+  72   2      #if(_FRC_SUPPORT == _ON)
+  73   2              DebugMessageFRC("OD_ON", 0);
+  74   2      
+  75   2              if(GET_DYNAMIC_OD_STATUS() == _ENABLE)
+  76   2              {
+  77   3                  DebugMessageFRC("Dynamic OD", GET_MEMORY_DVF_SELECT());
+  78   3      
+  79   3                  // Enable DEN_START IRQ
+  80   3                  SET_OD_CURR_DYNAMIC_STATUS(_ENABLE);
+  81   3                  ScalerGlobalSetInterrupt(_IRQ_DEN_START, _ENABLE);
+  82   3              }
+  83   2              else
+  84   2              {
+  85   3                  DebugMessageFRC("Static OD", 0);
+  86   3      
+  87   3                  // Enable OD function, disable DEN_START IRQ
+  88   3                  SET_OD_CURR_DYNAMIC_STATUS(_DISABLE);
+  89   3                  ScalerGlobalSetInterrupt(_IRQ_DEN_START, _DISABLE);
+  90   3                  ScalerSetBit(P3_A1_LS_CTRL0, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+  91   3              }
+  92   2      #else
+                      // Enable OD function
+                      ScalerSetBit(P3_A1_LS_CTRL0, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+              #endif
+  96   2          }
+  97   1          //=================
+  98   1          // Disable OD
+  99   1          //=================
+ 100   1          else
+ 101   1          {
+ 102   2              // Disable OD clock gated
+ 103   2              ScalerSetBit(P1_DC_DCLK_GATED_CTRL2, ~_BIT2, _BIT2);
+ 104   2      
+ 105   2      #if(_FRC_SUPPORT == _ON)
+ 106   2              DebugMessageFRC("OD_OFF", 0);
+ 107   2      
+ 108   2              SET_OD_CURR_DYNAMIC_STATUS(_DISABLE);
+ 109   2              ScalerGlobalSetInterrupt(_IRQ_DEN_START, _DISABLE);
+C51 COMPILER V9.01   RL6449_SERIES_OD                                                      05/24/2025 15:52:03 PAGE 3   
+
+ 110   2      #endif
+ 111   2              // Disable OD function
+ 112   2              ScalerSetBit(P3_A1_LS_CTRL0, ~(_BIT7 | _BIT6), 0x00);
+ 113   2      
+ 114   2              //=================
+ 115   2              // Clock Gated
+ 116   2              //=================
+ 117   2              if(enumOn == _FUNCTION_CLOCK_GATED)
+ 118   2              {
+ 119   3                  ScalerTimerWaitForEvent(_EVENT_DVS);
+ 120   3                  ScalerTimerDelayXms(2);
+ 121   3      
+ 122   3                  // Enable OD clock gated
+ 123   3                  ScalerSetBit(P1_DC_DCLK_GATED_CTRL2, ~_BIT2, 0x00);
+ 124   3              }
+ 125   2          }
+ 126   1      }
+ 127          
+ 128          //--------------------------------------------------
+ 129          // Description  : Initialize OD memory start address
+ 130          // Input Value  : None
+ 131          // Output Value : None
+ 132          //--------------------------------------------------
+ 133          void ScalerODSetMemoryStartAddress(void)
+ 134          {
+ 135   1          DWORD ulODUseSpace = 0;
+ 136   1          DWORD ulODUseSpaceInRow = 0;
+ 137   1      
+ 138   1          //=============================================
+ 139   1          // Calculate memory usage
+ 140   1          //=============================================
+ 141   1          ulODUseSpace = ((DWORD)CEILING(_PANEL_DH_WIDTH, _OD_PIXEL_PER_COMP)) * _PANEL_DV_HEIGHT * GET_OD_USE_B
+             -IT() / 10;
+ 142   1      
+ 143   1          // OD memory access unit: 64bit
+ 144   1          ulODUseSpace = CEILING(ulODUseSpace, _OD_FIFO_BUS_WIDTH);
+ 145   1      
+ 146   1          ulODUseSpaceInRow = ulODUseSpace / _MEMORY_BIT_NUM / (_MEMORY_COL_PER_BANK * _MEMORY_BANK) + 1;
+ 147   1      
+ 148   1      
+ 149   1          //=============================================
+ 150   1          // Set start address
+ 151   1          //=============================================
+ 152   1      #if(_MEMORY_SIZE_CONFIG == _16M_16BIT_DDR2_1PC)
+ 153   1      
+ 154   1          ulODUseSpaceInRow = CEILING_OF_INT_DIVISION(ulODUseSpaceInRow, _OD_PATH_NUM);
+ 155   1      
+ 156   1          // OD M1
+ 157   1          PDATA_DWORD(1) = (DWORD)_MEMORY_ROW - ulODUseSpaceInRow;
+ 158   1          PDATA_DWORD(0) = PDATA_DWORD(1) << _OD_ROW_ADDR_SHIFT_BIT_NUM;
+ 159   1          ScalerSetBit(P3_DA_LS_DDR_START_ADDR_MSB, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (pData[0] & 0x0F));
+ 160   1          ScalerSetByte(P3_DB_LS_DDR_START_ADDR_H, pData[1]);
+ 161   1          ScalerSetByte(P3_DC_LS_DDR_START_ADDR_M, pData[2]);
+ 162   1          ScalerSetByte(P3_DD_LS_DDR_START_ADDR_L, pData[3]);
+ 163   1      
+ 164   1          // OD M2
+ 165   1          PDATA_DWORD(1) -= ulODUseSpaceInRow;
+ 166   1          PDATA_DWORD(0) = PDATA_DWORD(1) << _OD_ROW_ADDR_SHIFT_BIT_NUM;
+ 167   1          ScalerSetBit(P43_DA_LS_DDR_START_ADDR_MSB, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (pData[0] & 0x0F));
+ 168   1          ScalerSetByte(P43_DB_LS_DDR_START_ADDR_H, pData[1]);
+ 169   1          ScalerSetByte(P43_DC_LS_DDR_START_ADDR_M, pData[2]);
+ 170   1          ScalerSetByte(P43_DD_LS_DDR_START_ADDR_L, pData[3]);
+C51 COMPILER V9.01   RL6449_SERIES_OD                                                      05/24/2025 15:52:03 PAGE 4   
+
+ 171   1      
+ 172   1      #else // _MEMORY_SIZE_CONFIG == _16M_16BIT_DDR2_2PCS
+              
+                  PDATA_DWORD(0) = ((DWORD)_MEMORY_ROW - ulODUseSpaceInRow) << _OD_ROW_ADDR_SHIFT_BIT_NUM;
+              
+                  // OD M1
+                  ScalerSetBit(P3_DA_LS_DDR_START_ADDR_MSB, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (pData[0] & 0x0F));
+                  ScalerSetByte(P3_DB_LS_DDR_START_ADDR_H, pData[1]);
+                  ScalerSetByte(P3_DC_LS_DDR_START_ADDR_M, pData[2]);
+                  ScalerSetByte(P3_DD_LS_DDR_START_ADDR_L, pData[3]);
+              
+                  // OD M2
+                  ScalerSetBit(P43_DA_LS_DDR_START_ADDR_MSB, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (pData[0] & 0x0F));
+                  ScalerSetByte(P43_DB_LS_DDR_START_ADDR_H, pData[1]);
+                  ScalerSetByte(P43_DC_LS_DDR_START_ADDR_M, pData[2]);
+                  ScalerSetByte(P43_DD_LS_DDR_START_ADDR_L, pData[3]);
+              #endif
+ 188   1      }
+ 189          
+ 190          #if(_FRC_SUPPORT == _ON)
+ 191          //--------------------------------------------------
+ 192          // Description  : Dynamic OD handler interrupt process (EXINT0 only)
+ 193          //                Dynamically enable/disable OD for memory bandwidth saving
+ 194          // Input Value  : None
+ 195          // Output Value : None
+ 196          //--------------------------------------------------
+ 197          void ScalerODIntHandler_EXINT0(void) using 1
+ 198          {
+ 199   1          // DEN_START event
+ 200   1          if(ScalerGetBit_EXINT(P0_05_IRQ_CTRL1, (_BIT3 | _BIT2)) == (_BIT3 | _BIT2))
+ 201   1          {
+ 202   2              BYTE ucBackupDataPortAddr = 0;
+ 203   2              BYTE ucFreerunDVSCount = 0;
+ 204   2      
+ 205   2              // Set DEN_START flag
+ 206   2              SET_EVENT_DEN_START_INT(_TRUE);
+ 207   2      
+ 208   2              // Clear DEN_START IRQ flag
+ 209   2              ScalerSetBit_EXINT(P0_05_IRQ_CTRL1, ~(_BIT6 | _BIT4 | _BIT2), _BIT2);
+ 210   2      
+ 211   2              //=======================================================
+ 212   2              // Get current serial number in repeated frame sequence
+ 213   2              //=======================================================
+ 214   2              // Backup data port address
+ 215   2              ucBackupDataPortAddr = ScalerGetByte_EXINT(P0_2A_DISPLAY_FORMAT_ADDR_PORT);
+ 216   2      
+ 217   2              // Get current free run DVS counter
+ 218   2              ScalerSetByte_EXINT(P0_2A_DISPLAY_FORMAT_ADDR_PORT, _P0_2B_PT_28_FREE_RUN_DVS_CNT);
+ 219   2              ucFreerunDVSCount = ScalerGetByte_EXINT(P0_2B_DISPLAY_FORMAT_DATA_PORT);
+ 220   2      
+ 221   2              // Resume data port address
+ 222   2              ScalerSetByte_EXINT(P0_2A_DISPLAY_FORMAT_ADDR_PORT, ucBackupDataPortAddr);
+ 223   2      
+ 224   2              //=======================================================
+ 225   2              // Set OD control registers according to current state
+ 226   2              //=======================================================
+ 227   2              switch(GET_MEMORY_DVF_SELECT())
+ 228   2              {
+ 229   3                  //====================================
+ 230   3                  // DVF = 2 IVF, EX: 30 to 60Hz
+ 231   3                  //====================================
+ 232   3                  // I-domain frame:          |______F1_______|______F2_______|______F3_______|
+C51 COMPILER V9.01   RL6449_SERIES_OD                                                      05/24/2025 15:52:03 PAGE 5   
+
+ 233   3                  // D-domain frame:           |__F0___|__F0___|__F1___|__F1___|__F2___|__F2___|
+ 234   3                  // <Free run DVS count>:     |___0___|___1___|___0___|___1___|___0___|___1___|
+ 235   3                  // <OD control>:             |___on__|__off__|___on__|__off__|___on__|__off__|
+ 236   3                  // OD actual(DB effective):  |_______|___ON__|__OFF__|___ON__|__OFF__|___ON__|
+ 237   3                  // OD memory access:         |_______|_______|___R___|___W___|___R___|___W___|
+ 238   3                  case _2_IVF:
+ 239   3                      switch(ucFreerunDVSCount)
+ 240   3                      {
+ 241   4                          case 0:
+ 242   4                              // Enable OD
+ 243   4                              ScalerSetBit_EXINT(P3_A1_LS_CTRL0, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 244   4                              break;
+ 245   4      
+ 246   4                          case 1:
+ 247   4                              // Disable OD
+ 248   4                              ScalerSetBit_EXINT(P3_A1_LS_CTRL0, ~(_BIT7 | _BIT6), 0x00);
+ 249   4                              break;
+ 250   4      
+ 251   4                          default:
+ 252   4                              break;
+ 253   4                      }
+ 254   3                      break;
+ 255   3      
+ 256   3                  //====================================
+ 257   3                  // DVF = 2.5 IVF, EX: 24 to 60Hz
+ 258   3                  //====================================
+ 259   3                  // I-domain frame:          |________F1_________|________F2_________|________F3_________|_____
+             -___F4_________|
+ 260   3                  // D-domain frame:           |__F0___|__F0___|__F0___|__F1___|__F1___|__F2___|__F2___|__F2___|
+             -__F3___|__F3___|
+ 261   3                  // <Free run DVS count>:     |___0___|___1___|___2___|___3___|___4___|___0___|___1___|___2___|
+             -___3___|___4___|
+ 262   3                  // <OD control>:             |__off__|___on__|__off__|___on__|__off__|__off__|___on__|__off__|
+             -___on__|__off__|
+ 263   3                  // OD actual(DB effective):  |_______|__OFF__|___ON__|__OFF__|___ON__|__OFF__|__OFF__|___ON__|
+             -__OFF__|___ON__|
+ 264   3                  // OD memory access:         |_______|_______|___W___|___R___|___W___|___R___|_______|___W___|
+             -___R___|___W___|
+ 265   3                  case _2_5_IVF:
+ 266   3                      switch(ucFreerunDVSCount)
+ 267   3                      {
+ 268   4                          case 0:
+ 269   4                          case 2:
+ 270   4                          case 4:
+ 271   4                              // Disable OD
+ 272   4                              ScalerSetBit_EXINT(P3_A1_LS_CTRL0, ~(_BIT7 | _BIT6), 0x00);
+ 273   4                              break;
+ 274   4      
+ 275   4                          case 1:
+ 276   4                          case 3:
+ 277   4                              // Enable OD
+ 278   4                              ScalerSetBit_EXINT(P3_A1_LS_CTRL0, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 279   4                              break;
+ 280   4      
+ 281   4                          default:
+ 282   4                              break;
+ 283   4                      }
+ 284   3                      break;
+ 285   3      
+ 286   3                  //====================================
+ 287   3                  // DVF = 3 IVF, EX: 24 to 72Hz
+ 288   3                  //====================================
+C51 COMPILER V9.01   RL6449_SERIES_OD                                                      05/24/2025 15:52:03 PAGE 6   
+
+ 289   3                  // I-domain frame:          |__________F1___________|__________F2___________|__________F3_____
+             -______|
+ 290   3                  // D-domain frame:           |__F0___|__F0___|__F0___|__F1___|__F1___|__F1___|__F2___|__F2___|
+             -__F2___|
+ 291   3                  // <Free run DVS count>:     |___0___|___1___|___2___|___0___|___1___|___2___|___0___|___1___|
+             -___2___|
+ 292   3                  // <OD control>:             |__off__|___on__|__off__|__off__|___on__|__off__|__off__|___on__|
+             -__off__|
+ 293   3                  // OD actual(DB effective):  |_______|__OFF__|___ON__|__OFF__|__OFF__|___ON__|__OFF__|__OFF__|
+             -___ON__|
+ 294   3                  // OD memory access:         |_______|_______|___W___|___R___|_______|___W___|___R___|_______|
+             -___W___|
+ 295   3                  case _3_IVF:
+ 296   3                      switch(ucFreerunDVSCount)
+ 297   3                      {
+ 298   4                          case 0:
+ 299   4                          case 2:
+ 300   4                              // Disable OD
+ 301   4                              ScalerSetBit_EXINT(P3_A1_LS_CTRL0, ~(_BIT7 | _BIT6), 0x00);
+ 302   4                              break;
+ 303   4      
+ 304   4                          case 1:
+ 305   4                              // Enable OD
+ 306   4                              ScalerSetBit_EXINT(P3_A1_LS_CTRL0, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 307   4                              break;
+ 308   4      
+ 309   4                          default:
+ 310   4                              break;
+ 311   4                      }
+ 312   3                      break;
+ 313   3      
+ 314   3                  //====================================
+ 315   3                  // Other cases
+ 316   3                  //====================================
+ 317   3                  default:
+ 318   3                      break;
+ 319   3              }// End of switch(GET_MEMORY_DVF_SELECT())
+ 320   2          }// End of if(ScalerGetBit_EXINT(P0_05_IRQ_CTRL1, (_BIT3 | _BIT2)) == (_BIT3 | _BIT2))
+ 321   1      } // End of void ScalerODIntHandler_EXINT0()
+ 322          #endif // End of #if(_FRC_SUPPORT == _ON)
+ 323          #endif  // End of #if(_OD_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    613    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      11
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

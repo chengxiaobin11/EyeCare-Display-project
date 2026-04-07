@@ -1,0 +1,116 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORSRGBADJUST                                         03/11/2025 19:56:15 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORSRGBADJUST
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorSRGBAdjust.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorSRGBAdjust.c LARGE OPTIMIZE(9,S
+                    -PEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\Scaler
+                    -CommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Series_Co
+                    -mmon\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_Serie
+                    -s_ColorSRGBAdjust.lst) OBJECT(.\Output\RL6449_Series_ColorSRGBAdjust.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //-------------------------------------------------------------------------------------//
+  13          // ID Code      : RL6449_Series_ColorSRGBAdjust.c
+  14          // Update Note  :
+  15          //-------------------------------------------------------------------------------------//
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          //--------------------------------------------------
+  22          // Table Length
+  23          //--------------------------------------------------
+  24          #define _SRGB_TABLE_SIZE                        24
+  25          
+  26          
+  27          //****************************************************************************
+  28          // STRUCT / TYPE / ENUM DEFINITTIONS
+  29          //****************************************************************************
+  30          
+  31          
+  32          //****************************************************************************
+  33          // CODE TABLES
+  34          //****************************************************************************
+  35          
+  36          
+  37          //****************************************************************************
+  38          // VARIABLE DECLARATIONS
+  39          //****************************************************************************
+  40          
+  41          
+  42          //****************************************************************************
+  43          // FUNCTION DECLARATIONS
+  44          //****************************************************************************
+  45          bit ScalerColorSRGBAdjust(BYTE *pucSRGBArray, EnumSrgbPrecision enumPrecision);
+  46          
+  47          
+  48          //****************************************************************************
+  49          // FUNCTION DEFINITIONS
+  50          //****************************************************************************
+  51          
+C51 COMPILER V8.12   RL6449_SERIES_COLORSRGBADJUST                                         03/11/2025 19:56:15 PAGE 2   
+
+  52          //--------------------------------------------------
+  53          // Description  : Adjust SRGB function
+  54          // Input Value  : SRGB Matrix
+  55          //                SRGB Precision
+  56          // Output Value : _TRUE/_FALSE
+  57          //--------------------------------------------------
+  58          bit ScalerColorSRGBAdjust(BYTE *pucSRGBArray, EnumSrgbPrecision enumPrecision)
+  59          {
+  60   1          // Clear Waiting flag
+  61   1          ScalerSetBit(P0_62_SRGB_CTRL, ~_BIT7, 0x00);
+  62   1          ScalerSetBit(P0_62_SRGB_CTRL, ~_BIT6, _BIT6); // Reset Port
+  63   1      
+  64   1          if(ScalerTimerPollingFlagProc(2, P0_62_SRGB_CTRL, _BIT6, 0) == _FALSE) // pollling till Reset port add
+             -ress finished
+  65   1          {
+  66   2              return _FALSE;
+  67   2          }
+  68   1      
+  69   1          ScalerSetBit(P0_62_SRGB_CTRL, ~(_BIT5 | _BIT4 | _BIT3), 0x00); // Write sequence
+  70   1      
+  71   1          if(ScalerGetBit(P9_A1_INPUT_GAMMA_CTRL, _BIT6) == _BIT6)
+  72   1          {
+  73   2              ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+  74   2          }
+  75   1      
+  76   1          ScalerBurstWrite(pucSRGBArray, _SRGB_TABLE_SIZE, GET_CURRENT_BANK_NUMBER(), P0_63_SRGB_ACCESS_PORT_SET
+             -A, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_XRAM);
+  77   1      
+  78   1          ScalerSetBit(P0_68_GAMMA_BIST_DITHER_SETA, ~(_BIT6 | _BIT5), (enumPrecision << 5)); // Precision
+  79   1      
+  80   1          ScalerSetBit(P0_62_SRGB_CTRL, ~_BIT7, _BIT7);   // no apply none, always effective on dvs
+  81   1      
+  82   1          return _TRUE;
+  83   1      }
+  84          
+  85          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    134    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

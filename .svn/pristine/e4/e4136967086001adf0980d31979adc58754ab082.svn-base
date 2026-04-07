@@ -1,0 +1,149 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORSCMLOADTABLE                                       03/11/2025 19:56:10 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORSCMLOADTABLE
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorSCMLoadTable.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorSCMLoadTable.c LARGE OPTIMIZE(9
+                    -,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\Scal
+                    -erCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Series_
+                    -Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_Ser
+                    -ies_ColorSCMLoadTable.lst) OBJECT(.\Output\RL6449_Series_ColorSCMLoadTable.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorSCMLoadTable.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          #define _SCM_TABLE_SIZE                     78
+  22          #define _SCMN_INDEX_OFFSET                  3
+  23          #define _SCMN_TABLE_OFFSET                  4
+  24          
+  25          //****************************************************************************
+  26          // STRUCT / TYPE / ENUM DEFINITTIONS
+  27          //****************************************************************************
+  28          
+  29          
+  30          //****************************************************************************
+  31          // CODE TABLES
+  32          //****************************************************************************
+  33          
+  34          
+  35          //****************************************************************************
+  36          // VARIABLE DECLARATIONS
+  37          //****************************************************************************
+  38          
+  39          
+  40          //****************************************************************************
+  41          // FUNCTION DECLARATIONS
+  42          //****************************************************************************
+  43          void ScalerColorSCMLoadTable(BYTE code *pucSCMTable, BYTE ucBankNum);
+  44          
+  45          
+  46          //****************************************************************************
+  47          // FUNCTION DEFINITIONS
+  48          //****************************************************************************
+  49          //--------------------------------------------------
+  50          // Description   : Fill SCM table
+  51          // Input Value   : None
+C51 COMPILER V8.12   RL6449_SERIES_COLORSCMLOADTABLE                                       03/11/2025 19:56:10 PAGE 2   
+
+  52          // Output Value  : None
+  53          //--------------------------------------------------
+  54          void ScalerColorSCMLoadTable(BYTE code *pucSCMTable, BYTE ucBankNum)
+  55          {
+  56   1          BYTE ucI = 0;
+  57   1          BYTE ucSCMSel = 0;
+  58   1          BYTE pucTemp[2] = {0};
+  59   1      
+  60   1          if(pucSCMTable != NULL)
+  61   1          {
+  62   2              ScalerFlashRead(ucBankNum, (WORD)(&pucSCMTable[1]), 2, pucTemp);
+  63   2              ScalerColorSCMAdjust(pucTemp[0], pucTemp[1]);
+  64   2      
+  65   2              for(ucI = 0; ucI < 9; ucI++)
+  66   2              {
+  67   3                  ScalerFlashRead(ucBankNum, (WORD)(&pucSCMTable[_SCMN_INDEX_OFFSET + ucI * (_SCM_TABLE_SIZE + 1
+             -)]), 1, &pucTemp[0]);
+  68   3      
+  69   3                  switch(pucTemp[0])
+  70   3                  {
+  71   4                      case _SCM_0:
+  72   4                          ucSCMSel = 0;
+  73   4                          break;
+  74   4      
+  75   4                      case _SCM_1:
+  76   4                          ucSCMSel = 1;
+  77   4                          break;
+  78   4      
+  79   4                      case _SCM_2:
+  80   4                          ucSCMSel = 2;
+  81   4                          break;
+  82   4      
+  83   4                      case _SCM_3:
+  84   4                          ucSCMSel = 3;
+  85   4                          break;
+  86   4      
+  87   4                      case _SCM_4:
+  88   4                          ucSCMSel = 4;
+  89   4                          break;
+  90   4      
+  91   4                      case _SCM_5:
+  92   4                          ucSCMSel = 5;
+  93   4                          break;
+  94   4      
+  95   4                      case _SCM_6:
+  96   4                          ucSCMSel = 6;
+  97   4                          break;
+  98   4      
+  99   4                      case _SCM_7:
+ 100   4                          ucSCMSel = 7;
+ 101   4                          break;
+ 102   4      
+ 103   4                      default:
+ 104   4                          return;
+ 105   4                  }
+ 106   3      
+ 107   3                  ScalerSetBit(P7_CD_SCM_BLOCK_SELECT, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), ucSCMSel);
+ 108   3                  ScalerSetByte(P7_CE_SCM_ACCESS_PORT_CONTROL, 0x00);
+ 109   3                  ScalerBurstWrite(&pucSCMTable[_SCMN_TABLE_OFFSET + ucI * (_SCM_TABLE_SIZE + 1)], _SCM_TABLE_SI
+             -ZE, ucBankNum, P7_CF_SCM_ACCESS_PORT_DATA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+ 110   3              }
+ 111   2          }
+C51 COMPILER V8.12   RL6449_SERIES_COLORSCMLOADTABLE                                       03/11/2025 19:56:10 PAGE 3   
+
+ 112   1          else
+ 113   1          {
+ 114   2              ScalerColorSCMAdjust(0x00, 0x00);
+ 115   2          }
+ 116   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    352    ----
+   CONSTANT SIZE    =      2    ----
+   XDATA SIZE       =   ----       7
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

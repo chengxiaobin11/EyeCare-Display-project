@@ -1,0 +1,139 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORDDITHER                                            03/11/2025 19:56:04 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORDDITHER
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorDDither.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorDDither.c LARGE OPTIMIZE(9,SPEE
+                    -D) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\ScalerCom
+                    -monFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Series_Commo
+                    -n\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_Series_C
+                    -olorDDither.lst) OBJECT(.\Output\RL6449_Series_ColorDDither.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorDDither.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          #define _DITHER_TABLE_LENGTH    (144)
+  22          #define _TEMPORAL_TABLE_LENGTH  (32)
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          
+  38          
+  39          //****************************************************************************
+  40          // FUNCTION DECLARATIONS
+  41          //****************************************************************************
+  42          void ScalerColorDDitherLoadDitherTable(BYTE code *pucDitherTable, BYTE ucBankAddress);
+  43          void ScalerColorDDitherLoadTempoTable(BYTE code *pucTempoTable, BYTE ucBankAddress);
+  44          void ScalerColorDDitherLoadSetting(DWORD ulSettingOption);
+  45          
+  46          
+  47          //****************************************************************************
+  48          // FUNCTION DEFINITIONS
+  49          //****************************************************************************
+  50          //--------------------------------------------------
+  51          // Description  : Adjust D Dither Setting
+C51 COMPILER V8.12   RL6449_SERIES_COLORDDITHER                                            03/11/2025 19:56:04 PAGE 2   
+
+  52          // Input Value  :
+  53          //                pucDitherTable : Dither Table Pointer
+  54          //                ucBankAddress : Bank Address
+  55          // Output Value : None
+  56          //--------------------------------------------------
+  57          void ScalerColorDDitherLoadDitherTable(BYTE code *pucDitherTable, BYTE ucBankAddress)
+  58          {
+  59   1          if(pucDitherTable != _NULL_POINTER)
+  60   1          {
+  61   2              ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~(_BIT7 | _BIT6), 0x80);
+  62   2              ScalerBurstWrite(pucDitherTable, _DITHER_TABLE_LENGTH, ucBankAddress, P0_69_D_DITHER_DATA_ACCESS, 
+             -_BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  63   2              ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~(_BIT7 | _BIT6), 0x00);
+  64   2          }
+  65   1      }
+  66          
+  67          //--------------------------------------------------
+  68          // Description  : Adjust D Dither Setting
+  69          // Input Value  :
+  70          //                pucTempoTable : Temporal Table Pointer
+  71          //                ucBankAddress : Bank Address
+  72          // Output Value : None
+  73          //--------------------------------------------------
+  74          void ScalerColorDDitherLoadTempoTable(BYTE code *pucTempoTable, BYTE ucBankAddress)
+  75          {
+  76   1          if(pucTempoTable != _NULL_POINTER)
+  77   1          {
+  78   2              ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~(_BIT7 | _BIT6), 0xC0);
+  79   2              ScalerBurstWrite(pucTempoTable, _TEMPORAL_TABLE_LENGTH, ucBankAddress, P0_69_D_DITHER_DATA_ACCESS,
+             - _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  80   2              ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~(_BIT7 | _BIT6), 0x00);
+  81   2          }
+  82   1      }
+  83          
+  84          //--------------------------------------------------
+  85          // Description  : Adjust D Dither Common Setting
+  86          // Input Value  : D Dither Setting Option
+  87          // Output Value : None
+  88          //--------------------------------------------------
+  89          void ScalerColorDDitherLoadSetting(DWORD ulSettingOption)
+  90          {
+  91   1          BYTE ucData = 0;
+  92   1          ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~(_BIT7 | _BIT6 | _BIT4 | _BIT1 | _BIT0), ulSettingOption & 
+             -0x000000FF);
+  93   1          ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_00_D_DITHER_COMMON_SET0);
+  94   1          ScalerSetByte(P0_69_D_DITHER_DATA_ACCESS, (ulSettingOption & 0x0000FF00) >> 8);
+  95   1          ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_02_D_DITHER_COMMON_SET2);
+  96   1          ScalerSetByte(P0_69_D_DITHER_DATA_ACCESS, (ulSettingOption & 0x00FF0000) >> 16);
+  97   1          ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_0D_D_DITHER_COMMON_CTRL2);
+  98   1          ScalerSetByte(P0_69_D_DITHER_DATA_ACCESS, (ulSettingOption & 0xFF000000) >> 24);
+  99   1      
+ 100   1          // reset frame counter
+ 101   1          ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_01_D_DITHER_COMMON_SET1);
+ 102   1          ucData = ScalerGetByte(P0_69_D_DITHER_DATA_ACCESS) | _BIT7;
+ 103   1          ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_01_D_DITHER_COMMON_SET1);
+ 104   1          ScalerSetByte(P0_69_D_DITHER_DATA_ACCESS, ucData);
+ 105   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    228    ----
+   CONSTANT SIZE    =   ----    ----
+C51 COMPILER V8.12   RL6449_SERIES_COLORDDITHER                                            03/11/2025 19:56:04 PAGE 3   
+
+   XDATA SIZE       =   ----       6
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,534 @@
+C51 COMPILER V9.60.0.0   RL6432_SERIES_MEMORY                                              08/27/2025 11:01:35 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE RL6432_SERIES_MEMORY
+OBJECT MODULE PLACED IN .\Output\RL6432\RL6432_Series_Memory.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\Scaler\RL6432_Series_Scaler\Code\RL6432_Series_Memory.c LARGE OPT
+                    -IMIZE(9,SPEED) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Sys
+                    -tem\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunct
+                    -ion\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scal
+                    -er\RL6432_Series_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\
+                    -Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header
+                    -;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\
+                    -Header) DEFINE(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\RL6432_Ser
+                    -ies_Memory.lst) TABS(2) OBJECT(.\Output\RL6432\RL6432_Series_Memory.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6432_Series_Memory.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          //****************************************************************************
+  32          // VARIABLE DECLARATIONS
+  33          //****************************************************************************
+  34          #if(_OD_SUPPORT == _ON)
+  35          DWORD g_ulMemoryThreeBlockAddr1;
+  36          DWORD g_ulMemoryThreeBlockAddr2;
+  37          DWORD g_ulMemoryThreeBlockAddr3;
+  38          #endif
+  39          
+  40          //****************************************************************************
+  41          // FUNCTION DECLARATIONS
+  42          //****************************************************************************
+  43          void ScalerMemorySetFifoCapture(WORD usHWidth, WORD usVHeight);
+  44          WORD ScalerMemoryGetFifoWidth(void);
+  45          void ScalerMemoryFrameSyncSetDt(BYTE ucNum);
+  46          DWORD ScalerMemoryGetIVS2DVSDelayPixel(void);
+  47          void ScalerMemorySetFIFOFreq(EnumScalerFIFOFreq enumFIFOFreq);
+C51 COMPILER V9.60.0.0   RL6432_SERIES_MEMORY                                              08/27/2025 11:01:35 PAGE 2   
+
+  48          
+  49          #if(_FRC_SUPPORT == _ON)
+  50          #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+  51          void ScalerMemoryCalculateLineStepAndBlockStep(DWORD ulHorSize, WORD usVerSize, StructMemoryLineBlockStep 
+             -*pstStep);
+  52          #endif
+  53          #endif
+  54          
+  55          #if(_FREESYNC_SUPPORT == _ON)
+  56          void ScalerMemorySetShiftOneLine(bit bEnable);
+  57          #endif
+  58          
+  59          //****************************************************************************
+  60          // FUNCTION DEFINITIONS
+  61          //****************************************************************************
+  62          //--------------------------------------------------
+  63          // Description  : Set FIFO Capture
+  64          // Input Value  : Input/Output H/V Active Region
+  65          // Output Value : None
+  66          //--------------------------------------------------
+  67          void ScalerMemorySetFifoCapture(WORD usHWidth, WORD usVHeight)
+  68          {
+  69   1          ScalerSetDataPortByte(P0_30_FIFO_WINDOW_ADDR_PORT, (_P0_31_PT_00_DISPLAY_READ_WID_BSU_H), (((HIBYTE(us
+             -HWidth) & 0x0F) << 4) | (HIBYTE(usVHeight) & 0x0F)));
+  70   1          ScalerSetDataPortByte(P0_30_FIFO_WINDOW_ADDR_PORT, (_P0_31_PT_01_DISPLAY_READ_WID_BSU_L), LOBYTE(usHWi
+             -dth));
+  71   1          ScalerSetDataPortByte(P0_30_FIFO_WINDOW_ADDR_PORT, (_P0_31_PT_02_DISPLAY_READ_LEN_BSU_L), LOBYTE(usVHe
+             -ight));
+  72   1          ScalerSetDataPortBit(P0_30_FIFO_WINDOW_ADDR_PORT, (_P0_31_PT_03_DISPLAY_READ_WID_LEN_BSU_H), ~(_BIT4 |
+             - _BIT0), (((usHWidth & 0x1000) >> 8) | ((usVHeight & 0x1000) >> 12)));
+  73   1      
+  74   1          // Set Pre-Read line
+  75   1          ScalerSetByte(P5_BC_MN_PRRD_VST_H, _PRE_READ_LINE_BUFFER);
+  76   1          ScalerSetByte(P5_BD_MN_PRRD_VST_L, _PRE_READ_LINE_BUFFER);
+  77   1      
+  78   1          // Set Capture Line Pixel Number
+  79   1          ScalerSetBit(P5_BE_MN_PXL_NUM_H, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (HIBYTE(usHWidth) & 0x0F));
+  80   1          ScalerSetByte(P5_BF_MN_PXL_NUM_L, LOBYTE(usHWidth));
+  81   1      
+  82   1          // Set Capture Line Number
+  83   1          ScalerSetBit(P5_B7_IN1_LINE_NUM_H, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (usVHeight >> 8) & 0x0F);
+  84   1          ScalerSetByte(P5_B8_IN1_LINE_NUM_L, LOBYTE(usVHeight));
+  85   1      
+  86   1          // Set Display Line Number
+  87   1          ScalerSetBit(P5_CD_MN_LINE_NUM_H, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (usVHeight >> 8) & 0x0F);
+  88   1          ScalerSetByte(P5_CE_MN_LINE_NUM_L, LOBYTE(usVHeight));
+  89   1      
+  90   1          if(GET_MEMORY_DATA_BIT() == 30)
+  91   1          {
+  92   2              // Set input format 30 bit
+  93   2              ScalerSetBit(P5_CF_MN_DISP_CTRL, ~_BIT7, 0x00);
+  94   2              ScalerSetBit(P5_D0_MN_SDR_STATUS, ~(_BIT1 | _BIT0), _BIT1);
+  95   2          }
+  96   1          else
+  97   1          {
+  98   2              // Set input format 24 bit
+  99   2              ScalerSetBit(P5_CF_MN_DISP_CTRL, ~_BIT7, 0x00);
+ 100   2              ScalerSetBit(P5_D0_MN_SDR_STATUS, ~(_BIT1 | _BIT0), 0x00);
+ 101   2          }
+ 102   1      
+ 103   1          // FRC display double buffer apply
+ 104   1          ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+C51 COMPILER V9.60.0.0   RL6432_SERIES_MEMORY                                              08/27/2025 11:01:35 PAGE 3   
+
+ 105   1      }
+ 106          
+ 107          //--------------------------------------------------
+ 108          // Description  : Get fifo width
+ 109          // Input Value  : None
+ 110          // Output Value : Fifo width
+ 111          //--------------------------------------------------
+ 112          WORD ScalerMemoryGetFifoWidth(void)
+ 113          {
+ 114   1          //-------------------------------------------------
+ 115   1          // Get FIFO Input Width: 13 bit
+ 116   1          //-------------------------------------------------
+ 117   1          ScalerGetDataPortByte(P0_30_FIFO_WINDOW_ADDR_PORT, _P0_31_PT_00_DISPLAY_READ_WID_BSU_H, 1, &pData[2], 
+             -_NON_AUTOINC);
+ 118   1          ScalerGetDataPortByte(P0_30_FIFO_WINDOW_ADDR_PORT, _P0_31_PT_01_DISPLAY_READ_WID_BSU_L, 1, &pData[3], 
+             -_NON_AUTOINC);
+ 119   1          ScalerGetDataPortByte(P0_30_FIFO_WINDOW_ADDR_PORT, _P0_31_PT_03_DISPLAY_READ_WID_LEN_BSU_H, 1, &pData[
+             -4], _NON_AUTOINC);
+ 120   1      
+ 121   1          PDATA_WORD(0) = ((((WORD)pData[4] << 8) & 0x1000) | (((WORD)pData[2] << 4) & 0xF00) | pData[3]);
+ 122   1      
+ 123   1          return PDATA_WORD(0);
+ 124   1      }
+ 125          
+ 126          //--------------------------------------------------
+ 127          // Description  : Setup Frame Sync Dt
+ 128          // Input Value  : ucNum: percentage of Dt
+ 129          // Output Value : None
+ 130          //--------------------------------------------------
+ 131          void ScalerMemoryFrameSyncSetDt(BYTE ucNum)
+ 132          {
+ 133   1          DWORD ulIVStoDVSPixels = 0;
+ 134   1          DWORD ulIVstart = 0;
+ 135   1          DWORD ulDVstart = 0;
+ 136   1          DWORD ulDt_percent = 0;
+ 137   1      
+ 138   1          // Calculate DVS to DH Active in ICLK
+ 139   1          ulDVstart = ((DWORD)g_stMDomainOutputData.usHTotal * g_stMDomainOutputData.usVStart) + g_stMDomainOutp
+             -utData.usHStart;
+ 140   1          ulDVstart = ulDVstart * g_stMDomainInputData.usVHeight / g_stMDomainOutputData.usVHeight * g_stMDomain
+             -InputData.usHTotal / g_stMDomainOutputData.usHTotal;
+ 141   1      
+ 142   1          // Calculate IVS to IH Active in ICLK
+ 143   1          ulIVstart = ((DWORD)g_stMDomainInputData.usHTotal * g_stMDomainInputData.usVStart) + g_stMDomainInputD
+             -ata.usHStart;
+ 144   1      
+ 145   1          // IVS2DVS line skip disable
+ 146   1          ScalerSetBit(P0_43_FS_DELAY_FINE_TUNE, ~_BIT3, _BIT3);
+ 147   1      
+ 148   1      #if(_ULTRA_VIVID_SUPPORT == _ON)
+ 149   1          ulDt_percent = (DWORD)ScalerMemoryGetScaleUpDt() * ucNum / 50;
+ 150   1          ulIVstart += (DWORD)g_stMDomainInputData.usHTotal * ulDt_percent / 100;
+ 151   1      #else
+                  // Frame Sync Memory Settings
+                  if(GET_V_SCALE_UP() == _TRUE)    // Vertical Scaling Up
+                  {
+                      ulDt_percent = (DWORD)ScalerMemoryGetScaleUpDt() * ucNum / 50;
+                      ulIVstart += (DWORD)g_stMDomainInputData.usHTotal * ulDt_percent / 100;
+                  }
+                  else
+                  {
+                      if(GET_V_SCALE_DOWN() == _TRUE)    // Vertical Scaling Down
+C51 COMPILER V9.60.0.0   RL6432_SERIES_MEMORY                                              08/27/2025 11:01:35 PAGE 4   
+
+                      {
+                          ulDt_percent = g_stMDomainInputData.usHTotal * 2 + ((DWORD)g_stMDomainInputData.usHTotal * g_s
+             -tMDomainInputData.usVHeight / (g_stMDomainOutputData.usVHeight * 2));
+                      }
+                      else    // Vertical Scaling Bypass
+                      {
+                          ulDt_percent = g_stMDomainInputData.usHTotal * 2 + g_stMDomainInputData.usHTotal / 2;
+                      }
+                      ulDt_percent = (ulDt_percent * 100) / g_stMDomainInputData.usHTotal;
+                      ulDt_percent = ulDt_percent * ucNum / 50;
+                      ulIVstart += (DWORD)g_stMDomainInputData.usHTotal * ulDt_percent / 100;
+                  }
+              #endif
+ 173   1      
+ 174   1      #if(_FREESYNC_SUPPORT == _ON)
+ 175   1          if(GET_FREESYNC_ENABLED() == _TRUE)
+ 176   1          {
+ 177   2              bit bDVstAdd = _TRUE;
+ 178   2              WORD usCheckDVstRising = 0;
+ 179   2      
+ 180   2              if(ulIVstart <= ulDVstart)
+ 181   2              {
+ 182   3                  bDVstAdd = _FALSE;
+ 183   3      
+ 184   3                  // DVst - (IVst + Dt) in D-line
+ 185   3                  PDATA_DWORD(3) = (ulDVstart - ulIVstart) * g_stMDomainOutputData.usVHeight / g_stMDomainInputD
+             -ata.usVHeight / g_stMDomainInputData.usHTotal + 1;
+ 186   3      
+ 187   3                  if(g_stMDomainOutputData.usVStart > PDATA_DWORD(3))
+ 188   3                  {
+ 189   4                      g_stMDomainOutputData.usVStart -= PDATA_DWORD(3);
+ 190   4                  }
+ 191   3                  else
+ 192   3                  {
+ 193   4                      g_stMDomainOutputData.usVStart = 1;
+ 194   4                      DebugMessageFS("DRR Dt warning", 0);
+ 195   4                  }
+ 196   3              }
+ 197   2              else
+ 198   2              {
+ 199   3                  // (IVst + Dt) - DVst in D-line
+ 200   3                  PDATA_DWORD(3) = (ulIVstart - ulDVstart) * g_stMDomainOutputData.usVHeight / g_stMDomainInputD
+             -ata.usVHeight / g_stMDomainInputData.usHTotal;
+ 201   3      
+ 202   3                  g_stMDomainOutputData.usVStart += PDATA_DWORD(3);
+ 203   3              }
+ 204   2      
+ 205   2              // Calculate DVS to DH Active in ICLK
+ 206   2              ulDVstart = ((DWORD)g_stMDomainOutputData.usHTotal * g_stMDomainOutputData.usVStart) + g_stMDomain
+             -OutputData.usHStart;
+ 207   2              ulDVstart = ulDVstart * g_stMDomainInputData.usVHeight / g_stMDomainOutputData.usVHeight * g_stMDo
+             -mainInputData.usHTotal / g_stMDomainOutputData.usHTotal;
+ 208   2      
+ 209   2              // IVS2DVS delay
+ 210   2              ulIVStoDVSPixels = (ulIVstart > ulDVstart) ? (ulIVstart - ulDVstart) : 0;
+ 211   2      
+ 212   2              usCheckDVstRising = (DWORD)g_stMDomainInputData.usHTotal * 9 / 10;
+ 213   2      
+ 214   2              if(g_stMDomainInputData.usVHeight <= g_stMDomainOutputData.usVHeight)
+ 215   2              {
+ 216   3                  if(ulIVStoDVSPixels > usCheckDVstRising)
+ 217   3                  {
+C51 COMPILER V9.60.0.0   RL6432_SERIES_MEMORY                                              08/27/2025 11:01:35 PAGE 5   
+
+ 218   4                      g_stMDomainOutputData.usVStart += 1;
+ 219   4      
+ 220   4                      // Calculate DVS to DH Active in ICLK
+ 221   4                      ulDVstart = ((DWORD)g_stMDomainOutputData.usHTotal * g_stMDomainOutputData.usVStart) + g_s
+             -tMDomainOutputData.usHStart;
+ 222   4                      ulDVstart = ulDVstart * g_stMDomainInputData.usVHeight / g_stMDomainOutputData.usVHeight *
+             - g_stMDomainInputData.usHTotal / g_stMDomainOutputData.usHTotal;
+ 223   4      
+ 224   4                      // IVS2DVS delay
+ 225   4                      ulIVStoDVSPixels = (ulIVstart > ulDVstart) ? (ulIVstart - ulDVstart) : 0;
+ 226   4      
+ 227   4                      DebugMessageFS("DRR IVS2DVS delay close to 1 line, modify IVS2DVS delay", ulIVStoDVSPixels
+             -);
+ 228   4                  }
+ 229   3              }
+ 230   2              else
+ 231   2              {
+ 232   3                  // preread = 0, oden start request = IVS2DVS + 1 D-line
+ 233   3                  WORD usAddPreread = ulIVStoDVSPixels + ((DWORD)g_stMDomainInputData.usVHeight * g_stMDomainInp
+             -utData.usHTotal / g_stMDomainOutputData.usVHeight);
+ 234   3      
+ 235   3                  if(usAddPreread > usCheckDVstRising)
+ 236   3                  {
+ 237   4                      if(bDVstAdd == _TRUE)
+ 238   4                      {
+ 239   5                          g_stMDomainOutputData.usVStart += 1;
+ 240   5      
+ 241   5                          // Calculate DVS to DH Active in ICLK
+ 242   5                          ulDVstart = ((DWORD)g_stMDomainOutputData.usHTotal * g_stMDomainOutputData.usVStart) +
+             - g_stMDomainOutputData.usHStart;
+ 243   5                          ulDVstart = ulDVstart * g_stMDomainInputData.usVHeight / g_stMDomainOutputData.usVHeig
+             -ht * g_stMDomainInputData.usHTotal / g_stMDomainOutputData.usHTotal;
+ 244   5      
+ 245   5                          // IVS2DVS delay
+ 246   5                          ulIVStoDVSPixels = (ulIVstart > ulDVstart) ? (ulIVstart - ulDVstart) : 0;
+ 247   5                      }
+ 248   4                      else
+ 249   4                      {
+ 250   5                          // no more DVst can be add, modify IVS2DVS delay
+ 251   5                          ulIVStoDVSPixels = 0;
+ 252   5                      }
+ 253   4      
+ 254   4                      DebugMessageScaler("VSD DRR IVS2DVS delay close to 1 line, modify IVS2DVS delay", ulIVStoD
+             -VSPixels);
+ 255   4                  }
+ 256   3              }
+ 257   2          }
+ 258   1          else
+ 259   1      #endif
+ 260   1          {
+ 261   2              // If DVSt > (IVSt + Dt) means no further IVS2DVSDelay can be added!!
+ 262   2              // Preserve 2 line margin in advance
+ 263   2              PDATA_DWORD(3) = ulDVstart + 2 * g_stMDomainInputData.usHTotal;
+ 264   2      
+ 265   2              if(PDATA_DWORD(3) > ulIVstart)
+ 266   2              {
+ 267   3                  // Calculate insufficient line number
+ 268   3                  WORD usInsufficientLines = (PDATA_DWORD(3) - ulIVstart) / g_stMDomainInputData.usHTotal + 1;
+ 269   3      
+ 270   3                  DebugMessageFS("2. No Further IVS2DVSDelay Can Be Added", 0x00);
+ 271   3      
+ 272   3                  // Enlarge IVSt for insufficient lines
+C51 COMPILER V9.60.0.0   RL6432_SERIES_MEMORY                                              08/27/2025 11:01:35 PAGE 6   
+
+ 273   3                  g_stMDomainInputData.usVStart += usInsufficientLines;
+ 274   3      
+ 275   3                  if(ScalerVgipGetDigitalCaptureStatus() == _FALSE)
+ 276   3                  {
+ 277   4                      // Set new IVSt under analog capture
+ 278   4                      ScalerVgipSetCaptureVStartPosition(g_stMDomainInputData.usVStart);
+ 279   4                  }
+ 280   3                  else
+ 281   3                  {
+ 282   4                      // Set new IVSt under digital capture
+ 283   4                      ScalerVgipSetCaptureVStartPosition((GET_INPUT_TIMING_VHEIGHT() - GET_MDOMAIN_INPUT_VHEIGHT
+             -()) / 2 + usInsufficientLines);
+ 284   4                  }
+ 285   3      
+ 286   3                  // Modify Original (IVSt + Dt) Value
+ 287   3                  ulIVstart += (DWORD)usInsufficientLines * g_stMDomainInputData.usHTotal;
+ 288   3              }
+ 289   2      
+ 290   2              // Set IVS to DVS Delay
+ 291   2              PDATA_DWORD(0) = (ulIVstart > ulDVstart) ? (ulIVstart - ulDVstart) : 0;
+ 292   2      
+ 293   2              DebugMessageFS("Target IVS to DVS Delay Value", PDATA_DWORD(0) * 10 / g_stMDomainInputData.usHTota
+             -l);
+ 294   2      
+ 295   2              // Get Current IVS2DVS Delay + DVS Width in Input Lines (Get Ceiling Value) + 1 line for margin
+ 296   2              PDATA_WORD(2) = (PDATA_DWORD(0) + (DWORD)(_PANEL_DV_SYNC_HEIGHT) * g_stMDomainInputData.usVHeight 
+             -* g_stMDomainInputData.usHTotal / g_stMDomainOutputData.usVHeight) / g_stMDomainInputData.usHTotal + 1;
+ 297   2              PDATA_WORD(2) &= 0x1FFF;
+ 298   2      
+ 299   2              // Enlarge DVSt if IVS2DVS Delay + DVS Width is larger than IVSt
+ 300   2              if(PDATA_WORD(2) >= (g_stMDomainInputData.usVStart))
+ 301   2              {
+ 302   3                  DebugMessageFS("2. Target IVS2DVS Delay too Large", pData[5]);
+ 303   3      
+ 304   3                  // Get the difference between IVS2DVS Delay and IVSt
+ 305   3                  PDATA_WORD(2) = PDATA_WORD(2) - g_stMDomainInputData.usVStart + 1;
+ 306   3      
+ 307   3                  // Get Required Increment of DVSt
+ 308   3                  PDATA_WORD(2) = PDATA_WORD(2) * g_stMDomainOutputData.usVHeight / g_stMDomainInputData.usVHeig
+             -ht + 1;
+ 309   3      
+ 310   3                  // Modify DVSt & background DVSt
+ 311   3                  g_stMDomainOutputData.usVStart += PDATA_WORD(2);
+ 312   3                  g_stMDomainOutputData.usVBackStart += PDATA_WORD(2);
+ 313   3      
+ 314   3                  // Modify IVS2DVS Delay
+ 315   3                  PDATA_DWORD(0) -= (DWORD)PDATA_WORD(2) * g_stMDomainInputData.usHTotal * g_stMDomainInputData.
+             -usVHeight / g_stMDomainOutputData.usVHeight;
+ 316   3              }
+ 317   2      
+ 318   2              // Store IVS-to-DVS pixels
+ 319   2              ulIVStoDVSPixels = PDATA_DWORD(0);
+ 320   2          }
+ 321   1      
+ 322   1          // Before is frame sync mode, current is frame sync mode, check IVS2DVS delay change
+ 323   1          if(ScalerMDomainGetFrameSyncMode() == _FRAME_SYNC_MODE)
+ 324   1          {
+ 325   2              // Get Old IVS2DVS + IVSdelay (I line)
+ 326   2              PDATA_WORD(0) = (ScalerMemoryGetIVS2DVSDelayPixel() / g_stMDomainInputData.usHTotal);
+ 327   2      
+ 328   2              // Calculate current frame sync fine-tune value
+ 329   2              PDATA_WORD(1) = (ulIVStoDVSPixels / g_stMDomainInputData.usHTotal);
+C51 COMPILER V9.60.0.0   RL6432_SERIES_MEMORY                                              08/27/2025 11:01:35 PAGE 7   
+
+ 330   2      
+ 331   2              // IVS2DVS Change Limit (Convert DVline limit to IVline)
+ 332   2              PDATA_WORD(2) = (DWORD)_PANEL_DV_LINE_CHG_LIMIT * g_stMDomainInputData.usVHeight / g_stMDomainOutp
+             -utData.usVHeight;
+ 333   2      
+ 334   2              ScalerMemoryFineTuneIVS2DVSDelay(PDATA_WORD(0), PDATA_WORD(1), PDATA_WORD(2));
+ 335   2          }
+ 336   1      
+ 337   1          if(GET_INTERLACED_MODE() == _TRUE)
+ 338   1          {
+ 339   2              // Video Compensation on Even Field
+ 340   2              if(ScalerGetBit(P0_32_SCALE_CONTROL_REG, (_BIT7 | _BIT6)) == (_BIT7 | _BIT6))
+ 341   2              {
+ 342   3                  // Enable Frame Sync Fine Tune on Odd Field
+ 343   3                  ScalerSetBit(P0_43_FS_DELAY_FINE_TUNE, ~(_BIT1 | _BIT0), (_BIT1 | _BIT0));
+ 344   3              }
+ 345   2              // Video Compensation on Odd Field
+ 346   2              else if(ScalerGetBit(P0_32_SCALE_CONTROL_REG, (_BIT7 | _BIT6)) == _BIT7)
+ 347   2              {
+ 348   3                  // Enable Frame Sync Fine Tune on Even Field
+ 349   3                  ScalerSetBit(P0_43_FS_DELAY_FINE_TUNE, ~(_BIT1 | _BIT0), _BIT1);
+ 350   3              }
+ 351   2              else
+ 352   2              {
+ 353   3                  // Disable Frame Sync Fine Tune
+ 354   3                  ScalerSetBit(P0_43_FS_DELAY_FINE_TUNE, ~_BIT1, 0x00);
+ 355   3              }
+ 356   2          }
+ 357   1          else
+ 358   1          {
+ 359   2              // Disable Frame Sync Fine Tune
+ 360   2              ScalerSetBit(P0_43_FS_DELAY_FINE_TUNE, ~_BIT1, 0x00);
+ 361   2          }
+ 362   1      
+ 363   1          // Check frame sync fine-tune
+ 364   1          ScalerMemoryUpdateIVS2DVSLineDelay(ulIVStoDVSPixels);
+ 365   1      }
+ 366          
+ 367          //--------------------------------------------------
+ 368          // Description  : Get IVS2DVS delay, unit: pixel
+ 369          // Input Value  : None
+ 370          // Output Value : IVS2DVS delay, unit: pixel
+ 371          //--------------------------------------------------
+ 372          DWORD ScalerMemoryGetIVS2DVSDelayPixel(void)
+ 373          {
+ 374   1          DWORD ulIVS2DVSDelayPixel = 0;
+ 375   1      
+ 376   1          // Get Initial Dt Fine Tune Value
+ 377   1          ulIVS2DVSDelayPixel = (((((DWORD)ScalerGetByte(P0_3E_IVS2DVS_DLY_LINE_H) << 8) & 0x1F00) | ScalerGetBy
+             -te(P0_40_IVS2DVS_DLY_LINE_L)) * g_stMDomainInputData.usHTotal) +
+ 378   1                                ((((((DWORD)ScalerGetByte(P0_3F_DISPLAY_ALIGN_CONTROL) << 4) & 0x300) | ScalerGe
+             -tByte(P0_41_IVS2DVS_DLY_TUNE_ODD)) + 1) * 16) +
+ 379   1                                ((ScalerGetByte(P0_3D_IV_DV_DELAY_CLK_FINE) >> 4) & 0x0F);
+ 380   1      
+ 381   1          return ulIVS2DVSDelayPixel;
+ 382   1      }
+ 383          
+ 384          //--------------------------------------------------
+ 385          // Description  : Set FIFO Clock
+ 386          // Input Value  : Target FIFO Clock
+ 387          // Output Value : None
+ 388          //--------------------------------------------------
+C51 COMPILER V9.60.0.0   RL6432_SERIES_MEMORY                                              08/27/2025 11:01:35 PAGE 8   
+
+ 389          void ScalerMemorySetFIFOFreq(EnumScalerFIFOFreq enumFIFOFreq)
+ 390          {
+ 391   1          switch(enumFIFOFreq)
+ 392   1          {
+ 393   2              case _SCALER_FIFO_FREQ_M2PLL:
+ 394   2                  ScalerSetBit(P0_22_M1_FIFO_CLOCK_SELECT, ~(_BIT1 | _BIT0), (_BIT1 | _BIT0));
+ 395   2                  break;
+ 396   2      
+ 397   2              case _SCALER_FIFO_FREQ_MPLL:
+ 398   2                  ScalerSetBit(P0_22_M1_FIFO_CLOCK_SELECT, ~(_BIT1 | _BIT0), 0x00);
+ 399   2                  break;
+ 400   2      
+ 401   2              default:
+ 402   2                  break;
+ 403   2          }
+ 404   1      }
+ 405          
+ 406          #if(_FRC_SUPPORT == _ON)
+ 407          #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+ 408          //--------------------------------------------------
+ 409          // Description  : Calculate the Line Step and Block Step
+ 410          // Input Value  : usHorSize --> Horizontal size (unit : 64 bits)
+ 411          //                usVerSize --> Vertical size
+ 412          // Output Value : Line Step and Block Step
+ 413          //--------------------------------------------------
+ 414          void ScalerMemoryCalculateLineStepAndBlockStep(DWORD ulHorSize, WORD usVerSize, StructMemoryLineBlockStep 
+             -*pstStep)
+ 415          {
+ 416   1          pstStep->ulLineStep = ScalerMemoryAddressConversion(ulHorSize);
+ 417   1          pstStep->ulBlockStep = ScalerMemoryAddressConversion((DWORD)usVerSize * ulHorSize);
+ 418   1      }
+ 419          #endif // End of #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+ 420          #endif // End of #if(_FRC_SUPPORT == _ON)
+ 421          
+ 422          #if(_FREESYNC_SUPPORT == _ON)
+ 423          //--------------------------------------------------
+ 424          // Description  : Set Shift One Line ON/OFF for Free Sync
+ 425          // Input Value  :
+ 426          // Output Value :
+ 427          //--------------------------------------------------
+ 428          void ScalerMemorySetShiftOneLine(bit bEnable)
+ 429          {
+ 430   1          if(bEnable == _ENABLE)
+ 431   1          {
+ 432   2              // Enable Function On The Porch
+ 433   2              if(ScalerGlobalGetDBStatus() == _FALSE)
+ 434   2              {
+ 435   3                  ScalerTimerWaitForEvent(_EVENT_IEN_STOP);
+ 436   3              }
+ 437   2      
+ 438   2              // Enable Scale Down
+ 439   2              ScalerSetBit(P0_23_SCALE_DOWN_CTRL_M1, ~_BIT0, _BIT0);
+ 440   2      
+ 441   2              // Enable Scale Down FREESYNC Mode
+ 442   2              ScalerSetBit(P0_26_SD_FILTER_CONTROL_REG_M1, ~_BIT1, _BIT1);
+ 443   2      
+ 444   2              // Set IVst = 1
+ 445   2              g_stMDomainInputData.usVStart = 1;
+ 446   2          }
+ 447   1          else
+ 448   1          {
+ 449   2              // Disable M Domain FREESYNC Enable for VGIP IVS Event to be triggered
+C51 COMPILER V9.60.0.0   RL6432_SERIES_MEMORY                                              08/27/2025 11:01:35 PAGE 9   
+
+ 450   2              ScalerSetBit(P0_26_SD_FILTER_CONTROL_REG_M1, ~_BIT1, 0x00);
+ 451   2          }
+ 452   1      }
+ 453          #endif
+ 454          
+ 455          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2318    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =     12      34
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

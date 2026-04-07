@@ -1,0 +1,813 @@
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SCALERVGIP
+OBJECT MODULE PLACED IN .\Output\RL6432\ScalerVGIP.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerVGIP.c LARGE OPTIMIZE(9,SPEED) I
+                    -NCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Ker
+                    -nel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.
+                    -\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Series
+                    -_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kernel\
+                    -User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Fact
+                    -ory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_
+                    -PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\ScalerVGIP.lst) TABS(2) OB
+                    -JECT(.\Output\RL6432\ScalerVGIP.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerVGIP.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          //****************************************************************************
+  33          // VARIABLE DECLARATIONS
+  34          //****************************************************************************
+  35          BYTE g_ucVgipHSetting;
+  36          BYTE g_ucVgipVSetting;
+  37          BYTE g_ucVgipDelaySetting;
+  38          BYTE g_ucVgipMiscSetting;
+  39          
+  40          //****************************************************************************
+  41          // FUNCTION DECLARATIONS
+  42          //****************************************************************************
+  43          void ScalerVgipCaptureEnable(bit bEnable);
+  44          void ScalerVgipModifyPolarity(EnumSourceTypeDef enumSourceType);
+  45          
+  46          WORD ScalerVgipGetCaptureVStartPosition(void);
+  47          void ScalerVgipSetCaptureVStartPosition(WORD usIVstart);
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 2   
+
+  48          
+  49          WORD ScalerVgipGetCaptureVHeight(void);
+  50          void ScalerVgipSetCaptureVHeight(WORD usIVheight);
+  51          
+  52          WORD ScalerVgipGetCaptureVDelay(void);
+  53          void ScalerVgipSetCaptureVDelay(WORD usIVSDelay);
+  54          
+  55          WORD ScalerVgipGetCaptureHStartPosition(void);
+  56          void ScalerVgipSetCaptureHStartPosition(WORD usIHstart);
+  57          
+  58          #if(_OVERSCAN_SUPPORT == _ON)
+  59          WORD ScalerVgipGetCaptureHWidth(void);
+  60          #endif
+  61          
+  62          void ScalerVgipSetCaptureHWidth(WORD usIHwidth);
+  63          
+  64          WORD ScalerVgipGetCaptureHDelay(void);
+  65          void ScalerVgipSetCaptureHDelay(WORD usIHSDelay);
+  66          
+  67          void ScalerVgipVsBypassEnable(bit bEnable);
+  68          
+  69          bit ScalerVgipGetDigitalCaptureStatus(void);
+  70          void ScalerVgipSetDigitalCaptureStatus(bit bEnable);
+  71          
+  72          #if(_HW_GLOBAL_DB_TYPE != _GLOBAL_DB_GEN_I)
+  73          void ScalerVgipDoubleBufferEnable(bit bEnable);
+  74          void ScalerVgipVgipDoubleBufferApply(EnumDBApply enumDBApply);
+  75          #endif
+  76          
+  77          //****************************************************************************
+  78          // FUNCTION DEFINITIONS
+  79          //****************************************************************************
+  80          //--------------------------------------------------
+  81          // Description  : Control VGIP capture enable status
+  82          // Input Value  : bEnable -> _TRUE to enable capture
+  83          // Output Value : None
+  84          //--------------------------------------------------
+  85          void ScalerVgipCaptureEnable(bit bEnable)
+  86          {
+  87   1          if(bEnable == _ENABLE)
+  88   1          {
+  89   2              ScalerSetBit(P0_10_M1_VGIP_CTRL, ~_BIT0, _BIT0);
+  90   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_10_M2_VGIP_CTRL, ~_BIT0, _BIT0);
+              #endif
+  93   2          }
+  94   1          else
+  95   1          {
+  96   2              ScalerSetBit(P0_10_M1_VGIP_CTRL, ~_BIT0, 0x00);
+  97   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_10_M2_VGIP_CTRL, ~_BIT0, 0x00);
+              #endif
+ 100   2          }
+ 101   1      }
+ 102          
+ 103          //--------------------------------------------------
+ 104          // Description  : Modify HS/VS Polarity
+ 105          // Input Value  : Input Source Type
+ 106          // Output Value : None
+ 107          //--------------------------------------------------
+ 108          void ScalerVgipModifyPolarity(EnumSourceTypeDef enumSourceType)
+ 109          {
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 3   
+
+ 110   1      #if((_VGA_SUPPORT == _ON) && (_VGA_CAPTURE_SUPPORT == _ON))
+                  if(enumSourceType == _SOURCE_VGA)
+                  {
+                      // HS No Invert in VGIP
+                      ScalerSetBit(P0_11_M1_VGIP_SIGINV, ~_BIT2, 0x00);
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_11_M2_VGIP_SIGINV, ~_BIT2, 0x00);
+              #endif
+              
+                      // VS No Invert in VGIP
+                      ScalerSetBit(P0_11_M1_VGIP_SIGINV, ~_BIT3, 0x00);
+              
+              #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_11_M2_VGIP_SIGINV, ~_BIT3, 0x00);
+              #endif
+                      ScalerVgaTopModifyPolarity();
+                  }
+                  else
+              #endif
+ 130   1          {
+ 131   2              if(GET_SYNC_H_POLARITY() == _POSITIVE)
+ 132   2              {
+ 133   3                  // HS No Invert
+ 134   3                  ScalerSetBit(P0_11_M1_VGIP_SIGINV, ~_BIT2, 0x00);
+ 135   3      
+ 136   3      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                          ScalerSetBit(P40_11_M2_VGIP_SIGINV, ~_BIT2, 0x00);
+              #endif
+ 139   3              }
+ 140   2              else
+ 141   2              {
+ 142   3                  // HS Invert
+ 143   3                  ScalerSetBit(P0_11_M1_VGIP_SIGINV, ~_BIT2, _BIT2);
+ 144   3      
+ 145   3      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                          ScalerSetBit(P40_11_M2_VGIP_SIGINV, ~_BIT2, _BIT2);
+              #endif
+ 148   3              }
+ 149   2      
+ 150   2              if((enumSourceType == _SOURCE_DP) || (GET_SYNC_V_POLARITY() == _POSITIVE))
+ 151   2              {
+ 152   3                  // VS No Invert
+ 153   3                  ScalerSetBit(P0_11_M1_VGIP_SIGINV, ~_BIT3, 0x00);
+ 154   3      
+ 155   3      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                          ScalerSetBit(P40_11_M2_VGIP_SIGINV, ~_BIT3, 0x00);
+              #endif
+ 158   3              }
+ 159   2              else
+ 160   2              {
+ 161   3                  // VS Invert
+ 162   3                  ScalerSetBit(P0_11_M1_VGIP_SIGINV, ~_BIT3, _BIT3);
+ 163   3      
+ 164   3      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                          ScalerSetBit(P40_11_M2_VGIP_SIGINV, ~_BIT3, _BIT3);
+              #endif
+ 167   3              }
+ 168   2          }
+ 169   1      }
+ 170          
+ 171          //--------------------------------------------------
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 4   
+
+ 172          // Description  : Get Capture V-Start Position
+ 173          // Input Value  : None
+ 174          // Output Value : Capture Start
+ 175          //--------------------------------------------------
+ 176          WORD ScalerVgipGetCaptureVStartPosition(void)
+ 177          {
+ 178   1          // IVstart[12]: P0_16[6]
+ 179   1          // IVstart[11:8]: P0_18[3:0]
+ 180   1          // IVstart[7:0]: P0_1D[7:0]
+ 181   1          WORD usIVstart = ((((WORD)(ScalerGetByte(P0_18_M1_IPV_ACT_STA_H) & 0x0F) << 8) | ScalerGetByte(P0_19_M
+             -1_IPV_ACT_STA_L)));
+ 182   1      
+ 183   1      #if(_HW_VGIP_V_START_BIT_WIDTH == _13_BIT)
+                  usIVstart |= ((WORD)(ScalerGetByte(P0_16_M1_IPH_ACT_WID_H) & _BIT6) << 6);
+              #endif
+ 186   1      
+ 187   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      return (usIVstart << 1);
+                  }
+                  else
+              #endif
+ 194   1          {
+ 195   2              return usIVstart;
+ 196   2          }
+ 197   1      }
+ 198          
+ 199          //--------------------------------------------------
+ 200          // Description  : Set Capture V-Start Position
+ 201          // Input Value  : usIVstart --> V capture start
+ 202          // Output Value : None
+ 203          //--------------------------------------------------
+ 204          void ScalerVgipSetCaptureVStartPosition(WORD usIVstart)
+ 205          {
+ 206   1          // IVstart[12]: P0_16[6]
+ 207   1          // IVstart[11:8]: P0_18[3:0]
+ 208   1          // IVstart[7:0]: P0_1D[7:0]
+ 209   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      usIVstart = (usIVstart >> 1);
+                  }
+              #endif
+ 215   1      
+ 216   1          // Store effective values
+ 217   1          g_ucVgipVSetting = ((g_ucVgipVSetting & 0xF0) | (HIBYTE(usIVstart) & 0x0F));
+ 218   1      
+ 219   1      #if(_HW_VGIP_V_START_BIT_WIDTH == _13_BIT)
+                  g_ucVgipMiscSetting = ((g_ucVgipMiscSetting & ~_BIT6) | (HIBYTE(usIVstart) & 0x10) << 2);
+              #endif
+ 222   1      
+ 223   1          // Set M1 V capture start
+ 224   1      #if(_HW_VGIP_V_START_BIT_WIDTH == _13_BIT)
+                  ScalerSetByte(P0_16_M1_IPH_ACT_WID_H, g_ucVgipMiscSetting);
+              #endif
+ 227   1      
+ 228   1          ScalerSetByte(P0_18_M1_IPV_ACT_STA_H, g_ucVgipVSetting);
+ 229   1          ScalerSetByte(P0_19_M1_IPV_ACT_STA_L, LOBYTE(usIVstart));
+ 230   1      
+ 231   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  // Set M2 V capture start
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 5   
+
+              #if(_HW_VGIP_V_START_BIT_WIDTH == _13_BIT)
+                  ScalerSetByte(P40_16_M2_IPH_ACT_WID_H, g_ucVgipMiscSetting);
+              #endif
+              
+                  ScalerSetByte(P40_18_M2_IPV_ACT_STA_H, g_ucVgipVSetting);
+                  ScalerSetByte(P40_19_M2_IPV_ACT_STA_L, LOBYTE(usIVstart));
+              #endif
+ 240   1      }
+ 241          
+ 242          //--------------------------------------------------
+ 243          // Description  : Get Capture V-Height Position
+ 244          // Input Value  : None
+ 245          // Output Value : Capture Start
+ 246          //--------------------------------------------------
+ 247          WORD ScalerVgipGetCaptureVHeight(void)
+ 248          {
+ 249   1          // IVheight[12]: P0_16[7]
+ 250   1          // IVheight[11:8]: P0_18[7:4]
+ 251   1          // IVheight[7:0]: P0_1B[7:0]
+ 252   1          WORD usIVheight = ((((WORD)(ScalerGetByte(P0_18_M1_IPV_ACT_STA_H) & 0xF0) << 4) | ScalerGetByte(P0_1B_
+             -M1_IPV_ACT_LEN_L)));
+ 253   1      
+ 254   1      #if(_HW_VGIP_V_HEIGHT_BIT_WIDTH == _13_BIT)
+                  usIVheight |= ((WORD)(ScalerGetByte(P0_16_M1_IPH_ACT_WID_H) & _BIT7) << 5);
+              #endif
+ 257   1      
+ 258   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      return (usIVheight << 1);
+                  }
+                  else
+              #endif
+ 265   1          {
+ 266   2              return usIVheight;
+ 267   2          }
+ 268   1      }
+ 269          
+ 270          //--------------------------------------------------
+ 271          // Description  : Set Capture V-Height Position
+ 272          // Input Value  : usIVheight --> Capture Height
+ 273          // Output Value : None
+ 274          //--------------------------------------------------
+ 275          void ScalerVgipSetCaptureVHeight(WORD usIVheight)
+ 276          {
+ 277   1          // IVheight[12]: P0_16[7]
+ 278   1          // IVheight[11:8]: P0_18[7:4]
+ 279   1          // IVheight[7:0]: P0_1B[7:0]
+ 280   1      
+ 281   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      usIVheight = (usIVheight >> 1);
+                  }
+              #endif
+ 287   1      
+ 288   1          g_ucVgipVSetting = ScalerGetByte(P0_18_M1_IPV_ACT_STA_H);
+ 289   1      
+ 290   1          // Store effective values
+ 291   1          g_ucVgipVSetting = ((g_ucVgipVSetting & 0x0F) | ((HIBYTE(usIVheight) & 0x0F) << 4));
+ 292   1      
+ 293   1      #if(_HW_VGIP_V_HEIGHT_BIT_WIDTH == _13_BIT)
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 6   
+
+                  g_ucVgipMiscSetting = ((g_ucVgipMiscSetting & ~_BIT7) | ((HIBYTE(usIVheight) & 0x10) << 3));
+              #endif
+ 296   1      
+ 297   1          // Set M1 V capture height
+ 298   1      #if(_HW_VGIP_V_HEIGHT_BIT_WIDTH == _13_BIT)
+                  ScalerSetByte(P0_16_M1_IPH_ACT_WID_H, g_ucVgipMiscSetting);
+              #endif
+ 301   1      
+ 302   1          ScalerSetByte(P0_18_M1_IPV_ACT_STA_H, g_ucVgipVSetting);
+ 303   1          ScalerSetByte(P0_1B_M1_IPV_ACT_LEN_L, LOBYTE(usIVheight));
+ 304   1      
+ 305   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  // Set M2 V capture height
+              #if(_HW_VGIP_V_HEIGHT_BIT_WIDTH == _13_BIT)
+                  ScalerSetByte(P40_16_M2_IPH_ACT_WID_H, g_ucVgipMiscSetting);
+              #endif
+              
+                  ScalerSetByte(P40_18_M2_IPV_ACT_STA_H, g_ucVgipVSetting);
+                  ScalerSetByte(P40_1B_M2_IPV_ACT_LEN_L, LOBYTE(usIVheight));
+              #endif
+ 314   1      }
+ 315          
+ 316          //--------------------------------------------------
+ 317          // Description  : Get Capture V Delay
+ 318          // Input Value  : None
+ 319          // Output Value : Capture V Delay
+ 320          //--------------------------------------------------
+ 321          WORD ScalerVgipGetCaptureVDelay(void)
+ 322          {
+ 323   1          // IVdelay[9]: P0_16[5]
+ 324   1          // IVdelay[8]: P0_1E[1]
+ 325   1          // IVdelay[7:0]: P0_1B[7:0]
+ 326   1          WORD usIVSDelay = (((((WORD)(ScalerGetByte(P0_1E_M1_VGIP_HV_DELAY) & _BIT1)) << 7) | ScalerGetByte(P0_
+             -1C_M1_IVS_DELAY)));
+ 327   1      
+ 328   1      #if(_HW_VGIP_V_DELAY_BIT_WIDTH == _10_BIT)
+                  usIVSDelay |= (((WORD)(ScalerGetByte(P0_16_M1_IPH_ACT_WID_H) & _BIT5)) << 4);
+              #endif
+ 331   1      
+ 332   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      return (usIVSDelay << 1);
+                  }
+                  else
+              #endif
+ 339   1          {
+ 340   2              return usIVSDelay;
+ 341   2          }
+ 342   1      }
+ 343          
+ 344          //--------------------------------------------------
+ 345          // Description  : Set Capture V Delay
+ 346          // Input Value  : usIVSDelay --> V Delay
+ 347          // Output Value : None
+ 348          //--------------------------------------------------
+ 349          void ScalerVgipSetCaptureVDelay(WORD usIVSDelay)
+ 350          {
+ 351   1          // IVdelay[9]: P0_16[5]
+ 352   1          // IVdelay[8]: P0_1E[1]
+ 353   1          // IVdelay[7:0]: P0_1B[7:0]
+ 354   1          if(ScalerVgipGetDigitalCaptureStatus() == _TRUE)
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 7   
+
+ 355   1          {
+ 356   2              return;
+ 357   2          }
+ 358   1      
+ 359   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      usIVSDelay = (usIVSDelay >> 1);
+                  }
+              #endif
+ 365   1      
+ 366   1          // Store effective values
+ 367   1          g_ucVgipDelaySetting = ((g_ucVgipDelaySetting & ~_BIT1) | ((HIBYTE(usIVSDelay) & _BIT0) << 1));
+ 368   1      
+ 369   1      #if(_HW_VGIP_V_DELAY_BIT_WIDTH == _10_BIT)
+                  g_ucVgipMiscSetting = ((g_ucVgipMiscSetting & ~_BIT5) | ((HIBYTE(usIVSDelay) & _BIT1) << 4));
+              #endif
+ 372   1      
+ 373   1          // Set M1 capture V delay
+ 374   1      #if(_HW_VGIP_V_DELAY_BIT_WIDTH == _10_BIT)
+                  ScalerSetByte(P0_16_M1_IPH_ACT_WID_H, g_ucVgipMiscSetting);
+              #endif
+ 377   1      
+ 378   1          ScalerSetByte(P0_1E_M1_VGIP_HV_DELAY, g_ucVgipDelaySetting);
+ 379   1          ScalerSetByte(P0_1C_M1_IVS_DELAY, LOBYTE(usIVSDelay));
+ 380   1      
+ 381   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  // Set M2 capture V delay
+              #if(_HW_VGIP_V_DELAY_BIT_WIDTH == _10_BIT)
+                  ScalerSetByte(P40_16_M2_IPH_ACT_WID_H, g_ucVgipMiscSetting);
+              #endif
+              
+                  ScalerSetByte(P40_1E_M2_VGIP_HV_DELAY, g_ucVgipDelaySetting);
+                  ScalerSetByte(P40_1C_M2_IVS_DELAY, LOBYTE(usIVSDelay));
+              #endif
+ 390   1      }
+ 391          
+ 392          //--------------------------------------------------
+ 393          // Description  : Get Capture H-Start Position
+ 394          // Input Value  : None
+ 395          // Output Value : Capture H Start
+ 396          //--------------------------------------------------
+ 397          WORD ScalerVgipGetCaptureHStartPosition(void)
+ 398          {
+ 399   1          // IHstart[11:8]: P0_14[3:0]
+ 400   1          // IHstart[7:0]: P0_15[7:0]
+ 401   1          WORD usIHstart = ((((WORD)ScalerGetByte(P0_14_M1_IPH_ACT_STA_H) & 0x0F) << 8) | ScalerGetByte(P0_15_M1
+             -_IPH_ACT_STA_L));
+ 402   1      
+ 403   1          // H-start in analog capture starts from 2
+ 404   1          if(ScalerVgipGetDigitalCaptureStatus() == _FALSE)
+ 405   1          {
+ 406   2              usIHstart += 2;
+ 407   2          }
+ 408   1      
+ 409   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      return (usIHstart << 1);
+                  }
+                  else
+              #endif
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 8   
+
+ 416   1          {
+ 417   2              return usIHstart;
+ 418   2          }
+ 419   1      }
+ 420          
+ 421          //--------------------------------------------------
+ 422          // Description  : Set Capture H-Start Position
+ 423          // Input Value  : usIHstart --> Capture H start
+ 424          // Output Value : None
+ 425          //--------------------------------------------------
+ 426          void ScalerVgipSetCaptureHStartPosition(WORD usIHstart)
+ 427          {
+ 428   1          // IHstart[11:8]: P0_14[3:0]
+ 429   1          // IHstart[7:0]: P0_15[7:0]
+ 430   1          // Modify H start under analog capture
+ 431   1          if(ScalerVgipGetDigitalCaptureStatus() == _FALSE)
+ 432   1          {
+ 433   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                      {
+                          usIHstart = (usIHstart >> 1);
+                      }
+              #endif
+ 439   2      
+ 440   2              if(usIHstart >= 2)
+ 441   2              {
+ 442   3                  // H-start in analog capture starts from 2
+ 443   3                  usIHstart -= 2;
+ 444   3              }
+ 445   2          }
+ 446   1      
+ 447   1          // Store effective values
+ 448   1          g_ucVgipHSetting = ((g_ucVgipHSetting & 0xF0) | (HIBYTE(usIHstart) & 0x0F));
+ 449   1      
+ 450   1          // Set M1 H capture start
+ 451   1          ScalerSetByte(P0_14_M1_IPH_ACT_STA_H, g_ucVgipHSetting);
+ 452   1          ScalerSetByte(P0_15_M1_IPH_ACT_STA_L, LOBYTE(usIHstart));
+ 453   1      
+ 454   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  // Set M2 H capture start
+                  ScalerSetByte(P40_14_M2_IPH_ACT_STA_H, g_ucVgipHSetting);
+                  ScalerSetByte(P40_15_M2_IPH_ACT_STA_L, LOBYTE(usIHstart));
+              #endif
+ 459   1      }
+ 460          
+ 461          #if(_OVERSCAN_SUPPORT == _ON)
+ 462          //--------------------------------------------------
+ 463          // Description  : Get Capture H Width
+ 464          // Input Value  : None
+ 465          // Output Value : H capture Width
+ 466          //--------------------------------------------------
+ 467          WORD ScalerVgipGetCaptureHWidth(void)
+ 468          {
+ 469   1          // IHwidth[12]: P0_16[0]
+ 470   1          // IHwidth[11:8]: P0_14[7:4]
+ 471   1          // IHwidth[7:0]: P0_17[7:0]
+ 472   1          WORD usIHwidth = ((((WORD)ScalerGetByte(P0_14_M1_IPH_ACT_STA_H) & 0xF0) << 4) | ScalerGetByte(P0_17_M1
+             -_IPH_ACT_WID_L));
+ 473   1      
+ 474   1      #if(_HW_VGIP_H_WIDTH_BIT_WIDTH == _13_BIT)
+ 475   1          usIHwidth |= ((WORD)ScalerGetBit(P0_16_M1_IPH_ACT_WID_H, _BIT0) << 12);
+ 476   1      #endif
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 9   
+
+ 477   1      
+ 478   1          return usIHwidth;
+ 479   1      }
+ 480          #endif
+ 481          
+ 482          //--------------------------------------------------
+ 483          // Description  : Set Capture H Width
+ 484          // Input Value  : usIHwidth --> H capture width
+ 485          // Output Value : None
+ 486          //--------------------------------------------------
+ 487          void ScalerVgipSetCaptureHWidth(WORD usIHwidth)
+ 488          {
+ 489   1          // IHwidth[12]: P0_16[0]
+ 490   1          // IHwidth[11:8]: P0_14[7:4]
+ 491   1          // IHwidth[7:0]: P0_17[7:0]
+ 492   1          g_ucVgipHSetting = ScalerGetByte(P0_14_M1_IPH_ACT_STA_H);
+ 493   1      
+ 494   1      #if(_HW_VGIP_H_WIDTH_BIT_WIDTH == _13_BIT)
+ 495   1          g_ucVgipMiscSetting = ScalerGetByte(P0_16_M1_IPH_ACT_WID_H);
+ 496   1      #endif
+ 497   1      
+ 498   1          // Store effective values
+ 499   1          g_ucVgipHSetting = ((g_ucVgipHSetting & 0x0F) | ((HIBYTE(usIHwidth) & 0x0F) << 4));
+ 500   1      
+ 501   1      #if(_HW_VGIP_H_WIDTH_BIT_WIDTH == _13_BIT)
+ 502   1          g_ucVgipMiscSetting = ((g_ucVgipMiscSetting & ~_BIT0) | ((HIBYTE(usIHwidth) & 0x10) >> 4));
+ 503   1      #endif
+ 504   1      
+ 505   1          // Set M1 H capture width
+ 506   1          ScalerSetByte(P0_14_M1_IPH_ACT_STA_H, g_ucVgipHSetting);
+ 507   1      
+ 508   1      #if(_HW_VGIP_H_WIDTH_BIT_WIDTH == _13_BIT)
+ 509   1          ScalerSetByte(P0_16_M1_IPH_ACT_WID_H, g_ucVgipMiscSetting);
+ 510   1      #endif
+ 511   1      
+ 512   1          ScalerSetByte(P0_17_M1_IPH_ACT_WID_L, LOBYTE(usIHwidth));
+ 513   1      
+ 514   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  // Set M2 H capture width
+                  ScalerSetByte(P40_14_M2_IPH_ACT_STA_H, g_ucVgipHSetting);
+              
+              #if(_HW_VGIP_H_WIDTH_BIT_WIDTH == _13_BIT)
+                  ScalerSetByte(P40_16_M2_IPH_ACT_WID_H, g_ucVgipMiscSetting);
+              #endif
+              
+                  ScalerSetByte(P40_17_M2_IPH_ACT_WID_L, LOBYTE(usIHwidth));
+              #endif
+ 524   1      }
+ 525          
+ 526          //--------------------------------------------------
+ 527          // Description  : Get Capture H Delay
+ 528          // Input Value  : None
+ 529          // Output Value : H Delay
+ 530          //--------------------------------------------------
+ 531          WORD ScalerVgipGetCaptureHDelay(void)
+ 532          {
+ 533   1          // IHdelay[9]: P0_1E[2]
+ 534   1          // IHdelay[8]: P0_1E[0]
+ 535   1          // IHwidth[7:0]: P0_1D[7:0]
+ 536   1          WORD usIHSDelay = ((((WORD)ScalerGetByte(P0_1E_M1_VGIP_HV_DELAY) & _BIT2) << 7) | (((WORD)ScalerGetByt
+             -e(P0_1E_M1_VGIP_HV_DELAY) & _BIT0) << 8) | ScalerGetByte(P0_1D_M1_IHS_DELAY));
+ 537   1      
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 10  
+
+ 538   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      return (usIHSDelay << 1);
+                  }
+                  else
+              #endif
+ 545   1          {
+ 546   2              return usIHSDelay;
+ 547   2          }
+ 548   1      }
+ 549          
+ 550          //--------------------------------------------------
+ 551          // Description  : Set Capture V Delay
+ 552          // Input Value  : usIHSDelay --> H Delay
+ 553          // Output Value : None
+ 554          //--------------------------------------------------
+ 555          void ScalerVgipSetCaptureHDelay(WORD usIHSDelay)
+ 556          {
+ 557   1          // IHdelay[9]: P0_1E[2]
+ 558   1          // IHdelay[8]: P0_1E[0]
+ 559   1          // IHwidth[7:0]: P0_1D[7:0]
+ 560   1          if(ScalerVgipGetDigitalCaptureStatus() == _TRUE)
+ 561   1          {
+ 562   2              return;
+ 563   2          }
+ 564   1      
+ 565   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      usIHSDelay = (usIHSDelay >> 1);
+                  }
+              #endif
+ 571   1      
+ 572   1          if(usIHSDelay > _VGIP_IH_DELAY_MAX_VALUE)
+ 573   1          {
+ 574   2              ScalerIDomainFineTuneHCaptureStart(usIHSDelay - _VGIP_IH_DELAY_MAX_VALUE);
+ 575   2      
+ 576   2              usIHSDelay = _VGIP_IH_DELAY_MAX_VALUE;
+ 577   2          }
+ 578   1      
+ 579   1          // Store effective values
+ 580   1          g_ucVgipDelaySetting = ((g_ucVgipDelaySetting & ~(_BIT2 | _BIT0)) | (((HIBYTE(usIHSDelay) & _BIT1) << 
+             -1) | ((HIBYTE(usIHSDelay) & _BIT0))));
+ 581   1      
+ 582   1          // Set M1 capture H delay
+ 583   1          ScalerSetByte(P0_1E_M1_VGIP_HV_DELAY, g_ucVgipDelaySetting);
+ 584   1          ScalerSetByte(P0_1D_M1_IHS_DELAY, LOBYTE(usIHSDelay));
+ 585   1      
+ 586   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  // Set M2 capture H delay
+                  ScalerSetByte(P40_1E_M2_VGIP_HV_DELAY, g_ucVgipDelaySetting);
+                  ScalerSetByte(P40_1D_M2_IHS_DELAY, LOBYTE(usIHSDelay));
+              #endif
+ 591   1      }
+ 592          
+ 593          //--------------------------------------------------
+ 594          // Description  : Set VGIP VS bypass mode
+ 595          // Input Value  : _ENABLE or _DISABLE
+ 596          // Output Value : None
+ 597          //--------------------------------------------------
+ 598          void ScalerVgipVsBypassEnable(bit bEnable)
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 11  
+
+ 599          {
+ 600   1          if(bEnable == _ENABLE)
+ 601   1          {
+ 602   2              ScalerSetBit(P0_11_M1_VGIP_SIGINV, ~_BIT6, _BIT6);
+ 603   2      
+ 604   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_11_M2_VGIP_SIGINV, ~_BIT6, _BIT6);
+              #endif
+ 607   2          }
+ 608   1          else
+ 609   1          {
+ 610   2              ScalerSetBit(P0_11_M1_VGIP_SIGINV, ~_BIT6, 0x00);
+ 611   2      
+ 612   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_11_M2_VGIP_SIGINV, ~_BIT6, 0x00);
+              #endif
+ 615   2          }
+ 616   1      }
+ 617          
+ 618          //--------------------------------------------------
+ 619          // Description  : Set VGA VS bypass VGIP
+ 620          // Input Value  : None
+ 621          // Output Value : None
+ 622          //--------------------------------------------------
+ 623          bit ScalerVgipGetDigitalCaptureStatus(void)
+ 624          {
+ 625   1          return (ScalerGetBit(P0_10_M1_VGIP_CTRL, _BIT1) == _BIT1);
+ 626   1      }
+ 627          
+ 628          //--------------------------------------------------
+ 629          // Description  : Set VGA VS bypass VGIP
+ 630          // Input Value  : _ENABLE or _DISABLE
+ 631          // Output Value : None
+ 632          //--------------------------------------------------
+ 633          void ScalerVgipSetDigitalCaptureStatus(bit bEnable)
+ 634          {
+ 635   1          // Set Digital Capture
+ 636   1          if(bEnable == _ENABLE)
+ 637   1          {
+ 638   2              ScalerSetBit(P0_10_M1_VGIP_CTRL, ~_BIT1, _BIT1);
+ 639   2      
+ 640   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_10_M2_VGIP_CTRL, ~_BIT1, _BIT1);
+              #endif
+ 643   2          }
+ 644   1          else
+ 645   1          {
+ 646   2              ScalerSetBit(P0_10_M1_VGIP_CTRL, ~_BIT1, 0x00);
+ 647   2      
+ 648   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_10_M2_VGIP_CTRL, ~_BIT1, 0x00);
+              #endif
+ 651   2          }
+ 652   1      }
+ 653          
+ 654          #if(_HW_GLOBAL_DB_TYPE != _GLOBAL_DB_GEN_I)
+ 655          //--------------------------------------------------
+ 656          // Description  : Set VGIP Double Buffer
+ 657          // Input Value  : None
+ 658          // Output Value : None
+ 659          //--------------------------------------------------
+ 660          void ScalerVgipDoubleBufferEnable(bit bEnable)
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 12  
+
+ 661          {
+ 662   1          // Set VGIP Double Buffer
+ 663   1          if(bEnable == _ENABLE)
+ 664   1          {
+ 665   2              ScalerSetBit(P0_10_M1_VGIP_CTRL, ~(_BIT5 | _BIT4), _BIT4);
+ 666   2      
+ 667   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_10_M2_VGIP_CTRL, ~(_BIT5 | _BIT4), _BIT4);
+              #endif
+ 670   2          }
+ 671   1          else
+ 672   1          {
+ 673   2              ScalerSetBit(P0_10_M1_VGIP_CTRL, ~(_BIT5 | _BIT4), 0x00);
+ 674   2      
+ 675   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_10_M2_VGIP_CTRL, ~(_BIT5 | _BIT4), 0x00);
+              #endif
+ 678   2          }
+ 679   1      }
+ 680          
+ 681          //--------------------------------------------------
+ 682          // Description  : Apply VGIP Double Buffer
+ 683          // Input Value  : None
+ 684          // Output Value : None
+ 685          //--------------------------------------------------
+ 686          void ScalerVgipVgipDoubleBufferApply(EnumDBApply enumDBApply)
+ 687          {
+ 688   1          if(enumDBApply != _DB_APPLY_NONE)
+ 689   1          {
+ 690   2              // Check if VGIP DB is enabled
+ 691   2              if(ScalerGetBit(P0_10_M1_VGIP_CTRL, _BIT4) == 0x00)
+ 692   2              {
+ 693   3                  return;
+ 694   3              }
+ 695   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      // Check if VGIP DB is enabled
+                      if(ScalerGetBit(P40_10_M2_VGIP_CTRL, _BIT4) == 0x00)
+                      {
+                          return;
+                      }
+              #endif
+ 702   2      
+ 703   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      // Check I domain status
+                      if((ScalerGetBit(P0_10_M1_VGIP_CTRL, _BIT0) == 0x00) || (ScalerGetBit(P40_10_M2_VGIP_CTRL, _BIT0) 
+             -== 0x00))
+              #else
+ 707   2              if(ScalerGetBit(P0_10_M1_VGIP_CTRL, _BIT0) == 0x00)
+ 708   2      #endif
+ 709   2      
+ 710   2              {
+ 711   3                  // Disable Double Buffer
+ 712   3                  ScalerSetBit(P0_10_M1_VGIP_CTRL, ~_BIT4, 0x00);
+ 713   3      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                          ScalerSetBit(P40_10_M2_VGIP_CTRL, ~_BIT4, 0x00);
+              #endif
+ 716   3      
+ 717   3                  return;
+ 718   3              }
+ 719   2      
+ 720   2              // Apply VGIP Double Buffer
+ 721   2              ScalerSetBit(P0_10_M1_VGIP_CTRL, ~_BIT5, _BIT5);
+C51 COMPILER V9.60.0.0   SCALERVGIP                                                        09/09/2025 14:04:03 PAGE 13  
+
+ 722   2      
+ 723   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      ScalerSetBit(P40_10_M2_VGIP_CTRL, ~_BIT5, _BIT5);
+              #endif
+ 726   2      
+ 727   2              if(enumDBApply == _DB_APPLY_POLLING)
+ 728   2              {
+ 729   3      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                          // Wait VGIP double buffer
+                          if(ScalerTimerPollingFlagProc(_DOUBLE_BUFFER_WAIT_TIME, P40_10_M2_VGIP_CTRL, _BIT5, 0) == _FAL
+             -SE)
+              #else
+ 733   3                  // Wait VGIP double buffer
+ 734   3                  if(ScalerTimerPollingFlagProc(_DOUBLE_BUFFER_WAIT_TIME, P0_10_M1_VGIP_CTRL, _BIT5, 0) == _FALS
+             -E)
+ 735   3      #endif
+ 736   3                  {
+ 737   4                      // Disable Double Buffer
+ 738   4                      ScalerSetBit(P0_10_M1_VGIP_CTRL, ~_BIT4, 0x00);
+ 739   4      
+ 740   4      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                              ScalerSetBit(P40_10_M2_VGIP_CTRL, ~_BIT4, 0x00);
+              #endif
+ 743   4                  }
+ 744   3              }
+ 745   2          }
+ 746   1      }
+ 747          #endif
+ 748          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    696    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      4       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       4
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,1349 @@
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE RL6449_SERIES_TMDS
+OBJECT MODULE PLACED IN .\Output\RL6449\RL6449_Series_TMDS.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\Scaler\RL6449_Series_Scaler\Code\RL6449_Series_TMDS.c LARGE OPTIMIZE
+                    -(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\H
+                    -eader;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\L
+                    -ib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kernel\Scaler\RL
+                    -6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Common\Lib\Heade
+                    -r;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\Us
+                    -er\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Heade
+                    -r) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449\RL6449_Series_T
+                    -MDS.lst) OBJECT(.\Output\RL6449\RL6449_Series_TMDS.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_TMDS.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RL6449_SERIES_TMDS__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+  22          
+  23          //****************************************************************************
+  24          // DEFINITIONS / MACROS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // STRUCT / TYPE / ENUM DEFINITTIONS
+  29          //****************************************************************************
+  30          
+  31          
+  32          //****************************************************************************
+  33          // CODE TABLES
+  34          //****************************************************************************
+  35          
+  36          
+  37          //****************************************************************************
+  38          // VARIABLE DECLARATIONS
+  39          //****************************************************************************
+  40          
+  41          //****************************************************************************
+  42          // FUNCTION DECLARATIONS
+  43          //****************************************************************************
+  44          void ScalerTMDSInitial(BYTE ucInputPort);
+  45          void ScalerTMDSInterruptInitial(BYTE ucInputPort);
+  46          void ScalerTMDSSetDeOnlyModeConfig(EnumSourceSearchPort enumSourceSearchPort, EnumDeOnlyConfig enumDeonlyC
+             -onfig);
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 2   
+
+  47          EnumDeOnlyConfig ScalerTMDSGetDeOnlyModeConfig(EnumSourceSearchPort enumSourceSearchPort);
+  48          void ScalerTMDSIntHandler_EXINT0(void);
+  49          void ScalerTMDSPSIntHandler_EXINT0(void);
+  50          void ScalerTMDSVideoDetectEvent(EnumScalerTimerEventID enumEventID);
+  51          void ScalerTMDSResetProc(void);
+  52          
+  53          #if(_HDMI_SUPPORT == _ON)
+  54          
+  55          void ScalerTMDSHdmiAVMuteProc(void);
+  56          void ScalerTMDSHdmiWatchDog(BYTE ucWDType, bit bEnable);
+  57          void ScalerTMDSHdmiPacketDetectEvent(EnumScalerTimerEventID enumEventID);
+  58          
+  59          #if(_HDMI_IDENTIFY_GAME_SRC_SUPPORT == _ON)
+              StructHdmiSpdInfo ScalerTMDSHdmiGetSpdPdInfo(EnumSourceSearchPort enumInputPort);
+              #endif
+  62          
+  63          #if(_HDMI_2_0_SUPPORT == _ON)
+  64          void ScalerTMDSHdmiReadRequestTimerEnable_WDINT(bit bEnable);
+  65          void ScalerTMDSHdmi2FormatResetEvent(EnumScalerTimerEventID enumEventID);
+  66          void ScalerTMDSHdmiScrambleStatusReset(BYTE ucPortSelect);
+  67          void ScalerTMDSHdmiScrambleDetectTimeoutTimerEvent(EnumScalerTimerEventID enumEventID);
+  68          void ScalerTMDSScrambleDetectDisable(void);
+  69          #if(_TMDS_HDMI_2_0_SCDC_RR_CTS_SUPPORT == _ON)
+              void ScalerTMDSHdmiSetScdcInfo_EXINT0(BYTE ucInputPort);
+              
+              #if(_HDMI_FREESYNC_SUPPORT == _ON)
+              EnumFreeSyncSupport ScalerTMDSHdmiGetFreeSyncSupport_EXINT0(BYTE ucInputPort);
+              void ScalerTMDSHdmiSetAmdAupiScdcInfo_EXINT0(BYTE ucInputPort, bit bEnable);
+              #endif
+              #endif
+  77          #endif
+  78          
+  79          bit ScalerTMDSYUV420SupportCheck(BYTE ucInputPort);
+  80          
+  81          #endif
+  82          
+  83          void ScalerTMDSMacDdcSwitchCtrl(BYTE ucInputPort);
+  84          void ScalerTMDSFreqDetectDisable(void);
+  85          void ScalerTMDSFirstActiveProc(BYTE ucInputPort, BYTE ucSourceType);
+  86          bit ScalerTMDSHdcpEnabled(BYTE ucInputPort);
+  87          
+  88          bit ScalerTMDSPSPreDetect(BYTE ucInputPort);
+  89          bit ScalerTMDSNormalPreDetect(BYTE ucInputPort);
+  90          BYTE ScalerTMDSScanInputPort(BYTE ucInputPort, BYTE ucInputType);
+  91          bit ScalerTMDSStableDetect(BYTE ucInputPort, BYTE ucSourceType);
+  92          void ScalerTMDSHotPlugEvent(BYTE ucPortSelect);
+  93          void ScalerTMDSBeforeHotPlugEventProc(BYTE ucPortSelect, bit bDisableZ0);
+  94          void ScalerTMDSHotPlugLowProc(BYTE ucPortSelect);
+  95          void ScalerTMDSHotPlugHighProc(BYTE ucPortSelect, WORD usHpdTime);
+  96          void ScalerTMDSAfterHotPlugEventProc(BYTE ucPortSelect, bit bRestoreZ0);
+  97          void ScalerTMDSHdcp1p4AksvClear(BYTE ucInputPort);
+  98          
+  99          #if(_DVI_SUPPORT == _ON)
+ 100          void ScalerTMDSRxHdcpVersionCapabilitySwitch(EnumSourceSearchPort enumInputPort, EnumTmdsHdcpType enumTmds
+             -HdcpType);
+ 101          void ScalerTMDSRxAllPortChangeHdcpCap(EnumTmdsHdcpType enumTmdsHdcpType);
+ 102          #endif
+ 103          //****************************************************************************
+ 104          // FUNCTION DEFINITIONS
+ 105          //****************************************************************************
+ 106          //--------------------------------------------------
+ 107          // Description  : Initialize TMDS setting for search
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 3   
+
+ 108          // Input Value  : Current Search Port
+ 109          // Output Value : None
+ 110          //--------------------------------------------------
+ 111          void ScalerTMDSInitial(BYTE ucInputPort)
+ 112          {
+ 113   1          switch(ucInputPort)
+ 114   1          {
+ 115   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 116   2      
+ 117   2              case _D2_INPUT_PORT:
+ 118   2      
+ 119   2                  ScalerTMDSRx2Initial();
+ 120   2      
+ 121   2                  break;
+ 122   2      #endif
+ 123   2      
+ 124   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 125   2      
+ 126   2              case _D3_INPUT_PORT:
+ 127   2      
+ 128   2                  ScalerTMDSRx3Initial();
+ 129   2      
+ 130   2                  break;
+ 131   2      #endif
+ 132   2      
+ 133   2              default:
+ 134   2      
+ 135   2                  break;
+ 136   2          }
+ 137   1      }
+ 138          
+ 139          //--------------------------------------------------
+ 140          // Description  : Initialize TMDS Interrupt Required Settings
+ 141          // Input Value  : None
+ 142          // Output Value : None
+ 143          //--------------------------------------------------
+ 144          void ScalerTMDSInterruptInitial(BYTE ucInputPort)
+ 145          {
+ 146   1          switch(ucInputPort)
+ 147   1          {
+ 148   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 149   2      
+ 150   2              case _D2_INPUT_PORT:
+ 151   2      
+ 152   2                  ScalerTMDSRx2InterruptInitial();
+ 153   2      
+ 154   2                  break;
+ 155   2      #endif
+ 156   2      
+ 157   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 158   2      
+ 159   2              case _D3_INPUT_PORT:
+ 160   2      
+ 161   2                  ScalerTMDSRx3InterruptInitial();
+ 162   2      
+ 163   2                  break;
+ 164   2      #endif
+ 165   2      
+ 166   2              default:
+ 167   2      
+ 168   2                  break;
+ 169   2          }
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 4   
+
+ 170   1      }
+ 171          
+ 172          //--------------------------------------------------
+ 173          // Description  : Set Config of TMDS Mac Deonly mode
+ 174          // Input Value  : None
+ 175          // Output Value : enumInputPort, enumDeonlyConfig
+ 176          //--------------------------------------------------
+ 177          void ScalerTMDSSetDeOnlyModeConfig(EnumSourceSearchPort enumSourceSearchPort, EnumDeOnlyConfig enumDeonlyC
+             -onfig)
+ 178          {
+ 179   1          switch(enumSourceSearchPort)
+ 180   1          {
+ 181   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 182   2              case _D2_INPUT_PORT:
+ 183   2      
+ 184   2                  ScalerTMDSRx2SetDeOnlyModeConfig(enumDeonlyConfig);
+ 185   2                  break;
+ 186   2      #endif
+ 187   2      
+ 188   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 189   2              case _D3_INPUT_PORT:
+ 190   2      
+ 191   2                  ScalerTMDSRx3SetDeOnlyModeConfig(enumDeonlyConfig);
+ 192   2                  break;
+ 193   2      #endif
+ 194   2      
+ 195   2              default:
+ 196   2                  break;
+ 197   2          }
+ 198   1      }
+ 199          
+ 200          //--------------------------------------------------
+ 201          // Description  : Set Config of TMDS Mac Deonly mode
+ 202          // Input Value  : None
+ 203          // Output Value : enumInputPort, enumDeonlyConfig
+ 204          //--------------------------------------------------
+ 205          EnumDeOnlyConfig ScalerTMDSGetDeOnlyModeConfig(EnumSourceSearchPort enumSourceSearchPort)
+ 206          {
+ 207   1          switch(enumSourceSearchPort)
+ 208   1          {
+ 209   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 210   2              case _D2_INPUT_PORT:
+ 211   2      
+ 212   2                  return ScalerTMDSRx2GetDeOnlyModeConfig();
+ 213   2                  break;
+ 214   2      #endif
+ 215   2      
+ 216   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 217   2              case _D3_INPUT_PORT:
+ 218   2      
+ 219   2                  return ScalerTMDSRx3GetDeOnlyModeConfig();
+ 220   2                  break;
+ 221   2      #endif
+ 222   2      
+ 223   2              default:
+ 224   2                  break;
+ 225   2          }
+ 226   1          return _DE_ONLY_DISABLE;
+ 227   1      }
+ 228          
+ 229          //--------------------------------------------------
+ 230          // Description  : TMDS Interrupt Process (EXINT0 Only)
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 5   
+
+ 231          // Input Value  : None
+ 232          // Output Value : None
+ 233          //--------------------------------------------------
+ 234          void ScalerTMDSIntHandler_EXINT0(void) using 1
+ 235          {
+ 236   1      #if(_SOURCE_BACKGROUND_DETECT_SUPPORT == _ON)
+                  // Back Up for ColorInfo Pointer to Prevent overwriting color info
+                  StructColorInfo *pstBackupColorInfoPointer = g_pstColorInfoPointer;
+              #endif
+ 240   1      
+ 241   1      #if(_D2_TMDS_SUPPORT == _ON)
+ 242   1          ScalerTMDSRx2IntHandler_EXINT0();
+ 243   1      #endif
+ 244   1      
+ 245   1      #if(_D3_TMDS_SUPPORT == _ON)
+ 246   1          ScalerTMDSRx3IntHandler_EXINT0();
+ 247   1      #endif
+ 248   1      
+ 249   1      #if(_SOURCE_BACKGROUND_DETECT_SUPPORT == _ON)
+                  g_pstColorInfoPointer = pstBackupColorInfoPointer;
+              #endif
+ 252   1      }
+ 253          
+ 254          //--------------------------------------------------
+ 255          // Description  : TMDS Interrupt Process In PS/PD State(EXINT0 Only)
+ 256          // Input Value  : None
+ 257          // Output Value : None
+ 258          //--------------------------------------------------
+ 259          void ScalerTMDSPSIntHandler_EXINT0(void) using 1
+ 260          {
+ 261   1      #if(_D2_TMDS_SUPPORT == _ON)
+ 262   1          ScalerTMDSRx2PSIntHandler_EXINT0();
+ 263   1      #endif
+ 264   1      
+ 265   1      #if(_D3_TMDS_SUPPORT == _ON)
+ 266   1          ScalerTMDSRx3PSIntHandler_EXINT0();
+ 267   1      #endif
+ 268   1      }
+ 269          
+ 270          //--------------------------------------------------
+ 271          // Description  : TMDS video Detect Event
+ 272          // Input Value  : None
+ 273          // Output Value : None
+ 274          //--------------------------------------------------
+ 275          void ScalerTMDSVideoDetectEvent(EnumScalerTimerEventID enumEventID)
+ 276          {
+ 277   1          switch(enumEventID)
+ 278   1          {
+ 279   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 280   2              case _SCALER_TIMER_EVENT_RX2_TMDS_VIDEO_DETECT:
+ 281   2      
+ 282   2                  ScalerTMDSRx2TMDSVideoDetectEvent();
+ 283   2      
+ 284   2                  break;
+ 285   2      #endif
+ 286   2      
+ 287   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 288   2              case _SCALER_TIMER_EVENT_RX3_TMDS_VIDEO_DETECT:
+ 289   2      
+ 290   2                  ScalerTMDSRx3TMDSVideoDetectEvent();
+ 291   2      
+ 292   2                  break;
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 6   
+
+ 293   2      #endif
+ 294   2      
+ 295   2              default:
+ 296   2      
+ 297   2                  break;
+ 298   2          }
+ 299   1      }
+ 300          
+ 301          //--------------------------------------------------
+ 302          // Description  : TMDS Reset Proc
+ 303          // Input Value  : None
+ 304          // Output Value : None
+ 305          //--------------------------------------------------
+ 306          void ScalerTMDSResetProc(void)
+ 307          {
+ 308   1      #if(_D2_TMDS_SUPPORT == _ON)
+ 309   1          ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_RX2_TMDS_VIDEO_DETECT);
+ 310   1      #if(_D2_HDMI_SUPPORT == _ON)
+ 311   1          ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_RX2_TMDS_HDMI_PACKET_DETECT);
+ 312   1      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 313   1          ScalerTimerWDCancelTimerEvent(_SCALER_WD_TIMER_EVENT_RX2_HDMI_RR_RETRY);
+ 314   1          ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_RX2_HDMI2_SCRAMBLE_DETECT_TIMEOUT);
+ 315   1      #endif
+ 316   1      #endif // End of #if(_D2_HDMI_SUPPORT == _ON)
+ 317   1      #endif // End of #if(_D2_TMDS_SUPPORT == _ON)
+ 318   1      
+ 319   1      #if(_D3_TMDS_SUPPORT == _ON)
+ 320   1          ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_RX3_TMDS_VIDEO_DETECT);
+ 321   1      #if(_D3_HDMI_SUPPORT == _ON)
+ 322   1          ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_RX3_TMDS_HDMI_PACKET_DETECT);
+ 323   1      #if(_D3_HDMI_2_0_SUPPORT == _ON)
+ 324   1          ScalerTimerWDCancelTimerEvent(_SCALER_WD_TIMER_EVENT_RX3_HDMI_RR_RETRY);
+ 325   1          ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_RX3_HDMI2_SCRAMBLE_DETECT_TIMEOUT);
+ 326   1      #endif
+ 327   1      #endif // End of #if(_D3_HDMI_SUPPORT == _ON)
+ 328   1      #endif // End of #if(_D3_TMDS_SUPPORT == _ON)
+ 329   1      }
+ 330          
+ 331          #if(_HDMI_SUPPORT == _ON)
+ 332          //--------------------------------------------------
+ 333          // Description  : Hdmi Handle AVMute Process
+ 334          // Input Value  : None
+ 335          // Output Value : None
+ 336          //--------------------------------------------------
+ 337          void ScalerTMDSHdmiAVMuteProc(void)
+ 338          {
+ 339   1      #if(_D2_HDMI_SUPPORT == _ON)
+ 340   1          if(GET_DIGITAL_PORT_SWITCH_TO_D2() == _TRUE)
+ 341   1          {
+ 342   2              ScalerTMDSRx2HdmiAVMuteProc();
+ 343   2          }
+ 344   1      #endif
+ 345   1      
+ 346   1      #if(_D3_HDMI_SUPPORT == _ON)
+ 347   1          if(GET_DIGITAL_PORT_SWITCH_TO_D3() == _TRUE)
+ 348   1          {
+ 349   2              ScalerTMDSRx3HdmiAVMuteProc();
+ 350   2          }
+ 351   1      #endif
+ 352   1      }
+ 353          
+ 354          //--------------------------------------------------
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 7   
+
+ 355          // Description  : Hdmi Enable Watch Dog
+ 356          // Input Value  : ucWDType => Watch Dog type, bEnable => Enable watch dog flag
+ 357          // Output Value : None
+ 358          //--------------------------------------------------
+ 359          void ScalerTMDSHdmiWatchDog(BYTE ucWDType, bit bEnable)
+ 360          {
+ 361   1      #if(_D2_HDMI_SUPPORT == _ON)
+ 362   1          ScalerTMDSRx2HdmiWatchDog(ucWDType, bEnable);
+ 363   1      #endif // End of #if(_D2_HDMI_SUPPORT == _ON)
+ 364   1      
+ 365   1      #if(_D3_HDMI_SUPPORT == _ON)
+ 366   1          ScalerTMDSRx3HdmiWatchDog(ucWDType, bEnable);
+ 367   1      #endif // End of #if(_D3_HDMI_SUPPORT == _ON)
+ 368   1      }
+ 369          
+ 370          //--------------------------------------------------
+ 371          // Description  : HDMI Info Frame Packet Detect Event
+ 372          // Input Value  : None
+ 373          // Output Value : None
+ 374          //--------------------------------------------------
+ 375          void ScalerTMDSHdmiPacketDetectEvent(EnumScalerTimerEventID enumEventID)
+ 376          {
+ 377   1          switch(enumEventID)
+ 378   1          {
+ 379   2      #if(_D2_HDMI_SUPPORT == _ON)
+ 380   2              case _SCALER_TIMER_EVENT_RX2_TMDS_HDMI_PACKET_DETECT:
+ 381   2      
+ 382   2                  ScalerTMDSRx2HdmiPacketDetectEvent();
+ 383   2      
+ 384   2                  break;
+ 385   2      #endif
+ 386   2      
+ 387   2      #if(_D3_HDMI_SUPPORT == _ON)
+ 388   2              case _SCALER_TIMER_EVENT_RX3_TMDS_HDMI_PACKET_DETECT:
+ 389   2      
+ 390   2                  ScalerTMDSRx3HdmiPacketDetectEvent();
+ 391   2      
+ 392   2                  break;
+ 393   2      #endif
+ 394   2      
+ 395   2              default:
+ 396   2      
+ 397   2                  break;
+ 398   2          }
+ 399   1      }
+ 400          
+ 401          #if(_HDMI_IDENTIFY_GAME_SRC_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Get HDMI SPD Info Contents
+              // Input Value  : InputPort
+              // Output Value : Content Value
+              //--------------------------------------------------
+              StructHdmiSpdInfo ScalerTMDSHdmiGetSpdPdInfo(EnumSourceSearchPort enumInputPort)
+              {
+                  StructHdmiSpdInfo stSpdInfo;
+                  memset(&stSpdInfo, 0, sizeof(stSpdInfo));
+              
+                  switch(enumInputPort)
+                  {
+              #if(_D2_HDMI_SUPPORT == _ON)
+                      case _D2_INPUT_PORT:
+              
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 8   
+
+                          return g_stTmdsMacRx2SpdInfo;
+                          break;
+              #endif
+              
+              #if(_D3_HDMI_SUPPORT == _ON)
+                      case _D3_INPUT_PORT:
+              
+                          return g_stTmdsMacRx3SpdInfo;
+                          break;
+              #endif
+              
+                      default:
+                          break;
+                  }
+              
+                  return stSpdInfo;
+              }
+              #endif
+ 435          
+ 436          #if(_HDMI_2_0_SUPPORT == _ON)
+ 437          //--------------------------------------------------
+ 438          // Description  : Hdmi Enable RR Timer
+ 439          // Input Value  : bEnable => Enable RR Timer flag
+ 440          // Output Value : None
+ 441          //--------------------------------------------------
+ 442          void ScalerTMDSHdmiReadRequestTimerEnable_WDINT(bit bEnable) using 3
+ 443          {
+ 444   1          bEnable = bEnable;
+ 445   1      
+ 446   1      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 447   1          ScalerTMDSRx2ReadRequestTimerEventEnable_WDINT(bEnable);
+ 448   1      #endif
+ 449   1      
+ 450   1      #if(_D3_HDMI_2_0_SUPPORT == _ON)
+ 451   1          ScalerTMDSRx3ReadRequestTimerEventEnable_WDINT(bEnable);
+ 452   1      #endif
+ 453   1      }
+ 454          
+ 455          //--------------------------------------------------
+ 456          // Description  : TMDS Format Reset Event
+ 457          // Input Value  : None
+ 458          // Output Value : None
+ 459          //--------------------------------------------------
+ 460          void ScalerTMDSHdmi2FormatResetEvent(EnumScalerTimerEventID enumEventID)
+ 461          {
+ 462   1          switch(enumEventID)
+ 463   1          {
+ 464   2      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 465   2              case _SCALER_TIMER_EVENT_RX2_HDMI2_FORMAT_RESET_WAIT:
+ 466   2                  ScalerTMDSRx2Hdmi2FormatResetEvent();
+ 467   2                  break;
+ 468   2      #endif
+ 469   2      
+ 470   2      #if(_D3_HDMI_2_0_SUPPORT == _ON)
+ 471   2              case _SCALER_TIMER_EVENT_RX3_HDMI2_FORMAT_RESET_WAIT:
+ 472   2                  ScalerTMDSRx3Hdmi2FormatResetEvent();
+ 473   2                  break;
+ 474   2      #endif
+ 475   2      
+ 476   2              default:
+ 477   2                  break;
+ 478   2          }
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 9   
+
+ 479   1      }
+ 480          
+ 481          //--------------------------------------------------
+ 482          // Description  : TMDS Scramble Status Reset
+ 483          // Input Value  : None
+ 484          // Output Value : None
+ 485          //--------------------------------------------------
+ 486          void ScalerTMDSHdmiScrambleStatusReset(BYTE ucPortSelect)
+ 487          {
+ 488   1          switch(ucPortSelect)
+ 489   1          {
+ 490   2      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 491   2              case _D2_INPUT_PORT:
+ 492   2                  ScalerTMDSRx2ScrambleStatusReset();
+ 493   2      
+ 494   2                  break;
+ 495   2      #endif
+ 496   2      
+ 497   2      #if(_D3_HDMI_2_0_SUPPORT == _ON)
+ 498   2              case _D3_INPUT_PORT:
+ 499   2                  ScalerTMDSRx3ScrambleStatusReset();
+ 500   2      
+ 501   2                  break;
+ 502   2      #endif
+ 503   2      
+ 504   2              default:
+ 505   2                  break;
+ 506   2          }
+ 507   1      }
+ 508          
+ 509          //--------------------------------------------------
+ 510          // Description  : TMDS Scramble Detect Timeout Timer Event
+ 511          // Input Value  : None
+ 512          // Output Value : None
+ 513          //--------------------------------------------------
+ 514          void ScalerTMDSHdmiScrambleDetectTimeoutTimerEvent(EnumScalerTimerEventID enumEventID)
+ 515          {
+ 516   1          switch(enumEventID)
+ 517   1          {
+ 518   2      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 519   2              case _SCALER_TIMER_EVENT_RX2_HDMI2_SCRAMBLE_DETECT_TIMEOUT:
+ 520   2                  ScalerTMDSRx2ScrambleDetectTimeoutTimerEvent();
+ 521   2      
+ 522   2                  break;
+ 523   2      #endif
+ 524   2      
+ 525   2      #if(_D3_HDMI_2_0_SUPPORT == _ON)
+ 526   2              case _SCALER_TIMER_EVENT_RX3_HDMI2_SCRAMBLE_DETECT_TIMEOUT:
+ 527   2                  ScalerTMDSRx3ScrambleDetectTimeoutTimerEvent();
+ 528   2      
+ 529   2                  break;
+ 530   2      #endif
+ 531   2      
+ 532   2              default:
+ 533   2                  break;
+ 534   2          }
+ 535   1      }
+ 536          
+ 537          //--------------------------------------------------
+ 538          // Description  : TMDS Scramble Detection IRQ Disable
+ 539          // Input Value  : None
+ 540          // Output Value : None
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 10  
+
+ 541          //--------------------------------------------------
+ 542          void ScalerTMDSScrambleDetectDisable(void)
+ 543          {
+ 544   1      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 545   1          ScalerTMDSRx2ScrambleDetectDisable();
+ 546   1      #endif
+ 547   1      
+ 548   1      #if(_D3_HDMI_2_0_SUPPORT == _ON)
+ 549   1          ScalerTMDSRx3ScrambleDetectDisable();
+ 550   1      #endif
+ 551   1      }
+ 552          
+ 553          #if(_TMDS_HDMI_2_0_SCDC_RR_CTS_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : TMDS Set Scdc Info
+              // Input Value  : ucInputPort
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTMDSHdmiSetScdcInfo_EXINT0(BYTE ucInputPort) using 1
+              {
+                  switch(ucInputPort)
+                  {
+              #if(_D2_HDMI_2_0_SUPPORT == _ON)
+                      case _D2_INPUT_PORT:
+                          ScalerTMDSRx2SetScdcInfo_EXINT0();
+                          break;
+              #endif
+              
+              #if(_D3_HDMI_2_0_SUPPORT == _ON)
+                      case _D3_INPUT_PORT:
+                          ScalerTMDSRx3SetScdcInfo_EXINT0();
+                          break;
+              #endif
+                      default:
+                          break;
+                  }
+              }
+              
+              #if(_HDMI_FREESYNC_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Get HDMI FreeSync Support
+              // Input Value  : ucInputPort
+              // Output Value : _FREESYNC_SUPPORT_ON/ _FREESYNC_SUPPORT_OFF
+              //--------------------------------------------------
+              EnumFreeSyncSupport ScalerTMDSHdmiGetFreeSyncSupport_EXINT0(BYTE ucInputPort) using 1
+              {
+                  EnumFreeSyncSupport enumFreeSyncSupport = _FREESYNC_SUPPORT_OFF;
+              
+                  switch(ucInputPort)
+                  {
+                      case _D2_INPUT_PORT:
+                          enumFreeSyncSupport = GET_TMDS_RX2_FREESYNC_SUPPORT();
+                          break;
+              
+                      case _D3_INPUT_PORT:
+                          enumFreeSyncSupport = GET_TMDS_RX3_FREESYNC_SUPPORT();
+                          break;
+              
+                      default:
+                          break;
+                  }
+              
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 11  
+
+                  return enumFreeSyncSupport;
+              }
+              
+              //--------------------------------------------------
+              // Description  : TMDS Set Amd Aupi Scdc Info
+              // Input Value  : enumInputPort
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTMDSHdmiSetAmdAupiScdcInfo_EXINT0(BYTE ucInputPort, bit bEnable) using 1
+              {
+                  bEnable = bEnable;
+              
+                  switch(ucInputPort)
+                  {
+              #if(_D2_HDMI_2_0_SUPPORT == _ON)
+                      case _D2_INPUT_PORT:
+                          ScalerTMDSRx2SetAmdAupiScdcInfo_EXINT0(bEnable);
+                          break;
+              #endif
+              
+              #if(_D3_HDMI_2_0_SUPPORT == _ON)
+                      case _D3_INPUT_PORT:
+                          ScalerTMDSRx3SetAmdAupiScdcInfo_EXINT0(bEnable);
+                          break;
+              #endif
+              
+                      default:
+                          break;
+                  }
+              }
+              #endif
+              #endif
+ 635          
+ 636          #endif // End of #if(_HDMI_2_0_SUPPORT == _ON)
+ 637          
+ 638          //--------------------------------------------------
+ 639          // Description  : TMDS 420 Color Space Support Check
+ 640          // Input Value  : None
+ 641          // Output Value : None
+ 642          //--------------------------------------------------
+ 643          bit ScalerTMDSYUV420SupportCheck(BYTE ucInputPort)
+ 644          {
+ 645   1          switch(ucInputPort)
+ 646   1          {
+ 647   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 648   2              case _D2_INPUT_PORT:
+ 649   2      
+ 650   2                  return _TRUE;
+ 651   2                  break;
+ 652   2      #endif
+ 653   2      
+ 654   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 655   2              case _D3_INPUT_PORT:
+ 656   2      
+ 657   2                  return _TRUE;
+ 658   2                  break;
+ 659   2      #endif
+ 660   2      
+ 661   2              default:
+ 662   2                  break;
+ 663   2          }
+ 664   1      
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 12  
+
+ 665   1          return _TRUE;
+ 666   1      }
+ 667          #endif // End of #if(_HDMI_SUPPORT == _ON)
+ 668          
+ 669          //--------------------------------------------------
+ 670          // Description  : TMDS Port DDC Selection
+ 671          // Input Value  : Input Port
+ 672          // Output Value : None
+ 673          //--------------------------------------------------
+ 674          void ScalerTMDSMacDdcSwitchCtrl(BYTE ucInputPort)
+ 675          {
+ 676   1          switch(ucInputPort)
+ 677   1          {
+ 678   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 679   2              case _D2_INPUT_PORT:
+ 680   2      
+ 681   2                  // Set HDCP DDC Channel
+ 682   2                  ScalerSetBit(P71_C2_HDCP_PCR, ~(_BIT2 | _BIT1), 0x00);
+ 683   2      
+ 684   2                  break;
+ 685   2      #endif
+ 686   2      
+ 687   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 688   2              case _D3_INPUT_PORT:
+ 689   2      
+ 690   2                  // Set HDCP DDC Channel
+ 691   2                  ScalerSetBit(P72_C2_HDCP_PCR, ~(_BIT2 | _BIT1), 0x00);
+ 692   2      
+ 693   2                  break;
+ 694   2      #endif
+ 695   2      
+ 696   2              default:
+ 697   2                  break;
+ 698   2          }
+ 699   1      }
+ 700          
+ 701          //--------------------------------------------------
+ 702          // Description  : TMDS Freq. Detection IRQ Disable and Clear Clock Counter
+ 703          // Input Value  : None
+ 704          // Output Value : None
+ 705          //--------------------------------------------------
+ 706          void ScalerTMDSFreqDetectDisable(void)
+ 707          {
+ 708   1      #if(_D2_TMDS_SUPPORT == _ON)
+ 709   1          ScalerTMDSRx2FreqDetectDisable();
+ 710   1      #endif
+ 711   1      
+ 712   1      #if(_D3_TMDS_SUPPORT == _ON)
+ 713   1          ScalerTMDSRx3FreqDetectDisable();
+ 714   1      #endif
+ 715   1      }
+ 716          
+ 717          //--------------------------------------------------
+ 718          // Description  : Process Required when Switched to Active State
+ 719          // Input Value  : Input Source
+ 720          // Output Value : None
+ 721          //--------------------------------------------------
+ 722          void ScalerTMDSFirstActiveProc(BYTE ucInputPort, BYTE ucSourceType)
+ 723          {
+ 724   1          ucSourceType = ucSourceType;
+ 725   1      
+ 726   1          switch(ucInputPort)
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 13  
+
+ 727   1          {
+ 728   2              default:
+ 729   2                  break;
+ 730   2      
+ 731   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 732   2              case _D2_INPUT_PORT:
+ 733   2                  ScalerTMDSRx2FirstActiveProc(ucSourceType);
+ 734   2                  break;
+ 735   2      #endif
+ 736   2      
+ 737   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 738   2              case _D3_INPUT_PORT:
+ 739   2                  ScalerTMDSRx3FirstActiveProc(ucSourceType);
+ 740   2                  break;
+ 741   2      #endif
+ 742   2          }
+ 743   1      }
+ 744          
+ 745          //--------------------------------------------------
+ 746          // Description  : Check whether HDCP is enabled
+ 747          // Input Value  : None
+ 748          // Output Value : TRUE => HDCP Enabled
+ 749          //--------------------------------------------------
+ 750          bit ScalerTMDSHdcpEnabled(BYTE ucInputPort)
+ 751          {
+ 752   1          switch(ucInputPort)
+ 753   1          {
+ 754   2              case _D2_INPUT_PORT:
+ 755   2      
+ 756   2      #if((_D2_INPUT_PORT_TYPE == _D2_DVI_PORT) || (_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT) || (_D2_INPUT_PORT_TYP
+             -E == _D2_MHL_PORT))
+ 757   2                  return ScalerTMDSRx2HdcpEnabled();
+ 758   2      #endif
+ 759   2      
+ 760   2                  break;
+ 761   2      
+ 762   2              case _D3_INPUT_PORT:
+ 763   2      
+ 764   2      #if((_D3_INPUT_PORT_TYPE == _D3_DVI_PORT) || (_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT) || (_D3_INPUT_PORT_TYP
+             -E == _D3_MHL_PORT))
+ 765   2                  return ScalerTMDSRx3HdcpEnabled();
+ 766   2      #endif
+ 767   2      
+ 768   2                  break;
+ 769   2      
+ 770   2              default:
+ 771   2      
+ 772   2                  break;
+ 773   2          }
+ 774   1      
+ 775   1          return _FALSE;
+ 776   1      }
+ 777          
+ 778          //--------------------------------------------------
+ 779          // Description  : Signal Detection for TMDS(Power Saving)
+ 780          // Input Value  : Input Port
+ 781          // Output Value : True : TMDS Signal Detected
+ 782          //              : False : No Signal
+ 783          //--------------------------------------------------
+ 784          bit ScalerTMDSPSPreDetect(BYTE ucInputPort)
+ 785          {
+ 786   1          switch(ucInputPort)
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 14  
+
+ 787   1          {
+ 788   2              case _D2_INPUT_PORT:
+ 789   2      
+ 790   2      #if((_D2_TMDS_SUPPORT == _ON) && (_D2_INPUT_PORT_TYPE != _D2_DUAL_DVI_PORT))
+ 791   2                  return ScalerTMDSRx2TMDSPSPreDetect();
+ 792   2      #endif
+ 793   2      
+ 794   2                  break;
+ 795   2      
+ 796   2              case _D3_INPUT_PORT:
+ 797   2      
+ 798   2      #if((_D3_TMDS_SUPPORT == _ON) &&\
+ 799   2          (_D3_INPUT_PORT_TYPE != _D3_DUAL_DVI_PORT) &&\
+ 800   2          (_D3_INPUT_PORT_TYPE != _D3_NO_PORT))
+ 801   2                  return ScalerTMDSRx3TMDSPSPreDetect();
+ 802   2      #endif
+ 803   2      
+ 804   2                  break;
+ 805   2      
+ 806   2              default:
+ 807   2      
+ 808   2                  break;
+ 809   2          }
+ 810   1      
+ 811   1          return _FALSE;
+ 812   1      }
+ 813          
+ 814          //--------------------------------------------------
+ 815          // Description  : Signal PreDetection for TMDS(Power Normal)
+ 816          // Input Value  : Input Port
+ 817          // Output Value : True : TMDS Signal Detected
+ 818          //              : False : No Signal
+ 819          //--------------------------------------------------
+ 820          bit ScalerTMDSNormalPreDetect(BYTE ucInputPort)
+ 821          {
+ 822   1          switch(ucInputPort)
+ 823   1          {
+ 824   2              case _D2_INPUT_PORT:
+ 825   2      
+ 826   2      #if((_D2_TMDS_SUPPORT == _ON) && (_D2_INPUT_PORT_TYPE != _D2_DUAL_DVI_PORT))
+ 827   2                  return ScalerTMDSRx2TMDSNormalPreDetect();
+ 828   2      #endif
+ 829   2      
+ 830   2                  break;
+ 831   2      
+ 832   2              case _D3_INPUT_PORT:
+ 833   2      
+ 834   2      #if((_D3_TMDS_SUPPORT == _ON) &&\
+ 835   2          (_D3_INPUT_PORT_TYPE != _D3_DUAL_DVI_PORT) &&\
+ 836   2          (_D3_INPUT_PORT_TYPE != _D3_NO_PORT))
+ 837   2                  return ScalerTMDSRx3TMDSNormalPreDetect();
+ 838   2      #endif
+ 839   2      
+ 840   2                  break;
+ 841   2      
+ 842   2              default:
+ 843   2      
+ 844   2                  break;
+ 845   2          }
+ 846   1      
+ 847   1          return _FALSE;
+ 848   1      }
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 15  
+
+ 849          
+ 850          //--------------------------------------------------
+ 851          // Description  : TMDS Port Source/Sync Scanning and Setting
+ 852          // Input Value  : Input Port
+ 853          // Output Value : Source DVI --> DVI Format
+ 854          //                Source HDMI --> HDMI Format
+ 855          //                Source None --> No Stable Sync
+ 856          //--------------------------------------------------
+ 857          BYTE ScalerTMDSScanInputPort(BYTE ucInputPort, BYTE ucInputType)
+ 858          {
+ 859   1          ucInputType = ucInputType;
+ 860   1      
+ 861   1          switch(ucInputPort)
+ 862   1          {
+ 863   2              case _D2_INPUT_PORT:
+ 864   2      
+ 865   2      #if((_D2_TMDS_SUPPORT == _ON) && (_D2_INPUT_PORT_TYPE != _D2_DUAL_DVI_PORT))
+ 866   2                  return ScalerTMDSRx2TMDSScanInputPort(ucInputType);
+ 867   2      #endif
+ 868   2      
+ 869   2                  break;
+ 870   2      
+ 871   2              case _D3_INPUT_PORT:
+ 872   2      
+ 873   2      #if((_D3_TMDS_SUPPORT == _ON) &&\
+ 874   2          (_D3_INPUT_PORT_TYPE != _D3_DUAL_DVI_PORT) &&\
+ 875   2          (_D3_INPUT_PORT_TYPE != _D3_NO_PORT))
+ 876   2                  return ScalerTMDSRx3TMDSScanInputPort(ucInputType);
+ 877   2      #endif
+ 878   2      
+ 879   2                  break;
+ 880   2      
+ 881   2              default:
+ 882   2      
+ 883   2                  break;
+ 884   2          }
+ 885   1      
+ 886   1          return _SOURCE_NONE;
+ 887   1      }
+ 888          
+ 889          //--------------------------------------------------
+ 890          // Description  : On Line Check TMDS stability
+ 891          // Input Value  : ucSourceType --> Source Type
+ 892          // Output Value : True --> TMDS Stable
+ 893          //                False --> TMDS Unstable
+ 894          //--------------------------------------------------
+ 895          bit ScalerTMDSStableDetect(BYTE ucInputPort, BYTE ucSourceType)
+ 896          {
+ 897   1          switch(ucSourceType)
+ 898   1          {
+ 899   2              case _SOURCE_DVI:
+ 900   2              case _SOURCE_HDMI:
+ 901   2      
+ 902   2                  switch(ucInputPort)
+ 903   2                  {
+ 904   3      #if(_D2_TMDS_SUPPORT == _ON)
+ 905   3      
+ 906   3                      case _D2_INPUT_PORT:
+ 907   3      
+ 908   3      #if(_D2_INPUT_PORT_TYPE != _D2_DUAL_DVI_PORT)
+ 909   3                          return ScalerTMDSRx2TMDSStableDetect(ucSourceType);
+ 910   3      #endif
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 16  
+
+ 911   3      
+ 912   3      #endif
+ 913   3      
+ 914   3      #if(_D3_TMDS_SUPPORT == _ON)
+ 915   3      
+ 916   3                      case _D3_INPUT_PORT:
+ 917   3      
+ 918   3      #if(_D3_INPUT_PORT_TYPE != _D3_DUAL_DVI_PORT)
+ 919   3                          return ScalerTMDSRx3TMDSStableDetect(ucSourceType);
+ 920   3      #endif
+ 921   3      
+ 922   3      #endif
+ 923   3      
+ 924   3                      default:
+ 925   3                          break;
+ 926   3                  }
+ 927   2      
+ 928   2                  break;
+ 929   2      
+ 930   2              default:
+ 931   2      
+ 932   2                  break;
+ 933   2          }
+ 934   1      
+ 935   1          return _FALSE;
+ 936   1      }
+ 937          
+ 938          //--------------------------------------------------
+ 939          // Description  : TMDS Hot Plug Event
+ 940          // Input Value  : None
+ 941          // Output Value :
+ 942          //--------------------------------------------------
+ 943          void ScalerTMDSHotPlugEvent(BYTE ucPortSelect)
+ 944          {
+ 945   1          switch(ucPortSelect)
+ 946   1          {
+ 947   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 948   2              case _D2_INPUT_PORT:
+ 949   2      
+ 950   2                  ScalerTMDSRx2HotPlugEvent();
+ 951   2      
+ 952   2                  break;
+ 953   2      #endif
+ 954   2      
+ 955   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 956   2              case _D3_INPUT_PORT:
+ 957   2      
+ 958   2                  ScalerTMDSRx3HotPlugEvent();
+ 959   2      
+ 960   2                  break;
+ 961   2      #endif
+ 962   2      
+ 963   2              default:
+ 964   2      
+ 965   2                  break;
+ 966   2          }
+ 967   1      }
+ 968          
+ 969          //--------------------------------------------------
+ 970          // Description  : TMDS Before Hot Plug Event Process
+ 971          // Input Value  : ucPortSelect, bDisableZ0
+ 972          // Output Value :
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 17  
+
+ 973          //--------------------------------------------------
+ 974          void ScalerTMDSBeforeHotPlugEventProc(BYTE ucPortSelect, bit bDisableZ0)
+ 975          {
+ 976   1          switch(ucPortSelect)
+ 977   1          {
+ 978   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 979   2              case _D2_INPUT_PORT:
+ 980   2      
+ 981   2                  ScalerTMDSRx2BeforeHotPlugEventProc(bDisableZ0);
+ 982   2      
+ 983   2                  break;
+ 984   2      #endif
+ 985   2      
+ 986   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 987   2              case _D3_INPUT_PORT:
+ 988   2      
+ 989   2                  ScalerTMDSRx3BeforeHotPlugEventProc(bDisableZ0);
+ 990   2      
+ 991   2                  break;
+ 992   2      #endif
+ 993   2      
+ 994   2              default:
+ 995   2      
+ 996   2                  break;
+ 997   2          }
+ 998   1      }
+ 999          
+1000          //--------------------------------------------------
+1001          // Description  : TMDS Hot Plug Low Process
+1002          // Input Value  : ucPortSelect
+1003          // Output Value :
+1004          //--------------------------------------------------
+1005          void ScalerTMDSHotPlugLowProc(BYTE ucPortSelect)
+1006          {
+1007   1          switch(ucPortSelect)
+1008   1          {
+1009   2      #if(_D2_TMDS_SUPPORT == _ON)
+1010   2              case _D2_INPUT_PORT:
+1011   2      
+1012   2                  ScalerTMDSRx2HotPlugLowProc();
+1013   2      
+1014   2                  break;
+1015   2      #endif
+1016   2      
+1017   2      #if(_D3_TMDS_SUPPORT == _ON)
+1018   2              case _D3_INPUT_PORT:
+1019   2      
+1020   2                  ScalerTMDSRx3HotPlugLowProc();
+1021   2      
+1022   2                  break;
+1023   2      #endif
+1024   2      
+1025   2              default:
+1026   2      
+1027   2                  break;
+1028   2          }
+1029   1      }
+1030          
+1031          //--------------------------------------------------
+1032          // Description  : TMDS Hot Plug High Process
+1033          // Input Value  : ucPortSelect, usHpdTime
+1034          // Output Value :
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 18  
+
+1035          //--------------------------------------------------
+1036          void ScalerTMDSHotPlugHighProc(BYTE ucPortSelect, WORD usHpdTime)
+1037          {
+1038   1          switch(ucPortSelect)
+1039   1          {
+1040   2      #if(_D2_TMDS_SUPPORT == _ON)
+1041   2              case _D2_INPUT_PORT:
+1042   2      
+1043   2                  ScalerTMDSRx2HotPlugHighProc(usHpdTime);
+1044   2      
+1045   2                  break;
+1046   2      #endif
+1047   2      
+1048   2      #if(_D3_TMDS_SUPPORT == _ON)
+1049   2              case _D3_INPUT_PORT:
+1050   2      
+1051   2                  ScalerTMDSRx3HotPlugHighProc(usHpdTime);
+1052   2      
+1053   2                  break;
+1054   2      #endif
+1055   2      
+1056   2              default:
+1057   2      
+1058   2                  break;
+1059   2          }
+1060   1      }
+1061          
+1062          //--------------------------------------------------
+1063          // Description  : TMDS After Hot Plug Event Process
+1064          // Input Value  : ucPortSelect, bRestoreZ0
+1065          // Output Value :
+1066          //--------------------------------------------------
+1067          void ScalerTMDSAfterHotPlugEventProc(BYTE ucPortSelect, bit bRestoreZ0)
+1068          {
+1069   1          switch(ucPortSelect)
+1070   1          {
+1071   2      #if(_D2_TMDS_SUPPORT == _ON)
+1072   2              case _D2_INPUT_PORT:
+1073   2      
+1074   2                  ScalerTMDSRx2AfterHotPlugEventProc(bRestoreZ0);
+1075   2      
+1076   2                  break;
+1077   2      #endif
+1078   2      
+1079   2      #if(_D3_TMDS_SUPPORT == _ON)
+1080   2              case _D3_INPUT_PORT:
+1081   2      
+1082   2                  ScalerTMDSRx3AfterHotPlugEventProc(bRestoreZ0);
+1083   2      
+1084   2                  break;
+1085   2      #endif
+1086   2      
+1087   2              default:
+1088   2      
+1089   2                  break;
+1090   2          }
+1091   1      }
+1092          
+1093          //--------------------------------------------------
+1094          // Description  : ScalerTMDSHdcp1p4AksvClear
+1095          // Input Value  : None
+1096          // Output Value :
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 19  
+
+1097          //--------------------------------------------------
+1098          void ScalerTMDSHdcp1p4AksvClear(BYTE ucInputPort)
+1099          {
+1100   1          switch(ucInputPort)
+1101   1          {
+1102   2      #if(_D2_TMDS_SUPPORT == _ON)
+1103   2              case _D2_INPUT_PORT:
+1104   2      
+1105   2                  ScalerTMDSRx2Hdcp1p4AksvClear();
+1106   2                  break;
+1107   2      #endif
+1108   2      
+1109   2      #if(_D3_TMDS_SUPPORT == _ON)
+1110   2              case _D3_INPUT_PORT:
+1111   2      
+1112   2                  ScalerTMDSRx3Hdcp1p4AksvClear();
+1113   2      
+1114   2                  break;
+1115   2      #endif
+1116   2      
+1117   2              default:
+1118   2      
+1119   2                  break;
+1120   2          }
+1121   1      }
+1122          
+1123          #if(_DVI_SUPPORT == _ON)
+1124          //--------------------------------------------------
+1125          // Description  : Switch HDCP Version Capbility
+1126          // Input Value  : None
+1127          // Output Value : None
+1128          //--------------------------------------------------
+1129          void ScalerTMDSRxHdcpVersionCapabilitySwitch(EnumSourceSearchPort enumInputPort, EnumTmdsHdcpType enumTmds
+             -HdcpType)
+1130          {
+1131   1          switch(enumInputPort)
+1132   1          {
+1133   2      #if(_D2_TMDS_SUPPORT == _ON)
+1134   2      
+1135   2              case _D2_INPUT_PORT:
+1136   2      
+1137   2                  if(enumTmdsHdcpType == _HDCP_BY_PROJECT_DEFINE)
+1138   2                  {
+1139   3      #if(_TMDS_HDCP_2_2_SUPPORT == _ON)
+1140   3                      // Set D2 Port HDCP Address is 0x74
+1141   3                      ScalerSetDataPortByte(P71_C3_HDCP_AP, _P71_C4_PT_C2_PORT_PAGE71_HDCP_SLAVE_ADD, 0x3A);
+1142   3      
+1143   3                      // Set Support HDCP 2.2 Feature
+1144   3                      ScalerSetDataPortByte(P71_C3_HDCP_AP, _P71_C4_PT_50_PORT_PAGE71_HDCP2_VER, 0x04);
+1145   3      #endif
+1146   3                  }
+1147   2                  else if(enumTmdsHdcpType == _TMDS_HDCP_14)
+1148   2                  {
+1149   3                      // Set D2 Port HDCP Address is 0x74
+1150   3                      ScalerSetDataPortByte(P71_C3_HDCP_AP, _P71_C4_PT_C2_PORT_PAGE71_HDCP_SLAVE_ADD, 0x3A);
+1151   3      
+1152   3                      // Set Not Support HDCP 2.2 Feature
+1153   3                      ScalerSetDataPortByte(P71_C3_HDCP_AP, _P71_C4_PT_50_PORT_PAGE71_HDCP2_VER, 0x00);
+1154   3                  }
+1155   2                  else if(enumTmdsHdcpType == _TMDS_HDCP_NONE)
+1156   2                  {
+1157   3                      ScalerTMDSRx2SwitchHdcpSlaveAddr();
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 20  
+
+1158   3                  }
+1159   2      
+1160   2                  SET_TMDS_RX2_HPD_TRIGGER_EVENT(_TMDS_HPD_NORMAL);
+1161   2      
+1162   2                  break;
+1163   2      #endif
+1164   2      
+1165   2      #if(_D3_TMDS_SUPPORT == _ON)
+1166   2      
+1167   2              case _D3_INPUT_PORT:
+1168   2      
+1169   2                  if(enumTmdsHdcpType == _HDCP_BY_PROJECT_DEFINE)
+1170   2                  {
+1171   3      #if(_TMDS_HDCP_2_2_SUPPORT == _ON)
+1172   3                      // Set D3 Port HDCP Address is 0x74
+1173   3                      ScalerSetDataPortByte(P72_C3_HDCP_AP, _P72_C4_PT_C2_PORT_PAGE72_HDCP_SLAVE_ADD, 0x3A);
+1174   3      
+1175   3                      // Set Support HDCP 2.2 Feature
+1176   3                      ScalerSetDataPortByte(P72_C3_HDCP_AP, _P72_C4_PT_50_PORT_PAGE72_HDCP2_VER, 0x04);
+1177   3      #endif
+1178   3                  }
+1179   2                  else if(enumTmdsHdcpType == _TMDS_HDCP_14)
+1180   2                  {
+1181   3                      // Set D3 Port HDCP Address is 0x74
+1182   3                      ScalerSetDataPortByte(P72_C3_HDCP_AP, _P72_C4_PT_C2_PORT_PAGE72_HDCP_SLAVE_ADD, 0x3A);
+1183   3      
+1184   3                      // Set Not Support HDCP 2.2 Feature
+1185   3                      ScalerSetDataPortByte(P72_C3_HDCP_AP, _P72_C4_PT_50_PORT_PAGE72_HDCP2_VER, 0x00);
+1186   3                  }
+1187   2                  else if(enumTmdsHdcpType == _TMDS_HDCP_NONE)
+1188   2                  {
+1189   3                      ScalerTMDSRx3SwitchHdcpSlaveAddr();
+1190   3                  }
+1191   2      
+1192   2                  SET_TMDS_RX3_HPD_TRIGGER_EVENT(_TMDS_HPD_NORMAL);
+1193   2      
+1194   2                  break;
+1195   2      #endif
+1196   2      
+1197   2              default:
+1198   2      
+1199   2                  break;
+1200   2          }
+1201   1      }
+1202          
+1203          //--------------------------------------------------
+1204          // Description  : Change HDCP Cap
+1205          // Input Value  : HDCP Type
+1206          // Output Value : None
+1207          //--------------------------------------------------
+1208          void ScalerTMDSRxAllPortChangeHdcpCap(EnumTmdsHdcpType enumTmdsHdcpType)
+1209          {
+1210   1          switch(enumTmdsHdcpType)
+1211   1          {
+1212   2              case _HDCP_BY_PROJECT_DEFINE:
+1213   2      
+1214   2      #if(_TMDS_HDCP_2_2_SUPPORT == _ON)
+1215   2      #if(_D2_TMDS_SUPPORT == _ON)
+1216   2                  // Set D2 Port HDCP Address is 0x74
+1217   2                  ScalerSetDataPortByte(P71_C3_HDCP_AP, _P71_C4_PT_C2_PORT_PAGE71_HDCP_SLAVE_ADD, 0x3A);
+1218   2      
+1219   2                  // Set Support HDCP 2.2 Feature
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 21  
+
+1220   2                  ScalerSetDataPortByte(P71_C3_HDCP_AP, _P71_C4_PT_50_PORT_PAGE71_HDCP2_VER, 0x04);
+1221   2      #endif
+1222   2      
+1223   2      #if(_D3_TMDS_SUPPORT == _ON)
+1224   2                  // Set D3 Port HDCP Address is 0x74
+1225   2                  ScalerSetDataPortByte(P72_C3_HDCP_AP, _P72_C4_PT_C2_PORT_PAGE72_HDCP_SLAVE_ADD, 0x3A);
+1226   2      
+1227   2                  // Set Support HDCP 2.2 Feature
+1228   2                  ScalerSetDataPortByte(P72_C3_HDCP_AP, _P72_C4_PT_50_PORT_PAGE72_HDCP2_VER, 0x04);
+1229   2      #endif
+1230   2      #endif
+1231   2                  break;
+1232   2      
+1233   2              case _TMDS_HDCP_14:
+1234   2      
+1235   2      #if(_D2_TMDS_SUPPORT == _ON)
+1236   2                  // Set D2 Port HDCP Address is 0x74
+1237   2                  ScalerSetDataPortByte(P71_C3_HDCP_AP, _P71_C4_PT_C2_PORT_PAGE71_HDCP_SLAVE_ADD, 0x3A);
+1238   2      
+1239   2                  // Set Not Support HDCP 2.2 Feature
+1240   2                  ScalerSetDataPortByte(P71_C3_HDCP_AP, _P71_C4_PT_50_PORT_PAGE71_HDCP2_VER, 0x00);
+1241   2      #endif
+1242   2      
+1243   2      #if(_D3_TMDS_SUPPORT == _ON)
+1244   2                  // Set D3 Port HDCP Address is 0x74
+1245   2                  ScalerSetDataPortByte(P72_C3_HDCP_AP, _P72_C4_PT_C2_PORT_PAGE72_HDCP_SLAVE_ADD, 0x3A);
+1246   2      
+1247   2                  // Set Not Support HDCP 2.2 Feature
+1248   2                  ScalerSetDataPortByte(P72_C3_HDCP_AP, _P72_C4_PT_50_PORT_PAGE72_HDCP2_VER, 0x00);
+1249   2      #endif
+1250   2                  break;
+1251   2      
+1252   2              case _TMDS_HDCP_NONE:
+1253   2      
+1254   2      #if(_D2_TMDS_SUPPORT == _ON)
+1255   2                  ScalerTMDSRx2SwitchHdcpSlaveAddr();
+1256   2      #endif
+1257   2      
+1258   2      #if(_D3_TMDS_SUPPORT == _ON)
+1259   2                  ScalerTMDSRx3SwitchHdcpSlaveAddr();
+1260   2      #endif
+1261   2                  break;
+1262   2      
+1263   2              default:
+1264   2      
+1265   2                  break;
+1266   2          }
+1267   1      }
+1268          #endif
+1269          #endif // End of #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+1270          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    874    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       4
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.01   RL6449_SERIES_TMDS                                                    05/24/2025 15:52:09 PAGE 22  
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

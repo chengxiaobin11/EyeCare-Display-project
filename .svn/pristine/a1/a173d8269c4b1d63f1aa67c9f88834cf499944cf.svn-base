@@ -1,0 +1,611 @@
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SCALERCOLOR
+OBJECT MODULE PLACED IN .\Output\RL6432\ScalerColor.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerColor.c LARGE OPTIMIZE(9,SPEED) 
+                    -INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Ke
+                    -rnel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;
+                    -.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Serie
+                    -s_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kernel
+                    -\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Fac
+                    -tory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(
+                    -_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\ScalerColor.lst) TABS(2) 
+                    -OBJECT(.\Output\RL6432\ScalerColor.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerColor.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_COLOR__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          //--------------------------------------------------
+  25          // Definitions of Digital Filter
+  26          //--------------------------------------------------
+  27          #define _DIG_FILTER_NSMEAR_THD                  4 // effective:0~7
+  28          #define _DIG_FILTER_NSMEAR_DIV_VALUE            1 // effective:0~3
+  29          
+  30          #define _DIG_FILTER_PSMEAR_THD                  4 // effective:0~7
+  31          #define _DIG_FILTER_PSMEAR_DIV_VALUE            1 // effective:0~3
+  32          
+  33          #define _DIG_FILTER_NRING_THD                   4 // effective:0~7
+  34          #define _DIG_FILTER_NRING_DIV_VALUE             1 // effective:0~3
+  35          
+  36          #define _DIG_FILTER_PRING_THD                   4 // effective:0~7
+  37          #define _DIG_FILTER_PRING_DIV_VALUE             1 // effective:0~3
+  38          
+  39          //--------------------------------------------------
+  40          // Definitions of Ddither
+  41          //--------------------------------------------------
+  42          
+  43          //****************************************************************************
+  44          // STRUCT / TYPE / ENUM DEFINITTIONS
+  45          //****************************************************************************
+  46          
+  47          
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 2   
+
+  48          //****************************************************************************
+  49          // CODE TABLES
+  50          //****************************************************************************
+  51          
+  52          
+  53          //****************************************************************************
+  54          // VARIABLE DECLARATIONS
+  55          //****************************************************************************
+  56          #if(_COLOR_IP_DCC_HISTOGRAM == _ON)
+  57          bit g_bDCCReadyStatus = _FALSE;
+  58          #endif
+  59          
+  60          #if(_COLOR_IP_DCR == _ON)
+  61          bit g_bDCRReadyStatus = _FALSE;
+  62          #endif
+  63          
+  64          //****************************************************************************
+  65          // FUNCTION DECLARATIONS
+  66          //****************************************************************************
+  67          #if(_VGA_SUPPORT == _ON)
+              #if(_DIGITAL_FILTER_SUPPORT == _ON)
+              void ScalerColorDigitalFilterAdjust(void);
+              #endif
+              #endif
+  72          
+  73          #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+              void ScalerColorHLWAdjust(WORD usHPos, WORD usHWidth, WORD usVPos, WORD usVHeight, EnumDBApply enumDBApply
+             -);
+              void ScalerColorHLWEnable(EnumFunctionOnOFF enumOn, EnumDBApply enumDBApply);
+              #endif
+  77          
+  78          #if(_I_DITHER_SUPPORT == _ON)
+  79          void ScalerColorIDitherAdjust(BYTE code *pucDitherTable, BYTE code *pucSeqTable, BYTE code *pucTempoTable,
+             - BYTE ucBankAddress);
+  80          #endif
+  81          
+  82          #if(_D_DITHER_SUPPORT == _ON)
+  83          void ScalerColorDDitherEnable(EnumFunctionOnOFF enumOn);
+  84          #endif
+  85          
+  86          #if((_DCR_SUPPORT == _ON) || (_IAPS_SUPPORT == _ON))
+  87          void ScalerColorDCRSetSource(void);
+  88          #endif
+  89          
+  90          #if(_ICM_SUPPORT == _ON)
+  91          void ScalerColorICMLoadTable(BYTE code *pucICMTable, BYTE ucBankNum);
+  92          #endif
+  93          
+  94          #if(_SIX_COLOR_SUPPORT == _ON)
+  95          void ScalerColorSixColorInitial(void);
+  96          void ScalerColorSixColorAdjust(BYTE ucColorIndex, BYTE ucHuePosition, BYTE ucSatPosition);
+  97          #endif
+  98          
+  99          #if(_YPEAKING_SUPPORT == _ON)
+              void ScalerColorYpeakingAdjust(EnumYpeakingMode enumYPeakMode, BYTE ucGain, EnumYpeakingCoeffResolution en
+             -umResolution, BYTE *pucAddress, WORD usWriteLength, BYTE ucBankNum);
+              #endif
+ 102          
+ 103          #if((_HDR10_SUPPORT == _ON) && (_TRANSLATOR_SUPPORT == _OFF))
+ 104          void ScalerColorHDR10SupportSwitch(EnumSourceSearchPort enumSourcePort, EnumHDR10ModeDef enumSupport);
+ 105          #endif
+ 106          
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 3   
+
+ 107          #if(_OCC_PCM_GAMMA_SUPPORT == _ON)
+              void ScalerColorOCCPCMGammaInputGammaLoadTable(BYTE ucSelect);
+              #endif
+ 110          //****************************************************************************
+ 111          // FUNCTION DEFINITIONS
+ 112          //****************************************************************************
+ 113          #if(_VGA_SUPPORT == _ON)
+              #if(_DIGITAL_FILTER_SUPPORT == _ON)
+              //-------------------------------------------------
+              // Description  : Set digital filter
+              // Input Value  : None
+              // Output Value : None
+              //-------------------------------------------------
+              void ScalerColorDigitalFilterAdjust(void)
+              {
+                  // Disable NR
+                  ScalerColorDigitalFilterNRDisableAdjust();
+              
+              #if(_DIG_FILTER_NSMEAR_ENABLE == _ENABLE)
+                  // Set negative smear  parameter
+                  ScalerColorDigitalFilterNSmearAdjust(_DIG_FILTER_NSMEAR_THD, _DIG_FILTER_NSMEAR_DIV_VALUE);
+              #endif  // End of #if(_DIG_FILTER_NSMEAR_ENABLE == _ENABLE)
+              
+              #if(_DIG_FILTER_PSMEAR_ENABLE == _ENABLE)
+                  // Set positive smear  parameter
+                  ScalerColorDigitalFilterPSmearAdjust(_DIG_FILTER_PSMEAR_THD, _DIG_FILTER_PSMEAR_DIV_VALUE);
+              #endif  // End of #if(_DIG_FILTER_PSMEAR_ENABLE == _ENABLE)
+              
+              #if(_DIG_FILTER_NRING_ENABLE == _ENABLE)
+                  // Set negative ring  parameter
+                  ScalerColorDigitalFilterNRingAdjust(_DIG_FILTER_NRING_THD, _DIG_FILTER_NRING_DIV_VALUE);
+              #endif  // End of #if(_DIG_FILTER_NRING_ENABLE == _ENABLE)
+              
+              #if(_DIG_FILTER_PRING_ENABLE == _ENABLE)
+                  // Set positive ring  parameter
+                  ScalerColorDigitalFilterPRingAdjust(_DIG_FILTER_PRING_THD, _DIG_FILTER_PRING_DIV_VALUE);
+              #endif  // End of #if(_DIG_FILTER_PRING_ENABLE == _ENABLE)
+              
+              #if(_DIG_FILTER_EXTENSION_ENABLE == _ENABLE)
+                  // Use extension data
+                  ScalerColorDigitalFilterExtensionAdjust();
+              #endif  // End of #if(_DIG_FILTER_EXTENSION_ENABLE == _ENABLE)
+              }
+              #endif // #if(_DIGITAL_FILTER_SUPPORT == _ON)
+              
+              #endif // #if(_VGA_SUPPORT == _ON)
+ 153          
+ 154          #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Adjust highlight window region
+              // Input Value  : enumSelRegion, usHPos, usHWidth, usVPos, usVHeight, enumDBApply
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerColorHLWAdjust(WORD usHPos, WORD usHWidth, WORD usVPos, WORD usVHeight, EnumDBApply enumDBApply
+             -)
+              {
+                  ScalerColorHLWDDomainAdjust(usHPos, usHWidth, usVPos, usVHeight);
+              
+              #if(_ULTRA_VIVID_SUPPORT == _ON)
+                  ScalerColorHLWIDLTILSRAdjust(usHPos, usHWidth, usVPos, usVHeight);
+              
+                  if(GET_INTERLACED_MODE() == _TRUE)
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 4   
+
+                  {
+                      ScalerGlobalIDomainDBApply(enumDBApply);
+                      ScalerGlobalDDomainDBApply(enumDBApply);
+                  }
+                  else
+                  {
+                      ScalerGlobalIDDomainDBApply(enumDBApply);
+                  }
+              #else
+                  ScalerGlobalDDomainDBApply(enumDBApply);
+              #endif
+              }
+              
+              //--------------------------------------------------
+              // Description  : Enable/Disable IDLTI, LSR, Ddomain HLW,
+              // Input Value  : enumOn, enumDBApply
+              // Output Value : none
+              //--------------------------------------------------
+              void ScalerColorHLWEnable(EnumFunctionOnOFF enumOn, EnumDBApply enumDBApply)
+              {
+                  ScalerColorHLWDDomainEnable(enumOn);
+              
+              #if(_DCC_FUNCTION == _ON)
+                  ScalerColorDCCSetMeasureRegion((ScalerGetDataPortBit(P0_60_HLW_ADDR_PORT, _P0_61_PT_0E_HLW_CONTROL0, (
+             -_BIT3 | _BIT2))) >> 2);
+              #endif
+              
+              #if(_ULTRA_VIVID_SUPPORT == _ON)
+                  ScalerColorHLWIDLTILSREnable(enumOn);
+              
+                  if(GET_INTERLACED_MODE() == _TRUE)
+                  {
+                      ScalerGlobalIDomainDBApply(enumDBApply);
+                      ScalerGlobalDDomainDBApply(enumDBApply);
+                  }
+                  else
+                  {
+                      ScalerGlobalIDDomainDBApply(enumDBApply);
+                  }
+              #else
+                  ScalerGlobalDDomainDBApply(enumDBApply);
+              #endif
+              }
+              
+              #endif // #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+ 212          
+ 213          #if(_I_DITHER_SUPPORT == _ON)
+ 214          //--------------------------------------------------
+ 215          // Description  : Adjust IDither Setting
+ 216          // Input Value  :
+ 217          //              enumIDitherConvType :  Conv Type
+ 218          //              pucDitherTable : Dither Table Pointer
+ 219          //              pucSeqTable : Seq Table Pointer
+ 220          //              pucTempoTable : Temporal Table Pointer
+ 221          //              ucBankAddress : Bank Address
+ 222          // Output Value : None
+ 223          //--------------------------------------------------
+ 224          void ScalerColorIDitherAdjust(BYTE code *pucDitherTable, BYTE code *pucSeqTable, BYTE code *pucTempoTable,
+             - BYTE ucBankAddress)
+ 225          {
+ 226   1          WORD usAdjustOption = 0x0000;
+ 227   1      
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 5   
+
+ 228   1          ScalerColorIDitherLoadDitherTable(pucDitherTable, ucBankAddress);
+ 229   1      
+ 230   1      #if((_I_DITHER_MULTI_SEQ_ENABLE == _DISABLE) && (_I_DITHER_SERIES_SEQ_ENABLE == _DISABLE))
+ 231   1          ScalerColorIDitherLoadSeqTable(pucSeqTable, 24, ucBankAddress);
+ 232   1      #else
+                  ScalerColorIDitherLoadSeqTable(pucSeqTable, 96, ucBankAddress);
+              #endif
+ 235   1      
+ 236   1          ScalerColorIDitherLoadTemporalTable(pucTempoTable, ucBankAddress);
+ 237   1      
+ 238   1          if(ScalerMDomainGetColorDepth() == _COLOR_DEPTH_8_BITS)
+ 239   1          {
+ 240   2              usAdjustOption = (_I_DITHER_TEMP << 4) | (_I_DITHER_VALUE_SIGN << 3) | (_I_DITHER_V_FRAME_MOD << 1
+             -) | (_I_DITHER_H_FRAME_MOD << 0) | (_I_DITHER_SEQ_INV_ENABLE << 14) | (_I_DITHER_SEQ_INV_MODE << 13) | (_I_DITHER_SERIES
+             -_SEQ_ENABLE << 12) | (_I_DITHER_SHARE_SEQ_ENABLE << 11) | (_I_DITHER_MULTI_SEQ_ENABLE << 10);
+ 241   2          }
+ 242   1      #if(_IDITHER_TYPE == _IDITHER_GEN_3_4_SEQ_TRUNCATE_6_4_2_BIT)
+                  else if(ScalerMDomainGetColorDepth() == _COLOR_DEPTH_6_BITS)
+                  {
+                      usAdjustOption = (_BIT7) | (_I_DITHER_TEMP << 4) | (_I_DITHER_VALUE_SIGN << 3) | (_I_DITHER_V_FRAM
+             -E_MOD << 1) | (_I_DITHER_H_FRAME_MOD << 0) | (_I_DITHER_SEQ_INV_ENABLE << 14) | (_I_DITHER_SEQ_INV_MODE << 13) | (_I_DIT
+             -HER_SERIES_SEQ_ENABLE << 12) | (_I_DITHER_SHARE_SEQ_ENABLE << 11) | (_I_DITHER_MULTI_SEQ_ENABLE << 10);
+                  }
+              #endif
+ 248   1          else
+ 249   1          {
+ 250   2              usAdjustOption = (_I_DITHER_12_TO_10_TEMP << 4) | (_I_DITHER_12_TO_10_VALUE_SIGN << 3) | (_I_DITHE
+             -R_12_TO_10_V_FRAME_MOD << 1) | (_I_DITHER_12_TO_10_H_FRAME_MOD << 0) | (_I_DITHER_12_TO_10_SEQ_INV_ENABLE << 14) | (_I_D
+             -ITHER_12_TO_10_SEQ_INV_MODE << 13) | (_I_DITHER_12_TO_10_SERIES_SEQ_ENABLE << 12) | (_I_DITHER_12_TO_10_SHARE_SEQ_ENABLE
+             - << 11) | (_I_DITHER_12_TO_10_MULTI_SEQ_ENABLE << 10);
+ 251   2          }
+ 252   1      
+ 253   1          ScalerColorIDitherLoadSetting(usAdjustOption);
+ 254   1          ScalerColorIDitherResetFrameCnt();
+ 255   1      }
+ 256          #endif // #if(_I_DITHER_SUPPORT == _ON)
+ 257          
+ 258          #if(_D_DITHER_SUPPORT == _ON)
+ 259          //--------------------------------------------------
+ 260          // Description  : Enable/Disable DDither function
+ 261          // Input Value  : EnumFunctionOnOFF
+ 262          // Output Value : None
+ 263          //--------------------------------------------------
+ 264          void ScalerColorDDitherEnable(EnumFunctionOnOFF enumOn)
+ 265          {
+ 266   1      #if(_DDITHER_TYPE != _DDITHER_GEN_3_6BIT_DITHERTBL_6BIT_PANEL)
+                  if(enumOn == _FUNCTION_ON)
+                  {
+                      ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~_BIT5, _BIT5);
+                  }
+                  else
+                  {
+                      ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~_BIT5, 0x00);
+                  }
+              #else
+ 276   1          BYTE ucData = 0;
+ 277   1      
+ 278   1          ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~(_BIT7 | _BIT6), 0x00);
+ 279   1          ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_03_D_DITHER_COMMON_SET3);
+ 280   1          ucData = ScalerGetByte(P0_69_D_DITHER_DATA_ACCESS);
+ 281   1      
+ 282   1          if(enumOn == _FUNCTION_ON)
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 6   
+
+ 283   1          {
+ 284   2              ucData = (ucData & (~_BIT0)) | _D_DITHER_6BIT_PANEL_FUNC_ENABLE;
+ 285   2              ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~_BIT5, _BIT5);
+ 286   2              ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_03_D_DITHER_COMMON_SET3);
+ 287   2              ScalerSetByte(P0_69_D_DITHER_DATA_ACCESS, ucData);
+ 288   2          }
+ 289   1          else
+ 290   1          {
+ 291   2              ucData = ucData & (~_BIT0);
+ 292   2              ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_03_D_DITHER_COMMON_SET3);
+ 293   2              ScalerSetByte(P0_69_D_DITHER_DATA_ACCESS, ucData);
+ 294   2              ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~_BIT5, 0x00);
+ 295   2          }
+ 296   1      #endif
+ 297   1      }
+ 298          #endif
+ 299          
+ 300          #if((_DCR_SUPPORT == _ON) || (_IAPS_SUPPORT == _ON))
+ 301          //--------------------------------------------------
+ 302          // Description  : Set DCR Source
+ 303          // Input Value  : None
+ 304          // Output Value : None
+ 305          //--------------------------------------------------
+ 306          void ScalerColorDCRSetSource(void)
+ 307          {
+ 308   1          ScalerSetBit(P7_DA_DCR_CTRL, ~_BIT0, _DCR_SOURCE);
+ 309   1      }
+ 310          #endif
+ 311          
+ 312          #if(_ICM_SUPPORT == _ON)
+ 313          //--------------------------------------------------
+ 314          // Description   : Fill ICM UVOffset/Brightness table
+ 315          // Input Value   : pICMTable: ICM Table
+ 316          //                 ucBankNum: Bank Number
+ 317          //                 ucCMSel: ICM Select
+ 318          // Output Value  : None
+ 319          //--------------------------------------------------
+ 320          void ScalerColorICMLoadTable(BYTE code *pucICMTable, BYTE ucBankNum)
+ 321          {
+ 322   1          BYTE pucTemp[2] = {0};
+ 323   1      
+ 324   1          if(pucICMTable != NULL)
+ 325   1          {
+ 326   2              ScalerFlashRead(ucBankNum, (WORD)(&pucICMTable[1]), 2, pucTemp);
+ 327   2              ScalerColorICMAdjust(pucTemp[0], pucTemp[1]);
+ 328   2      
+ 329   2              ScalerColorICMUVOffsetLoadTable(pucICMTable, ucBankNum);
+ 330   2      
+ 331   2      #if(_ICM_BRI_SUPPORT == _ON)
+                      ScalerColorICMBRILoadTable(pucICMTable, ucBankNum);
+              #endif
+ 334   2          }
+ 335   1          else
+ 336   1          {
+ 337   2              ScalerColorICMAdjust(0x00, 0x00);
+ 338   2          }
+ 339   1      }
+ 340          #endif
+ 341          
+ 342          #if(_SIX_COLOR_SUPPORT == _ON)
+ 343          //--------------------------------------------------
+ 344          // Description  : Enable ICM function
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 7   
+
+ 345          // Input Value  : None
+ 346          // Output Value : None
+ 347          //--------------------------------------------------
+ 348          void ScalerColorSixColorInitial(void)
+ 349          {
+ 350   1      #if(_SIX_COLOR_ICM_TYPE == _SIX_COLOR_ICM_NORMAL_MODE)
+ 351   1          ScalerColorSixColorInitialNormal();
+ 352   1      #elif(_SIX_COLOR_ICM_TYPE == _SIX_COLOR_ICM_BRI_COMPENSATE_MODE)
+                  ScalerColorSixColorInitialBriCompensate();
+              #endif
+ 355   1      }
+ 356          
+ 357          //--------------------------------------------------
+ 358          // Description  : 6 Color ICM adjust
+ 359          // Input Value  : ucColorIndex --> Color Adjusted Now
+ 360          //                ucHuePosition --> Hue position after mapping
+ 361          //                ucSatPosition --> Sat position after mapping
+ 362          // Output Value : None
+ 363          //--------------------------------------------------
+ 364          void ScalerColorSixColorAdjust(BYTE ucColorIndex, BYTE ucHuePosition, BYTE ucSatPosition)
+ 365          {
+ 366   1      #if(_SIX_COLOR_ICM_TYPE == _SIX_COLOR_ICM_NORMAL_MODE)
+ 367   1          ScalerColorSixColorAdjustNormal(ucColorIndex, ucHuePosition, ucSatPosition);
+ 368   1      #elif(_SIX_COLOR_ICM_TYPE == _SIX_COLOR_ICM_BRI_COMPENSATE_MODE)
+                  ScalerColorSixColorAdjustBriCompensate(ucColorIndex, ucHuePosition, ucSatPosition);
+              #endif
+ 371   1      }
+ 372          #endif // #if(_SIX_COLOR_SUPPORT == _ON)
+ 373          
+ 374          #if(_YPEAKING_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Set Ypeaking Coefficient Filter and Resolution
+              // Input Value  : Coefficient Filter and Resolution
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerColorYpeakingAdjust(EnumYpeakingMode enumYPeakMode, BYTE ucGain, EnumYpeakingCoeffResolution en
+             -umResolution, BYTE *pucAddress, WORD usWriteLength, BYTE ucBankNum)
+              {
+                  if(enumYPeakMode == _YPEAKING_GAIN_MODE)
+                  {
+                      if(ucGain > 126)
+                      {
+                          ucGain = 126;
+                      }
+                      else if((ucGain < 14) && (ucGain > 0))
+                      {
+                          ucGain = 14;
+                      }
+                      else if(ucGain == 0)
+                      {
+                          ScalerColorYpeaking(_OFF);
+                          return;
+                      }
+              
+                      pData[0] = ucGain & 0x7E;
+              
+                      if((ucGain & _BIT0) == _TRUE)
+                      {
+                          pData[1] = (SWORD)0 - (pData[0] >> 1);
+                          pData[2] = 0;
+                      }
+                      else
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 8   
+
+                      {
+                          pData[1] = (SWORD)0 - ((pData[0] + 4) >> 1);
+                          pData[2] = 2;
+                      }
+              
+                      pData[3] = (BYTE)_YPEAKING_CORING_MIN;
+                      pData[4] = (BYTE)_YPEAKING_MAX_POS;
+                      pData[5] = (BYTE)_YPEAKING_MAX_NEG;
+              
+                      ScalerSetBit(P7_D6_PEAKING_CORING_ACCESS_PORT_CTL, ~(_BIT7 | _BIT5 | _BIT2 | _BIT1 | _BIT0), (_BIT
+             -7 | (enumResolution << 5)));
+                      ScalerWrite(P7_D7_PEAKING_CORING_DATA_PORT, 6, pData, _NON_AUTOINC);
+                      ScalerSetBit(P7_D6_PEAKING_CORING_ACCESS_PORT_CTL, ~(_BIT7 | _BIT2 | _BIT1 | _BIT0), 0x00);
+                  }
+                  else if(enumYPeakMode == _YPEAKING_TABLE_MODE)
+                  {
+                      // Set Coefficient table 1
+                      ScalerSetBit(P7_D6_PEAKING_CORING_ACCESS_PORT_CTL, ~_BIT7, _BIT7);
+                      ScalerSetBit(P7_D6_PEAKING_CORING_ACCESS_PORT_CTL, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+                      ScalerBurstWrite(pucAddress, usWriteLength, ucBankNum, P7_D7_PEAKING_CORING_DATA_PORT, _BURSTWRITE
+             -_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+              
+                      // Disable Coefficient Access & set H/V Scale Up to use coefficient table 1
+                      ScalerSetBit(P7_D6_PEAKING_CORING_ACCESS_PORT_CTL, ~_BIT7, 0x00);
+                  }
+              
+                  ScalerColorYpeaking(_ON);
+              }
+              #endif
+ 433          
+ 434          #if((_HDR10_SUPPORT == _ON) && (_TRANSLATOR_SUPPORT == _OFF))
+ 435          //--------------------------------------------------
+ 436          // Description  : Switch HDR10 Support
+ 437          // Input Value  : Source Port, Support
+ 438          // Output Value : None
+ 439          //--------------------------------------------------
+ 440          void ScalerColorHDR10SupportSwitch(EnumSourceSearchPort enumSourcePort, EnumHDR10ModeDef enumSupport)
+ 441          {
+ 442   1          enumSupport = enumSupport;
+ 443   1          switch(enumSourcePort)
+ 444   1          {
+ 445   2      #if(((_D0_HDMI_SUPPORT == _ON) && (_HDMI_HDR10_SUPPORT == _ON)) ||\
+ 446   2          ((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_DP_HDR10_SUPPORT == _ON)))
+ 447   2              case _D0_INPUT_PORT:
+ 448   2      
+ 449   2                  if(GET_RX0_HDR10_SUPPORT() != enumSupport)
+ 450   2                  {
+ 451   3                      SET_RX0_HDR10_SUPPORT(enumSupport);
+ 452   3                  }
+ 453   2      
+ 454   2                  break;
+ 455   2      #endif
+ 456   2      
+ 457   2      #if(((_D1_HDMI_SUPPORT == _ON) && (_HDMI_HDR10_SUPPORT == _ON)) ||\
+ 458   2          ((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_DP_HDR10_SUPPORT == _ON)))
+ 459   2              case _D1_INPUT_PORT:
+ 460   2      
+ 461   2                  if(GET_RX1_HDR10_SUPPORT() != enumSupport)
+ 462   2                  {
+ 463   3                      SET_RX1_HDR10_SUPPORT(enumSupport);
+ 464   3                  }
+ 465   2      
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 9   
+
+ 466   2                  break;
+ 467   2      #endif
+ 468   2      
+ 469   2      #if(((_D2_HDMI_SUPPORT == _ON) && (_HDMI_HDR10_SUPPORT == _ON)) ||\
+ 470   2          ((_D2_INPUT_PORT_TYPE == _D2_DP_PORT) && (_DP_HDR10_SUPPORT == _ON)))
+                      case _D2_INPUT_PORT:
+              
+                          if(GET_RX2_HDR10_SUPPORT() != enumSupport)
+                          {
+                              SET_RX2_HDR10_SUPPORT(enumSupport);
+                          }
+              
+                          break;
+              #endif
+ 480   2      
+ 481   2      #if((_D3_HDMI_SUPPORT == _ON) && (_HDMI_HDR10_SUPPORT == _ON))
+ 482   2              case _D3_INPUT_PORT:
+ 483   2      
+ 484   2                  if(GET_RX3_HDR10_SUPPORT() != enumSupport)
+ 485   2                  {
+ 486   3                      SET_RX3_HDR10_SUPPORT(enumSupport);
+ 487   3                  }
+ 488   2      
+ 489   2                  break;
+ 490   2      #endif
+ 491   2      
+ 492   2      
+ 493   2      #if((_D4_HDMI_SUPPORT == _ON) && (_HDMI_HDR10_SUPPORT == _ON))
+                      case _D4_INPUT_PORT:
+              
+                          if(GET_RX4_HDR10_SUPPORT() != enumSupport)
+                          {
+                              SET_RX4_HDR10_SUPPORT(enumSupport);
+                          }
+              
+                          break;
+              #endif
+ 503   2      
+ 504   2      #if((_D5_HDMI_SUPPORT == _ON) && (_HDMI_HDR10_SUPPORT == _ON))
+                      case _D5_INPUT_PORT:
+              
+                          if(GET_RX5_HDR10_SUPPORT() != enumSupport)
+                          {
+                              SET_RX5_HDR10_SUPPORT(enumSupport);
+                          }
+              
+                          break;
+              #endif
+ 514   2      
+ 515   2      #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_DP_HDR10_SUPPORT == _ON) && ((_D6_INPUT_PORT_TYPE == _D6_DP_
+             -PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0)))
+                      case _D6_INPUT_PORT:
+              
+                          if(GET_RX6_HDR10_SUPPORT() != enumSupport)
+                          {
+                              SET_RX6_HDR10_SUPPORT(enumSupport);
+                          }
+              
+                          break;
+              #endif
+ 525   2      
+ 526   2              default:
+C51 COMPILER V9.60.0.0   SCALERCOLOR                                                       08/27/2025 11:00:25 PAGE 10  
+
+ 527   2                  break;
+ 528   2          }
+ 529   1      }
+ 530          #endif
+ 531          
+ 532          #if(_OCC_PCM_GAMMA_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Adjust OCC PCM gamma
+              // Input Value  : 0-Gamma05, 1-Gamma06, ...
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerColorOCCPCMGammaInputGammaLoadTable(BYTE ucSelect)
+              {
+                  EnumOCCPCMGammaType enumOCCPCMGammaType = ucSelect;
+                  ScalerColorPCMInputGammaAdjust((BYTE *)ScalerColorOCCPCMGammaGetTableAddress(enumOCCPCMGammaType), Sca
+             -lerColorOCCPCMGammaGetTableBank());
+              }
+              #endif
+ 544          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    320    ----
+   CONSTANT SIZE    =      2    ----
+   XDATA SIZE       =   ----      14
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

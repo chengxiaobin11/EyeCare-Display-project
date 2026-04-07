@@ -1,0 +1,3142 @@
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RTD2014DDCCI
+OBJECT MODULE PLACED IN .\Output\RL6463\RTD2014Ddcci.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE User\RTD Series\RTD2014Osd\Code\RTD2014Ddcci.c LARGE OPTIMIZE(9,SPEE
+                    -D) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.
+                    -\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Head
+                    -er;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler\RL6463_Se
+                    -ries_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\R
+                    -TD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\Us
+                    -er\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\R
+                    -L6463\RTD2014Ddcci.lst) OBJECT(.\Output\RL6463\RTD2014Ddcci.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RTD2014Ddcci.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RTD_DDCCI__
+  18          
+  19          #include "UserCommonInclude.h"
+  20          
+  21          #if(_OSD_TYPE == _REALTEK_2014_OSD)
+  22          
+  23          //****************************************************************************
+  24          // DEFINITIONS / MACROS
+  25          //****************************************************************************
+  26          
+  27          #define _DDCCI_FIRMWARE_VERSION                     0x01
+  28          
+  29          #define _DDCCI_BLACKLEVEL_DEFAULT                   0x50
+  30          
+  31          // RC
+  32          #define _DDCCI_CMD_GETVCP_RC_NO_ERROR               0x00
+  33          #define _DDCCI_CMD_GETVCP_RC_UNSUPPORTED            0x01
+  34          
+  35          // TP
+  36          #define _DDCCI_CMD_GETVCP_TP_SET_PARAMETER          0x00
+  37          #define _DDCCI_CMD_GETVCP_TP_MOMENTARY              0x01
+  38          
+  39          //--------------------------------------------------
+  40          // Definitions of Contrast Range (Real Value)
+  41          //--------------------------------------------------
+  42          #define _COLORTEMP_USER_MAX                         255
+  43          #define _COLORTEMP_USER_MIN                         0
+  44          #define _COLORTEMP_USER_CENTER                      (((_COLORTEMP_USER_MAX - _COLORTEMP_USER_MIN) / 2) + _
+             -COLORTEMP_USER_MIN)
+  45          
+  46          //--------------------------------------------------
+  47          // For DDCCI Set Input Port
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 2   
+
+  48          //--------------------------------------------------
+  49          #define _VGA_1                                      _A0_INPUT_PORT
+  50          #define _DVI_1                                      _NO_INPUT_PORT
+  51          #define _DVI_2                                      _NO_INPUT_PORT
+  52          #define _DP_1                                       _D0_INPUT_PORT
+  53          #define _DP_2                                       _NO_INPUT_PORT
+  54          #define _HDMI_1                                     _D1_INPUT_PORT
+  55          #define _HDMI_2                                     _D2_INPUT_PORT
+  56          
+  57          //--------------------------------------------------
+  58          // Dell DDM Tool
+  59          //--------------------------------------------------
+  60          #define _DDCCI_OPCODE_VCP_DELL_DDM_SUPPORT          0xF1
+  61          
+  62          
+  63          //****************************************************************************
+  64          // STRUCT / TYPE / ENUM DEFINITTIONS
+  65          //****************************************************************************
+  66          // sRGB, 9300k, 7500k, 6500k, 5000k, User
+  67          BYTE code tCOLORPRESET_VALUE[] = 
+  68          {
+  69          #if(_DEF_CT_SRGB_SUPPIRT == _ON)
+  70                  0x01, 
+  71          #endif
+  72                  0x08, 
+  73                  0x06, 
+  74                  0x05, 
+  75          #if(_DEF_CT_5800_SUPPORT == _ON)
+  76                  0x04, 
+  77          #endif
+  78                  0x0B, 
+  79                  0x03
+  80          };
+  81          
+  82          BYTE code tLANGUAGEDEFINE[] = {0x02, 0x03, 0x04, 0x0A, 0x05, 0x16,0x0B, 0x09,0x0C,0x12,0x06,0x07,0x01,0x0D
+             -,0x25};
+  83          
+  84          //_CT_SRGB
+  85          
+  86          
+  87          //****************************************************************************
+  88          // VARIABLE DECLARATIONS
+  89          //****************************************************************************
+  90          BYTE g_ucDdcciRedBlackLevel   = _DDCCI_BLACKLEVEL_DEFAULT;
+  91          BYTE g_ucDdcciGreenBlackLevel = _DDCCI_BLACKLEVEL_DEFAULT;
+  92          BYTE g_ucDdcciBlueBlackLevel  = _DDCCI_BLACKLEVEL_DEFAULT;
+  93          BYTE g_ucDdcciNewControlValue = 1;
+  94          BYTE g_ucDdcciActiveValue;
+  95          BYTE g_ucColorTempUnSupport;
+  96          
+  97          bit g_bForcePowSavStatus = _FALSE;
+  98          
+  99          BYTE g_ucVCP_OSD_ON_OFF   = 0x02;
+ 100          
+ 101          //****************************************************************************
+ 102          // FUNCTION DECLARATIONS
+ 103          //****************************************************************************
+ 104          void UserDdcciHandler(void);
+ 105          void RTDDdcciGetVCPFeature(void);
+ 106          bit RTDDdcciSetVCPFeatureCheck(void);
+ 107          void RTDDdcciSetVCPFeature(void);
+ 108          void RTDDdcciResetAllSettings(void);
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 3   
+
+ 109          void RTDDdcciColorReset(void);
+ 110          //void RTDDdcciEdidProc(void);
+ 111          
+ 112          extern void RTDDdcciAutoAlignPro(void);
+ 113          extern  bit TPVFCmdFactoryCommand(void);
+ 114          extern void UserAdjustViewMode(void);
+ 115          
+ 116          
+ 117          extern void CTXAlignControl(void);
+ 118          extern void RTDDdcciAutoAlignPro(void);
+ 119          extern void CTXWriteEdid( void);
+ 120          #if(_OD_SUPPORT == _ON)
+ 121          extern void UserAdjustOverDrive(void);
+ 122          #endif
+ 123          
+ 124          //****************************************************************************
+ 125          // FUNCTION DEFINITIONS
+ 126          //****************************************************************************
+ 127          
+ 128          void RTDDdccireply(BYTE Flag)
+ 129          {
+ 130   1              g_pucDdcciTxBuf[0]=0x6E;
+ 131   1              g_pucDdcciTxBuf[1]=0x82;
+ 132   1              g_pucDdcciTxBuf[2]=0x02;
+ 133   1              g_pucDdcciTxBuf[3]=Flag;
+ 134   1              g_pucDdcciTxBuf[4] = UserCommonDdcciCalCheckSum();
+ 135   1              ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+ 136   1      #if 1//((_OGC_SUPPORT == _ON) || (_OCC_SUPPORT == _ON) || (_OGC_DICOM_SUPPORT == _ON))  
+ 137   1              ScalerMcuDdcciReleaseScl();
+ 138   1      #endif
+ 139   1      }
+ 140          
+ 141          //--------------------------------------------------
+ 142          // Description  : DDC Handler Process
+ 143          // Input Value  : None
+ 144          // Output Value : None
+ 145          //--------------------------------------------------
+ 146          void UserDdcciHandler(void)
+ 147          {
+ 148   1          if(GET_OSD_DDCCI_STATUS() == _ON)
+ 149   1          {
+ 150   2              // Check if Data is needed to be received
+ 151   2              // Reply data to source according to the request
+ 152   2              if(GET_RUN_DDCCI_COMMAND() == _SUCCESS)
+ 153   2              {
+ 154   3                      if(SysModeGetModeState() != _MODE_STATUS_INITIAL)
+ 155   3                      {
+ 156   4                                      g_usShowTimingNotice = _OFF;
+ 157   4                                      OsdDispDisableOsd();
+ 158   4                              }
+ 159   3                              
+ 160   3                      if(TPVFCmdFactoryCommand() == _FALSE)
+ 161   3                              {
+ 162   4                      switch(g_pucDdcciRxBuf[_DDCCI_COMMAND])
+ 163   4                          {
+ 164   5                              case _DDCCI_CMD_GET_VCP_FEATURE:
+ 165   5                                  RTDDdcciGetVCPFeature();
+ 166   5                                  break;
+ 167   5      
+ 168   5                              case _DDCCI_CMD_SET_VCP_FEATURE:
+ 169   5                                  RTDDdcciSetVCPFeature();
+ 170   5                                  break;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 4   
+
+ 171   5      
+ 172   5                              case _DDCCI_CMD_GET_TIMING_REPORT:
+ 173   5                                  UserCommonDdcciGetTimingReport();
+ 174   5                                  break;
+ 175   5      
+ 176   5                              case _DDCCI_CMD_SAVE_CURRENT_SETTINGS:
+ 177   5                                  break;
+ 178   5      
+ 179   5                              case _DDCCI_CMD_CAPABILITIES_REQUEST:
+ 180   5                                  UserCommonDdcciGetCapabilitiesRequest();
+ 181   5                                  break;
+ 182   5      #if(_CTX_TPV)                                           
+ 183   5                                              case CTX_ALIGN:
+ 184   5                                                      CTXAlignControl();
+ 185   5                               break;
+ 186   5      #if (_ENABLE_WRITE_EDID_CTX==_ON)
+ 187   5                                                                                              
+ 188   5                                              case CTX_WRITE_EDID:
+ 189   5                                                      CTXWriteEdid();
+ 190   5                                                      break;
+ 191   5      #endif
+ 192   5      #endif
+ 193   5                              default:
+ 194   5                                  UserCommonDdcciInitTx();
+ 195   5                                  break;
+ 196   5                          }
+ 197   4                      }
+ 198   3                              // 20240117 调HDR的工具和调色温都有概率卡死,在此释放SCL
+ 199   3                              if(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE] == _DDCCI_OPCODE_VCP_AUTOALIGN || g_pucDdcciRxBuf[_DDCCI_SOURC
+             -E_OPCODE] == _DDCCI_OPCODE_VCP_DISP_CALIBRATION)
+ 200   3                                      ScalerMcuDdcciReleaseScl();
+ 201   3      
+ 202   3                  UserCommonDdcciInitRx();
+ 203   3      
+ 204   3                  SET_RUN_DDCCI_COMMAND(_FAIL);
+ 205   3              }
+ 206   2          }
+ 207   1      #if((_DP_SUPPORT == _ON) && (_DP_MST_SUPPORT == _ON))
+                  else
+                  {
+                      // Check if Data is needed to be received
+                      // Reply data to source according to the request
+                      if((GET_RUN_DDCCI_COMMAND() == _SUCCESS) && (UserCommonInterfaceGetDpMstCapablePort() != _DP_MST_N
+             -O_PORT))
+                      {
+                          UserCommonDdcciInitTx();
+                          SET_RUN_DDCCI_COMMAND(_FAIL);
+                      }
+                  }
+              #endif
+ 219   1      }
+ 220          
+ 221          #if(_DDCCI_CUSTOM_CAPABILITY_STR_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Get custom capability string data
+              // Input Value  : pucDest -> destination
+              //                enumPortType -> port type
+              //                usStartIndex -> data offset
+              //                usLength -> data length
+              // Output Value : None
+              //--------------------------------------------------
+              void UserInterfaceDdcciGetCpStringData(BYTE *pucDest, EnumInputPortType enumPortType, WORD usStartIndex, W
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 5   
+
+             -ORD usLength)
+              {
+                  pucDest = pucDest;
+                  enumPortType = enumPortType;
+                  usStartIndex = usStartIndex;
+                  usLength = usLength;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get custom capability string size
+              // Input Value  : enumPortType -> port type
+              // Output Value : size
+              //--------------------------------------------------
+              WORD UserInterfaceDdcciGetCpStringSize(EnumInputPortType enumPortType)
+              {
+                  enumPortType = enumPortType;
+                  return 0;
+              }
+              #endif
+ 249          
+ 250          //--------------------------------------------------
+ 251          // Description  : DDCCI Get VCP Feature & VCP Feature Reply
+ 252          // Input Value  : None
+ 253          // Output Value : None
+ 254          //--------------------------------------------------
+ 255          void RTDDdcciGetVCPFeature(void)
+ 256          {
+ 257   1          BYTE pucTemp[2] = {0};
+ 258   1      #if(_CTX_TPV)   
+ 259   1      #if (_ENABLE_WRITE_EDID_CTX==_ON)
+ 260   1                              if(g_pucDdcciTxBuf[_DDCCI_SOURCE_OPCODE] == VCP_BOE_FACTORY_ALIGNMENT )//&& u8PageValue == 0)
+ 261   1                              {
+ 262   2                                      
+ 263   2                              }
+ 264   1                               else
+ 265   1      #endif
+ 266   1      #endif
+ 267   1                  {
+ 268   2                    g_pucDdcciTxBuf[_DDCCI_SOURCE] = _DDCCI_DEST_ADDRESS;
+ 269   2                    g_pucDdcciTxBuf[_DDCCI_LENGTH] = _DDCCI_CONTROL_STATUS_FLAG | 0x08;
+ 270   2                    g_pucDdcciTxBuf[_DDCCI_COMMAND] = _DDCCI_CMD_GET_VCP_FEATURE_REPLY;
+ 271   2                    g_pucDdcciTxBuf[_DDCCI_RESULT_CODE] = _DDCCI_CMD_GETVCP_RC_NO_ERROR;
+ 272   2                    g_pucDdcciTxBuf[_DDCCI_SINK_OPCODE] = g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE];
+ 273   2                  }
+ 274   1          switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+ 275   1          {
+ 276   2      #if(_CTX_TPV)
+ 277   2      #if (_ENABLE_WRITE_EDID_CTX==_ON)
+ 278   2      
+ 279   2                      case VCP_BOE_FACTORY_ALIGNMENT:
+ 280   2                      
+ 281   2                         CTXWriteEdid();
+ 282   2                        break;
+ 283   2      
+ 284   2      #endif
+ 285   2      #endif
+ 286   2                      case _DDCCI_OPCODE_VCP_DDCPROC:
+ 287   2                              {
+ 288   3                                              //      WORD udAddress;
+ 289   3                                              //      udAddress=((WORD)(256*g_pucDdcciRxBuf[4])+g_pucDdcciRxBuf[5]);
+ 290   3                                                      
+ 291   3                                                      
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 6   
+
+ 292   3                              ///**/flash area 
+ 293   3                              /*
+ 294   3                                                      UserCommonFlashRead(_EEPROM_HDCP_KEY_FLASH_BANK,(_MISC_PAGE) * _FLASH_PAGE_SIZE+127, 1, &g_pucDdcciT
+             -xBuf[3]);
+ 295   3                                                      UserCommonFlashRead(_EEPROM_HDCP_KEY_FLASH_BANK,(_MISC_PAGE) * _FLASH_PAGE_SIZE+255, 1, &g_pucDdcciT
+             -xBuf[4]);
+ 296   3                                                      UserCommonFlashRead(_EEPROM_HDCP_KEY_FLASH_BANK,(_MISC_PAGE) * _FLASH_PAGE_SIZE+383, 1, &g_pucDdcciT
+             -xBuf[5]);
+ 297   3                                                      UserCommonFlashRead(_EEPROM_HDCP_KEY_FLASH_BANK,(_MISC_PAGE) * _FLASH_PAGE_SIZE+511, 1, &g_pucDdcciT
+             -xBuf[6]);
+ 298   3                              */      
+ 299   3      #if((_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH))
+              #if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+                                                              g_pucDdcciTxBuf[3] = MCU_DDCRAM_A0[127];
+              #endif
+              #endif
+ 304   3                              
+ 305   3      #if((_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH))
+              #if(_D0_INPUT_PORT_TYPE == _D0_DVI_PORT)
+                                                              g_pucDdcciTxBuf[4] = MCU_DDCRAM_D0[127];
+                                      
+              #elif(_D0_INPUT_PORT_TYPE >_D0_DVI_PORT)
+                                                              g_pucDdcciTxBuf[5] = MCU_DDCRAM_D0[127];
+                                                              g_pucDdcciTxBuf[6] = MCU_DDCRAM_D0[255];
+              #endif
+              #endif
+ 314   3                              
+ 315   3      #if((_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH))
+              #if(_D1_INPUT_PORT_TYPE == _D1_DVI_PORT)
+                                                              g_pucDdcciTxBuf[4] = MCU_DDCRAM_D1[127];
+              #elif(_D1_INPUT_PORT_TYPE > _D1_DVI_PORT)
+                                                              g_pucDdcciTxBuf[5] = MCU_DDCRAM_D1[127];
+                                                              g_pucDdcciTxBuf[6] = MCU_DDCRAM_D1[255];
+              #endif
+              #endif
+ 323   3                              
+ 324   3                                                      g_pucDdcciTxBuf[7]=0;
+ 325   3                                                      g_pucDdcciTxBuf[8]=0;
+ 326   3                                                      g_pucDdcciTxBuf[9]=0;
+ 327   3                                                      g_pucDdcciTxBuf[10]=0;
+ 328   3                                                      
+ 329   3                                                      g_pucDdcciTxBuf[_DDCCI_LENGTH]=9;
+ 330   3                                                      g_pucDdcciTxBuf[11] = UserCommonDdcciCalCheckSum();
+ 331   3                                                      ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+ 332   3                                                      //ScalerTimerActiveTimerEvent(SEC(0.5), _USER_TIMER_EVENT_OSD_DISABLE);
+ 333   3                                                      //OsdDispDisableOsd();
+ 334   3                                                      return;
+ 335   3                              }
+ 336   2                              break;
+ 337   2              case _DDCCI_OPCODE_VCP_NEW_CONTROL_VALUE:
+ 338   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, g_ucDdcciNewContro
+             -lValue);
+ 339   2                  break;
+ 340   2      
+ 341   2              case _DDCCI_OPCODE_VCP_FACTORY_RESET:
+ 342   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+ 343   2                  break;
+ 344   2      
+ 345   2              case _DDCCI_OPCODE_VCP_RECAL_BRI_CON:
+ 346   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+ 347   2                  break;
+ 348   2      
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 7   
+
+ 349   2              case _DDCCI_OPCODE_VCP_GEOMETRY_RESET:
+ 350   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+ 351   2                  break;
+ 352   2      
+ 353   2              case _DDCCI_OPCODE_VCP_COLOR_RESET:
+ 354   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+ 355   2                  break;
+ 356   2      
+ 357   2              case _DDCCI_OPCODE_VCP_COLOR_TEMP_INCREMENT:
+ 358   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0064, 100);
+ 359   2                  break;
+ 360   2      
+ 361   2              case _DDCCI_OPCODE_VCP_COLOR_TEMP_REQUEST:
+ 362   2                  switch(GET_COLOR_TEMP_TYPE())
+ 363   2                  {
+ 364   3                      case _CT_SRGB:
+ 365   3                          pucTemp[0] = (40 - 30);
+ 366   3                          break;
+ 367   3      
+ 368   3                                      case _CT_9300:
+ 369   3                                              pucTemp[0] = (93 - 30);
+ 370   3                                              break;
+ 371   3      
+ 372   3                                      case _CT_7500:
+ 373   3                                              pucTemp[0] = (75 - 30);
+ 374   3                                              break;
+ 375   3      
+ 376   3                      case _CT_6500:
+ 377   3                          pucTemp[0] = (65 - 30);
+ 378   3                          break;
+ 379   3      
+ 380   3                      case _CT_5000:
+ 381   3                          pucTemp[0] = (50 - 30);
+ 382   3                          break;
+ 383   3                      /*
+ 384   3                                      case _CT_4500:
+ 385   3                                              pucTemp[0] = (45 - 30);
+ 386   3                                              break;
+ 387   3                      */
+ 388   3                      default:
+ 389   3                          pucTemp[0] = (65 - 30);
+ 390   3                          break;
+ 391   3                  }
+ 392   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x00, pucTemp[0]);
+ 393   2                  break;
+ 394   2      
+ 395   2      #if(_VGA_SUPPORT == _ON)
+ 396   2              case _DDCCI_OPCODE_VCP_CLOCK:
+ 397   2      
+ 398   2      #if(_AUTO_CLOCK_SAVE_VALUE_OPTION == _CLOCK_SAVE_PERCENT_VALUE)
+ 399   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_VGA_MODE_ADJUST_C
+             -LOCK());
+ 400   2      #else
+                          {
+                              WORD usClockRangeMax = 0;
+                              WORD usClockRangeMin = 0;
+                              BYTE ucClock = 0;
+              
+                              usClockRangeMax = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MAX);
+                              usClockRangeMin = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MIN);
+                              ucClock = UserCommonAdjustRealValueToPercent(GET_VGA_MODE_ADJUST_CLOCK(), usClockRangeMax,
+             - usClockRangeMin, (((usClockRangeMax - usClockRangeMin) / 2) + usClockRangeMin));
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 8   
+
+              
+                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, ucClock);
+                          }
+              #endif
+ 413   2                  break;
+ 414   2      
+ 415   2      #endif // End of #if(_VGA_SUPPORT == _ON)
+ 416   2      
+ 417   2              case _DDCCI_OPCODE_VCP_BACKLIGHT:
+ 418   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100,
+ 419   2                                            (WORD)UserCommonAdjustRealValueToPercent(GET_OSD_BACKLIGHT(),
+ 420   2                                            _BACKLIGHT_MAX_1, _BACKLIGHT_MIN, _BACKLIGHT_CENTER));
+ 421   2      
+ 422   2                  break;
+ 423   2      
+ 424   2              case _DDCCI_OPCODE_VCP_CONTRAST:
+ 425   2                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_CONTRAST());
+ 426   2                  //UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100,
+ 427   2                                                 // (WORD)UserCommonAdjustRealValueToPercent(GET_OSD_CONTRAST(),
+             - _CONTRAST_MAX, _CONTRAST_MIN, _CONTRAST_CENTER));
+ 428   2                  break;
+ 429   2      
+ 430   2              case _DDCCI_OPCODE_VCP_SELECT_COLOR_PRESET:
+ 431   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x000B,
+ 432   2                                                  tCOLORPRESET_VALUE[GET_COLOR_TEMP_TYPE()]);
+ 433   2                  break;
+ 434   2      
+ 435   2              case _DDCCI_OPCODE_VCP_BLUELIGHT:
+ 436   2                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_LOW_BLUE());
+ 437   2                  break;
+ 438   2      
+ 439   2              case _DDCCI_OPCODE_VCP_BLK_STABLE:
+ 440   2                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 10, GET_OSD_BLACKSTABLE());
+ 441   2                  break;
+ 442   2      
+ 443   2                      case _DDCCI_OPCODE_VCP_RED:
+ 444   2                      case _DDCCI_OPCODE_VCP_YELLOW:
+ 445   2                      case _DDCCI_OPCODE_VCP_GREEN:
+ 446   2                      case _DDCCI_OPCODE_VCP_CYAN:
+ 447   2                      case _DDCCI_OPCODE_VCP_BLUE:
+ 448   2                      case _DDCCI_OPCODE_VCP_MAGENDA:
+ 449   2      
+ 450   2                              switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+ 451   2                              {
+ 452   3                                      case _DDCCI_OPCODE_VCP_RED:
+ 453   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_R);
+ 454   3                                              break;
+ 455   3                                      case _DDCCI_OPCODE_VCP_YELLOW:
+ 456   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_Y);
+ 457   3                                              break;
+ 458   3                                      case _DDCCI_OPCODE_VCP_GREEN:
+ 459   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_G);
+ 460   3                                              break;
+ 461   3                                      case _DDCCI_OPCODE_VCP_CYAN:
+ 462   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_C);
+ 463   3                                              break;
+ 464   3                                      case _DDCCI_OPCODE_VCP_BLUE:
+ 465   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_B);
+ 466   3                                              break;
+ 467   3                                      case _DDCCI_OPCODE_VCP_MAGENDA:
+ 468   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_M);
+ 469   3                                              break;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 9   
+
+ 470   3      
+ 471   3                              }
+ 472   2      
+ 473   2                  OsdDisplaySixColorGetOneColor(GET_OSD_SIX_COLOR());
+ 474   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_SIX_COLOR_HUE
+             -());
+ 475   2      
+ 476   2                              
+ 477   2                  break;
+ 478   2      
+ 479   2      
+ 480   2      
+ 481   2                      case _DDCCI_OPCODE_VCP_SAT_RED:
+ 482   2                      case _DDCCI_OPCODE_VCP_SAT_YELLOW:
+ 483   2                      case _DDCCI_OPCODE_VCP_SAT_GREEN:
+ 484   2                      case _DDCCI_OPCODE_VCP_SAT_CYAN:
+ 485   2                      case _DDCCI_OPCODE_VCP_SAT_BLUE:
+ 486   2                      case _DDCCI_OPCODE_VCP_SAT_MAGENTA:
+ 487   2      
+ 488   2                              switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+ 489   2                              {
+ 490   3                                      case _DDCCI_OPCODE_VCP_SAT_RED:
+ 491   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_R);
+ 492   3                                              break;
+ 493   3                                      case _DDCCI_OPCODE_VCP_SAT_YELLOW:
+ 494   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_Y);
+ 495   3                                              break;
+ 496   3                                      case _DDCCI_OPCODE_VCP_SAT_GREEN:
+ 497   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_G);
+ 498   3                                              break;
+ 499   3                                      case _DDCCI_OPCODE_VCP_SAT_CYAN:
+ 500   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_C);
+ 501   3                                              break;
+ 502   3                                      case _DDCCI_OPCODE_VCP_SAT_BLUE:
+ 503   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_B);
+ 504   3                                              break;
+ 505   3                                      case _DDCCI_OPCODE_VCP_SAT_MAGENTA:
+ 506   3                                              SET_OSD_SIX_COLOR(_SIXCOLOR_M);
+ 507   3                                              break;
+ 508   3      
+ 509   3                              }
+ 510   2      
+ 511   2                  OsdDisplaySixColorGetOneColor(GET_OSD_SIX_COLOR());
+ 512   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_SIX_COLOR_SAT
+             -URATION());
+ 513   2      
+ 514   2                              
+ 515   2                  break;
+ 516   2      
+ 517   2      
+ 518   2              case _DDCCI_OPCODE_VCP_RED_GAIN:
+ 519   2                  pucTemp[0] = GET_COLOR_TEMP_TYPE();
+ 520   2      
+ 521   2                  if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+ 522   2                  {
+ 523   3                      SET_COLOR_TEMP_TYPE(_CT_USER);
+ 524   3      
+ 525   3                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+ 526   3                  }
+ 527   2      
+ 528   2                  pucTemp[1] = UserCommonAdjustRealValueToPercent(GET_COLOR_TEMP_TYPE_USER_R(),
+ 529   2                                                                  _USER_RGB_MAX,
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 10  
+
+ 530   2                                                                  _USER_RGB_MIN,
+ 531   2                                                                  _USER_RGB_CENTER);
+ 532   2      
+ 533   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, pucTemp[1]);
+ 534   2      
+ 535   2                  SET_COLOR_TEMP_TYPE(pucTemp[0]);
+ 536   2      
+ 537   2                  RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+ 538   2                  break;
+ 539   2      
+ 540   2              case _DDCCI_OPCODE_VCP_GREEN_GAIN:
+ 541   2                  pucTemp[0] = GET_COLOR_TEMP_TYPE();
+ 542   2      
+ 543   2                  if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+ 544   2                  {
+ 545   3                      SET_COLOR_TEMP_TYPE(_CT_USER);
+ 546   3      
+ 547   3                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+ 548   3                  }
+ 549   2      
+ 550   2                  pucTemp[1] = UserCommonAdjustRealValueToPercent(GET_COLOR_TEMP_TYPE_USER_G(),
+ 551   2                                                                  _USER_RGB_MAX,
+ 552   2                                                                  _USER_RGB_MIN,
+ 553   2                                                                  _USER_RGB_CENTER);
+ 554   2      
+ 555   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, pucTemp[1]);
+ 556   2      
+ 557   2                  SET_COLOR_TEMP_TYPE(pucTemp[0]);
+ 558   2      
+ 559   2                  RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+ 560   2                  break;
+ 561   2      
+ 562   2              case _DDCCI_OPCODE_VCP_BLUE_GAIN:
+ 563   2                  pucTemp[0] = GET_COLOR_TEMP_TYPE();
+ 564   2      
+ 565   2                  if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+ 566   2                  {
+ 567   3                      SET_COLOR_TEMP_TYPE(_CT_USER);
+ 568   3      
+ 569   3                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+ 570   3                  }
+ 571   2      
+ 572   2                  pucTemp[1] = UserCommonAdjustRealValueToPercent(GET_COLOR_TEMP_TYPE_USER_B(),
+ 573   2                                                                  _USER_RGB_MAX,
+ 574   2                                                                  _USER_RGB_MIN,
+ 575   2                                                                  _USER_RGB_CENTER);
+ 576   2      
+ 577   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, pucTemp[1]);
+ 578   2      
+ 579   2                  SET_COLOR_TEMP_TYPE(pucTemp[0]);
+ 580   2      
+ 581   2                  RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+ 582   2                  break;
+ 583   2      
+ 584   2              case _DDCCI_OPCODE_VCP_AUTO_SET_UP:
+ 585   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_MOMENTARY, 0x0001, 0x00);
+ 586   2                  break;
+ 587   2      
+ 588   2      #if(_VGA_SUPPORT == _ON)
+ 589   2              case _DDCCI_OPCODE_VCP_AUTO_COLOR:
+ 590   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x01, 0x01);
+ 591   2                  break;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 11  
+
+ 592   2      #endif
+ 593   2      
+ 594   2              case _DDCCI_OPCODE_VCP_HPOSITION:
+ 595   2      #if(_VGA_SUPPORT == _ON)
+ 596   2                  if(SysSourceGetSourceType() == _SOURCE_VGA)
+ 597   2                  {
+ 598   3                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_VGA_MODE_ADJU
+             -ST_H_POSITION());
+ 599   3                  }
+ 600   2                  else
+ 601   2      #endif
+ 602   2                  {
+ 603   3                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_DIGITAL_H_POS
+             -ITION());
+ 604   3                  }
+ 605   2      
+ 606   2                  break;
+ 607   2      
+ 608   2              case _DDCCI_OPCODE_VCP_VPOSITION:
+ 609   2      #if(_VGA_SUPPORT == _ON)
+ 610   2                  if(SysSourceGetSourceType() == _SOURCE_VGA)
+ 611   2                  {
+ 612   3                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_VGA_MODE_ADJU
+             -ST_V_POSITION());
+ 613   3                  }
+ 614   2                  else
+ 615   2      #endif
+ 616   2                  {
+ 617   3                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_DIGITAL_V_POS
+             -ITION());
+ 618   3                  }
+ 619   2                  break;
+ 620   2      
+ 621   2      #if(_VGA_SUPPORT == _ON)
+ 622   2              case _DDCCI_OPCODE_VCP_CLOCK_PHASE:
+ 623   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_VGA_MODE_ADJUST_P
+             -HASE());
+ 624   2                  break;
+ 625   2      #endif
+ 626   2      
+ 627   2              case _DDCCI_OPCODE_VCP_ACTIVE_CONTROL:
+ 628   2                  break;
+ 629   2      
+ 630   2              case _DDCCI_OPCODE_VCP_INPUT_SOURCE:
+ 631   2      
+ 632   2      #if(_PROJECT == _RL6449_PROJECT)
+                                      if(OsdDispJudgeSourceType()==0x11)
+                                              pucTemp[2] = 0x12;                      
+                                      else if(OsdDispJudgeSourceType()==0x12)
+                                              pucTemp[2] = 0x11;
+                                      else
+              #endif
+ 639   2                                      pucTemp[2] = OsdDispJudgeSourceType();
+ 640   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x1D, pucTemp[2]);
+ 641   2                  break;
+ 642   2      
+ 643   2      #if(_AUDIO_SUPPORT == _ENABLE)
+ 644   2              case _DDCCI_OPCODE_VCP_AUDIO_VOLUME:
+ 645   2               case _DDCCI_OPCODE_VCP_MICROPHONE_VOLUME:
+ 646   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, GET_OSD_VOLUME());
+ 647   2                  break;
+ 648   2      #endif
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 12  
+
+ 649   2      
+ 650   2              case _DDCCI_OPCODE_VCP_RED_BLACK_LEVEL:
+ 651   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, g_ucDdcciRedBlackLeve
+             -l);
+ 652   2                  break;
+ 653   2      
+ 654   2              case _DDCCI_OPCODE_VCP_GREEN_BLACK_LEVEL:
+ 655   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, g_ucDdcciGreenBlackLe
+             -vel);
+ 656   2                  break;
+ 657   2      
+ 658   2              case _DDCCI_OPCODE_VCP_BLUE_BLACK_LEVEL:
+ 659   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 100, g_ucDdcciBlueBlackLev
+             -el);
+ 660   2                  break;
+ 661   2      
+ 662   2              case _DDCCI_OPCODE_VCP_PRODUCTKEY:
+ 663   2                  g_pucDdcciTxBuf[_DDCCI_LENGTH] = _DDCCI_CONTROL_STATUS_FLAG | 9;
+ 664   2                  g_pucDdcciTxBuf[_DDCCI_COMMAND] = _DDCCI_CMD_GET_VCP_FEATURE_REPLY;
+ 665   2                  break;
+ 666   2      
+ 667   2              case _DDCCI_OPCODE_VCP_GAMMA:
+ 668   2      
+ 669   2                              switch(GET_OSD_GAMMA())
+ 670   2                              {
+ 671   3                                      case _GAMMA_OFF:
+ 672   3                                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 0);
+ 673   3                                              break;
+ 674   3                                      case _GAMMA_18:
+ 675   3                                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 180-100);
+ 676   3                                              break;
+ 677   3                                      case _GAMMA_20:
+ 678   3                                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 200-100);
+ 679   3                                              break;
+ 680   3                                      case _GAMMA_22:
+ 681   3                                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 220-100);
+ 682   3                                              break;
+ 683   3                                      case _GAMMA_24:
+ 684   3                                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 240-100);
+ 685   3                                              break;
+ 686   3                                      case _GAMMA_26:
+ 687   3                                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 260-100);
+ 688   3                                              break;
+ 689   3                                      case _GAMMA_28:
+ 690   3                                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 180, 280-100);
+ 691   3                                              break;
+ 692   3                              }
+ 693   2                  break;
+ 694   2      
+ 695   2              case _DDCCI_OPCODE_VCP_HFREQ:
+ 696   2                              
+ 697   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, LOWORD(((DWORD)GET_INPUT_T
+             -IMING_HFREQ() * 100)), HIWORD(((DWORD)GET_INPUT_TIMING_HFREQ() * 100)));
+ 698   2                  break;
+ 699   2      
+ 700   2              case _DDCCI_OPCODE_VCP_VFREQ:
+ 701   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, GET_INPUT_TIMING_V
+             -FREQ()*10);
+ 702   2                  break;
+ 703   2      
+ 704   2              case _DDCCI_OPCODE_VCP_PANEL_TYPE:
+ 705   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x01, 1);
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 13  
+
+ 706   2                  break;
+ 707   2      
+ 708   2              case _DDCCI_OPCODE_VCP_MONITOR_TYPE:
+ 709   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x05, 3);
+ 710   2                  break;
+ 711   2      
+ 712   2              case _DDCCI_OPCODE_VCP_APPLICATION_ENABLE:
+ 713   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFF, 0x5a);
+ 714   2                  break;
+ 715   2      
+ 716   2              case _DDCCI_OPCODE_VCP_CONTROLLER_TYPE:
+ 717   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0000, 0x0009);
+ 718   2                  break;
+ 719   2      
+ 720   2              case _DDCCI_OPCODE_VCP_FW_LEVEL:
+ 721   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, _DDCCI_FIRMWARE_VE
+             -RSION);
+ 722   2                  break;
+ 723   2      
+ 724   2              case _DDCCI_OPCODE_VCP_OSD_ON_OFF:
+ 725   2                  pucTemp[0] = g_ucVCP_OSD_ON_OFF;
+ 726   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x08, pucTemp[0]);
+ 727   2                  break;
+ 728   2      
+ 729   2              case _DDCCI_OPCODE_VCP_OSD_LANGUAGE:
+ 730   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x25, tLANGUAGEDEFINE[GET_
+             -OSD_LANGUAGE()]);
+ 731   2                  break;
+ 732   2      
+ 733   2              case _DDCCI_OPCODE_VCP_POWER_MODE:
+ 734   2                  if(SysPowerGetPowerStatus() == _POWER_STATUS_OFF)
+ 735   2                  {
+ 736   3                      pucTemp[0] = 0x05;
+ 737   3                  }
+ 738   2                  else if(SysPowerGetPowerStatus() == _POWER_STATUS_SAVING)
+ 739   2                  {
+ 740   3                      pucTemp[0] = 0x04;
+ 741   3                  }
+ 742   2                  else
+ 743   2                  {
+ 744   3                      pucTemp[0] = 0x01;
+ 745   3                  }
+ 746   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0005, pucTemp[0]);
+ 747   2                  break;
+ 748   2      
+ 749   2              case _DDCCI_OPCODE_VCP_FREESYNC:
+ 750   2      
+ 751   2                              if(GET_OSD_FREE_SYNC_STATUS()==_ON)
+ 752   2                      pucTemp[0] = 0x02;
+ 753   2                              else
+ 754   2                      pucTemp[0] = 0x01;
+ 755   2      
+ 756   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0003, pucTemp[0]);
+ 757   2                  break;
+ 758   2      
+ 759   2      
+ 760   2                      case _DDCCI_OPCODE_VCP_VIEW_MODE:
+ 761   2      
+ 762   2      
+ 763   2                              if(GET_OSD_VIEWMODE_TYPE()==_VM_STANDARD)
+ 764   2                      pucTemp[0] = 0x00;                      
+ 765   2                              else if(GET_OSD_VIEWMODE_TYPE()==_VM_MOVIE)
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 14  
+
+ 766   2                      pucTemp[0] = 0x03;                      
+ 767   2                              else if(GET_OSD_VIEWMODE_TYPE()==_VM_GAME && GET_OSD_GAME_MODE()==_GM_FPS1)
+ 768   2                      pucTemp[0] = 0x30;      
+ 769   2      #if(_DEF_VIEWMODE_RTS == _ON)
+                                      else if(GET_OSD_VIEWMODE_TYPE()==_VM_GAME && GET_OSD_GAME_MODE()==_GM_RTS)
+                              pucTemp[0] = 0x32;      
+              #endif
+ 773   2      #if(_DEF_VIEWMODE_MOBA == _ON)
+                                      else if(GET_OSD_VIEWMODE_TYPE()==_VM_GAME && GET_OSD_GAME_MODE()==_GM_MOBA)
+                                              pucTemp[0] = 0x33;      
+              #endif
+ 777   2                              else if(GET_OSD_VIEWMODE_TYPE()==_VM_WEB)
+ 778   2                      pucTemp[0] = 0x34;                      
+ 779   2                              else if(GET_OSD_VIEWMODE_TYPE()==_VM_TEXT)
+ 780   2                      pucTemp[0] = 0x35;      
+ 781   2      #if(_DEF_VIEWMODE_MAC)
+ 782   2                              else if(GET_OSD_VIEWMODE_TYPE()==_VM_MAC)
+ 783   2                      pucTemp[0] = 0x36;
+ 784   2      #endif
+ 785   2                              else if(GET_OSD_VIEWMODE_TYPE()==_VM_MONO)
+ 786   2                      pucTemp[0] = 0x3E;      
+ 787   2      
+ 788   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x3E, pucTemp[0]);
+ 789   2                  break;
+ 790   2      
+ 791   2              case _DDCCI_OPCODE_VCP_SLEEP:
+ 792   2      
+ 793   2                              if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_OFF)
+ 794   2                      pucTemp[0] = 0x00;
+ 795   2                              else if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_30)
+ 796   2                      pucTemp[0] = 0x1E;
+ 797   2                              else if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_45)
+ 798   2                      pucTemp[0] = 0x2D;
+ 799   2                              else if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_60)
+ 800   2                      pucTemp[0] = 0x3C;
+ 801   2                              else if(GET_AUTO_SLEEP_STATUS()==_SleepPowerSaving_120)
+ 802   2                      pucTemp[0] = 0x78;
+ 803   2      
+ 804   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0078, pucTemp[0]);
+ 805   2                  break;
+ 806   2      
+ 807   2              case _DDCCI_OPCODE_VCP_HDR:
+ 808   2                              
+ 809   2      #if(_HDR10_SUPPORT == _ON)
+                                      if(GET_OSD_HDR_MODE()==_HDR10_MODE_OFF)
+                              pucTemp[0] = 0x00;
+                                      else if(GET_OSD_HDR_MODE()==_HDR10_MODE_AUTO)
+                              pucTemp[0] = 0x01;
+              #endif
+ 815   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+ 816   2                  break;
+ 817   2      
+ 818   2              case _DDCCI_OPCODE_VCP_ASPECT_RATIO:
+ 819   2                              
+ 820   2                              //if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_FULL)
+ 821   2                      //pucTemp[0] = 0x01;
+ 822   2                               if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_4_BY_3)
+ 823   2                      pucTemp[0] = 0x02;
+ 824   2                              //else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_ORIGIN)
+ 825   2                      //pucTemp[0] = 0x03;
+ 826   2                              //else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_16_BY_9)
+ 827   2                    //  pucTemp[0] = 0x04;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 15  
+
+ 828   2                              else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_16_BY_9)
+ 829   2                      pucTemp[0] = 0x06;
+ 830   2                              else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_16_BY_10)
+ 831   2                      pucTemp[0] = 0x07;
+ 832   2                              else if(GET_OSD_ASPECT_RATIO_TYPE()==_OSD_ASPECT_RATIO_5_BY_4)
+ 833   2                      pucTemp[0] = 0x08;
+ 834   2      
+ 835   2      
+ 836   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0008, pucTemp[0]);
+ 837   2                  break;
+ 838   2      
+ 839   2              case _DDCCI_OPCODE_VCP_SCAN_MODE:
+ 840   2      
+ 841   2      
+ 842   2                              if(UserAdjustGetOverScanStatus()==_OFF)
+ 843   2                      pucTemp[0] = 0x01;
+ 844   2                              else if(UserAdjustGetOverScanStatus()==_ON)
+ 845   2                      pucTemp[0] = 0x02;
+ 846   2      
+ 847   2      
+ 848   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+ 849   2                  break;
+ 850   2      
+ 851   2              case _DDCCI_OPCODE_VCP_DCR:
+ 852   2      
+ 853   2                              if(GET_OSD_DCR_STATUS()==_DCR_Level_0)
+ 854   2                      pucTemp[0] = 0x00;
+ 855   2                              else if(GET_OSD_DCR_STATUS()==_DCR_Level_1)
+ 856   2                      pucTemp[0] = 0x19;
+ 857   2                              else if(GET_OSD_DCR_STATUS()==_DCR_Level_2)
+ 858   2                      pucTemp[0] = 0x32;
+ 859   2                              else if(GET_OSD_DCR_STATUS()==_DCR_Level_3)
+ 860   2                      pucTemp[0] = 0x4B;
+ 861   2                              else if(GET_OSD_DCR_STATUS()==_DCR_Level_4)
+ 862   2                      pucTemp[0] = 0x64;
+ 863   2      
+ 864   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0064, pucTemp[0]);
+ 865   2                  break;
+ 866   2      
+ 867   2                      case _DDCCI_OPCODE_VCP_RESPONSE_TIME:
+ 868   2                              
+ 869   2      #if(_OD_SUPPORT == _ON)
+ 870   2                              if(GET_OSD_OD_STATUS()== _OD_STANDARD)
+ 871   2                      pucTemp[0] = 0x01;
+ 872   2              #if(_OD_TIME_OFF_OPTION == _ON)
+                                      else if(GET_OSD_OD_STATUS()==_OD_OFF)
+                              pucTemp[0] = 0x00;
+                      #endif
+ 876   2                              else if(GET_OSD_OD_STATUS()==_OD_ADVANCED)
+ 877   2                      pucTemp[0] = 0x02;
+ 878   2                              else if(GET_OSD_OD_STATUS()==_OD_ULTRA_FAST)
+ 879   2                      pucTemp[0] = 0x03;
+ 880   2      #endif
+ 881   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0003, pucTemp[0]);
+ 882   2                  break;
+ 883   2                              
+ 884   2              case _DDCCI_OPCODE_VCP_RESOLUTION_NOTICE:
+ 885   2      
+ 886   2                              if(GET_OSD_RESOLUTION_STATUS()== _OFF)
+ 887   2                      pucTemp[0] = 0x01;
+ 888   2                              else if(GET_OSD_RESOLUTION_STATUS()==_ON)
+ 889   2                      pucTemp[0] = 0x02;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 16  
+
+ 890   2      
+ 891   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+ 892   2                  break;
+ 893   2      
+ 894   2              case _DDCCI_OPCODE_VCP_POWER_INDICATOR:
+ 895   2      
+ 896   2                              if(GET_POWER_INDICATOR()== _OFF)
+ 897   2                      pucTemp[0] = 0x01;
+ 898   2                              else if(GET_POWER_INDICATOR()==_ON)
+ 899   2                      pucTemp[0] = 0x02;
+ 900   2      
+ 901   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+ 902   2                  break;
+ 903   2      
+ 904   2              case _DDCCI_OPCODE_VCP_AUTO_DETECT:
+ 905   2      
+ 906   2                              if(SysSourceGetScanType()!=(_SOURCE_SWITCH_AUTO_IN_GROUP))
+ 907   2                      pucTemp[0] = 0x01;
+ 908   2                              else if(SysSourceGetScanType()==(_SOURCE_SWITCH_AUTO_IN_GROUP))
+ 909   2                      pucTemp[0] = 0x02;
+ 910   2      
+ 911   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+ 912   2                  break;
+ 913   2      
+ 914   2              case _DDCCI_OPCODE_VCP_DDCCI:
+ 915   2      
+ 916   2                              if(GET_OSD_DDCCI_STATUS()== _OFF)
+ 917   2                      pucTemp[0] = 0x01;
+ 918   2                              else if(GET_OSD_DDCCI_STATUS()==_ON)
+ 919   2                      pucTemp[0] = 0x02;
+ 920   2      
+ 921   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002, pucTemp[0]);
+ 922   2                  break;
+ 923   2      
+ 924   2              case _DDCCI_OPCODE_VCP_COLOR_SPACE:
+ 925   2      
+ 926   2                      switch(OsdDisplayGetColorSpaceType())
+ 927   2                      {
+ 928   3                              case _SPACE_AUTO:
+ 929   3                              switch(OsdDisplayGetColorRangeType())
+ 930   3                              {
+ 931   4                                      case _RANGE_AUTO:
+ 932   4                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 1);
+ 933   4                                          break;
+ 934   4                              }
+ 935   3                              break;
+ 936   3      
+ 937   3                      case _SPACE_RGB:
+ 938   3                              switch(OsdDisplayGetColorRangeType())
+ 939   3                              {
+ 940   4                                      case _RANGE_FULL:
+ 941   4                                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 2);
+ 942   4                                      break;
+ 943   4      
+ 944   4                                      case _RANGE_LIMITED:
+ 945   4                                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 3);
+ 946   4                                      break;  
+ 947   4                              }
+ 948   3                              break;
+ 949   3      
+ 950   3                      case _SPACE_YUV:
+ 951   3                              switch(OsdDisplayGetColorRangeType())
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 17  
+
+ 952   3                              {
+ 953   4                                      case _RANGE_FULL:
+ 954   4                                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 4);
+ 955   4                                      break;
+ 956   4      
+ 957   4                                      case _RANGE_LIMITED:
+ 958   4                                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 5, 5);
+ 959   4                                      break;
+ 960   4                              }
+ 961   3                              break;          
+ 962   3                      }
+ 963   2                  break;
+ 964   2      
+ 965   2              case _DDCCI_OPCODE_VCP_ECO:
+ 966   2      
+ 967   2                              if(GET_OSD_ECO_STATUS()==_ECO_STANDARD)
+ 968   2                      pucTemp[0] = 0x00;
+ 969   2                              else if(GET_OSD_ECO_STATUS()==_ECO_OPTIMIZE)
+ 970   2                      pucTemp[0] = 0x01;
+ 971   2                              else if(GET_OSD_ECO_STATUS()==_ECO_CONSERVE)
+ 972   2                      pucTemp[0] = 0x02;
+ 973   2      
+ 974   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0003, pucTemp[0]);
+ 975   2                  break;
+ 976   2      
+ 977   2      
+ 978   2      
+ 979   2      
+ 980   2              case _DDCCI_OPCODE_VCP_VERSION:
+ 981   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, 0x0202);
+ 982   2                  break;
+ 983   2      
+ 984   2              case _DDCCI_OPCODE_VCP_SHARPNESS:
+ 985   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0004, GET_OSD_SHARPNESS(
+             -));
+ 986   2                  break;
+ 987   2      
+ 988   2      
+ 989   2              case _DDCCI_OPCODE_VCP_AUDIO_MUTE:
+ 990   2                              if(GET_OSD_VOLUME_MUTE())
+ 991   2                              {
+ 992   3                                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002,0x0001);
+ 993   3                              }
+ 994   2                              else
+ 995   2                              {
+ 996   3                                      UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0x0002,0x0002);
+ 997   3                              }
+ 998   2                              break;
+ 999   2                              
+1000   2                      case _DDCCI_OPCODE_VCP_USAGE_TIME:
+1001   2                              UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, GET_PANEL_TIME_HOUR());
+1002   2                              break;
+1003   2      
+1004   2      
+1005   2              case _DDCCI_OPCODE_VCP_DELL_DDM_SUPPORT:
+1006   2                  UserCommonDdcciSetVCPReplyValue(_DDCCI_CMD_GETVCP_TP_SET_PARAMETER, 0xFFFF, 0x01);
+1007   2                  break;
+1008   2      
+1009   2              default:
+1010   2                  g_pucDdcciTxBuf[_DDCCI_RESULT_CODE] = _DDCCI_CMD_GETVCP_RC_UNSUPPORTED;
+1011   2                  break;
+1012   2          }
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 18  
+
+1013   1      #if(_CTX_TPV)
+1014   1      #if (_ENABLE_WRITE_EDID_CTX==_ON)
+1015   1                              if(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE] == VCP_BOE_FACTORY_ALIGNMENT )//&& u8PageValue == 0)
+1016   1                              {
+1017   2                                      
+1018   2                              }
+1019   1                               else
+1020   1      #endif
+1021   1      #endif
+1022   1                {
+1023   2                  g_pucDdcciTxBuf[_DDCCI_PRESENT_LOW_BYTE + 1] = UserCommonDdcciCalCheckSum();
+1024   2                  ScalerMcuDdcciSendData(g_pucDdcciTxBuf);
+1025   2                }     
+1026   1      }
+1027          
+1028          //--------------------------------------------------
+1029          // Description  : Check DDCCI Set VCP Feature
+1030          // Input Value  : None
+1031          // Output Value : None
+1032          //--------------------------------------------------
+1033          bit RTDDdcciSetVCPFeatureCheck(void)
+1034          {
+1035   1          switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+1036   1          {
+1037   2              case _DDCCI_OPCODE_VCP_FACTORY_RESET:
+1038   2              case _DDCCI_OPCODE_VCP_RECAL_BRI_CON:
+1039   2              case _DDCCI_OPCODE_VCP_GEOMETRY_RESET:
+1040   2              case _DDCCI_OPCODE_VCP_COLOR_RESET:
+1041   2      
+1042   2                  if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0)
+1043   2                  {
+1044   3                      return _FALSE;
+1045   3                  }
+1046   2      
+1047   2                  break;
+1048   2      
+1049   2              case _DDCCI_OPCODE_VCP_NEW_CONTROL_VALUE:
+1050   2              case _DDCCI_OPCODE_VCP_AUTO_SET_UP:
+1051   2              case _DDCCI_OPCODE_VCP_AUTO_COLOR:
+1052   2      
+1053   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 3))
+1054   2                  {
+1055   3                      return _FALSE;
+1056   3                  }
+1057   2      
+1058   2                  break;
+1059   2      
+1060   2              case _DDCCI_OPCODE_VCP_SELECT_COLOR_PRESET:
+1061   2      
+1062   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0
+             -E))
+1063   2                  {
+1064   3                      return _FALSE;
+1065   3                  }
+1066   2      
+1067   2                  break;
+1068   2      
+1069   2              case _DDCCI_OPCODE_VCP_OSD_LANGUAGE:
+1070   2      
+1071   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x2
+             -6))
+1072   2                  {
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 19  
+
+1073   3                      return _FALSE;
+1074   3                  }
+1075   2      
+1076   2                  break;
+1077   2      
+1078   2              case _DDCCI_OPCODE_VCP_OSD_ON_OFF:
+1079   2      
+1080   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0
+             -9))
+1081   2                  {
+1082   3                      return _FALSE;
+1083   3                  }
+1084   2      
+1085   2                  break;
+1086   2      
+1087   2              case _DDCCI_OPCODE_VCP_POWER_MODE:
+1088   2      
+1089   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0
+             -6))
+1090   2                  {
+1091   3                      return _FALSE;
+1092   3                  }
+1093   2      
+1094   2                  break;
+1095   2      
+1096   2              case _DDCCI_OPCODE_VCP_FREESYNC:
+1097   2      
+1098   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0
+             -3))
+1099   2                  {
+1100   3                      return _FALSE;
+1101   3                  }
+1102   2      
+1103   2                  break;
+1104   2      
+1105   2              case _DDCCI_OPCODE_VCP_VIEW_MODE:
+1106   2      
+1107   2                  if( (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x3F))
+1108   2                  {
+1109   3                      return _FALSE;
+1110   3                  }
+1111   2      
+1112   2                  break;
+1113   2      
+1114   2              case _DDCCI_OPCODE_VCP_SLEEP:
+1115   2      
+1116   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 0x78))
+1117   2                  {
+1118   3                      return _FALSE;
+1119   3                  }
+1120   2      
+1121   2                  break;
+1122   2      
+1123   2              case _DDCCI_OPCODE_VCP_HDR:
+1124   2      
+1125   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x02))
+1126   2                  {
+1127   3                      return _FALSE;
+1128   3                  }
+1129   2      
+1130   2                  break;
+1131   2      
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 20  
+
+1132   2              case _DDCCI_OPCODE_VCP_DCR:
+1133   2      
+1134   2                  if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x65)
+1135   2                  {
+1136   3                      return _FALSE;
+1137   3                  }
+1138   2      
+1139   2                  break;
+1140   2      
+1141   2              case _DDCCI_OPCODE_VCP_ASPECT_RATIO:
+1142   2      
+1143   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0
+             -9))
+1144   2                  {
+1145   3                      return _FALSE;
+1146   3                  }
+1147   2      
+1148   2                  break;
+1149   2      
+1150   2              case _DDCCI_OPCODE_VCP_ECO:
+1151   2      
+1152   2                  if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x03)
+1153   2                  {
+1154   3                      return _FALSE;
+1155   3                  }
+1156   2      
+1157   2                  break;
+1158   2                              
+1159   2                      case _DDCCI_OPCODE_VCP_SCAN_MODE:
+1160   2      
+1161   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x03))
+1162   2                  {
+1163   3                      return _FALSE;
+1164   3                  }
+1165   2                  break;
+1166   2      
+1167   2                      case _DDCCI_OPCODE_VCP_RESPONSE_TIME:
+1168   2      
+1169   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0
+             -4))
+1170   2                  {
+1171   3                      return _FALSE;
+1172   3                  }
+1173   2                  break;
+1174   2                              
+1175   2                      case _DDCCI_OPCODE_VCP_POWER_INDICATOR:
+1176   2                      case _DDCCI_OPCODE_VCP_RESOLUTION_NOTICE:
+1177   2              case _DDCCI_OPCODE_VCP_AUTO_DETECT:
+1178   2      
+1179   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0
+             -3))
+1180   2                  {
+1181   3                      return _FALSE;
+1182   3                  }
+1183   2                  break;
+1184   2                              
+1185   2              case _DDCCI_OPCODE_VCP_DDCCI:
+1186   2      
+1187   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0
+             -3))
+1188   2                  {
+1189   3                      return _FALSE;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 21  
+
+1190   3                  }
+1191   2                  break;
+1192   2                              
+1193   2              case _DDCCI_OPCODE_VCP_COLOR_SPACE:
+1194   2      
+1195   2                  if((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0) || (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] >= 0x0
+             -6))
+1196   2                  {
+1197   3                      return _FALSE;
+1198   3                  }
+1199   2                  break;
+1200   2              default:
+1201   2                  break;
+1202   2          }
+1203   1      
+1204   1          return _TRUE;
+1205   1      }
+1206          
+1207          //--------------------------------------------------
+1208          // Description  : DDCCI Set VCP Feature
+1209          // Input Value  : None
+1210          // Output Value : None
+1211          //--------------------------------------------------
+1212          void RTDDdcciSetVCPFeature(void)
+1213          {
+1214   1          BYTE ucTemp = 0;
+1215   1          BYTE ucValue = 0;
+1216   1      
+1217   1          if(RTDDdcciSetVCPFeatureCheck() == _FAIL)
+1218   1          {
+1219   2              UserCommonDdcciInitTx();
+1220   2          }
+1221   1          else
+1222   1          {
+1223   2              switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+1224   2              {
+1225   3      
+1226   3      #if(_CTX_TPV)
+1227   3      
+1228   3      #if (_ENABLE_WRITE_EDID_CTX==_ON)
+1229   3                              case VCP_BOE_FACTORY_ALIGNMENT:
+1230   3                              
+1231   3                                 CTXWriteEdid();
+1232   3                                break;
+1233   3      #endif
+1234   3      #endif
+1235   3      #if(_CTX_TPV==_OFF)
+              
+                                      case _DDCCI_OPCODE_VCP_AUTOALIGN:
+              
+                                              RTDDdcciAutoAlignPro();
+                                      break;
+              #endif                  
+1242   3      
+1243   3                              case _DDCCI_OPCODE_VCP_DDCPROC:
+1244   3      
+1245   3                                      //RTDDdcciEdidProc();
+1246   3                              break;
+1247   3                              
+1248   3                  case _DDCCI_OPCODE_VCP_NEW_CONTROL_VALUE:
+1249   3      
+1250   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 22  
+
+1251   3                      {
+1252   4                          g_ucDdcciNewControlValue = 0x01;
+1253   4                      }
+1254   3      
+1255   3                      break;
+1256   3      
+1257   3      #if(_SHARPNESS_SUPPORT == _ON)
+1258   3                  case _DDCCI_OPCODE_VCP_SHARPNESS:
+1259   3      
+1260   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 4)
+1261   3                      {
+1262   4                          g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 4;
+1263   4                      }
+1264   3                      SET_OSD_SHARPNESS(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+1265   3      
+1266   3                      UserCommonAdjustSharpness(SysSourceGetInputPort());
+1267   3                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+1268   3      
+1269   3                      break;
+1270   3      #endif
+1271   3      
+1272   3                          case _DDCCI_OPCODE_VCP_AUDIO_MUTE:
+1273   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)//mute
+1274   3                                      {
+1275   4                                              SET_OSD_VOLUME_MUTE(_ON);
+1276   4                                      }
+1277   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)//unmute
+1278   3                                      {
+1279   4                                              SET_OSD_VOLUME_MUTE(_OFF);
+1280   4                                      }
+1281   3      
+1282   3                                      UserAdjustAudioMuteSwitch();
+1283   3                                      RTDNVRamSaveOSDData();
+1284   3      
+1285   3                      break;
+1286   3      
+1287   3                                      
+1288   3                  case _DDCCI_OPCODE_VCP_INPUT_SOURCE:
+1289   3      
+1290   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+1291   3                      {
+1292   4                          SET_FORCE_POW_SAV_STATUS(_FALSE);
+1293   4                          SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+1294   4                          SysSourceSwitchInputPort(_VGA_1);
+1295   4                          SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+1296   4                      }
+1297   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x03)
+1298   3                      {
+1299   4                          SET_FORCE_POW_SAV_STATUS(_FALSE);
+1300   4                          SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+1301   4                          SysSourceSwitchInputPort(_DVI_1);
+1302   4                          SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+1303   4                      }
+1304   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x04)
+1305   3                      {
+1306   4                          SET_FORCE_POW_SAV_STATUS(_FALSE);
+1307   4                          SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+1308   4                          SysSourceSwitchInputPort(_DVI_2);
+1309   4                          SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+1310   4                      }
+1311   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x0F)
+1312   3                      {
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 23  
+
+1313   4                          SET_FORCE_POW_SAV_STATUS(_FALSE);
+1314   4                          SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+1315   4                          SysSourceSwitchInputPort(_DP_1);
+1316   4                          SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+1317   4                      }
+1318   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x10)
+1319   3                      {
+1320   4                          SET_FORCE_POW_SAV_STATUS(_FALSE);
+1321   4                          SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+1322   4                          SysSourceSwitchInputPort(_DP_2);
+1323   4                          SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+1324   4                      }
+1325   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x11)
+1326   3                      {
+1327   4                          SET_FORCE_POW_SAV_STATUS(_FALSE);
+1328   4                          SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+1329   4                          SysSourceSwitchInputPort(_HDMI_1);
+1330   4                          SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+1331   4                      }
+1332   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x12)
+1333   3                      {
+1334   4                          SET_FORCE_POW_SAV_STATUS(_FALSE);
+1335   4                          SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+1336   4                          SysSourceSwitchInputPort(_HDMI_2);
+1337   4                          SysModeSetResetTarget(_MODE_ACTION_RESET_TO_SEARCH);
+1338   4                      }
+1339   3                      break;
+1340   3      
+1341   3                  case _DDCCI_OPCODE_VCP_FACTORY_RESET:
+1342   3      
+1343   3                                      OsdDispOsdReset();
+1344   3                      //RTDDdcciResetAllSettings();
+1345   3      
+1346   3      #if(_VGA_SUPPORT == _ON)
+1347   3                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+1348   3                      {
+1349   4                          UserCommonAutoConfig();
+1350   4                      }
+1351   3                      else
+1352   3      #endif
+1353   3                      {
+1354   4                          SET_DIGITAL_H_POSITION(50);
+1355   4                          SET_DIGITAL_V_POSITION(50);
+1356   4                          UserCommonAdjustHPosition(GET_DIGITAL_H_POSITION());
+1357   4                          UserCommonAdjustVPosition(GET_DIGITAL_V_POSITION());
+1358   4                      }
+1359   3      
+1360   3                      break;
+1361   3      
+1362   3                  case _DDCCI_OPCODE_VCP_RECAL_BRI_CON:
+1363   3      
+1364   3                                      if(GET_OSD_DCR_STATUS() == _DCR_Level_0)
+1365   3                                      {
+1366   4                                              
+1367   4                                              //RTDNVRamRestoreBriCon();
+1368   4                                              //RTDNVRamRestoreBacklight();
+1369   4                                              RTDNVRamRestoreBriConOnly();
+1370   4                                              RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+1371   4      
+1372   4                                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1373   4              
+1374   4      #if(_CONTRAST_SUPPORT == _ON)
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 24  
+
+1375   4                                              UserAdjustContrast(GET_OSD_CONTRAST());
+1376   4      #endif
+1377   4              
+1378   4      #if(_BRIGHTNESS_SUPPORT == _ON)
+1379   4                                              UserAdjustBrightness(GET_OSD_BRIGHTNESS());
+1380   4      #endif
+1381   4      
+1382   4                                      }
+1383   3                      break;
+1384   3      
+1385   3                  case _DDCCI_OPCODE_VCP_GEOMETRY_RESET:
+1386   3      
+1387   3      #if(_VGA_SUPPORT == _ON)
+1388   3                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+1389   3                      {
+1390   4                          UserCommonAutoConfig();
+1391   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+1392   4                      }
+1393   3                      else
+1394   3      #endif
+1395   3                      {
+1396   4                          SET_DIGITAL_H_POSITION(50);
+1397   4                          SET_DIGITAL_V_POSITION(50);
+1398   4                          UserCommonAdjustHPosition(GET_DIGITAL_H_POSITION());
+1399   4                          UserCommonAdjustVPosition(GET_DIGITAL_V_POSITION());
+1400   4                      }
+1401   3      
+1402   3                      break;
+1403   3      
+1404   3                  case _DDCCI_OPCODE_VCP_COLOR_RESET:
+1405   3      
+1406   3                      RTDDdcciColorReset();
+1407   3      #if(_DEF_VIEW_SONIC_DCR)
+1408   3      #if(_DCR_SUPPORT == _ON)
+1409   3                                      CDcrReset();
+1410   3      #endif
+1411   3      #endif
+1412   3                      break;
+1413   3      
+1414   3                              // 色温没有像进度条一样可以调节，改为菜单当前有的色温
+1415   3                  case _DDCCI_OPCODE_VCP_COLOR_TEMP_INCREMENT:
+1416   3      
+1417   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 93)
+1418   3                                      {
+1419   4                          SET_COLOR_TEMP_TYPE(_CT_9300);
+1420   4                                      }                               
+1421   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 75)
+1422   3                                      {
+1423   4                          SET_COLOR_TEMP_TYPE(_CT_7500);
+1424   4                                      }
+1425   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 65)
+1426   3                                      {
+1427   4                          SET_COLOR_TEMP_TYPE(_CT_6500);
+1428   4                                      }
+1429   3      #if(_DEF_CT_5800_SUPPORT == _ON)
+1430   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 50)
+1431   3                                      {
+1432   4                          SET_COLOR_TEMP_TYPE(_CT_5000);
+1433   4                                      }
+1434   3      #endif
+1435   3                                      else 
+1436   3                                      {
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 25  
+
+1437   4                                              break;
+1438   4                                      }       
+1439   3      
+1440   3                                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1441   3      
+1442   3                                      if(GET_COLOR_TEMP_TYPE() != _CT_SRGB)
+1443   3                                      {
+1444   4                                              UserAdjustContrast(GET_OSD_CONTRAST());
+1445   4                                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1446   4                                      }
+1447   3                                      else
+1448   3                                      {
+1449   4                                              UserAdjustContrast(_SRGB_CONTRAST);
+1450   4                                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1451   4                                      }
+1452   3      
+1453   3      
+1454   3                                      RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+1455   3      
+1456   3                                      
+1457   3                              break;
+1458   3      
+1459   3                  case _DDCCI_OPCODE_VCP_COLOR_TEMP_REQUEST:
+1460   3      
+1461   3                      g_ucColorTempUnSupport = (g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] + 30);
+1462   3                      if(g_ucColorTempUnSupport >= 93)
+1463   3                      {
+1464   4                          SET_COLOR_TEMP_TYPE(_CT_9300);
+1465   4                      }
+1466   3                      else if((g_ucColorTempUnSupport < 93) && (g_ucColorTempUnSupport >= 75))
+1467   3                      {
+1468   4                          SET_COLOR_TEMP_TYPE(_CT_7500);
+1469   4                      }
+1470   3                      else if((g_ucColorTempUnSupport < 75) && (g_ucColorTempUnSupport >= 65))
+1471   3                      {
+1472   4                          SET_COLOR_TEMP_TYPE(_CT_6500);
+1473   4                      }
+1474   3                      else if((g_ucColorTempUnSupport < 65) && (g_ucColorTempUnSupport >= 50))
+1475   3                      {
+1476   4                          SET_COLOR_TEMP_TYPE(_CT_5000);
+1477   4                      }                               
+1478   3                                      else if((g_ucColorTempUnSupport <= 45) && (g_ucColorTempUnSupport >= 35))
+1479   3                      {
+1480   4                                              break;
+1481   4                      }                       
+1482   3                                      else if((g_ucColorTempUnSupport < 50) && (g_ucColorTempUnSupport >= 40))
+1483   3                                      {
+1484   4                                              #if(_DCR_SUPPORT == _ON)
+1485   4                                              if(GET_OSD_DCR_STATUS() != _OFF)
+1486   4                                              {
+1487   5                                                      ;
+1488   5                                              }
+1489   4                                              else
+1490   4                                              #endif
+1491   4                                              {
+1492   5                                                      SET_COLOR_TEMP_TYPE(_CT_SRGB);
+1493   5                                              }
+1494   4                                      }
+1495   3                      else
+1496   3                      {
+1497   4                          SET_COLOR_TEMP_TYPE(_CT_USER);
+1498   4                      }
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 26  
+
+1499   3      
+1500   3                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1501   3      
+1502   3      #if(_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+1503   3                                      if(GET_OSD_BLUELIGHT_STATUS() == _ENABLE)
+1504   3                                      {
+1505   4                                              SET_OSD_BLUELIGHT_STATUS(_DISABLE);
+1506   4                                              RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+1507   4                                      }
+1508   3      #endif
+1509   3      
+1510   3                                      if(GET_COLOR_TEMP_TYPE() != _CT_SRGB)
+1511   3                                      {
+1512   4                                              UserAdjustContrast(GET_OSD_CONTRAST());
+1513   4                                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1514   4                                      }
+1515   3                                      else
+1516   3                                      {
+1517   4                                              UserAdjustContrast(_SRGB_CONTRAST);
+1518   4                                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1519   4                                      }
+1520   3      
+1521   3      
+1522   3                      //OsdDispDisableOsd();
+1523   3                                      RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+1524   3      
+1525   3                      break;
+1526   3      
+1527   3                  case _DDCCI_OPCODE_VCP_CLOCK:
+1528   3      
+1529   3      #if(_VGA_SUPPORT == _ON)
+1530   3                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+1531   3                      {
+1532   4                          if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+1533   4                          {
+1534   5                              g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+1535   5                          }
+1536   4      
+1537   4      #if(_AUTO_CLOCK_SAVE_VALUE_OPTION == _CLOCK_SAVE_PERCENT_VALUE)
+1538   4                          SET_VGA_MODE_ADJUST_CLOCK(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+1539   4      #else
+                                  {
+                                      WORD usClockRangeMax = 0;
+                                      WORD usClockRangeMin = 0;
+              
+                                      usClockRangeMax = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MAX);
+                                      usClockRangeMin = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MIN);
+              
+                                      SET_VGA_MODE_ADJUST_CLOCK(UserCommonAdjustPercentToRealValue(GET_VGA_MODE_ADJUST_C
+             -LOCK(), usClockRangeMax, usClockRangeMin, (((usClockRangeMax - usClockRangeMin) / 2) + usClockRangeMin)));
+                                  }
+              #endif
+1550   4                          UserCommonAdjustClock(GET_VGA_MODE_ADJUST_CLOCK());
+1551   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+1552   4                      }
+1553   3      #endif // End of #if(_VGA_SUPPORT == _ON)
+1554   3      
+1555   3                      break;
+1556   3      
+1557   3                  case _DDCCI_OPCODE_VCP_BACKLIGHT:
+1558   3      
+1559   3      #if(_DCR_SUPPORT == _ON)
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 27  
+
+1560   3                                      if(GET_OSD_DCR_STATUS() != _DCR_Level_0)
+1561   3                                      {
+1562   4                                              return;
+1563   4                                      }
+1564   3      #endif
+1565   3      
+1566   3                                      if(OSD_ITEM_MASK_GET(_MENU_FUN_BACKLIGHT))
+1567   3                                      {
+1568   4                                              return;
+1569   4                                      }
+1570   3                                      
+1571   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+1572   3                      {
+1573   4                          g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+1574   4                      }
+1575   3      
+1576   3                      SET_OSD_BACKLIGHT(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE],
+             - _BACKLIGHT_MAX_1, _BACKLIGHT_MIN, _BACKLIGHT_CENTER));
+1577   3      
+1578   3                      UserAdjustBacklight(GET_OSD_BACKLIGHT());
+1579   3                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+1580   3      
+1581   3                      break;
+1582   3      
+1583   3                  case _DDCCI_OPCODE_VCP_CONTRAST:
+1584   3      
+1585   3      #if(_DCR_SUPPORT == _ON)
+1586   3                                      if(GET_OSD_DCR_STATUS() != _DCR_Level_0)
+1587   3                                      {
+1588   4                                              return;
+1589   4                                      }
+1590   3      #endif
+1591   3      
+1592   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+1593   3                      {
+1594   4                          g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+1595   4                      }
+1596   3      
+1597   3                      //SET_OSD_CONTRAST(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]
+             -, _CONTRAST_MAX, _CONTRAST_MIN, _CONTRAST_CENTER));
+1598   3                                      SET_OSD_CONTRAST(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+1599   3                                      UserAdjustContrast(GET_OSD_CONTRAST());
+1600   3      /*
+1601   3                                      if((GET_COLOR_TEMP_TYPE() == _CT_SRGB)
+1602   3      #if(_VIEWMODE_SUPPORT == _ON)
+1603   3                          || (GET_OSD_VIEWMODE_TYPE() != _VM_STANDARD)
+1604   3      #endif
+1605   3      #if(_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+1606   3                          || (GET_OSD_BLUELIGHT_STATUS() != _OFF)
+1607   3      #endif
+1608   3                          )
+1609   3                                      {
+1610   3                                              //UserAdjustDDCCIReturnColorTempDefault();
+1611   3                                      }
+1612   3                      else
+1613   3                      {
+1614   3                          UserAdjustContrast(GET_OSD_CONTRAST());
+1615   3                      }
+1616   3      */
+1617   3                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_BRICON_MSG);
+1618   3      
+1619   3                      break;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 28  
+
+1620   3      
+1621   3                  case _DDCCI_OPCODE_VCP_SELECT_COLOR_PRESET:
+1622   3      
+1623   3                      switch(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE])
+1624   3                      {
+1625   4                          case 0x01:
+1626   4      
+1627   4                         #if(_DCR_SUPPORT)
+1628   4                                                      if(GET_OSD_DCR_STATUS() != _DCR_Level_0)
+1629   4                                                      {
+1630   5                                                              return;
+1631   5                                                      }
+1632   4                                                      else
+1633   4                         #endif
+1634   4                              {
+1635   5                                      SET_COLOR_TEMP_TYPE(_CT_SRGB); // OK
+1636   5                              }
+1637   4                              break;
+1638   4      
+1639   4      
+1640   4                          case 0x03:
+1641   4                              SET_COLOR_TEMP_TYPE(_CT_4500);
+1642   4                              break;
+1643   4      
+1644   4                          case 0x04:
+1645   4                              SET_COLOR_TEMP_TYPE(_CT_5000);//_CT_5000
+1646   4                              break;
+1647   4      
+1648   4                          case 0x05:
+1649   4                              SET_COLOR_TEMP_TYPE(_CT_6500);
+1650   4                              break;
+1651   4      
+1652   4                          case 0x06:
+1653   4                              SET_COLOR_TEMP_TYPE(_CT_7500);//OK
+1654   4                              break;
+1655   4      
+1656   4                          case 0x08:
+1657   4                              SET_COLOR_TEMP_TYPE(_CT_9300);// OK
+1658   4                              break;
+1659   4      
+1660   4                          case 0x0B:
+1661   4                              SET_COLOR_TEMP_TYPE(_CT_USER);
+1662   4                              break;
+1663   4      
+1664   4                          default:
+1665   4                              SET_COLOR_TEMP_TYPE(_CT_6500);
+1666   4                              break;
+1667   4                      }
+1668   3      
+1669   3                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1670   3      
+1671   3      #if(_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+1672   3                                      if(GET_OSD_BLUELIGHT_STATUS() == _ENABLE)
+1673   3                                      {
+1674   4                                              SET_OSD_BLUELIGHT_STATUS(_DISABLE);
+1675   4                                      }
+1676   3      #endif
+1677   3      
+1678   3                                      UserAdjustContrast(GET_OSD_CONTRAST());
+1679   3                                      UserAdjustBacklight(GET_OSD_BACKLIGHT());//add for sRGB use
+1680   3      
+1681   3                      OsdDispDisableOsd();
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 29  
+
+1682   3      
+1683   3                      break;
+1684   3                                      
+1685   3                              case _DDCCI_OPCODE_VCP_RED:
+1686   3                              case _DDCCI_OPCODE_VCP_YELLOW:
+1687   3                              case _DDCCI_OPCODE_VCP_GREEN:
+1688   3                              case _DDCCI_OPCODE_VCP_CYAN:
+1689   3                              case _DDCCI_OPCODE_VCP_BLUE:
+1690   3                              case _DDCCI_OPCODE_VCP_MAGENDA:
+1691   3      
+1692   3                                      switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+1693   3                                      {
+1694   4                                              case _DDCCI_OPCODE_VCP_RED:
+1695   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_R);
+1696   4                                                      break;
+1697   4                                              case _DDCCI_OPCODE_VCP_YELLOW:
+1698   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_Y);
+1699   4                                                      break;
+1700   4                                              case _DDCCI_OPCODE_VCP_GREEN:
+1701   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_G);
+1702   4                                                      break;
+1703   4                                              case _DDCCI_OPCODE_VCP_CYAN:
+1704   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_C);
+1705   4                                                      break;
+1706   4                                              case _DDCCI_OPCODE_VCP_BLUE:
+1707   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_B);
+1708   4                                                      break;
+1709   4                                              case _DDCCI_OPCODE_VCP_MAGENDA:
+1710   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_M);
+1711   4                                                      break;
+1712   4                                      
+1713   4                                      }
+1714   3                              
+1715   3                                      ucValue = UserCommonAdjustRealValueToPercent((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]), _SIX_COLOR_HUE_MA
+             -X, _SIX_COLOR_HUE_MIN, _SIX_COLOR_HUE_CENTER);
+1716   3                              
+1717   3                                      ucValue = (BYTE)OsdDisplayDetOverRange(ucValue, _SLIDER_MAX, _SLIDER_MIN, _OFF);
+1718   3                                      
+1719   3                                      ucValue =UserCommonAdjustPercentToRealValue(ucValue, _SIX_COLOR_HUE_MAX, _SIX_COLOR_HUE_MIN, _SIX_COLO
+             -R_HUE_CENTER);
+1720   3                              
+1721   3                                      SET_OSD_SIX_COLOR_HUE(ucValue);
+1722   3                                                      
+1723   3                              switch (GET_OSD_SIX_COLOR())
+1724   3                                  {           
+1725   4                                      case _SIXCOLOR_Y:
+1726   4                                          g_stSixColorData.ucSixColorHueY = ucValue;
+1727   4                                          break;
+1728   4      
+1729   4                                      case _SIXCOLOR_G:
+1730   4                                          g_stSixColorData.ucSixColorHueG = ucValue;
+1731   4                                          break;
+1732   4      
+1733   4                                      case _SIXCOLOR_C:
+1734   4                                          g_stSixColorData.ucSixColorHueC = ucValue;
+1735   4                                          break;
+1736   4      
+1737   4                                      case _SIXCOLOR_B:
+1738   4                                          g_stSixColorData.ucSixColorHueB = ucValue;
+1739   4                                          break;
+1740   4      
+1741   4                                      case _SIXCOLOR_M:
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 30  
+
+1742   4                                          g_stSixColorData.ucSixColorHueM = ucValue;
+1743   4                                          break;
+1744   4      
+1745   4                                      case _SIXCOLOR_R:
+1746   4                                      default:
+1747   4                                          g_stSixColorData.ucSixColorHueR = ucValue;
+1748   4                                          break;                      
+1749   4      
+1750   4                              }
+1751   3      #if(_SIX_COLOR_SUPPORT == _ON)
+1752   3                                      ScalerColorSixColorInitial();
+1753   3                                      OsdFuncSixColorAdjust();
+1754   3      #endif
+1755   3                                      ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+1756   3                                      ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SIX_COLOR_DATA);
+1757   3                                      break;
+1758   3      
+1759   3              
+1760   3                              case _DDCCI_OPCODE_VCP_SAT_RED:
+1761   3                              case _DDCCI_OPCODE_VCP_SAT_YELLOW:
+1762   3                              case _DDCCI_OPCODE_VCP_SAT_GREEN:
+1763   3                              case _DDCCI_OPCODE_VCP_SAT_CYAN:
+1764   3                              case _DDCCI_OPCODE_VCP_SAT_BLUE:
+1765   3                              case _DDCCI_OPCODE_VCP_SAT_MAGENTA:
+1766   3      
+1767   3              
+1768   3                                      switch(g_pucDdcciRxBuf[_DDCCI_SOURCE_OPCODE])
+1769   3                                      {
+1770   4                                              case _DDCCI_OPCODE_VCP_SAT_RED:
+1771   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_R);
+1772   4                                                      break;
+1773   4                                              case _DDCCI_OPCODE_VCP_SAT_YELLOW:
+1774   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_Y);
+1775   4                                                      break;
+1776   4                                              case _DDCCI_OPCODE_VCP_SAT_GREEN:
+1777   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_G);
+1778   4                                                      break;
+1779   4                                              case _DDCCI_OPCODE_VCP_SAT_CYAN:
+1780   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_C);
+1781   4                                                      break;
+1782   4                                              case _DDCCI_OPCODE_VCP_SAT_BLUE:
+1783   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_B);
+1784   4                                                      break;
+1785   4                                              case _DDCCI_OPCODE_VCP_SAT_MAGENTA:
+1786   4                                                      SET_OSD_SIX_COLOR(_SIXCOLOR_M);
+1787   4                                                      break;
+1788   4                                      }
+1789   3                                      ucValue = UserCommonAdjustRealValueToPercent((g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]), _SIX_COLOR_SATURA
+             -TION_MAX, _SIX_COLOR_SATURATION_MIN, _SIX_COLOR_SATURATION_CENTER);
+1790   3      
+1791   3                                      ucValue = (BYTE)OsdDisplayDetOverRange(ucValue, _SLIDER_MAX, _SLIDER_MIN, _OFF);
+1792   3      
+1793   3                                      ucValue = UserCommonAdjustPercentToRealValue(ucValue, _SIX_COLOR_SATURATION_MAX, _SIX_COLOR_SATURATION
+             -_MIN, _SIX_COLOR_SATURATION_CENTER);
+1794   3      
+1795   3                                      SET_OSD_SIX_COLOR_SATURATION(ucValue);
+1796   3                                      
+1797   3                                      switch (GET_OSD_SIX_COLOR())
+1798   3                                      {
+1799   4                                              case _SIXCOLOR_Y:
+1800   4                                                      g_stSixColorData.ucSixColorSaturationY = ucValue;
+1801   4                                                      break;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 31  
+
+1802   4                                              
+1803   4                                              case _SIXCOLOR_G:
+1804   4                                                      g_stSixColorData.ucSixColorSaturationG = ucValue;
+1805   4                                                      break;
+1806   4                                              
+1807   4                                              case _SIXCOLOR_C:
+1808   4                                                      g_stSixColorData.ucSixColorSaturationC = ucValue;
+1809   4                                                      break;
+1810   4                                              
+1811   4                                              case _SIXCOLOR_B:
+1812   4                                                      g_stSixColorData.ucSixColorSaturationB = ucValue;
+1813   4                                                      break;
+1814   4                                              
+1815   4                                              case _SIXCOLOR_M:
+1816   4                                                      g_stSixColorData.ucSixColorSaturationM = ucValue;
+1817   4                                                      break;
+1818   4                                              
+1819   4                                              case _SIXCOLOR_R:
+1820   4                                              default:
+1821   4                                                      g_stSixColorData.ucSixColorSaturationR = ucValue;
+1822   4                                                      break;
+1823   4                                      
+1824   4                                      }
+1825   3      #if(_SIX_COLOR_SUPPORT == _ON)
+1826   3                                      ScalerColorSixColorInitial();
+1827   3                                      OsdFuncSixColorAdjust();
+1828   3      #endif
+1829   3                                      ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+1830   3                                      ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SIX_COLOR_DATA);
+1831   3      
+1832   3                                      break;
+1833   3      
+1834   3      
+1835   3                  case _DDCCI_OPCODE_VCP_RED_GAIN:
+1836   3                      // Only write at customer color
+1837   3                      if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+1838   3                      {
+1839   4                          ucTemp = GET_COLOR_TEMP_TYPE();
+1840   4      
+1841   4                          SET_COLOR_TEMP_TYPE(_CT_USER);
+1842   4      
+1843   4                          RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1844   4      
+1845   4                          //RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+1846   4      
+1847   4                         // SET_COLOR_TEMP_TYPE(ucTemp);
+1848   4      
+1849   4                        //  RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1850   4                      }
+1851   3                          SET_COLOR_TEMP_TYPE_USER_R(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_S
+             -ET_LOW_BYTE],
+1854   3                                                                                        _USER_RGB_MAX,
+1854   3                                                                                        _USER_RGB_MIN,
+1854   3                                                                                        _USER_RGB_CENTER));
+1855   3      #if(_CONTRAST_SUPPORT == _ON)
+1856   3                          UserAdjustContrast(GET_OSD_CONTRAST());
+1857   3      #endif
+1858   3      
+1859   3                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_COLORPROC_MSG);
+1860   3      
+1861   3                      break;
+1862   3      
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 32  
+
+1863   3                  case _DDCCI_OPCODE_VCP_GREEN_GAIN:
+1864   3                      // Only write at customer color
+1865   3                      if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+1866   3                      {
+1867   4                          ucTemp = GET_COLOR_TEMP_TYPE();
+1868   4      
+1869   4                          SET_COLOR_TEMP_TYPE(_CT_USER);
+1870   4      
+1871   4                          RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1872   4      
+1873   4                     //     RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+1874   4      
+1875   4                      //    SET_COLOR_TEMP_TYPE(ucTemp);
+1876   4      
+1877   4                   //       RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1878   4                      }
+1879   3                          SET_COLOR_TEMP_TYPE_USER_G(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_S
+             -ET_LOW_BYTE],
+1882   3                                                                                        _USER_RGB_MAX,
+1882   3                                                                                        _USER_RGB_MIN,
+1882   3                                                                                        _USER_RGB_CENTER));
+1883   3      #if(_CONTRAST_SUPPORT == _ON)
+1884   3                          UserAdjustContrast(GET_OSD_CONTRAST());
+1885   3      #endif
+1886   3      
+1887   3                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_COLORPROC_MSG);
+1888   3      
+1889   3                      break;
+1890   3      
+1891   3                  case _DDCCI_OPCODE_VCP_BLUE_GAIN:
+1892   3                      // Only write at customer color
+1893   3                      if(GET_COLOR_TEMP_TYPE() != _CT_USER)
+1894   3                      {
+1895   4                          ucTemp = GET_COLOR_TEMP_TYPE();
+1896   4      
+1897   4                          SET_COLOR_TEMP_TYPE(_CT_USER);
+1898   4      
+1899   4                          RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1900   4      
+1901   4                       //   RTDNVRamSaveColorSetting(GET_COLOR_TEMP_TYPE());
+1902   4      
+1903   4                      //    SET_COLOR_TEMP_TYPE(ucTemp);
+1904   4      
+1905   4                    //      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+1906   4                      }
+1907   3                          SET_COLOR_TEMP_TYPE_USER_B(UserCommonAdjustPercentToRealValue(g_pucDdcciRxBuf[_DDCCI_S
+             -ET_LOW_BYTE],
+1910   3                                                                                        _USER_RGB_MAX,
+1910   3                                                                                        _USER_RGB_MIN,
+1910   3                                                                                        _USER_RGB_CENTER));
+1911   3      #if(_CONTRAST_SUPPORT == _ON)
+1912   3                          UserAdjustContrast(GET_OSD_CONTRAST());
+1913   3      #endif
+1914   3      
+1915   3                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_COLORPROC_MSG);
+1916   3      
+1917   3                      break;
+1918   3      
+1919   3      #if(_VGA_SUPPORT == _ON)
+1920   3                  case _DDCCI_OPCODE_VCP_AUTO_SET_UP:
+1921   3      
+1922   3                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 33  
+
+1923   3                      {
+1924   4                          if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] != 0)
+1925   4                          {
+1926   5                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_DO_AUTO_CONFIG_MSG);
+1927   5                          }
+1928   4                      }
+1929   3      
+1930   3                      break;
+1931   3      #endif
+1932   3      
+1933   3                  case _DDCCI_OPCODE_VCP_HPOSITION:
+1934   3      #if(_VGA_SUPPORT == _ON)
+1935   3                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+1936   3                      {
+1937   4                          SET_VGA_MODE_ADJUST_H_POSITION(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+1938   4                          UserCommonAdjustHPosition(GET_VGA_MODE_ADJUST_H_POSITION());
+1939   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+1940   4                      }
+1941   3                      else
+1942   3      #endif
+1943   3                      {
+1944   4                          SET_DIGITAL_H_POSITION(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+1945   4                          UserCommonAdjustHPosition(GET_DIGITAL_H_POSITION());
+1946   4                      }
+1947   3                      break;
+1948   3      
+1949   3                  case _DDCCI_OPCODE_VCP_VPOSITION:
+1950   3      #if(_VGA_SUPPORT == _ON)
+1951   3                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+1952   3                      {
+1953   4                          if(abs(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] - GET_VGA_MODE_ADJUST_V_POSITION()) > 50)
+1954   4                          {
+1955   5                              SET_VGA_MODE_ADJUST_V_POSITION(50);
+1956   5                          }
+1957   4                          SET_VGA_MODE_ADJUST_V_POSITION(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+1958   4                          UserCommonAdjustVPosition(GET_VGA_MODE_ADJUST_V_POSITION());
+1959   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+1960   4                      }
+1961   3                      else
+1962   3      #endif
+1963   3                      {
+1964   4                          SET_DIGITAL_V_POSITION(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+1965   4                          UserCommonAdjustVPosition(GET_DIGITAL_V_POSITION());
+1966   4                      }
+1967   3      
+1968   3                      break;
+1969   3      
+1970   3                  case _DDCCI_OPCODE_VCP_RESPONSE_TIME:
+1971   3                                      
+1972   3      #if(_OD_SUPPORT == _ON)
+1973   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+1974   3                      {
+1975   4                                              SET_OSD_OD_STATUS(_OD_STANDARD);
+1976   4                                              SET_BACKUP_OD_MODE(GET_OSD_OD_STATUS());
+1977   4                      }
+1978   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+1979   3                      {
+1980   4                                              SET_OSD_OD_STATUS(_OD_ADVANCED);
+1981   4                                              SET_BACKUP_OD_MODE(GET_OSD_OD_STATUS());
+1982   4                      }
+1983   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x03)
+1984   3                      {
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 34  
+
+1985   4                                              SET_OSD_OD_STATUS(_OD_ULTRA_FAST);
+1986   4                                              SET_BACKUP_OD_MODE(GET_OSD_OD_STATUS());
+1987   4                      }
+1988   3      
+1989   3                                      UserAdjustOverDrive();
+1990   3                                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_BRICON_MSG);
+1991   3      #endif  
+1992   3                      break;
+1993   3                                      
+1994   3                              case _DDCCI_OPCODE_VCP_RESOLUTION_NOTICE:
+1995   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+1996   3                      {
+1997   4                          SET_OSD_RESOLUTION_STATUS(_OFF);
+1998   4                      }
+1999   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+2000   3                      {
+2001   4                          SET_OSD_RESOLUTION_STATUS(_ON);
+2002   4                      }
+2003   3                      RTDNVRamSaveOSDData();
+2004   3                      break;
+2005   3      
+2006   3                  case _DDCCI_OPCODE_VCP_POWER_INDICATOR:
+2007   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+2008   3                      {
+2009   4                          SET_POWER_INDICATOR(_OFF);
+2010   4                          ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_POWER_INDICATOR);
+2011   4                          UserInterfaceKeyPadLedControl(_LED_POWER_OFF);
+2012   4      
+2013   4                      }
+2014   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+2015   3                      {
+2016   4                          SET_POWER_INDICATOR(_ON);
+2017   4                          ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_POWER_INDICATOR);
+2018   4                          UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+2019   4                      }
+2020   3                      RTDNVRamSaveOSDData();
+2021   3                      break;
+2022   3                  case _DDCCI_OPCODE_VCP_AUTO_DETECT:
+2023   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+2024   3                      {
+2025   4                          SysSourceSetScanType(_SOURCE_SWITCH_FIXED_PORT);
+2026   4                      }
+2027   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+2028   3                      {
+2029   4                          SysSourceSetScanType(_SOURCE_SWITCH_AUTO_IN_GROUP);
+2030   4                      }
+2031   3                      break;
+2032   3                  case _DDCCI_OPCODE_VCP_DDCCI:
+2033   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+2034   3                      {
+2035   4                          SET_OSD_DDCCI_STATUS(_OFF);
+2036   4                      }
+2037   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+2038   3                      {
+2039   4                          SET_OSD_DDCCI_STATUS(_ON);
+2040   4                      }
+2041   3                                      ScalerMcuDdcciSwitchPort(GET_OSD_DDCCI_STATUS(), SysSourceGetInputPort());
+2042   3                      RTDNVRamSaveOSDData();
+2043   3      
+2044   3                      break;
+2045   3                                      
+2046   3                  case _DDCCI_OPCODE_VCP_COLOR_SPACE:
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 35  
+
+2047   3                                      
+2048   3                              switch(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE])
+2049   3                              {
+2050   4                                      case 1:
+2051   4                                              OsdDisplaySetColorSpaceType1(_SPACE_AUTO);
+2052   4                                              OsdDisplaySetColorRangeType1(_RANGE_AUTO);
+2053   4                                          break;
+2054   4      
+2055   4                          case 2:
+2056   4                                              OsdDisplaySetColorSpaceType1(_SPACE_RGB);
+2057   4                                              OsdDisplaySetColorRangeType1(_RANGE_FULL);
+2058   4                                          break;
+2059   4      
+2060   4                          case 3:
+2061   4                                              OsdDisplaySetColorSpaceType1(_SPACE_RGB);
+2062   4                                              OsdDisplaySetColorRangeType1(_RANGE_LIMITED);
+2063   4                                          break;
+2064   4      
+2065   4                          case 4:
+2066   4                                              OsdDisplaySetColorSpaceType1(_SPACE_YUV);
+2067   4                                              OsdDisplaySetColorRangeType1(_RANGE_FULL);
+2068   4                                          break;
+2069   4      
+2070   4                          case 5:
+2071   4                                              OsdDisplaySetColorSpaceType1(_SPACE_YUV);
+2072   4                                              OsdDisplaySetColorRangeType1(_RANGE_LIMITED);
+2073   4                                          break;              
+2074   4                              }               
+2075   3                      SysModeSetResetTarget(_MODE_ACTION_RESET_TO_DISPLAY_SETTING);
+2076   3                      UserInterfaceColorFormatConvert();
+2077   3                      RTDNVRamSaveOSDData();
+2078   3                      break;
+2079   3      
+2080   3      #if(_VGA_SUPPORT == _ON)
+2081   3                  case _DDCCI_OPCODE_VCP_CLOCK_PHASE:
+2082   3      
+2083   3                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+2084   3                      {
+2085   4                          if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+2086   4                          {
+2087   5                              g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+2088   5                          }
+2089   4      
+2090   4                          SET_VGA_MODE_ADJUST_PHASE(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+2091   4      
+2092   4                          UserCommonAdjustPhase(GET_VGA_MODE_ADJUST_PHASE());
+2093   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_MODEUSERDATA_MSG);
+2094   4                      }
+2095   3      
+2096   3                      break;
+2097   3      #endif
+2098   3      
+2099   3                  case _DDCCI_OPCODE_VCP_ACTIVE_CONTROL:
+2100   3      
+2101   3                      g_ucDdcciActiveValue = g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE];
+2102   3      
+2103   3                      break;
+2104   3      
+2105   3      #if(_AUDIO_SUPPORT == _ON)
+2106   3                  case _DDCCI_OPCODE_VCP_AUDIO_VOLUME:
+2107   3                   case _DDCCI_OPCODE_VCP_MICROPHONE_VOLUME:
+2108   3      
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 36  
+
+2109   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+2110   3                      {
+2111   4                          g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+2112   4                      }
+2113   3      
+2114   3                      SET_OSD_VOLUME(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+2115   3      
+2116   3                      UserAdjustAudioVolume(GET_OSD_VOLUME());
+2117   3                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+2118   3      
+2119   3                      break;
+2120   3      #endif // End of #if(_AUDIO_SUPPORT == _ON)
+2121   3      
+2122   3                  case _DDCCI_OPCODE_VCP_RED_BLACK_LEVEL:
+2123   3      
+2124   3                      g_ucDdcciRedBlackLevel = g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE];
+2125   3                      // UserAdjustBrightness(g_ucDdcciRedBlackLevel);                            // Please don'
+             -t delete
+2126   3      
+2127   3                      break;
+2128   3      
+2129   3                  case _DDCCI_OPCODE_VCP_GREEN_BLACK_LEVEL:
+2130   3      
+2131   3                      g_ucDdcciGreenBlackLevel = g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE];
+2132   3                      // UserAdjustBrightness(g_ucDdcciGreenBlackLevel);                             // Please d
+             -on't delete
+2133   3      
+2134   3                      break;
+2135   3      
+2136   3                  case _DDCCI_OPCODE_VCP_BLUE_BLACK_LEVEL:
+2137   3      
+2138   3                      g_ucDdcciBlueBlackLevel = g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE];
+2139   3                      // UserAdjustBrightness(g_ucDdcciGreenBlackLevel);                             // Please d
+             -on't delete
+2140   3      
+2141   3                      break;
+2142   3      
+2143   3                  case _DDCCI_OPCODE_VCP_POWER_MODE:
+2144   3      
+2145   3                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 5)
+2146   3                      {
+2147   4                          SET_FORCE_POW_SAV_STATUS(_FALSE);
+2148   4                          SysPowerSetTargetPowerStatus(_POWER_STATUS_OFF);
+2149   4                      }
+2150   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 4)
+2151   3                      {
+2152   4                          SET_FORCE_POW_SAV_STATUS(_TRUE);
+2153   4                          SysPowerSetTargetPowerStatus(_POWER_STATUS_SAVING);
+2154   4                      }
+2155   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 1)
+2156   3                      {
+2157   4                          SET_FORCE_POW_SAV_STATUS(_FALSE);
+2158   4                          SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL);
+2159   4                      }
+2160   3      
+2161   3                      break;
+2162   3      
+2163   3                  case _DDCCI_OPCODE_VCP_ECO:
+2164   3      
+2165   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+2166   3                                      {
+2167   4                                              SET_OSD_ECO_STATUS(_ECO_STANDARD);
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 37  
+
+2168   4                                      }
+2169   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+2170   3                                      {
+2171   4                                              SET_OSD_ECO_STATUS(_ECO_OPTIMIZE);
+2172   4                                      }
+2173   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+2174   3                                      {
+2175   4                                              SET_OSD_ECO_STATUS(_ECO_CONSERVE);
+2176   4                                      }
+2177   3      
+2178   3                                      if(GET_OSD_DCR_STATUS()==0)                                     //开启DCR后，开ECO亮度变化突兀
+2179   3                                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+2180   3                                      RTDNVRamSaveOSDData();
+2181   3      
+2182   3                                      break;
+2183   3      
+2184   3                              case _DDCCI_OPCODE_VCP_ASPECT_RATIO:
+2185   3      
+2186   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+2187   3                                      {
+2188   4                                              //SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_FULL);
+2189   4                                      }
+2190   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+2191   3                                      {
+2192   4                                              SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_4_BY_3);
+2193   4                                      }                               
+2194   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x03)
+2195   3                                      {
+2196   4                                              //SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_ORIGIN);
+2197   4                                      }                               
+2198   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x07)
+2199   3                                      {
+2200   4                                              SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_16_BY_10);
+2201   4                                      }
+2202   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x08)
+2203   3                                      {
+2204   4                                              SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_5_BY_4);
+2205   4                                      }
+2206   3                                      else
+2207   3                                              SET_OSD_ASPECT_RATIO_TYPE(_OSD_ASPECT_RATIO_16_BY_9);
+2208   3                                      
+2209   3                                      SysModeSetResetTarget(_MODE_ACTION_RESET_TO_DISPLAY_SETTING);
+2210   3                          RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+2211   3                                      break;
+2212   3      
+2213   3                              case _DDCCI_OPCODE_VCP_SCAN_MODE:
+2214   3      
+2215   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+2216   3                                      {
+2217   4                                              UserAdjustSetOverScanStatus(_OFF);
+2218   4                                      }
+2219   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+2220   3                                      {
+2221   4                                              UserAdjustSetOverScanStatus(_ON);
+2222   4                                      }
+2223   3      
+2224   3                                      UserAdjustOverScan(UserAdjustGetOverScanStatus());
+2225   3                                      // RTDNVRamSaveOSDData();
+2226   3                                      RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+2227   3      
+2228   3                                      break;          
+2229   3                                      
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 38  
+
+2230   3                              case _DDCCI_OPCODE_VCP_DCR:
+2231   3      
+2232   3      
+2233   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+2234   3                                      {
+2235   4                                              SET_OSD_DCR_STATUS(_DCR_Level_0);
+2236   4                                      }
+2237   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x19)
+2238   3                                      {
+2239   4                                              SET_OSD_DCR_STATUS(_DCR_Level_1);
+2240   4                                      }
+2241   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x32)
+2242   3                                      {
+2243   4                                              SET_OSD_DCR_STATUS(_DCR_Level_2);
+2244   4                                      }
+2245   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x4B)
+2246   3                                      {
+2247   4                                              SET_OSD_DCR_STATUS(_DCR_Level_3);
+2248   4                                      }
+2249   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x64)
+2250   3                                      {
+2251   4                                              SET_OSD_DCR_STATUS(_DCR_Level_4);
+2252   4                                      }
+2253   3                                      
+2254   3                                      if(GET_OSD_DCR_STATUS() == _DCR_Level_0)
+2255   3                                      {
+2256   4      #if(_DEF_VIEW_SONIC_DCR)
+2257   4      #if(_DCR_SUPPORT)                       
+2258   4                                              CDcrReset();
+2259   4                                              UserAdjustBacklight(GET_OSD_BACKLIGHT());
+2260   4      #endif
+2261   4      #endif
+2262   4                                      }
+2263   3                                      else
+2264   3                                      {
+2265   4                                              UserAdjustUltraVivid();
+2266   4                                      }
+2267   3                                      ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+2268   3                                      break;
+2269   3      
+2270   3                              case _DDCCI_OPCODE_VCP_BLUELIGHT:
+2271   3                              
+2272   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 100)
+2273   3                                      {
+2274   4                                              g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 100;
+2275   4                                      }
+2276   3                                      
+2277   3                                      SET_OSD_LOW_BLUE(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+2278   3                                      UserAdjustContrast(GET_OSD_CONTRAST());
+2279   3                                      ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+2280   3                                      break;
+2281   3      
+2282   3                              case _DDCCI_OPCODE_VCP_BLK_STABLE:
+2283   3                              
+2284   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] > 10)
+2285   3                                      {
+2286   4                                              g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] = 10;
+2287   4                                      }
+2288   3                                      SET_OSD_BLACKSTABLE(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE]);
+2289   3                                              
+2290   3                                      UserAdjustColorEffectMode();
+2291   3                                      ScalerTimerReactiveTimerEvent(SEC(1),_USER_TIMER_EVENT_SAVE_SCENEMODE_DATA);
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 39  
+
+2292   3                                      break;
+2293   3      
+2294   3      
+2295   3                              case _DDCCI_OPCODE_VCP_HDR:
+2296   3              
+2297   3      #if(_HDR10_SUPPORT == _ON)
+                                              if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+                                              {
+                                                      SET_OSD_HDR_MODE(_HDR10_MODE_OFF);
+                                                      OsdFunHDR();
+                                              }                               
+                                              else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+                                              {
+                                                      SET_OSD_HDR_MODE(_HDR10_MODE_AUTO);
+                                                      OsdFunHDR();
+                                              }                               
+              #endif
+2309   3                                      break;
+2310   3      
+2311   3                              
+2312   3                  case _DDCCI_OPCODE_VCP_SLEEP:
+2313   3              
+2314   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+2315   3                                      {
+2316   4                                              SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_OFF);
+2317   4                                      }                               
+2318   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x1E)
+2319   3                                      {
+2320   4                                              SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_30);
+2321   4                                      }                               
+2322   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x2D)
+2323   3                                      {
+2324   4                                              SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_45);
+2325   4                                      }                               
+2326   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x3C)
+2327   3                                      {
+2328   4                                              SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_60);
+2329   4                                      }                               
+2330   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x78)
+2331   3                                      {
+2332   4                                              SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_120);
+2333   4                                      }
+2334   3                                      
+2335   3                                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SLEEP_TIME_ADJ_MSG);
+2336   3              
+2337   3                                      {
+2338   4      #if _OSD_PowerSaving_Fun
+2339   4                                              if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_30)
+2340   4                                              {
+2341   5                                                      g_usPowerSavingCount = 30*_OSD_TIME_AUTO_DOWN;
+2342   5                                                      ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+2343   5                                      
+2344   5                                              }
+2345   4                                              else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_45)
+2346   4                                              {
+2347   5                                                      g_usPowerSavingCount = 45*_OSD_TIME_AUTO_DOWN;
+2348   5                                                      ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+2349   5                                      
+2350   5                                              }
+2351   4                                              else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_60)
+2352   4                                              {
+2353   5                                                      g_usPowerSavingCount = 60*_OSD_TIME_AUTO_DOWN;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 40  
+
+2354   5                                                      ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+2355   5                                      
+2356   5                                              }
+2357   4                                              else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_120)
+2358   4                                              {
+2359   5                                                      g_usPowerSavingCount = 120*_OSD_TIME_AUTO_DOWN;
+2360   5                                                      ScalerTimerActiveTimerEvent(SEC(1), _USER_TIMER_EVENT_AUTO_POWER_Saving); 
+2361   5                                      
+2362   5                                              }
+2363   4                                              else if(GET_AUTO_SLEEP_STATUS() == _SleepPowerSaving_OFF)
+2364   4                                              {
+2365   5                                                      ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_AUTO_POWER_Saving); 
+2366   5                                              }
+2367   4      #endif
+2368   4                                      }
+2369   3                                      RTDNVRamSaveOSDData();
+2370   3      
+2371   3                                      
+2372   3                      break;
+2373   3      
+2374   3                              
+2375   3                              case _DDCCI_OPCODE_VCP_VIEW_MODE:       // 目前只做所有模式都有的优派，有模式没开的，后面再改
+2376   3      
+2377   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+2378   3                      {
+2379   4                              OSD_SubMenuCur = 0;
+2380   4                      }
+2381   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x03)
+2382   3                      {
+2383   4                              OSD_SubMenuCur = 4;
+2384   4                      }
+2385   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x04)
+2386   3                      {
+2387   4                                              break;
+2388   4                              //OSD_SubMenuCur = 2;
+2389   4                      }                
+2390   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x30)
+2391   3                      {
+2392   4                              OSD_SubMenuCur = 1;
+2393   4                      }
+2394   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x32)
+2395   3                      {
+2396   4                              OSD_SubMenuCur = 2;
+2397   4                      }                
+2398   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x33)
+2399   3                      {
+2400   4                              OSD_SubMenuCur = 3;
+2401   4                      }
+2402   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x34)
+2403   3                      {
+2404   4                              OSD_SubMenuCur = 5;
+2405   4                      }
+2406   3                          else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x35)
+2407   3                      {
+2408   4                              OSD_SubMenuCur = 6;
+2409   4                      }                
+2410   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x36)
+2411   3                      {
+2412   4                              OSD_SubMenuCur = 7;
+2413   4                      }
+2414   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x3E)
+2415   3                      {
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 41  
+
+2416   4                              OSD_SubMenuCur = 8;
+2417   4                      }
+2418   3                                      else    
+2419   3                                      {
+2420   4                                              break;
+2421   4                                      }
+2422   3                                      
+2423   3                                      UserAdjustViewMode();
+2424   3                                      UpdateMaskValue();
+2425   3                      break;
+2426   3      
+2427   3                                      
+2428   3                  case _DDCCI_OPCODE_VCP_FREESYNC:
+2429   3      
+2430   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x00)
+2431   3                      {
+2432   4                                              SET_OSD_FREE_SYNC_STATUS(_FALSE);
+2433   4                      }
+2434   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x01)
+2435   3                      {
+2436   4                                              SET_OSD_FREE_SYNC_STATUS(_FALSE);
+2437   4                      }
+2438   3                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 0x02)
+2439   3                      {
+2440   4                                              SET_OSD_FREE_SYNC_STATUS(_TRUE);
+2441   4                      }
+2442   3                                      
+2443   3      #if(_FREESYNC_SUPPORT == _ON)
+2444   3                                      UserCommonInterfaceFreeSyncSupportSwitch();
+2445   3      #endif
+2446   3              
+2447   3      #if(_MPRT_SUPPORT == _ON)
+2448   3                                      if(GET_OSD_FREE_SYNC_STATUS())
+2449   3                                      {
+2450   4                                              SET_OSD_MPRT(_OFF);
+2451   4                                              UserAdjustMPRTFuntion(GET_OSD_MPRT());
+2452   4                                      }
+2453   3      #endif
+2454   3                                      if(GET_OSD_FREE_SYNC_STATUS())
+2455   3                                      {
+2456   4                                              SET_OSD_LATENCY(_ON);
+2457   4                                              SET_OSD_ASPECT_RATIO_TYPE(_ASPECT_RATIO_DEFAULT); // 恢复到16 : 9
+2458   4                                      }
+2459   3              
+2460   3              
+2461   3                                      RTDNVRamSaveOSDData();
+2462   3                                      RTDNVRamSaveSceneModeData(GET_OSD_GAME_MODE());
+2463   3      
+2464   3                              break;
+2465   3      
+2466   3                  case _DDCCI_OPCODE_VCP_OSD_LANGUAGE:
+2467   3      
+2468   3      //--------------------------------------------------
+2469   3      // Description  : TPV Factory Command set language
+2470   3      // Input Value  : None
+2471   3      // Output Value : None
+2472   3      //--------------------------------------------------
+2473   3      /////////////////////////////////////////////////////////////////////////////////////////
+2474   3      //- 0x00 = Reserved, must be ignored
+2475   3      //- 0x01 = Chinese (traditional / Hantai)        - 0x02 = English               - 0x03 = French         - 0x04 = German
+2476   3      //- 0x05 = Italian                                              - 0x06 = Japanese                       - 0x07 = Korean         - 0x08 = Portuguese (Portugal)
+2477   3      //- 0x09 = Russian                                              - 0x0A = Spanish (Espanol)      - 0x0B = Swedish        - 0x0C = Turkish
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 42  
+
+2478   3      //- 0x0D = Chinese (simplified / Kantai)          - 0x0E = Portuguese (Brazil)    - 0x0F = Arabic                       - 0x10 = Bulga
+             -rian
+2479   3      //- 0x11 = Croatian                                     - 0x12 = Czech                          - 0x13 = Danish         - 0x14 = Dutch (Netherlands)
+2480   3      //- 0x15 = Estonian                                     - 0x16 = Finnish                        - 0x17 = Greek          - 0x18 = Hebrew
+2481   3      //- 0x19 = Hindi                                                - 0x1A = Hungarian                      - 0x1B = Latvian        - 0x1C = Lithuanian
+2482   3      //- 0x1D = Norwegian                                    - 0x1E = Polish                         - 0x1F = Romanian       - 0x20 = Serbian
+2483   3      //- 0x21 = Slovak                                               - 0x22 = Slovenian                      - 0x23 = Thai           - 0x24 = Ukrainian
+2484   3      //- 0x25 = Vietnamese
+2485   3      /////////////////////////////////////////////////////////////////////////////////////////
+2486   3      
+2487   3                      switch(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE])
+2488   3                      {
+2489   4      #if(_DEF_TCHINESE_TEXT)
+2490   4                          case 0x01:
+2491   4                              SET_OSD_LANGUAGE(_CHINESE_T);
+2492   4                              break;
+2493   4      #endif
+2494   4      #if(_DEF_ENGLISH_TEXT)
+2495   4                          case 0x02:
+2496   4                              SET_OSD_LANGUAGE(_ENGLISH);
+2497   4                              break;
+2498   4      #endif
+2499   4      #if(_DEF_FRANCAIS_TEXT)
+2500   4                          case 0x03:
+2501   4                              SET_OSD_LANGUAGE(_FRENCH);
+2502   4                              break;
+2503   4      #endif
+2504   4      #if(_DEF_DEUTSCH_TEXT)
+2505   4                          case 0x04:
+2506   4                              SET_OSD_LANGUAGE(_GERMAN);
+2507   4                              break;
+2508   4      #endif
+2509   4      #if(_DEF_ITALIANO_TEXT)
+2510   4                          case 0x05:
+2511   4                              SET_OSD_LANGUAGE(_ITALIAN);
+2512   4                              break;
+2513   4      #endif
+2514   4      #if(_DEF_JAPANESE_TEXT)
+2515   4                          case 0x06:
+2516   4                              SET_OSD_LANGUAGE(_JAPANESE);
+2517   4                              break;
+2518   4      #endif
+2519   4      #if(_DEF_KOREAN_TEXT)
+2520   4                          case 0x07:
+2521   4                              SET_OSD_LANGUAGE(_KOREAN);
+2522   4                              break;
+2523   4      #endif
+2524   4      #if(_DEF_RUSSIA_TEXT)
+2525   4                          case 0x09:
+2526   4                              SET_OSD_LANGUAGE(_RUSSIA);
+2527   4                              break;
+2528   4      #endif
+2529   4      #if(_DEF_ESPANOL_TEXT)
+2530   4                          case 0x0A:
+2531   4                              SET_OSD_LANGUAGE(_SPANISH);
+2532   4                              break;
+2533   4      #endif
+2534   4      #if(_DEF_SWEDEN_TEXT)
+                                  case 0x0B:
+                                      SET_OSD_LANGUAGE(_SWEDEN);
+                                      break;
+              #endif
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 43  
+
+2539   4      #if(_DEF_TURKISH_TEXT)
+2540   4                          case 0x0C:
+2541   4                              SET_OSD_LANGUAGE(_TURKISH);
+2542   4                              break;
+2543   4      #endif
+2544   4      #if(_DEF_SCHINESE_TEXT)
+2545   4                          case 0x0D:
+2546   4                              SET_OSD_LANGUAGE(_CHINESE_S);
+2547   4                              break;
+2548   4      #endif
+2549   4      #if(_DEF_CZECH_TEXT)
+                                                      case 0x12:
+                                                              SET_OSD_LANGUAGE(_CZECH);
+                                                              break;
+              #endif
+2554   4      #if(_DEF_SUOMI_TEXT)
+2555   4                          case 0x16:
+2556   4                              SET_OSD_LANGUAGE(_FINNISH);
+2557   4                              break;
+2558   4      #endif
+2559   4      #if(_DEF_Vietnam_TEXT)
+                                                      case 0x25:
+                                                              SET_OSD_LANGUAGE(_Vietnam);
+                                                              break;
+              #endif
+2564   4      
+2565   4                          default:
+2566   4                              break;
+2567   4                      }
+2568   3      
+2569   3                      OsdDispDisableOsd();
+2570   3                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+2571   3      
+2572   3                      break;
+2573   3      
+2574   3                  case _DDCCI_OPCODE_VCP_OSD_ON_OFF:
+2575   3      
+2576   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 1 )
+2577   3                                      {
+2578   4                                          g_ucVCP_OSD_ON_OFF = 1;
+2579   4                                              SET_OSD_LOCK_STATUS(_ON);
+2580   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+2581   4                                      }
+2582   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 2)
+2583   3                                      {
+2584   4                                          g_ucVCP_OSD_ON_OFF = 2;
+2585   4                                              SET_OSD_LOCK_STATUS(_OFF);
+2586   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+2587   4                                      }                               
+2588   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 3)
+2589   3                                      {
+2590   4                                          g_ucVCP_OSD_ON_OFF = 3;
+2591   4                                              SET_OSD_LOCK_STATUS(_ON);
+2592   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+2593   4                                      }
+2594   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 8)
+2595   3                                      {
+2596   4                                          g_ucVCP_OSD_ON_OFF = 8;
+2597   4                                              SET_OSD_LOCK_STATUS(_ON);
+2598   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+2599   4                                      }
+2600   3      
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 44  
+
+2601   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 4)
+2602   3                                      {
+2603   4                                          g_ucVCP_OSD_ON_OFF = 4;
+2604   4                                              SET_OSD_DDCCI_STATUS(_OFF);
+2605   4                          if(GET_OSD_LOCK_STATUS() == _ON)
+2606   4                              SET_OSD_LOCK_STATUS(_OFF);
+2607   4                          ScalerMcuDdcciSwitchPort(GET_OSD_DDCCI_STATUS(), SysSourceGetInputPort());
+2608   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+2609   4                                      }
+2610   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 5)
+2611   3                                      {
+2612   4                                          g_ucVCP_OSD_ON_OFF = 5;
+2613   4                                              SET_OSD_DDCCI_STATUS(_ON);
+2614   4                          ScalerMcuDdcciSwitchPort(GET_OSD_DDCCI_STATUS(), SysSourceGetInputPort());
+2615   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_OSDUSERDATA_MSG);
+2616   4                                      }
+2617   3      
+2618   3                                      if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 6)
+2619   3                                      {
+2620   4                                          g_ucVCP_OSD_ON_OFF = 6;
+2621   4                                              SET_OSD_PWKEY_LOCK_STATUS(_ON);
+2622   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_POWER_LOCK_MSG);
+2623   4                                      }
+2624   3                                      else if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] == 7)
+2625   3                                      {
+2626   4                                          g_ucVCP_OSD_ON_OFF = 7;
+2627   4                                              SET_OSD_PWKEY_LOCK_STATUS(_OFF);
+2628   4                          SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_POWER_LOCK_MSG);
+2629   4                                      }
+2630   3      
+2631   3                      break;
+2632   3      
+2633   3      #if(_VGA_SUPPORT == _ON)
+2634   3      
+2635   3                              case _DDCCI_OPCODE_VCP_AUTO_COLOR:
+2636   3                                      if(SysSourceGetSourceType() == _SOURCE_VGA)
+2637   3                      {
+2638   4                          if(g_pucDdcciRxBuf[_DDCCI_SET_LOW_BYTE] != 0)
+2639   4                          {
+2640   5                                                      //OsdDisplayAutoBalanceProc();
+2641   5                                                      OsdDisplayAutoBalanceProc_DDCCI();
+2642   5                          }
+2643   4                      }
+2644   3      
+2645   3                                      break;
+2646   3      #endif
+2647   3      
+2648   3      
+2649   3      #if((_OGC_SUPPORT == _ON) || (_OCC_SUPPORT == _ON) || (_OGC_DICOM_SUPPORT == _ON))
+                          case _DDCCI_OPCODE_VCP_DISP_CALIBRATION:
+              
+                              UserCommonDdcciDispCalibProcess();
+              
+                              break;
+              #endif
+2656   3      
+2657   3                  default:
+2658   3      
+2659   3                      UserCommonDdcciInitTx();
+2660   3      
+2661   3                      break;
+2662   3              }
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 45  
+
+2663   2          }
+2664   1      }
+2665          
+2666          //--------------------------------------------------
+2667          // Description  : Reset monitor
+2668          // Input Value  : None
+2669          // Output Value : None
+2670          //--------------------------------------------------
+2671          void RTDDdcciResetAllSettings(void)
+2672          {
+2673   1          UserCommonNVRamRestoreSystemData();
+2674   1          RTDNVRamRestoreOSDData();
+2675   1      
+2676   1      #if(_VGA_SUPPORT == _ON)
+2677   1          UserCommonNVRamRestoreModeUserData();
+2678   1      #endif
+2679   1      
+2680   1          if((UserCommonNVRamGetSystemData(_SEARCH_PORT) != SysSourceGetInputPort()) ||
+2681   1             (UserCommonNVRamGetSystemData(_SOURCE_SCAN_TYPE) != SysSourceGetScanType()))
+2682   1          {
+2683   2              UserCommonNVRamSetSystemData(_SEARCH_PORT, SysSourceGetInputPort());
+2684   2              UserCommonNVRamSetSystemData(_SOURCE_SCAN_TYPE, SysSourceGetScanType());
+2685   2              UserCommonNVRamSaveSystemData();
+2686   2          }
+2687   1      
+2688   1          RTDDdcciColorReset();
+2689   1      }
+2690          
+2691          //--------------------------------------------------
+2692          // Description  : Reset color to default
+2693          // Input Value  : None
+2694          // Output Value : None
+2695          //--------------------------------------------------
+2696          void RTDDdcciColorReset(void)
+2697          {
+2698   1          g_ucDdcciRedBlackLevel = _DDCCI_BLACKLEVEL_DEFAULT;
+2699   1          g_ucDdcciGreenBlackLevel = _DDCCI_BLACKLEVEL_DEFAULT;
+2700   1          g_ucDdcciBlueBlackLevel = _DDCCI_BLACKLEVEL_DEFAULT;
+2701   1      
+2702   1      #if(_VIEWMODE_SUPPORT == _ON)
+2703   1          if(GET_OSD_VIEWMODE_TYPE() != _VM_STANDARD)
+2704   1              {
+2705   2              SET_OSD_VIEWMODE_TYPE(_VM_STANDARD);
+2706   2              UserAdjustViewModeType(GET_OSD_VIEWMODE_TYPE());
+2707   2      
+2708   2      #if(_ADVANCED_IMAGE_SUPPORT == _ON)
+2709   2                      SET_OSD_GAME_MODE(_GM_OFF);
+2710   2      #endif
+2711   2      
+2712   2              }
+2713   1      #endif
+2714   1      
+2715   1          RTDNVRamRestoreUserColorSetting();
+2716   1              SET_COLOR_TEMP_TYPE(_COLORTEMP_DEFAULT);
+2717   1              RTDNVRamSaveOSDData();
+2718   1          RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+2719   1      
+2720   1          RTDNVRamRestoreBriCon();
+2721   1          RTDNVRamRestoreBacklight();
+2722   1      
+2723   1          UserAdjustBacklight(GET_OSD_BACKLIGHT());
+2724   1      
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 46  
+
+2725   1      #if(_CONTRAST_SUPPORT == _ON)
+2726   1          UserAdjustContrast(GET_OSD_CONTRAST());
+2727   1      #endif
+2728   1      
+2729   1      #if(_BRIGHTNESS_SUPPORT == _ON)
+2730   1          UserAdjustBrightness(GET_OSD_BRIGHTNESS());
+2731   1      #endif
+2732   1      }
+2733          
+2734          #if 0
+              void RTDDdcciEdidProc(void)
+              {
+                      BYTE udAddress = 0;
+                      BYTE ucFlag = 0;
+              
+                      ucFlag = (g_pucDdcciRxBuf[4]);
+                      udAddress = (g_pucDdcciRxBuf[5]);
+              
+                      switch(ucFlag)
+              
+                      {
+                              case 0xff:
+                                      if(UserCommonFlashErasePage(_EDID_FLASH_BANK, _EDID_ADDRESS_FLASH))
+                                              RTDDdccireply(_TRUE);                           
+                                      break;
+                                      
+                              case 1:                         
+              #if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+              #if(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+                                      memcpy(&MCU_DDCRAM_A0[udAddress], &g_pucDdcciRxBuf[6], 8);
+                                      RTDDdccireply(_TRUE);   
+              #elif(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+              #elif(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif
+              #else
+                                      RTDDdccireply(_FALSE);  
+              #endif
+                                      break;
+              
+              
+                              case 2:                         
+              #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+              #if(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+                                      memcpy(&MCU_DDCRAM_D0[udAddress], &g_pucDdcciRxBuf[6], 8);
+                                      RTDDdccireply(_TRUE);           
+              #elif(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)       
+              #elif(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif
+              #else
+                                      RTDDdccireply(_FALSE);  
+              #endif
+                                      break;
+                                      
+              
+                              case 3:                 
+              #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+              #if(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+                                      memcpy(&MCU_DDCRAM_D1[udAddress], &g_pucDdcciRxBuf[6], 8);
+                                      RTDDdccireply(_TRUE);           
+              #elif(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+              #elif(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 47  
+
+              #else
+                                      RTDDdccireply(_FALSE);  
+              #endif
+                                      break;
+              
+                              case 4:                         
+              #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+              #if(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+                                      memcpy(&MCU_DDCRAM_D2[udAddress], &g_pucDdcciRxBuf[6], 8);
+                                      RTDDdccireply(_TRUE);
+              #elif(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+              #elif(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif
+              #else
+                                      RTDDdccireply(_FALSE);  
+              #endif
+                                      break;
+              
+                              case 5:                 
+              #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+              #if(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+                                      memcpy(&MCU_DDCRAM_D3[udAddress], &g_pucDdcciRxBuf[6], 8);
+                                      RTDDdccireply(_TRUE);   
+              #elif(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+              #elif(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif
+              #else
+                                      RTDDdccireply(_FALSE);  
+              #endif
+                                      break;
+              
+                              case 0x80:
+              #if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+              #if(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+                                      if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_A0_ADDRESS_FLASH, _A0_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_A0))
+                                      {
+                                              if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_A0_ADDRESS_FLASH, _A0_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_A0))
+                                              {
+                                                      if(!RTDDdcciDdcCheck(MCU_DDCRAM_A0,_A0_EMBEDDED_DDCRAM_MAX_SIZE))
+                                                      {
+                                                              RTDDdccireply(_FALSE);                          
+                                                              return;
+                                                      }
+                                              }
+                                      }
+                                      else
+                                      {               
+                                              return;
+                                      }
+              #elif(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+              #elif(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif
+              
+              #endif
+              
+              #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+              #if(_D0_INPUT_PORT_TYPE ==_D0_DVI_PORT )
+                                      udAddress = 128;
+              #else
+                                      udAddress = 256;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 48  
+
+              #endif
+              #if(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+                                      if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_D0_ADDRESS_FLASH, _D0_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_D0))
+                                      {
+                                              if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_D0_ADDRESS_FLASH, _D0_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_D0))
+                                              {
+                                                      if(!RTDDdcciDdcCheck(MCU_DDCRAM_D0,_D0_EMBEDDED_DDCRAM_MAX_SIZE))
+                                                      {
+                                                              RTDDdccireply(_FALSE);                          
+                                                              return;
+                                                      }
+                                              }
+                                      }
+                                      else
+                                      {
+                                              return;
+                                      }
+              #elif(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+              #elif(_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif
+                                      
+              #endif
+                                      
+              #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+              #if(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+                                      if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_D1_ADDRESS_FLASH, _D1_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_D1))
+                                      {
+                                              if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_D1_ADDRESS_FLASH, _D1_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_D1))
+                                              {
+                                                      if(!RTDDdcciDdcCheck(MCU_DDCRAM_D1,_D1_EMBEDDED_DDCRAM_MAX_SIZE))
+                                                      {
+                                                              RTDDdccireply(_FALSE);                          
+                                                              return;
+                                                      }
+                                              }
+                                      }
+                                      else 
+                                      {
+                                              return;
+                                      }
+              #elif(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+              #elif(_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif
+              #endif
+                                                                      
+              
+              #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+              #if(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)                         
+                                      if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_D2_ADDRESS_FLASH, _D2_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_D2))
+                                      {
+                                              if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_D2_ADDRESS_FLASH, _D2_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_D2))
+                                              {
+                                                      if(!RTDDdcciDdcCheck(MCU_DDCRAM_D2,_D2_EMBEDDED_DDCRAM_MAX_SIZE))
+                                                      {
+                                                              RTDDdccireply(_FALSE);                          
+                                                              return;
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 49  
+
+                                                      }
+                                              }
+                                      }
+                                      else
+                                      {
+                                              return;
+                                      }
+              #elif(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+              #elif(_D2_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif
+                                      
+                                                                      
+              #endif
+              
+              #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+              #if(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_FLASH)
+                                      if(UserCommonFlashWrite(_EDID_FLASH_BANK,_EDID_D3_ADDRESS_FLASH, _D3_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_D3))
+                                      {
+                                              if(UserCommonFlashRead(_EDID_FLASH_BANK,_EDID_D3_ADDRESS_FLASH, _D3_EMBEDDED_DDCRAM_MAX_SIZE, MCU_DDCR
+             -AM_D3))
+                                              {
+                                                      if(!RTDDdcciDdcCheck(MCU_DDCRAM_D3,_D3_EMBEDDED_DDCRAM_MAX_SIZE))
+                                                      {
+                                                              RTDDdccireply(_FALSE);                          
+                                                              return;
+                                                      } 
+                                              }
+                                      }
+                                      else
+                                      {
+                                              return;
+                                      }
+              #elif(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_SYSTEM_EEPROM)
+              #elif(_D3_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_USER)
+              #endif                                                                                          
+              #endif
+                                      RTDDdccireply(_TRUE);                           
+              
+                                      break;
+              
+                              default:
+                                      break;
+              
+                      }
+              
+              }
+              #endif
+2949          
+2950          
+2951          
+2952          #endif // End of #if(_OSD_TYPE == _REALTEK_2014_OSD)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   6262    ----
+   CONSTANT SIZE    =     24    ----
+   XDATA SIZE       =      7       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+C51 COMPILER V8.12   RTD2014DDCCI                                                          03/10/2025 13:51:04 PAGE 50  
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

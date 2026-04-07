@@ -1,0 +1,1072 @@
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE USERCOMMONAUTO
+OBJECT MODULE PLACED IN .\Output\RL6463\UserCommonAuto.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\User Common Function\Code\UserCommonAuto.c LARGE OPTIMIZE(9,S
+                    -PEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Heade
+                    -r;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\H
+                    -eader;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler\RL6463
+                    -_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Serie
+                    -s\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.
+                    -\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(.\Outpu
+                    -t\RL6463\UserCommonAuto.lst) OBJECT(.\Output\RL6463\UserCommonAuto.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : UserCommonAuto.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __USER_COMMON_AUTO__
+  18          
+  19          #include "UserCommonInclude.h"
+  20          
+  21          #if(_VGA_SUPPORT == _ON)
+  22          
+  23          //****************************************************************************
+  24          // DEFINITIONS / MACROS
+  25          //****************************************************************************
+  26          
+  27          //--------------------------------------------------
+  28          // Active Region Percentage Threshold (%)
+  29          //--------------------------------------------------
+  30          #define _ACTIVE_REGION_PERCENTAGE_THD               ((100 - _AUTO_CLOCK_RANGE) / 2)
+  31          
+  32          //--------------------------------------------------
+  33          // Auto config position over direction
+  34          //--------------------------------------------------
+  35          #define _AUTO_POSITION_OVER_NONE                    0x00
+  36          #define _AUTO_POSITION_OVER_LEFT                    _BIT0
+  37          #define _AUTO_POSITION_OVER_RIGHT                   _BIT1
+  38          #define _AUTO_POSITION_OVER_TOP                     _BIT2
+  39          #define _AUTO_POSITION_OVER_BOTTOM                  _BIT3
+  40          
+  41          //--------------------------------------------------
+  42          // Definition of auto position before auto clock
+  43          //--------------------------------------------------
+  44          #define _AUTO_POSITION_FIRST_EN                     _ON
+  45          #define _AUTO_POSITION_FOR_IN_REGION_EN             _ON
+  46          
+  47          //--------------------------------------------------
+  48          // Definition of results of checking active region
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 2   
+
+  49          //--------------------------------------------------
+  50          #define _AUTO_ACTIVE_REGION_IN                      0xFE
+  51          #define _AUTO_ACTIVE_REGION_OUT                     0xFF
+  52          
+  53          //--------------------------------------------------
+  54          // Definition of max auto faulure count
+  55          //--------------------------------------------------
+  56          #define _MAX_AUTO_FAIL_COUNT                        3
+  57          
+  58          //--------------------------------------------------
+  59          // Definition of multi measure function tolerance
+  60          //--------------------------------------------------
+  61          #define _AUTO_MULTI_MEASURE_CHECK_TOL_H             4
+  62          #define _AUTO_MULTI_MEASURE_CHECK_TOL_V             1
+  63          
+  64          //--------------------------------------------------
+  65          // Set IHS Capture Start (Minimum)
+  66          //--------------------------------------------------
+  67          #define _IHS_CAPTURE_START                          4
+  68          
+  69          //--------------------------------------------------
+  70          // Set Center Position Non-adjusting Range (%) by IHWidth
+  71          //--------------------------------------------------
+  72          #define _AUTO_POSITION_CENTER_H_RANGE               85
+  73          
+  74          //--------------------------------------------------
+  75          // Set Center Position Non-adjusting Range (%) by IVHeight
+  76          //--------------------------------------------------
+  77          #define _AUTO_POSITION_CENTER_V_RANGE               50
+  78          
+  79          //--------------------------------------------------
+  80          // Definitions of Fine Tune Clock Range
+  81          //--------------------------------------------------
+  82          #define _FINE_TUNE_CLOCK_START                      1
+  83          #define _FINE_TUNE_CLOCK_NUMBER                     6
+  84          #define _FINE_TUNE_CLOCK_RANGE                      4
+  85          
+  86          //--------------------------------------------------
+  87          // Definitions of Hardware Auto Phase Step
+  88          //--------------------------------------------------
+  89          #define _HWAUTO_STEP_1                              0x00
+  90          #define _HWAUTO_STEP_2                              0x01
+  91          #define _HWAUTO_STEP_4                              0x02
+  92          #define _HWAUTO_STEP_8                              0x03
+  93          #define _HWAUTO_STEP_16                             0x04
+  94          
+  95          #define _HWAUTO_STEP                                _HWAUTO_STEP_8
+  96          #define _HWAUTO_START                               0
+  97          #define _HWAUTO_NUMBER                              8    // _HWAUTO_NUMBER <= (QPhase * VCO_divider - _HWA
+             -UTO_START)mod(_HWAUTO_STEP), QPhase = 32, VCO_divider = 2 or 4
+  98          
+  99          //****************************************************************************
+ 100          // STRUCT / TYPE / ENUM DEFINITTIONS
+ 101          //****************************************************************************
+ 102          
+ 103          
+ 104          //****************************************************************************
+ 105          // CODE TABLES
+ 106          //****************************************************************************
+ 107          
+ 108          
+ 109          //****************************************************************************
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 3   
+
+ 110          // VARIABLE DECLARATIONS
+ 111          //****************************************************************************
+ 112          BYTE g_ucAutoConfigStatus;
+ 113          
+ 114          //****************************************************************************
+ 115          // FUNCTION DECLARATIONS
+ 116          //****************************************************************************
+ 117          void UserCommonAutoConfig(void);
+ 118          bit UserCommonAutoClock(void);
+ 119          bit UserCommonAutoHPosition(void);
+ 120          bit UserCommonAutoVPosition(void);
+ 121          bit UserCommonAutoPhase(void);
+ 122          void UserCommonAutoUpdateUserdata(void);
+ 123          bit UserCommonAutoMeasureMultiTimes(void);
+ 124          bit UserCommonAutoClockRoughAdjust(WORD *pusCurrClock);
+ 125          bit UserCommonAutoClockFineTuneAdjust(WORD *pusCurrClock);
+ 126          bit UserCommonAutoClockCheckPictureRegion(void);
+ 127          bit UserCommonAutoCheckClock(WORD usCurrClock);
+ 128          //void UserCommonAutoPhaseTestFunction(void);
+ 129          
+ 130          //****************************************************************************
+ 131          // FUNCTION DEFINITIONS
+ 132          //****************************************************************************
+ 133          
+ 134          //--------------------------------------------------
+ 135          // Description  : Picture position/clock/phase auto calibration.
+ 136          // Input Value  : None
+ 137          // Output Value : Return Error Status
+ 138          //--------------------------------------------------
+ 139          void UserCommonAutoConfig(void)
+ 140          {
+ 141   1          g_ucAutoConfigStatus = 0;
+ 142   1      
+ 143   1          if(UserCommonAutoMeasureMultiTimes() == _FALSE)
+ 144   1          {
+ 145   2              g_ucAutoConfigStatus |= _AUTO_CONFIG_MEASURE_ERROR;
+ 146   2      
+ 147   2              return;
+ 148   2          }
+ 149   1      
+ 150   1      #if(_VGA_CHROMA_PATTERN12_SUPPORT == _ON)
+                  // For clamp-to-top case, do nothing.
+                  if(ScalerADCGetClampToTopStatus() == _TRUE)
+                  {
+                      g_ucAutoConfigStatus |= _AUTO_CONFIG_MEASURE_ERROR;
+              
+                      return;
+                  }
+              #endif
+ 159   1      
+ 160   1          UserInterfaceGetAutoConfigPercentage(_AUTO_CONFIG_CHECK_MULTITIMES_FINISH);
+ 161   1      
+ 162   1          if(UserCommonAutoClock() == _FALSE)
+ 163   1          {
+ 164   2              g_ucAutoConfigStatus |= _AUTO_CONFIG_MEASURE_ERROR;
+ 165   2      
+ 166   2              return;
+ 167   2          }
+ 168   1      
+ 169   1      #if(_AUTO_CLOCK_SAVE_VALUE_OPTION == _CLOCK_SAVE_PERCENT_VALUE)
+ 170   1          SET_VGA_MODE_ADJUST_CLOCK(50);
+ 171   1      #else
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 4   
+
+                  SET_VGA_MODE_ADJUST_CLOCK(g_stVGAModeUserData.usCenterClock);
+              #endif
+ 174   1      
+ 175   1          UserCommonAdjustClock(GET_VGA_MODE_ADJUST_CLOCK());
+ 176   1      
+ 177   1          UserInterfaceGetAutoConfigPercentage(_AUTO_CONFIG_CLOCK_FINISH);
+ 178   1      
+ 179   1          // UserCommonAutoPhaseTestFunction();
+ 180   1      
+ 181   1          if(UserCommonAutoPhase() == _FALSE)
+ 182   1          {
+ 183   2              SET_VGA_MODE_ADJUST_PHASE(UserCommonAdjustRealValueToPercent(g_stVGAModeUserData.ucCenterPhase, _A
+             -DJUST_PHASE_MAX, _ADJUST_PHASE_MIN, _ADJUST_PHASE_CENTER));
+ 184   2      
+ 185   2              UserCommonAdjustPhase(GET_VGA_MODE_ADJUST_PHASE());
+ 186   2      
+ 187   2              g_ucAutoConfigStatus |= _AUTO_CONFIG_MEASURE_ERROR;
+ 188   2      
+ 189   2              return;
+ 190   2          }
+ 191   1      
+ 192   1          UserInterfaceGetAutoConfigPercentage(_AUTO_CONFIG_PHASE_FINISH);
+ 193   1      
+ 194   1          if(UserCommonAutoVPosition() == _FALSE)
+ 195   1          {
+ 196   2              g_ucAutoConfigStatus |= _AUTO_CONFIG_MEASURE_ERROR;
+ 197   2      
+ 198   2              return;
+ 199   2          }
+ 200   1      
+ 201   1          UserInterfaceGetAutoConfigPercentage(_AUTO_CONFIG_V_POSITION_FINISH);
+ 202   1      
+ 203   1          if(UserCommonAutoHPosition() == _FALSE)
+ 204   1          {
+ 205   2              g_ucAutoConfigStatus |= _AUTO_CONFIG_MEASURE_ERROR;
+ 206   2      
+ 207   2              return;
+ 208   2          }
+ 209   1      
+ 210   1          UserInterfaceGetAutoConfigPercentage(_AUTO_CONFIG_H_POSITION_FINISH);
+ 211   1      
+ 212   1          SET_VGA_MODE_DO_FIRST_AUTO(_FALSE);
+ 213   1      
+ 214   1          UserCommonAutoUpdateUserdata();
+ 215   1      }
+ 216          
+ 217          //--------------------------------------------------
+ 218          // Description  : Adjust clock.
+ 219          // Input Value  : None
+ 220          // Output Value : Return _TRUE or _FALSE
+ 221          //--------------------------------------------------
+ 222          bit UserCommonAutoClock(void)
+ 223          {
+ 224   1          WORD usClock = 0;
+ 225   1      
+ 226   1          // Check picture whether the rate of not full frame of picture is less than 95% of full frame
+ 227   1          if(UserCommonAutoClockCheckPictureRegion() == _FALSE)
+ 228   1          {
+ 229   2              g_ucAutoConfigStatus |= _AUTO_CONFIG_CLOCK_ABORT;
+ 230   2      
+ 231   2              return _TRUE;
+ 232   2          }
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 5   
+
+ 233   1      
+ 234   1          UserInterfaceGetAutoConfigPercentage(_AUTO_CONFIG_CLOCK_CHECK_WIDTH_FINISH);
+ 235   1      
+ 236   1          // Find Rough Htotal(clock)
+ 237   1          if(UserCommonAutoClockRoughAdjust(&usClock) == _FALSE)
+ 238   1          {
+ 239   2              return _FALSE;
+ 240   2          }
+ 241   1      
+ 242   1          UserInterfaceGetAutoConfigPercentage(_AUTO_CONFIG_CLOCK_ROUGH_ADJUST_FINISH);
+ 243   1      
+ 244   1          // Find Best Htotal(clock)
+ 245   1          if(UserCommonAutoClockFineTuneAdjust(&usClock) == _FALSE)
+ 246   1          {
+ 247   2              return _FALSE;
+ 248   2          }
+ 249   1      
+ 250   1          UserInterfaceGetAutoConfigPercentage(_AUTO_CONFIG_CLOCK_FINETUNE_FINISH);
+ 251   1      
+ 252   1          g_stVGAModeUserData.usCenterClock = usClock;
+ 253   1      
+ 254   1          return _TRUE;
+ 255   1      }
+ 256          
+ 257          //--------------------------------------------------
+ 258          // Description  : Adjust H Position.
+ 259          // Input Value  : None
+ 260          // Output Value : Return _TRUE or _FALSE
+ 261          //--------------------------------------------------
+ 262          bit UserCommonAutoHPosition(void)
+ 263          {
+ 264   1          WORD usCurrClock = 0;
+ 265   1      
+ 266   1      #if(_AUTO_CLOCK_SAVE_VALUE_OPTION == _CLOCK_SAVE_PERCENT_VALUE)
+ 267   1          WORD usClockRangeMax = 0;
+ 268   1          WORD usClockRangeMin = 0;
+ 269   1      
+ 270   1          usClockRangeMax = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MAX);
+ 271   1          usClockRangeMin = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MIN);
+ 272   1          usCurrClock = UserCommonAdjustPercentToRealValue(GET_VGA_MODE_ADJUST_CLOCK(), usClockRangeMax, usClock
+             -RangeMin, (((usClockRangeMax - usClockRangeMin) / 2) + usClockRangeMin));
+ 273   1      #else
+                  usCurrClock = GET_VGA_MODE_ADJUST_CLOCK();
+              #endif
+ 276   1      
+ 277   1          if(UserInterfaceSkipAutoHpos() == _TRUE)
+ 278   1          {
+ 279   2              return _TRUE;
+ 280   2          }
+ 281   1      
+ 282   1      #if(_OVERSCAN_SUPPORT == _TRUE)
+ 283   1      
+ 284   1          if(UserInterfaceGetOverScanStatus() == _TRUE)
+ 285   1          {
+ 286   2              if(ScalerVgaTopMeasureActiveRegion(_NORMAL_MEASURE, _OVERSCAN_BOUNDARY, usCurrClock) == _FALSE)
+ 287   2              {
+ 288   3                  return _FALSE;
+ 289   3              }
+ 290   2          }
+ 291   1          else
+ 292   1      #endif
+ 293   1          {
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 6   
+
+ 294   2              if(ScalerVgaTopMeasureActiveRegion(_NORMAL_MEASURE, _FULL_BOUNDARY, usCurrClock) == _FALSE)
+ 295   2              {
+ 296   3                  return _FALSE;
+ 297   3              }
+ 298   2          }
+ 299   1      
+ 300   1      
+ 301   1          if((GET_ACTIVE_H_START() == 0x00) && (GET_ACTIVE_H_END() == 0x00) && (GET_ACTIVE_V_START() == 0x00) &&
+             - (GET_ACTIVE_V_END() == 0x00))
+ 302   1          {
+ 303   2              return _FALSE;
+ 304   2          }
+ 305   1      
+ 306   1          if(GET_ACTIVE_H_WIDTH() <= UserCommonModeSearchGetModetableTimingDataItem(g_stVGAModeUserData.ucModeNu
+             -mber, _IHWIDTH))
+ 307   1          {
+ 308   2              if(GET_ACTIVE_H_START() < (ScalerVgaTopGetCaptureHStartPosition() + ScalerVgaTopGetCaptureHDelay()
+             -))
+ 309   2              {
+ 310   3                  g_stVGAModeUserData.usCenterHPosition = GET_ACTIVE_H_START();
+ 311   3              }
+ 312   2              else if(GET_ACTIVE_H_END() > (ScalerVgaTopGetCaptureHStartPosition() + ScalerVgaTopGetCaptureHDela
+             -y() + ScalerVgaTopGetCaptureHWidth() - 1))
+ 313   2              {
+ 314   3                  g_stVGAModeUserData.usCenterHPosition = GET_ACTIVE_H_END() - (ScalerVgaTopGetCaptureHWidth()) 
+             -+ 1;
+ 315   3              }
+ 316   2              else
+ 317   2              {
+ 318   3                  return _TRUE;
+ 319   3              }
+ 320   2          }
+ 321   1          else
+ 322   1          {
+ 323   2              g_stVGAModeUserData.usCenterHPosition = GET_ACTIVE_H_START();
+ 324   2          }
+ 325   1      
+ 326   1          UserCommonAdjustHPosition(50);
+ 327   1      
+ 328   1          SET_VGA_MODE_ADJUST_H_POSITION(50);
+ 329   1      
+ 330   1          return _TRUE;
+ 331   1      }
+ 332          
+ 333          //--------------------------------------------------
+ 334          // Description  : Adjust V Position.
+ 335          // Input Value  : None
+ 336          // Output Value : Return _TRUE or _FALSE
+ 337          //--------------------------------------------------
+ 338          bit UserCommonAutoVPosition(void)
+ 339          {
+ 340   1          if(UserInterfaceSkipAutoVpos() == _TRUE)
+ 341   1          {
+ 342   2              return _TRUE;
+ 343   2          }
+ 344   1      
+ 345   1          DebugMessageAnalog("7. ModeTable VH", UserCommonModeSearchGetModetableTimingDataItem(g_stVGAModeUserDa
+             -ta.ucModeNumber, _IVHEIGHT));
+ 346   1          DebugMessageAnalog("7. Measure VH", GET_ACTIVE_V_HEIGHT());
+ 347   1          DebugMessageAnalog("7. Measeure V Start", GET_ACTIVE_V_START());
+ 348   1          DebugMessageAnalog("7. IVDelay", ScalerVgaTopGetCaptureVDelay());
+ 349   1          DebugMessageAnalog("7. IVCapture", ScalerVgaTopGetCaptureVStartPosition());
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 7   
+
+ 350   1          DebugMessageAnalog("7. CenterVposition", g_stVGAModeUserData.usCenterVPosition);
+ 351   1          DebugMessageAnalog("7. Measure V End", GET_ACTIVE_V_END());
+ 352   1      
+ 353   1          if(GET_ACTIVE_V_HEIGHT() <= UserCommonModeSearchGetModetableTimingDataItem(g_stVGAModeUserData.ucModeN
+             -umber, _IVHEIGHT))
+ 354   1          {
+ 355   2              DebugMessageAnalog("7. Picture under Size", 0);
+ 356   2      
+ 357   2              if(GET_ACTIVE_V_START() < (ScalerVgaTopGetCaptureVDelay() + ScalerVgaTopGetCaptureVStartPosition()
+             -))
+ 358   2              {
+ 359   3                  DebugMessageAnalog("7. Top Over", 0);
+ 360   3      
+ 361   3                  g_stVGAModeUserData.usCenterVPosition = GET_ACTIVE_V_START();
+ 362   3              }
+ 363   2              else if(GET_ACTIVE_V_END() > (ScalerVgaTopGetCaptureVDelay() + ScalerVgaTopGetCaptureVStartPositio
+             -n() + (ScalerVgaTopGetCaptureVHeight()) - 1))
+ 364   2              {
+ 365   3                  DebugMessageAnalog("7. Botten Over", 0);
+ 366   3      
+ 367   3                  g_stVGAModeUserData.usCenterVPosition = GET_ACTIVE_V_END() - (ScalerVgaTopGetCaptureVHeight())
+             - + 1;
+ 368   3              }
+ 369   2              else
+ 370   2              {
+ 371   3                  DebugMessageAnalog("7. Do Nothing", 0);
+ 372   3      
+ 373   3                  return _TRUE;
+ 374   3              }
+ 375   2          }
+ 376   1          else
+ 377   1          {
+ 378   2              DebugMessageAnalog("7. Picture over Size", 0);
+ 379   2      
+ 380   2              g_stVGAModeUserData.usCenterVPosition = GET_ACTIVE_V_START();
+ 381   2          }
+ 382   1      
+ 383   1          if((g_stVGAModeUserData.usCenterVPosition + UserCommonModeSearchGetModetableTimingDataItem(g_stVGAMode
+             -UserData.ucModeNumber, _IVHEIGHT)) > GET_INPUT_TIMING_VTOTAL())
+ 384   1          {
+ 385   2              DebugMessageAnalog("7. Center V Position Error", g_stVGAModeUserData.usCenterVPosition);
+ 386   2      
+ 387   2              g_stVGAModeUserData.usCenterVPosition = UserCommonModeSearchGetModetableTimingDataItem(g_stVGAMode
+             -UserData.ucModeNumber, _IVSTART);
+ 388   2          }
+ 389   1      
+ 390   1          UserCommonAdjustVPosition(50);
+ 391   1      
+ 392   1          SET_VGA_MODE_ADJUST_V_POSITION(50);
+ 393   1      
+ 394   1          return _TRUE;
+ 395   1      }
+ 396          
+ 397          //--------------------------------------------------
+ 398          // Description  : Adjust phase.
+ 399          // Input Value  : None
+ 400          // Output Value : Return _TRUE or _FALSE
+ 401          //--------------------------------------------------
+ 402          bit UserCommonAutoPhase(void)
+ 403          {
+ 404   1          BYTE ucBestPhase = 0;
+ 405   1          BYTE ucRoughPhase = 0;
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 8   
+
+ 406   1          BYTE ucTargetPhase = 0;
+ 407   1          BYTE ucCounter = 0;
+ 408   1          DWORD ulSODTemp1 = 0;
+ 409   1          DWORD ulSODTemp2 = 0;
+ 410   1          DWORD ulSODLeft = 0;
+ 411   1          DWORD ulSODCenter = 0;
+ 412   1          DWORD ulSODRight = 0;
+ 413   1      
+ 414   1          if((GET_ACTIVE_H_WIDTH() > 4) && (GET_ACTIVE_V_HEIGHT() > 4))
+ 415   1          {
+ 416   2              ScalerVgaTopAutoFuncHBoundInitial((GET_ACTIVE_H_START() + 2), (GET_ACTIVE_H_END() - 2));
+ 417   2              ScalerVgaTopAutoFuncVBoundInitial((GET_ACTIVE_V_START() + 2), (GET_ACTIVE_V_END() - 2));
+ 418   2          }
+ 419   1      
+ 420   1          if(ScalerVgaTopHWAutoPhaseSearch(_PHASE_SEARCH_STEP_4, &ucRoughPhase, &ulSODTemp1, &ulSODTemp2, _PHASE
+             -_SEARCH_WSOD, 0x80) == _FALSE)
+ 421   1          {
+ 422   2              return _FALSE;
+ 423   2          }
+ 424   1      
+ 425   1          if((ulSODTemp1 / 0x80) < 100)
+ 426   1          {
+ 427   2              if(ScalerVgaTopHWAutoPhaseSearch(_PHASE_SEARCH_STEP_4, &ucRoughPhase, &ulSODTemp1, &ulSODTemp2, _P
+             -HASE_SEARCH_WSOD, 0x40) == _FALSE)
+ 428   2              {
+ 429   3                  return _FALSE;
+ 430   3              }
+ 431   2          }
+ 432   1      
+ 433   1          ucTargetPhase = ((ucRoughPhase + 64 - 4) % 64);
+ 434   1      
+ 435   1          ulSODTemp1 = 0;
+ 436   1          ulSODTemp2 = 0;
+ 437   1      
+ 438   1          do
+ 439   1          {
+ 440   2              ScalerGlobalWatchDog(_DISABLE);
+ 441   2      
+ 442   2              ScalerPLLSetPhase(ucTargetPhase, UserCommonModeSearchGetModetableTimingDataItem(g_stVGAModeUserDat
+             -a.ucModeNumber, _IVFREQ));
+ 443   2      
+ 444   2              ScalerGlobalWatchDog(_ENABLE);
+ 445   2      
+ 446   2              if(ScalerVgaTopAutoPhaseGetSOD(&ulSODTemp1) == _FALSE)
+ 447   2              {
+ 448   3                  return _FALSE;
+ 449   3              }
+ 450   2      
+ 451   2              ulSODLeft = ulSODCenter;
+ 452   2              ulSODCenter = ulSODRight;
+ 453   2              ulSODRight = ulSODTemp1;
+ 454   2      
+ 455   2              if(ulSODCenter > (ABSDWORD(ulSODLeft, ulSODCenter) + ABSDWORD(ulSODRight, ulSODCenter)))
+ 456   2              {
+ 457   3                  ulSODTemp1 = ulSODCenter - ((ABSDWORD(ulSODLeft, ulSODCenter) + ABSDWORD(ulSODRight, ulSODCent
+             -er)));
+ 458   3              }
+ 459   2              else
+ 460   2              {
+ 461   3                  ulSODTemp1 = 0;
+ 462   3              }
+ 463   2      
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 9   
+
+ 464   2              if(ulSODTemp1 > ulSODTemp2)
+ 465   2              {
+ 466   3                  ulSODTemp2 = ulSODTemp1;
+ 467   3                  ucBestPhase = ((ucTargetPhase + 64 - 2) % 64);
+ 468   3              }
+ 469   2      
+ 470   2              ucTargetPhase = ((ucTargetPhase + 2) % 64);
+ 471   2      
+ 472   2              ucCounter++;
+ 473   2          }
+ 474   1          while(ucCounter <= 4);
+ 475   1      
+ 476   1          if(ulSODTemp2 != 0x00)
+ 477   1          {
+ 478   2              g_stVGAModeUserData.ucCenterPhase = ucBestPhase;
+ 479   2          }
+ 480   1          else
+ 481   1          {
+ 482   2              g_ucAutoConfigStatus |= _AUTO_CONFIG_PHASE_ABORT;
+ 483   2          }
+ 484   1      
+ 485   1          SET_VGA_MODE_ADJUST_PHASE(UserCommonAdjustRealValueToPercent(g_stVGAModeUserData.ucCenterPhase, _ADJUS
+             -T_PHASE_MAX, _ADJUST_PHASE_MIN, _ADJUST_PHASE_CENTER));
+ 486   1      
+ 487   1          ScalerGlobalWatchDog(_DISABLE);
+ 488   1          ScalerPLLSetPhase(g_stVGAModeUserData.ucCenterPhase, UserCommonModeSearchGetModetableTimingDataItem(g_
+             -stVGAModeUserData.ucModeNumber, _IVFREQ));
+ 489   1          ScalerGlobalWatchDog(_ENABLE);
+ 490   1      
+ 491   1          return _TRUE;
+ 492   1      }
+ 493          
+ 494          //--------------------------------------------------
+ 495          // Description  : Update user data
+ 496          // Input Value  : None
+ 497          // Output Value : None
+ 498          //--------------------------------------------------
+ 499          void UserCommonAutoUpdateUserdata(void)
+ 500          {
+ 501   1          // Save user data to NVRam
+ 502   1          UserCommonNVRamSaveModeUserData();
+ 503   1      }
+ 504          
+ 505          //--------------------------------------------------
+ 506          // Description  : Multi times measurement.
+ 507          // Input Value  : None
+ 508          // Output Value : Return _TRUE or _FALSE
+ 509          //--------------------------------------------------
+ 510          bit UserCommonAutoMeasureMultiTimes(void)
+ 511          {
+ 512   1          BYTE ucCnt = 0;
+ 513   1          WORD usPreWidth = 0;
+ 514   1          WORD usPreHeight = 0;
+ 515   1          WORD usCurrClock = 0;
+ 516   1      
+ 517   1      #if(_AUTO_CLOCK_SAVE_VALUE_OPTION == _CLOCK_SAVE_PERCENT_VALUE)
+ 518   1          WORD usClockRangeMax = 0;
+ 519   1          WORD usClockRangeMin = 0;
+ 520   1      
+ 521   1          usClockRangeMax = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MAX);
+ 522   1          usClockRangeMin = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MIN);
+ 523   1          usCurrClock = UserCommonAdjustPercentToRealValue(GET_VGA_MODE_ADJUST_CLOCK(), usClockRangeMax, usClock
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 10  
+
+             -RangeMin, (((usClockRangeMax - usClockRangeMin) / 2) + usClockRangeMin));
+ 524   1      #else
+                  usCurrClock = GET_VGA_MODE_ADJUST_CLOCK();
+              #endif
+ 527   1      
+ 528   1          for(ucCnt = 0; ucCnt < 2; ucCnt++)
+ 529   1          {
+ 530   2      #if(_OVERSCAN_SUPPORT == _TRUE)
+ 531   2              if(UserInterfaceGetOverScanStatus() == _TRUE)
+ 532   2              {
+ 533   3                  if(ScalerVgaTopMeasureActiveRegion(_NORMAL_MEASURE, _OVERSCAN_BOUNDARY, usCurrClock) == _FALSE
+             -)
+ 534   3                  {
+ 535   4                      return _FALSE;
+ 536   4                  }
+ 537   3              }
+ 538   2              else
+ 539   2      #endif
+ 540   2              {
+ 541   3                  if(ScalerVgaTopMeasureActiveRegion(_NORMAL_MEASURE, _FULL_BOUNDARY, usCurrClock) == _FALSE)
+ 542   3                  {
+ 543   4                      return _FALSE;
+ 544   4                  }
+ 545   3              }
+ 546   2      
+ 547   2              if((GET_ACTIVE_H_START() == 0x00) && (GET_ACTIVE_H_END() == 0x00) && (GET_ACTIVE_V_START() == 0x00
+             -) && (GET_ACTIVE_V_END() == 0x00))
+ 548   2              {
+ 549   3                  return _FALSE;
+ 550   3              }
+ 551   2      
+ 552   2              if(ucCnt > 0)
+ 553   2              {
+ 554   3                  if(!((abs((GET_ACTIVE_H_WIDTH()) - usPreWidth) <= _AUTO_MULTI_MEASURE_CHECK_TOL_H) && (abs((GE
+             -T_ACTIVE_V_HEIGHT()) - usPreHeight) <= _AUTO_MULTI_MEASURE_CHECK_TOL_V)))
+ 555   3                  {
+ 556   4                      return _FALSE;
+ 557   4                  }
+ 558   3              }
+ 559   2      
+ 560   2              usPreWidth = GET_ACTIVE_H_WIDTH();
+ 561   2              usPreHeight = GET_ACTIVE_V_HEIGHT();
+ 562   2          }
+ 563   1      
+ 564   1          return _TRUE;
+ 565   1      }
+ 566          
+ 567          //--------------------------------------------------
+ 568          // Description  : Rough adjust clock
+ 569          // Input Value  : IHTotal, Current Clock
+ 570          // Output Value : Return _TRUE or _FALSE
+ 571          //--------------------------------------------------
+ 572          bit UserCommonAutoClockRoughAdjust(WORD *pusCurrClock)
+ 573          {
+ 574   1          BYTE ucCount = 10;
+ 575   1          WORD usPreHWidth = 0;
+ 576   1          bit bAdjustPhaseResult = 0;
+ 577   1      
+ 578   1          // Initial Htotal(clock)
+ 579   1          *pusCurrClock = ((GET_INPUT_TIMING_HTOTAL()) >= g_stVGAModeUserData.usCenterClock) ? (GET_INPUT_TIMING
+             -_HTOTAL()) : g_stVGAModeUserData.usCenterClock;
+ 580   1      
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 11  
+
+ 581   1          do
+ 582   1          {
+ 583   2              if(UserCommonAutoCheckClock(*pusCurrClock) == _FALSE)
+ 584   2              {
+ 585   3                  return _FALSE;
+ 586   3              }
+ 587   2      
+ 588   2              ScalerGlobalWatchDog(_DISABLE);
+ 589   2      
+ 590   2              bAdjustPhaseResult = ScalerAPLLFastLockAdjust(*pusCurrClock);
+ 591   2      
+ 592   2              ScalerGlobalWatchDog(_ENABLE);
+ 593   2      
+ 594   2              if(bAdjustPhaseResult == _FALSE)
+ 595   2              {
+ 596   3                  return _FALSE;
+ 597   3              }
+ 598   2      
+ 599   2      #if(_OVERSCAN_SUPPORT == _TRUE)
+ 600   2              if(UserInterfaceGetOverScanStatus() == _TRUE)
+ 601   2              {
+ 602   3                  if(ScalerVgaTopMeasureActiveRegion(_NORMAL_MEASURE, _OVERSCAN_BOUNDARY, *pusCurrClock) == _FAL
+             -SE)
+ 603   3                  {
+ 604   4                      return _FALSE;
+ 605   4                  }
+ 606   3              }
+ 607   2              else
+ 608   2      #endif
+ 609   2              {
+ 610   3                  if(ScalerVgaTopMeasureActiveRegion(_NORMAL_MEASURE, _FULL_BOUNDARY, *pusCurrClock) == _FALSE)
+ 611   3                  {
+ 612   4                      return _FALSE;
+ 613   4                  }
+ 614   3              }
+ 615   2      
+ 616   2              if((GET_ACTIVE_H_START() == 0x00) && (GET_ACTIVE_H_END() == 0x00) && (GET_ACTIVE_V_START() == 0x00
+             -) && (GET_ACTIVE_V_END() == 0x00))
+ 617   2              {
+ 618   3                  return _FALSE;
+ 619   3              }
+ 620   2      
+ 621   2              // exactly same --> return TRUE
+ 622   2              if(GET_ACTIVE_H_WIDTH() == GET_INPUT_TIMING_HWIDTH())
+ 623   2              {
+ 624   3                  return _TRUE;
+ 625   3              }
+ 626   2      
+ 627   2              // Return Back Case
+ 628   2              if((GET_ACTIVE_H_WIDTH() + usPreHWidth) == (GET_INPUT_TIMING_HWIDTH() * 2))
+ 629   2              {
+ 630   3                  return _TRUE;
+ 631   3              }
+ 632   2      
+ 633   2              usPreHWidth = GET_ACTIVE_H_WIDTH();
+ 634   2      
+ 635   2              ///////////////////////////////////////////////////////
+ 636   2              //  Measured_Width     ModeTable_Width               //
+ 637   2              // ---------------- = -----------------              //
+ 638   2              //  Current_Clock       Target_Clock                 //
+ 639   2              //                                                   //
+ 640   2              //                 ModeTable_Width * Current_Clock   //
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 12  
+
+ 641   2              // Target_Clock = ---------------------------------  //
+ 642   2              //                         Measured_Width            //
+ 643   2              ///////////////////////////////////////////////////////
+ 644   2      
+ 645   2              PDATA_WORD(0) = ((DWORD)GET_INPUT_TIMING_HWIDTH() * (*pusCurrClock) + GET_ACTIVE_H_WIDTH() / 2) / 
+             -GET_ACTIVE_H_WIDTH();
+ 646   2      
+ 647   2              if(PDATA_WORD(0) == *pusCurrClock)
+ 648   2              {
+ 649   3                  return _TRUE;
+ 650   3              }
+ 651   2              else
+ 652   2              {
+ 653   3                  *pusCurrClock = PDATA_WORD(0);
+ 654   3              }
+ 655   2          }
+ 656   1          while(--ucCount);
+ 657   1      
+ 658   1          return _FALSE;
+ 659   1      }
+ 660          
+ 661          //--------------------------------------------------
+ 662          // Description  : Fine tune clock
+ 663          // Input Value  : IHTotal, Current Clock
+ 664          // Output Value : Return _TRUE or _FALSE
+ 665          //--------------------------------------------------
+ 666          bit UserCommonAutoClockFineTuneAdjust(WORD *pusCurrClock)
+ 667          {
+ 668   1          WORD usRoughClock = 0;
+ 669   1          WORD usTargetClock = 0;
+ 670   1          WORD usBoundClock = 0;
+ 671   1          DWORD ulSODMax = 0;
+ 672   1          DWORD ulSODMin = 0;
+ 673   1          DWORD ulSODMaxValue = 0;
+ 674   1          DWORD ulSODMaxMinRatio = 0;
+ 675   1          BYTE ucTempPhase = 0;
+ 676   1          bit bAdjustPhaseResult = 0;
+ 677   1          BYTE ucPercentageStep = 0;
+ 678   1          BYTE ucCounter = 0;
+ 679   1      
+ 680   1          ScalerVgaTopAutoFuncHBoundInitial(GET_ACTIVE_H_START(), GET_ACTIVE_H_END());
+ 681   1      
+ 682   1          ScalerVgaTopAutoFuncVBoundInitial(GET_ACTIVE_V_START(), GET_ACTIVE_V_END());
+ 683   1      
+ 684   1          usRoughClock = *pusCurrClock;
+ 685   1      
+ 686   1          usTargetClock = (*pusCurrClock - ((_AUTO_TOLERANCE_PIXEL * GET_INPUT_TIMING_HTOTAL() / GET_INPUT_TIMIN
+             -G_HWIDTH()) + 1));
+ 687   1      
+ 688   1          usTargetClock = usTargetClock - ((usTargetClock % _AUTO_CLOCK_STEP));
+ 689   1      
+ 690   1          usBoundClock = (*pusCurrClock + ((GET_INPUT_TIMING_HTOTAL() / GET_INPUT_TIMING_HWIDTH()) + 2));
+ 691   1      
+ 692   1          usBoundClock = usBoundClock + ((usBoundClock % _AUTO_CLOCK_STEP));
+ 693   1      
+ 694   1          ucPercentageStep = ((_AUTO_CONFIG_CLOCK_FINETUNE_FINISH - _AUTO_CONFIG_CLOCK_ROUGH_ADJUST_FINISH) / ((
+             -(usBoundClock - usTargetClock) / _AUTO_CLOCK_STEP) + 2));
+ 695   1      
+ 696   1          do
+ 697   1          {
+ 698   2              ScalerGlobalWatchDog(_DISABLE);
+ 699   2      
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 13  
+
+ 700   2              bAdjustPhaseResult = ScalerAPLLFastLockAdjust(usTargetClock);
+ 701   2      
+ 702   2              ScalerGlobalWatchDog(_ENABLE);
+ 703   2      
+ 704   2              if(bAdjustPhaseResult == _FALSE)
+ 705   2              {
+ 706   3                  return _FALSE;
+ 707   3              }
+ 708   2      
+ 709   2              if(ScalerVgaTopHWAutoPhaseSearch(_PHASE_SEARCH_STEP_4, &ucTempPhase, &ulSODMax, &ulSODMin, _PHASE_
+             -SEARCH_SOD, 0x40) == _FALSE)
+ 710   2              {
+ 711   3                  return _FALSE;
+ 712   3              }
+ 713   2      
+ 714   2              DebugMessageAnalog("7. ====== Target Clock ======", usTargetClock);
+ 715   2              DebugMessageAnalog("7. SOG MAX", ulSODMax);
+ 716   2              DebugMessageAnalog("7. SOG MIN", ulSODMin);
+ 717   2              DebugMessageAnalog("7. SOG Ratio", (ulSODMax / ulSODMin));
+ 718   2              DebugMessageAnalog("7. Valid SOD Threshold", (((DWORD)GET_INPUT_TIMING_HWIDTH() * (DWORD)GET_INPUT
+             -_TIMING_VHEIGHT() * (DWORD)0x40) >> 7));
+ 719   2      
+ 720   2              if((ulSODMax - ulSODMin) > ulSODMaxValue)
+ 721   2              {
+ 722   3                  *pusCurrClock = usTargetClock;
+ 723   3                  ulSODMaxValue = ulSODMax - ulSODMin;
+ 724   3      
+ 725   3                  if(ulSODMin == 0x00)
+ 726   3                  {
+ 727   4                      if(ulSODMax > (((DWORD)GET_INPUT_TIMING_HWIDTH() * (DWORD)GET_INPUT_TIMING_VHEIGHT() * (DW
+             -ORD)0x40) >> 7))
+ 728   4                      {
+ 729   5                          ulSODMaxMinRatio = 0xFFFFFFFF;
+ 730   5                      }
+ 731   4                      else
+ 732   4                      {
+ 733   5                          ulSODMaxMinRatio = 0;
+ 734   5                      }
+ 735   4                  }
+ 736   3                  else
+ 737   3                  {
+ 738   4                      ulSODMaxMinRatio = ulSODMax / ulSODMin;
+ 739   4                  }
+ 740   3              }
+ 741   2      
+ 742   2              usTargetClock = usTargetClock + _AUTO_CLOCK_STEP;
+ 743   2      
+ 744   2              ucCounter++;
+ 745   2      
+ 746   2              UserInterfaceGetAutoConfigPercentage((_AUTO_CONFIG_CLOCK_ROUGH_ADJUST_FINISH + (ucPercentageStep *
+             - ucCounter)));
+ 747   2          }
+ 748   1          while(usTargetClock <= usBoundClock);
+ 749   1      
+ 750   1          if(ulSODMaxValue <= (((DWORD)GET_INPUT_TIMING_HWIDTH() * (DWORD)GET_INPUT_TIMING_VHEIGHT() * (DWORD)0x
+             -40) >> 8))
+ 751   1          {
+ 752   2              if(usRoughClock == (usRoughClock + (usRoughClock % _AUTO_CLOCK_STEP)))
+ 753   2              {
+ 754   3                  *pusCurrClock = usRoughClock;
+ 755   3              }
+ 756   2              else
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 14  
+
+ 757   2              {
+ 758   3                  if(((usRoughClock + (usRoughClock % _AUTO_CLOCK_STEP)) % 4) == 0x00)
+ 759   3                  {
+ 760   4                      *pusCurrClock = (usRoughClock + (usRoughClock % _AUTO_CLOCK_STEP));
+ 761   4                  }
+ 762   3                  else
+ 763   3                  {
+ 764   4                      *pusCurrClock = (usRoughClock - (usRoughClock % _AUTO_CLOCK_STEP));
+ 765   4                  }
+ 766   3              }
+ 767   2          }
+ 768   1          else if(ulSODMaxMinRatio < 5)
+ 769   1          {
+ 770   2              ScalerGlobalWatchDog(_DISABLE);
+ 771   2      
+ 772   2              bAdjustPhaseResult = ScalerAPLLFastLockAdjust(*pusCurrClock);
+ 773   2      
+ 774   2              ScalerGlobalWatchDog(_ENABLE);
+ 775   2      
+ 776   2              if(bAdjustPhaseResult == _FALSE)
+ 777   2              {
+ 778   3                  return _FALSE;
+ 779   3              }
+ 780   2      
+ 781   2              if(ScalerVgaTopHWAutoPhaseSearch(_PHASE_SEARCH_STEP_4, &ucTempPhase, &ulSODMax, &ulSODMin, _PHASE_
+             -SEARCH_SOD, 0xA0) == _FALSE)
+ 782   2              {
+ 783   3                  return _FALSE;
+ 784   3              }
+ 785   2      
+ 786   2              ScalerGlobalWatchDog(_DISABLE);
+ 787   2              ScalerPLLSetPhase(ucTempPhase, UserCommonModeSearchGetModetableTimingDataItem(g_stVGAModeUserData.
+             -ucModeNumber, _IVFREQ));
+ 788   2              ScalerGlobalWatchDog(_ENABLE);
+ 789   2      
+ 790   2      #if(_OVERSCAN_SUPPORT == _TRUE)
+ 791   2              if(UserInterfaceGetOverScanStatus() == _TRUE)
+ 792   2              {
+ 793   3                  if(ScalerVgaTopMeasureActiveRegion(_NORMAL_MEASURE, _OVERSCAN_BOUNDARY, *pusCurrClock) == _FAL
+             -SE)
+ 794   3                  {
+ 795   4                      return _FALSE;
+ 796   4                  }
+ 797   3              }
+ 798   2              else
+ 799   2      #endif
+ 800   2              {
+ 801   3                  if(ScalerVgaTopMeasureActiveRegion(_NORMAL_MEASURE, _FULL_BOUNDARY, *pusCurrClock) == _FALSE)
+ 802   3                  {
+ 803   4                      return _FALSE;
+ 804   4                  }
+ 805   3              }
+ 806   2      
+ 807   2              if((GET_ACTIVE_H_START() == 0x00) && (GET_ACTIVE_H_END() == 0x00) && (GET_ACTIVE_V_START() == 0x00
+             -) && (GET_ACTIVE_V_END() == 0x00))
+ 808   2              {
+ 809   3                  return _FALSE;
+ 810   3              }
+ 811   2      
+ 812   2              if(ulSODMax == 0x00)
+ 813   2              {
+ 814   3                  if(GET_ACTIVE_H_WIDTH() != GET_INPUT_TIMING_HWIDTH())
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 15  
+
+ 815   3                  {
+ 816   4                      if(usRoughClock == (usRoughClock + (usRoughClock % _AUTO_CLOCK_STEP)))
+ 817   4                      {
+ 818   5                          *pusCurrClock = usRoughClock;
+ 819   5                      }
+ 820   4                      else
+ 821   4                      {
+ 822   5                          if(((usRoughClock + (usRoughClock % _AUTO_CLOCK_STEP)) % 4) == 0x00)
+ 823   5                          {
+ 824   6                              *pusCurrClock = (usRoughClock + (usRoughClock % _AUTO_CLOCK_STEP));
+ 825   6                          }
+ 826   5                          else
+ 827   5                          {
+ 828   6                              *pusCurrClock = (usRoughClock - (usRoughClock % _AUTO_CLOCK_STEP));
+ 829   6                          }
+ 830   5                      }
+ 831   4                  }
+ 832   3              }
+ 833   2              else
+ 834   2              {
+ 835   3                  if(ulSODMin == 0x00)
+ 836   3                  {
+ 837   4                      if(ulSODMax > (((DWORD)GET_INPUT_TIMING_HWIDTH() * (DWORD)GET_INPUT_TIMING_VHEIGHT() * (DW
+             -ORD)0xA0) >> 9))
+ 838   4                      {
+ 839   5                          ulSODMaxMinRatio = 0xFFFFFFFF;
+ 840   5                      }
+ 841   4                      else
+ 842   4                      {
+ 843   5                          ulSODMaxMinRatio = 0;
+ 844   5                      }
+ 845   4                  }
+ 846   3                  else
+ 847   3                  {
+ 848   4                      ulSODMaxMinRatio = (ulSODMax / ulSODMin);
+ 849   4                  }
+ 850   3      
+ 851   3                  DebugMessageAnalog("7. Double Check : Clock", *pusCurrClock);
+ 852   3                  DebugMessageAnalog("7. Double Check SODMax", ulSODMax);
+ 853   3                  DebugMessageAnalog("7. Double Check SODMin", ulSODMin);
+ 854   3                  DebugMessageAnalog("7. Double Check : ulSODMaxMinRatio", ulSODMaxMinRatio);
+ 855   3                  DebugMessageAnalog("7. Double Check Threshold", (((DWORD)GET_INPUT_TIMING_HWIDTH() * (DWORD)GE
+             -T_INPUT_TIMING_VHEIGHT() * (DWORD)0xA0) >> 9));
+ 856   3      
+ 857   3                  if((ulSODMaxMinRatio < 5) && ((GET_ACTIVE_H_WIDTH() != GET_INPUT_TIMING_HWIDTH())))
+ 858   3                  {
+ 859   4                      if(usRoughClock == (usRoughClock + (usRoughClock % _AUTO_CLOCK_STEP)))
+ 860   4                      {
+ 861   5                          *pusCurrClock = usRoughClock;
+ 862   5                      }
+ 863   4                      else
+ 864   4                      {
+ 865   5                          if(((usRoughClock + (usRoughClock % _AUTO_CLOCK_STEP)) % 4) == 0x00)
+ 866   5                          {
+ 867   6                              *pusCurrClock = (usRoughClock + (usRoughClock % _AUTO_CLOCK_STEP));
+ 868   6                          }
+ 869   5                          else
+ 870   5                          {
+ 871   6                              *pusCurrClock = (usRoughClock - (usRoughClock % _AUTO_CLOCK_STEP));
+ 872   6                          }
+ 873   5                      }
+ 874   4                  }
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 16  
+
+ 875   3              }
+ 876   2          }
+ 877   1      
+ 878   1          return _TRUE;
+ 879   1      }
+ 880          
+ 881          //--------------------------------------------------
+ 882          // Description  : Check picture region
+ 883          // Input Value  : None
+ 884          // Output Value : Return _TRUE or _FALSE
+ 885          //--------------------------------------------------
+ 886          bit UserCommonAutoClockCheckPictureRegion(void)
+ 887          {
+ 888   1          WORD usModeTableHWidth = 0;
+ 889   1          WORD usModeTableHTotal = 0;
+ 890   1          WORD usCurrClock = 0;
+ 891   1      
+ 892   1      #if(_AUTO_CLOCK_SAVE_VALUE_OPTION == _CLOCK_SAVE_PERCENT_VALUE)
+ 893   1          WORD usClockRangeMax = 0;
+ 894   1          WORD usClockRangeMin = 0;
+ 895   1      
+ 896   1          usClockRangeMax = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MAX);
+ 897   1          usClockRangeMin = UserCommonAdjustGetAdcClockRange(_GET_CLOCKRANGE_MIN);
+ 898   1          usCurrClock = UserCommonAdjustPercentToRealValue(GET_VGA_MODE_ADJUST_CLOCK(), usClockRangeMax, usClock
+             -RangeMin, (((usClockRangeMax - usClockRangeMin) / 2) + usClockRangeMin));
+ 899   1      #else
+                  usCurrClock = GET_VGA_MODE_ADJUST_CLOCK();
+              #endif
+ 902   1      
+ 903   1          usModeTableHWidth = UserCommonModeSearchGetModetableTimingDataItem(g_stVGAModeUserData.ucModeNumber, _
+             -IHWIDTH);
+ 904   1          usModeTableHTotal = UserCommonModeSearchGetModetableTimingDataItem(g_stVGAModeUserData.ucModeNumber, _
+             -IHTOTAL);
+ 905   1      
+ 906   1          /////////////////////////////////////////////////////
+ 907   1          //   Actvie HWidth        ModeTable_Width          //
+ 908   1          // (---------------) >= (----------------- x 95% ) //
+ 909   1          //   Current Clock        ModeTable_HTotal         //
+ 910   1          /////////////////////////////////////////////////////
+ 911   1      
+ 912   1          if(((DWORD) usModeTableHTotal * GET_ACTIVE_H_WIDTH()) >= (((DWORD)_AUTO_CLOCK_RANGE * usModeTableHWidt
+             -h * usCurrClock) / 100))
+ 913   1          {
+ 914   2              return _TRUE;
+ 915   2          }
+ 916   1          else
+ 917   1          {
+ 918   2              return _FALSE;
+ 919   2          }
+ 920   1      }
+ 921          
+ 922          //--------------------------------------------------
+ 923          // Description  : Check current Clock(IHTotal) region
+ 924          // Input Value  : Current Clock (IHTotal)
+ 925          // Output Value : Return _TRUE or _FALSE
+ 926          //--------------------------------------------------
+ 927          bit UserCommonAutoCheckClock(WORD usCurrClock)
+ 928          {
+ 929   1          WORD usCaptureHStart = 0;
+ 930   1      
+ 931   1          usCaptureHStart = ScalerVgipGetCaptureHStartPosition();
+ 932   1      
+C51 COMPILER V8.12   USERCOMMONAUTO                                                        03/10/2025 13:50:52 PAGE 17  
+
+ 933   1          if(((usCaptureHStart + GET_INPUT_TIMING_HWIDTH()) <= usCurrClock) && (usCurrClock <= GET_ADC_LIMIT_CLO
+             -CK()))
+ 934   1          {
+ 935   2              return _TRUE;
+ 936   2          }
+ 937   1          else
+ 938   1          {
+ 939   2              return _FALSE;
+ 940   2          }
+ 941   1      }
+ 942          
+ 943          /*
+ 944          void UserCommonAutoPhaseTestFunction(void)
+ 945          {
+ 946              BYTE ucCounter = 0;
+ 947              DWORD ulSODValue = 0;
+ 948          
+ 949              for(ucCounter=0; ucCounter < 64; ucCounter++)
+ 950              {
+ 951                  ScalerGlobalWatchDog(_DISABLE);
+ 952                  ScalerPLLSetPhase(ucCounter, UserCommonModeSearchGetModetableTimingDataItem(g_stVGAModeUserData.uc
+             -ModeNumber, _IVFREQ));
+ 953                  ScalerGlobalWatchDog(_ENABLE);
+ 954          
+ 955                  ScalerVgaTopAutoPhaseGetSOD(&ulSODValue);
+ 956          
+ 957                  DebugMessageAnalog("7. SOD", ulSODValue);
+ 958              }
+ 959          }
+ 960          */
+ 961          
+ 962          #endif // End of #if(_VGA_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3627    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      1      89
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

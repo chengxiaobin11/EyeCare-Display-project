@@ -1,0 +1,189 @@
+C51 COMPILER V9.00   SCALEROD                                                              02/26/2026 13:42:04 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SCALEROD
+OBJECT MODULE PLACED IN .\Output\RL6432\ScalerOD.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerOD.c LARGE OPTIMIZE(9,SPEED) INCDIR
+                    -(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kernel\S
+                    -caler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\Kern
+                    -el\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Series_Comm
+                    -on\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kernel\User 
+                    -Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\H
+                    -eader;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_PROJE
+                    -CT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\ScalerOD.lst) OBJECT(.\Output\R
+                    -L6432\ScalerOD.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerOD.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          #if(_OD_SUPPORT == _ON)
+  38          #if(_FRC_SUPPORT == _ON)
+  39          BYTE g_ucODCurrDynamicStatus;
+  40          #endif
+  41          #endif
+  42          
+  43          //****************************************************************************
+  44          // FUNCTION DECLARATIONS
+  45          //****************************************************************************
+  46          #if(_OD_SUPPORT == _ON)
+  47          BYTE ScalerODGetCompressionBitNum(DWORD ulMemoryRemainSpace, WORD usMemoryRemainBW);
+C51 COMPILER V9.00   SCALEROD                                                              02/26/2026 13:42:04 PAGE 2   
+
+  48          bit ScalerODGetSupportStatus(void);
+  49          EnumFunctionOnOFF ScalerODGetStatus(void);
+  50          EnumOdCmpParamMode ScalerODGetCmpParamMode(void);
+  51          #endif
+  52          
+  53          //****************************************************************************
+  54          // FUNCTION DEFINITIONS
+  55          //****************************************************************************
+  56          #if(_OD_SUPPORT == _ON)
+  57          //--------------------------------------------------
+  58          // Description  : Get OD compression bit number
+  59          //                according to available memory space & BW.
+  60          // Input Value  : Remaining space & BW
+  61          // Output Value : OD compression bit number(10x)
+  62          //--------------------------------------------------
+  63          BYTE ScalerODGetCompressionBitNum(DWORD ulMemoryRemainSpace, WORD usMemoryRemainBW)
+  64          {
+  65   1          WORD usODUseSpace = 0;
+  66   1          WORD usODUseBW = 0;
+  67   1      
+  68   1          DebugMessageMemory("4. Remaining BW for OD", usMemoryRemainBW);
+  69   1          DebugMessageMemory("4. Remaining Space for OD", ulMemoryRemainSpace);
+  70   1      
+  71   1          // Disable OD for emissive panel
+  72   1          if((_PANEL_PIXEL_TYPE == _PANEL_PIXEL_OLED) || (_PANEL_PIXEL_TYPE == _PANEL_PIXEL_MICRO_LED))
+  73   1          {
+  74   2              return _OFF;
+  75   2          }
+  76   1      
+  77   1          //=============================================
+  78   1          // OD compression bit num: 7.5bits / pixel
+  79   1          //=============================================
+  80   1          if(CHECK_OD_MODE_AVAILABLE(_OD_SUPERPIXEL1X2_75BIT_BIT_NUM) == _TRUE)
+  81   1          {
+  82   2              usODUseSpace = ScalerMDomainODCalculateMemoryUseSpace(_OD_SUPERPIXEL1X2_75BIT_BIT_NUM);
+  83   2              usODUseBW = ScalerMDomainODCalculateMemoryUseBW(_OD_SUPERPIXEL1X2_75BIT_BIT_NUM);
+  84   2      
+  85   2              DebugMessageMemory("4. 7_5_bit OD BW", usODUseBW);
+  86   2              DebugMessageMemory("4. 7_5_bit OD Size", usODUseSpace);
+  87   2              if((usODUseSpace < ulMemoryRemainSpace) && (usODUseBW < usMemoryRemainBW))
+  88   2              {
+  89   3                  return _OD_SUPERPIXEL1X2_75BIT_BIT_NUM;
+  90   3              }
+  91   2          }
+  92   1          //=============================================
+  93   1          // OD compression bit num: 6 bits / pixel
+  94   1          //=============================================
+  95   1          if(CHECK_OD_MODE_AVAILABLE(_OD_SUPERPIXEL1X4_60BIT_BIT_NUM) == _TRUE)
+  96   1          {
+  97   2              usODUseSpace = ScalerMDomainODCalculateMemoryUseSpace(_OD_SUPERPIXEL1X4_60BIT_BIT_NUM);
+  98   2              usODUseBW = ScalerMDomainODCalculateMemoryUseBW(_OD_SUPERPIXEL1X4_60BIT_BIT_NUM);
+  99   2      
+ 100   2              DebugMessageMemory("4. 6_0_bit OD BW", usODUseBW);
+ 101   2              DebugMessageMemory("4. 6_0_bit OD Size", usODUseSpace);
+ 102   2              if((usODUseSpace < ulMemoryRemainSpace) && (usODUseBW < usMemoryRemainBW))
+ 103   2              {
+ 104   3                  return _OD_SUPERPIXEL1X4_60BIT_BIT_NUM;
+ 105   3              }
+ 106   2          }
+ 107   1          //=============================================
+ 108   1          // Otherwise, OD off
+ 109   1          //=============================================
+C51 COMPILER V9.00   SCALEROD                                                              02/26/2026 13:42:04 PAGE 3   
+
+ 110   1          return _OFF;
+ 111   1      }
+ 112          
+ 113          //--------------------------------------------------
+ 114          // Description  : Get OD kernel Useability
+ 115          // Input Value  : None
+ 116          // Output Value : _OFF/_ON
+ 117          //--------------------------------------------------
+ 118          bit ScalerODGetSupportStatus(void)
+ 119          {
+ 120   1          return ((GET_OD_USE_BIT() == _OFF) ? (_OFF) : (_ON));
+ 121   1      }
+ 122          
+ 123          //--------------------------------------------------
+ 124          // Description  : Get OD real-time enable status
+ 125          // Input Value  : None
+ 126          // Output Value : _FUNCTION_OFF/_FUNCTION_ON
+ 127          //--------------------------------------------------
+ 128          EnumFunctionOnOFF ScalerODGetStatus(void)
+ 129          {
+ 130   1      #if(_FRC_SUPPORT == _ON)
+ 131   1          if(GET_OD_CURR_DYNAMIC_STATUS() == _ENABLE)
+ 132   1          {
+ 133   2              return _FUNCTION_ON;
+ 134   2          }
+ 135   1      
+ 136   1      #endif
+ 137   1          return (ScalerGetBit(P3_A1_LS_CTRL0, (_BIT7 | _BIT6)) == (_BIT7 | _BIT6)) ? _FUNCTION_ON : _FUNCTION_O
+             -FF;
+ 138   1      }
+ 139          
+ 140          //--------------------------------------------------
+ 141          // Description  : Get OD compression parameter mode
+ 142          // Input Value  : None
+ 143          // Output Value : OD compression parameter mode
+ 144          //--------------------------------------------------
+ 145          EnumOdCmpParamMode ScalerODGetCmpParamMode(void)
+ 146          {
+ 147   1      #if(_OD_6_0_BIT_MODE_IMPROVE_OPTION == _ON)
+ 148   1          return _OD_CMP_PARAM_MODE_6_0_BIT_IMPROVE;
+ 149   1      #else
+                  return _OD_CMP_PARAM_MODE_DEFAULT;
+              #endif
+ 152   1      }
+ 153          #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    173    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      1      10
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,331 @@
+C51 COMPILER V8.12   RL6449_SERIES_TIMERFUNCTION                                           01/02/2025 16:31:54 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_TIMERFUNCTION
+OBJECT MODULE PLACED IN .\Output\RL6449_Projecr\RL6449_Series_TimerFunction.obj
+COMPILER INVOKED BY: D:\ToolSort\KeilC51V812_\C51\BIN\C51.EXE Kernel\Scaler\RL6449_Series_Scaler\Code\RL6449_Series_Time
+                    -rFunction.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kerne
+                    -l\Common;.\Kernel\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kern
+                    -el\Scaler\ScalerFunction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler
+                    -\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL64
+                    -49_Series_Common\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Ser
+                    -ies\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header
+                    -;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Out
+                    -put\RL6449_Projecr\RL6449_Series_TimerFunction.lst) OBJECT(.\Output\RL6449_Projecr\RL6449_Series_TimerFunction.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_TimerFunction.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          //****************************************************************************
+  32          // VARIABLE DECLARATIONS
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // FUNCTION DECLARATIONS
+  37          //****************************************************************************
+  38          void ScalerTimerClrEventStatus(EnumWaitEventType enumEvent);
+  39          void ScalerTimerClrEventStatusbyReg(EnumWaitEventType enumEvent);
+  40          
+  41          #if(((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON)) || (_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON))
+  42          void ScalerTimerClrEventStatusbyFlag(EnumWaitEventType enumEvent);
+  43          #endif
+  44          
+  45          BYTE ScalerTimerGetEventStatus(EnumWaitEventType enumEvent);
+  46          BYTE ScalerTimerGetEventStatusbyReg(EnumWaitEventType enumEvent);
+  47          
+C51 COMPILER V8.12   RL6449_SERIES_TIMERFUNCTION                                           01/02/2025 16:31:54 PAGE 2   
+
+  48          #if(((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON)) || (_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON))
+  49          BYTE ScalerTimerGetEventStatusbyFlag(EnumWaitEventType enumEvent);
+  50          #endif
+  51          
+  52          //****************************************************************************
+  53          // FUNCTION DEFINITIONS
+  54          //****************************************************************************
+  55          //--------------------------------------------------
+  56          // Description  : Clear Event Status
+  57          // Input Value  : enumEvent   --> Specified event
+  58          // Output Value : None
+  59          //--------------------------------------------------
+  60          void ScalerTimerClrEventStatus(EnumWaitEventType enumEvent)
+  61          {
+  62   1          switch(enumEvent)
+  63   1          {
+  64   2              case _EVENT_IVS:
+  65   2              case _EVENT_IEN_STOP:
+  66   2              case _EVENT_ALL:
+  67   2              default:
+  68   2                  ScalerTimerClrEventStatusbyReg(enumEvent);
+  69   2                  break;
+  70   2      
+  71   2              case _EVENT_DEN_START:
+  72   2                  // Total
+  73   2      #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+  74   2                  if(ScalerGetBit(P0_05_IRQ_CTRL1, _BIT3) == _BIT3)
+  75   2                  {
+  76   3                      ScalerTimerClrEventStatusbyFlag(enumEvent);
+  77   3                  }
+  78   2                  else
+  79   2      #endif
+  80   2                  {
+  81   3                      ScalerTimerClrEventStatusbyReg(enumEvent);
+  82   3                  }
+  83   2      
+  84   2                  break;
+  85   2      
+  86   2              case _EVENT_DEN_STOP:
+  87   2      #if(_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+                          if(ScalerGetBit(P0_05_IRQ_CTRL1, _BIT5) == _BIT5)
+                          {
+                              ScalerTimerClrEventStatusbyFlag(enumEvent);
+                          }
+                          else
+              #endif
+  94   2                  {
+  95   3                      ScalerTimerClrEventStatusbyReg(enumEvent);
+  96   3                  }
+  97   2      
+  98   2                  break;
+  99   2          }
+ 100   1      }
+ 101          
+ 102          //--------------------------------------------------
+ 103          // Description  : Clear Register Event Status
+ 104          // Input Value  : enumEvent   --> Specified event
+ 105          // Output Value : None
+ 106          //--------------------------------------------------
+ 107          void ScalerTimerClrEventStatusbyReg(EnumWaitEventType enumEvent)
+ 108          {
+ 109   1          switch(enumEvent)
+C51 COMPILER V8.12   RL6449_SERIES_TIMERFUNCTION                                           01/02/2025 16:31:54 PAGE 3   
+
+ 110   1          {
+ 111   2              case _EVENT_IVS:
+ 112   2              case _EVENT_IEN_STOP:
+ 113   2                  if(ScalerFmtCnvFtoPGetStatus() == _FALSE)
+ 114   2                  {
+ 115   3                      // M1
+ 116   3                      ScalerSetByte(P0_03_STATUS1, enumEvent);
+ 117   3                  }
+ 118   2                  else
+ 119   2                  {
+ 120   3                      // M2
+ 121   3                      ScalerSetByte(P40_03_M2_STATUS1, enumEvent);
+ 122   3                  }
+ 123   2                  break;
+ 124   2      
+ 125   2              case _EVENT_DEN_START:
+ 126   2                  // Total
+ 127   2                  ScalerSetBit(P0_05_IRQ_CTRL1, ~(_BIT6 | _BIT4 | _BIT2), _BIT2);
+ 128   2                  break;
+ 129   2      
+ 130   2              case _EVENT_DEN_STOP:
+ 131   2                  // Total
+ 132   2                  ScalerSetBit(P0_05_IRQ_CTRL1, ~(_BIT6 | _BIT4 | _BIT2), _BIT4);
+ 133   2                  break;
+ 134   2      
+ 135   2              case _EVENT_ALL:
+ 136   2                  ScalerSetByte(P40_03_M2_STATUS1, 0xF7);
+ 137   2                  ScalerSetBit(P0_05_IRQ_CTRL1, ~(_BIT6 | _BIT4 | _BIT2), (_BIT4 | _BIT2));
+ 138   2                  ScalerSetByte(P0_03_STATUS1, 0xFF);
+ 139   2                  break;
+ 140   2      
+ 141   2              default:
+ 142   2                  ScalerSetByte(P0_03_STATUS1, enumEvent);
+ 143   2                  break;
+ 144   2          }
+ 145   1      }
+ 146          
+ 147          #if(((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON)) || (_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON))
+ 148          //--------------------------------------------------
+ 149          // Description  : Clear Flag Event Status
+ 150          // Input Value  : enumEvent   --> Specified event
+ 151          // Output Value : None
+ 152          //--------------------------------------------------
+ 153          void ScalerTimerClrEventStatusbyFlag(EnumWaitEventType enumEvent)
+ 154          {
+ 155   1          switch(enumEvent)
+ 156   1          {
+ 157   2      #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+ 158   2              case _EVENT_DEN_START:
+ 159   2                  SET_EVENT_DEN_START_INT(_FALSE);
+ 160   2                  break;
+ 161   2      #endif
+ 162   2      #if(_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+                      case _EVENT_DEN_STOP:
+                          SET_EVENT_DEN_STOP_INT(_FALSE);
+                          break;
+              #endif
+ 167   2      
+ 168   2              default:
+ 169   2                  break;
+ 170   2          }
+ 171   1      }
+C51 COMPILER V8.12   RL6449_SERIES_TIMERFUNCTION                                           01/02/2025 16:31:54 PAGE 4   
+
+ 172          #endif
+ 173          
+ 174          //--------------------------------------------------
+ 175          // Description  : Hold until the specified event occurs
+ 176          // Input Value  : enumEvent   --> Specified event
+ 177          // Output Value : Return _TRUE if event occurs
+ 178          //--------------------------------------------------
+ 179          BYTE ScalerTimerGetEventStatus(EnumWaitEventType enumEvent)
+ 180          {
+ 181   1          switch(enumEvent)
+ 182   1          {
+ 183   2              case _EVENT_IVS:
+ 184   2              case _EVENT_IEN_STOP:
+ 185   2              case _EVENT_ALL:
+ 186   2              default:
+ 187   2                  return ScalerTimerGetEventStatusbyReg(enumEvent);
+ 188   2      
+ 189   2              case _EVENT_DEN_START:
+ 190   2                  // Total
+ 191   2      #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+ 192   2                  if(ScalerGetBit(P0_05_IRQ_CTRL1, _BIT3) == _BIT3)
+ 193   2                  {
+ 194   3                      return ScalerTimerGetEventStatusbyFlag(enumEvent);
+ 195   3                  }
+ 196   2                  else
+ 197   2      #endif
+ 198   2                  {
+ 199   3                      return ScalerTimerGetEventStatusbyReg(enumEvent);
+ 200   3                  }
+ 201   2      
+ 202   2              case _EVENT_DEN_STOP:
+ 203   2      #if(_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+                          if(ScalerGetBit(P0_05_IRQ_CTRL1, _BIT5) == _BIT5)
+                          {
+                              return ScalerTimerGetEventStatusbyFlag(enumEvent);
+                          }
+                          else
+              #endif
+ 210   2                  {
+ 211   3                      return ScalerTimerGetEventStatusbyReg(enumEvent);
+ 212   3                  }
+ 213   2          }
+ 214   1      }
+ 215          
+ 216          //--------------------------------------------------
+ 217          // Description  : Hold until the specified event occurs by register
+ 218          // Input Value  : enumEvent   --> Specified event
+ 219          // Output Value : Return _TRUE if event occurs
+ 220          //--------------------------------------------------
+ 221          BYTE ScalerTimerGetEventStatusbyReg(EnumWaitEventType enumEvent)
+ 222          {
+ 223   1          switch(enumEvent)
+ 224   1          {
+ 225   2              case _EVENT_IVS:
+ 226   2              case _EVENT_IEN_STOP:
+ 227   2                  if(ScalerFmtCnvFtoPGetStatus() == _FALSE)
+ 228   2                  {
+ 229   3                      // Wait M1 if format convertion E/O mode is disabled
+ 230   3                      return (ScalerGetByte(P0_03_STATUS1) & enumEvent);
+ 231   3                  }
+ 232   2                  else
+ 233   2                  {
+C51 COMPILER V8.12   RL6449_SERIES_TIMERFUNCTION                                           01/02/2025 16:31:54 PAGE 5   
+
+ 234   3                      // M2
+ 235   3                      return (ScalerGetByte(P40_03_M2_STATUS1) & enumEvent);
+ 236   3                  }
+ 237   2      
+ 238   2              case _EVENT_DEN_START:
+ 239   2                  // Total
+ 240   2                  return ((ScalerGetByte(P0_05_IRQ_CTRL1) & _BIT2) << 2);
+ 241   2      
+ 242   2              case _EVENT_DEN_STOP:
+ 243   2                  // Total
+ 244   2                  return ((ScalerGetByte(P0_05_IRQ_CTRL1) & _BIT4) << 1);
+ 245   2      
+ 246   2              case _EVENT_ALL:
+ 247   2                  if(ScalerFmtCnvFtoPGetStatus() == _FALSE)
+ 248   2                  {
+ 249   3                      return (((ScalerGetByte(P0_05_IRQ_CTRL1) & _BIT2) << 2) |
+ 250   3                              ((ScalerGetByte(P0_05_IRQ_CTRL1) & _BIT4) << 1) |
+ 251   3                              (ScalerGetByte(P0_03_STATUS1) & (_BIT7 | _BIT6 | _BIT3 | _BIT2 | _BIT1 | _BIT0)));
+ 252   3                  }
+ 253   2                  else
+ 254   2                  {
+ 255   3                      return ((ScalerGetByte(P40_03_M2_STATUS1) & (_BIT2 | _BIT0)) |
+ 256   3                              ((ScalerGetByte(P0_05_IRQ_CTRL1) & _BIT2) << 2) |
+ 257   3                              ((ScalerGetByte(P0_05_IRQ_CTRL1) & _BIT4) << 1) |
+ 258   3                              (ScalerGetByte(P0_03_STATUS1) & (_BIT7 | _BIT6 | _BIT3 | _BIT1)));
+ 259   3                  }
+ 260   2      
+ 261   2              default:
+ 262   2                  return (ScalerGetByte(P0_03_STATUS1) & enumEvent);
+ 263   2          }
+ 264   1      }
+ 265          
+ 266          #if(((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON)) || (_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON))
+ 267          //--------------------------------------------------
+ 268          // Description  : Hold until the specified event occurs by flag
+ 269          // Input Value  : enumEvent   --> Specified event
+ 270          // Output Value : Return _TRUE if event occurs
+ 271          //--------------------------------------------------
+ 272          BYTE ScalerTimerGetEventStatusbyFlag(EnumWaitEventType enumEvent)
+ 273          {
+ 274   1          switch(enumEvent)
+ 275   1          {
+ 276   2      #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+ 277   2              case _EVENT_DEN_START:
+ 278   2                  // Total
+ 279   2                  return GET_EVENT_DEN_START_INT();
+ 280   2      #endif
+ 281   2      #if(_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+                      case _EVENT_DEN_STOP:
+                          return GET_EVENT_DEN_STOP_INT();
+              #endif
+ 285   2              default:
+ 286   2                  return _FALSE;
+ 287   2          }
+ 288   1      }
+ 289          #endif
+ 290          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    341    ----
+   CONSTANT SIZE    =   ----    ----
+C51 COMPILER V8.12   RL6449_SERIES_TIMERFUNCTION                                           01/02/2025 16:31:54 PAGE 6   
+
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

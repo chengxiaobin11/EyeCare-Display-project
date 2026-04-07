@@ -1,0 +1,1525 @@
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_MEASURE
+OBJECT MODULE PLACED IN .\Output\RL6449_Projecr\RL6449_Series_Measure.obj
+COMPILER INVOKED BY: D:\ToolSort\KeilC51V812_\C51\BIN\C51.EXE Kernel\Scaler\RL6449_Series_Scaler\Code\RL6449_Series_Meas
+                    -ure.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Comm
+                    -on;.\Kernel\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Sca
+                    -ler\ScalerFunction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Heade
+                    -r;.\Kernel\Scaler\RL6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Ser
+                    -ies_Common\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RT
+                    -D2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\Use
+                    -r\None Factory\Header) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL
+                    -6449_Projecr\RL6449_Series_Measure.lst) OBJECT(.\Output\RL6449_Projecr\RL6449_Series_Measure.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_Measure.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          //****************************************************************************
+  32          // VARIABLE DECLARATIONS
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // FUNCTION DECLARATIONS
+  37          //****************************************************************************
+  38          void ScalerMeasureInterfaceInitial(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort *penumSourceSear
+             -chPort);
+  39          bit ScalerMeasureGetOfflineMeasureResult(StructMeasureSyncData *pstMeasureSyncHV, EnumSourceSearchPort enu
+             -mSourceSearchPort);
+  40          void ScalerMeasureSetOfflineMeasure(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSourcePort)
+             -;
+  41          
+  42          #if(_DIGITAL_PORT_SUPPORT == _ON)
+  43          bit ScalerMeasureFinalSetting(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSourceSearchPort)
+             -;
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 2   
+
+  44          void ScalerMeasureAutoFuncVBoundInitial(WORD usVBoundStart, WORD usVBoundEnd);
+  45          bit ScalerMeasureGetAutoResult(StructAutoActiveData *pstActiveRegion, bit bWait);
+  46          bit ScalerMeasureInputInfo(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSourceSearchPort);
+  47          void ScalerMeasureSetAuto(EnumMeasureFieldSelect enumFieldSelect);
+  48          #endif
+  49          
+  50          void ScalerMeasureUpdateInputTimingPolarity(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSou
+             -rceSearchPort, StructMeasureSyncData *pstMeasureSyncHV);
+  51          
+  52          #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+  53          WORD ScalerMeasureGetTmdsPageOffset(EnumSourceSearchPort enumSourceSearchPort);
+  54          bit ScalerMeasureCheckInterlaceVst(WORD usVstart, WORD usVend);
+  55          void ScalerMeasureCheckFirstLineShift(EnumSourceSearchPort enumSourceSearchPort, WORD usFrameHwidth);
+  56          bit ScalerMeasureCheckTmdsDeOnlyTiming(StructMeasureSyncData *pstMeasureSyncHV, WORD usIVFreq);
+  57          #endif
+  58          
+  59          void ScalerMeasureInterlaceInitial(BYTE ucSourceType, EnumSourceSearchPort enumSourceSearchPort);
+  60          bit ScalerMeasureInterlaceCheck(BYTE ucSourceType, EnumSourceSearchPort enumSourceSearchPort);
+  61          
+  62          bit ScalerMeasureCheckVsBypass(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSourceSearchPort
+             -);
+  63          
+  64          //****************************************************************************
+  65          // FUNCTION DEFINITIONS
+  66          //****************************************************************************
+  67          //--------------------------------------------------
+  68          // Description  : Initial measure interface
+  69          // Input Value  : enumSourceType: source type
+  70          //              : enumSourceSearchPort: port type
+  71          // Output Value : None
+  72          //--------------------------------------------------
+  73          void ScalerMeasureInterfaceInitial(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort *penumSourceSear
+             -chPort)
+  74          {
+  75   1          enumSourceType = enumSourceType;
+  76   1      
+  77   1          switch(*penumSourceSearchPort)
+  78   1          {
+  79   2      #if(_VGA_SUPPORT == _ON)
+                      case _A0_INPUT_PORT:
+              
+                          // Special case for small DVS width
+                          if(ScalerGetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_05_CLAMP_CTRL1, (_BIT7 | _BIT6)) 
+             -== (_BIT7 | _BIT6))
+                          {
+                              if(ScalerSyncProcGetDeVsyncWidth() >= 4)
+                              {
+                                  ScalerSetDataPortBit(P0_5C_SYNC_PROC_PORT_ADDR, _P0_5D_PT_05_CLAMP_CTRL1, ~(_BIT7 | _B
+             -IT6), 0x00);
+                              }
+                          }
+              
+                          // Hsync Measure Source from SeHS or DeHS by CR49[6]
+                          ScalerSetBit(P0_49_SYNC_CTRL, ~_BIT2, _BIT2);
+              
+                          break;
+              #endif
+  96   2      
+  97   2      
+  98   2      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+                      case _D0_INPUT_PORT:
+              
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 3   
+
+                          break;
+              #endif // End of #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+ 103   2      
+ 104   2      
+ 105   2      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+ 106   2              case _D1_INPUT_PORT:
+ 107   2      
+ 108   2                  break;
+ 109   2      #endif // End of #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+ 110   2      
+ 111   2      
+ 112   2      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+ 113   2              case _D2_INPUT_PORT:
+ 114   2      
+ 115   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 116   2      
+ 117   2                  // Reset TMDS HS/VS polarity
+ 118   2                  ScalerSetBit(P71_AF_TMDS_WDC, ~(_BIT3 | _BIT2), 0x00);
+ 119   2      
+ 120   2                  // reset Tmds De only mode Hs = 72
+ 121   2                  ScalerTMDSSetDeOnlyModeConfig(_D2_INPUT_PORT, _DE_ONLY_HS_72T);
+ 122   2      #endif // End of #if(_D2_TMDS_SUPPORT == _ON)
+ 123   2      
+ 124   2                  break;
+ 125   2      #endif // End of #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+ 126   2      
+ 127   2      
+ 128   2      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+ 129   2              case _D3_INPUT_PORT:
+ 130   2      
+ 131   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 132   2      
+ 133   2                  // Reset TMDS HS/VS polarity
+ 134   2                  ScalerSetBit(P72_AF_TMDS_WDC, ~(_BIT3 | _BIT2), 0x00);
+ 135   2      
+ 136   2                  // reset Tmds De only mode Hs = 72
+ 137   2                  ScalerTMDSSetDeOnlyModeConfig(_D3_INPUT_PORT, _DE_ONLY_HS_72T);
+ 138   2      #endif // End of #if(_D3_TMDS_SUPPORT == _ON)
+ 139   2      
+ 140   2                  break;
+ 141   2      #endif // End of #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+ 142   2      
+ 143   2              default:
+ 144   2                  break;
+ 145   2          }
+ 146   1      }
+ 147          
+ 148          //--------------------------------------------------
+ 149          // Description  : Pop Up Sync Processor Measure Result
+ 150          // Input Value  : stMeasureSyncHV --> measure result
+ 151          // Output Value : _TRUE or _FALSE
+ 152          //--------------------------------------------------
+ 153          bit ScalerMeasureGetOfflineMeasureResult(StructMeasureSyncData *pstMeasureSyncHV, EnumSourceSearchPort enu
+             -mSourceSearchPort)
+ 154          {
+ 155   1          enumSourceSearchPort = enumSourceSearchPort;
+ 156   1      
+ 157   1          if(ScalerTimerPollingFlagProc(_MEASURE_TIMEOUT, P30_02_MEAS_CTL1, _BIT7, 0x00) == _FALSE)
+ 158   1          {
+ 159   2              return _FALSE;
+ 160   2          }
+ 161   1      
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 4   
+
+ 162   1      #if(_FREESYNC_SUPPORT == _ON)
+ 163   1          if(GET_FREESYNC_ENABLED() == _TRUE)
+ 164   1          {
+ 165   2              // Check measure result status
+ 166   2              if(ScalerGetBit(P30_03_MEAS_ERROR_FLG0, (_BIT7 | _BIT6 | _BIT4)) != 0x00)
+ 167   2              {
+ 168   3                  return _FALSE;
+ 169   3              }
+ 170   2          }
+ 171   1          else
+ 172   1      #endif
+ 173   1          {
+ 174   2              // Check measure result status
+ 175   2              if(ScalerGetBit(P30_03_MEAS_ERROR_FLG0, (_BIT7 | _BIT6 | _BIT5 | _BIT4)) != 0x00)
+ 176   2              {
+ 177   3                  return _FALSE;
+ 178   3              }
+ 179   2          }
+ 180   1      
+ 181   1          // Pop up measurement result
+ 182   1          ScalerSetBit(P30_02_MEAS_CTL1, ~_BIT6, _BIT6);
+ 183   1      
+ 184   1          // Polarity
+ 185   1          pstMeasureSyncHV->b1HSP = (bit)ScalerGetBit(P30_04_MEAS_ERROR_FLG1, _BIT6);
+ 186   1          pstMeasureSyncHV->b1VSP = (bit)ScalerGetBit(P30_04_MEAS_ERROR_FLG1, _BIT7);
+ 187   1      
+ 188   1      #if(_DP_FREESYNC_SUPPORT == _ON)
+ 189   1          // DP Freesync case, HSync Period, HSync Pulse Width and VSync Period use DP measure
+ 190   1          if(GET_DP_FREESYNC_ENABLED() == _TRUE)
+ 191   1          {
+ 192   2              // HSync Period
+ 193   2              pstMeasureSyncHV->usHSPeriod = ((DWORD)ScalerFreeSyncDpGetHSPeriod(enumSourceSearchPort) * _MEASUR
+             -E_CLK / 1000000);
+ 194   2      
+ 195   2              // HSync Pulse Width
+ 196   2              pstMeasureSyncHV->usHSWidth = ScalerFreeSyncDpGetHSW(enumSourceSearchPort);
+ 197   2      
+ 198   2              // VSync Period
+ 199   2              pstMeasureSyncHV->usVSPeriod = ScalerFreeSyncDpGetVSPeriod(enumSourceSearchPort);
+ 200   2          }
+ 201   1          else
+ 202   1      #endif
+ 203   1          {
+ 204   2              // HSync Period
+ 205   2              pstMeasureSyncHV->usHSPeriod = ((((WORD)ScalerGetByte(P30_05_MEAS_HS_PERIOD_A_M) & 0x1F) << 8) | (
+             -ScalerGetByte(P30_06_MEAS_HS_PERIOD_A_L))) + 1;
+ 206   2      
+ 207   2              // HSync Pulse Width
+ 208   2              pstMeasureSyncHV->usHSWidth = ((((WORD)ScalerGetByte(P30_0A_MEAS_HS_PULSE_A_M) & 0x1F) << 8) | (Sc
+             -alerGetByte(P30_0B_MEAS_HS_PULSE_A_L))) + 1;
+ 209   2      
+ 210   2              // VSync Period
+ 211   2              pstMeasureSyncHV->usVSPeriod = ((((WORD)ScalerGetByte(P30_08_MEAS_VS_PERIOD_A_M) & 0x3F) << 8) | (
+             -ScalerGetByte(P30_09_MEAS_VS_PERIOD_A_L))) + 1;
+ 212   2          }
+ 213   1      
+ 214   1          // VSync Pulse Width
+ 215   1          pstMeasureSyncHV->usVSWidth = ((((WORD)ScalerGetByte(P30_0C_MEAS_VS_PULSE_A_M) & 0x3F) << 8) | (Scaler
+             -GetByte(P30_0D_MEAS_VS_PULSE_A_L))) + 1;
+ 216   1      
+ 217   1          // H total
+ 218   1          pstMeasureSyncHV->usHTotal = ((((WORD)ScalerGetByte(P30_0E_MEAS_HS_PERIOD_D_M) & 0x1F) << 8) | (Scaler
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 5   
+
+             -GetByte(P30_0F_MEAS_HS_PERIOD_D_L))) + 1;
+ 219   1      
+ 220   1          // V Height
+ 221   1          pstMeasureSyncHV->usVHeight = ((((WORD)ScalerGetByte(P30_11_MEAS_VS_PERIOD_D_M) & 0x3F) << 8) | (Scale
+             -rGetByte(P30_12_MEAS_VS_PERIOD_D_L))) + 1;
+ 222   1      
+ 223   1          // H Width
+ 224   1          pstMeasureSyncHV->usHWidth = ((((WORD)ScalerGetByte(P30_13_MEAS_HS_PULSE_D_M) & 0x1F) << 8) | (ScalerG
+             -etByte(P30_14_MEAS_HS_PULSE_D_L))) + 1;
+ 225   1      
+ 226   1          // Resume original clock when clock divider enabled
+ 227   1          if(ScalerGetBit(P30_00_SYNC_SELECT, _BIT7) == _BIT7)
+ 228   1          {
+ 229   2              pstMeasureSyncHV->usHTotal = (pstMeasureSyncHV->usHTotal << 1);
+ 230   2              pstMeasureSyncHV->usHWidth = (pstMeasureSyncHV->usHWidth << 1);
+ 231   2          }
+ 232   1      
+ 233   1          return _TRUE;
+ 234   1      }
+ 235          //--------------------------------------------------
+ 236          // Description  : Set for Sync Processor Measure Input HV
+ 237          // Input Value  : enumMeasureType --> Measure type
+ 238          // Output Value : None
+ 239          //--------------------------------------------------
+ 240          void ScalerMeasureSetOfflineMeasure(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSourcePort)
+ 241          {
+ 242   1          enumSourceType = enumSourceType;
+ 243   1      
+ 244   1          // Reset off-line measure clock divider
+ 245   1          ScalerSetBit(P30_00_SYNC_SELECT, ~_BIT7, 0x00);
+ 246   1      
+ 247   1          // Power up off-line measure; Measure Time Clock = 16384 Xtal; VS Measure Invert Disable; Disable HS/D
+             -EN swap
+ 248   1          ScalerSetBit(P30_01_MEAS_CTL0, ~(_BIT7 | _BIT6 | _BIT4 | _BIT3 | _BIT0), (_BIT7 | _BIT6));
+ 249   1      
+ 250   1          // Disable off-line measure
+ 251   1          ScalerSetBit(P30_02_MEAS_CTL1, ~(_BIT5 | _BIT0), 0x00);
+ 252   1      
+ 253   1          if(enumSourcePort == _A0_INPUT_PORT)
+ 254   1          {
+ 255   2              // Set off line measure source; Disable clock divider
+ 256   2              ScalerSetBit(P30_00_SYNC_SELECT, ~(_BIT7 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT3 | _BIT1 | _BIT0)
+             -);
+ 257   2          }
+ 258   1          else
+ 259   1          {
+ 260   2              switch(enumSourcePort)
+ 261   2              {
+ 262   3      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+              
+                          case _D0_INPUT_PORT:
+                              ScalerSetBit(P30_00_SYNC_SELECT, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+              
+                              break;
+              
+              #endif // End of #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+ 270   3      
+ 271   3      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+ 272   3      
+ 273   3                  case _D1_INPUT_PORT:
+ 274   3                      ScalerSetBit(P30_00_SYNC_SELECT, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), _BIT0);
+ 275   3      
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 6   
+
+ 276   3                      break;
+ 277   3      
+ 278   3      #endif // End of #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+ 279   3      
+ 280   3      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+ 281   3      
+ 282   3                  case _D2_INPUT_PORT:
+ 283   3                      ScalerSetBit(P30_00_SYNC_SELECT, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), _BIT1);
+ 284   3                      ScalerSetBit(P31_31_YUV420_TO_422_CTL, ~_BIT1, 0x00);
+ 285   3      
+ 286   3                      break;
+ 287   3      
+ 288   3      #endif // End of #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+ 289   3      
+ 290   3      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+ 291   3      
+ 292   3                  case _D3_INPUT_PORT:
+ 293   3                      ScalerSetBit(P30_00_SYNC_SELECT, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+ 294   3                      ScalerSetBit(P31_31_YUV420_TO_422_CTL, ~_BIT1, _BIT1);
+ 295   3      
+ 296   3                      break;
+ 297   3      
+ 298   3      #endif
+ 299   3      
+ 300   3                  default:
+ 301   3      
+ 302   3                      break;
+ 303   3              }
+ 304   2      
+ 305   2              // Set input clock divider if clock > limit
+ 306   2              if(GET_INPUT_PIXEL_CLK() > _DATA_PATH_SPEED_LIMIT)
+ 307   2              {
+ 308   3                  ScalerSetBit(P30_00_SYNC_SELECT, ~_BIT7, _BIT7);
+ 309   3              }
+ 310   2          }
+ 311   1      
+ 312   1          // Delay for measure reset
+ 313   1          ScalerTimerDelayXms(_MEASURE_RESET_TIME);
+ 314   1      
+ 315   1          // Enable off-line measure
+ 316   1          ScalerSetBit(P30_02_MEAS_CTL1, ~(_BIT5 | _BIT0), (_BIT5 | _BIT0));
+ 317   1      }
+ 318          
+ 319          #if(_DIGITAL_PORT_SUPPORT == _ON)
+ 320          //--------------------------------------------------
+ 321          // Description  : Initial measure block
+ 322          // Input Value  : enumSourceType: source type
+ 323          //              : enumSourceSearchPort: port type
+ 324          // Output Value : _TRUE or _FALSE
+ 325          //--------------------------------------------------
+ 326          bit ScalerMeasureFinalSetting(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSourceSearchPort)
+ 327          {
+ 328   1          enumSourceType = enumSourceType;
+ 329   1          enumSourceSearchPort = enumSourceSearchPort;
+ 330   1      
+ 331   1          // Check timing validity
+ 332   1          if((GET_INPUT_TIMING_HWIDTH() >= GET_INPUT_TIMING_HTOTAL()) ||
+ 333   1             (GET_INPUT_TIMING_VHEIGHT() >= GET_INPUT_TIMING_VTOTAL()))
+ 334   1          {
+ 335   2              return _FALSE;
+ 336   2          }
+ 337   1      
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 7   
+
+ 338   1      #if((_MEASURE_ADJUSTED_IHF_SUPPORT == _ON) || (_MEASURE_ADJUSTED_IVF_SUPPORT == _ON))
+ 339   1          // Update active region count
+ 340   1          if(ScalerMeasureUpdateActiveRegion() == _FALSE)
+ 341   1          {
+ 342   2              return _FALSE;
+ 343   2          }
+ 344   1      #endif
+ 345   1      
+ 346   1          return _TRUE;
+ 347   1      }
+ 348          //--------------------------------------------------
+ 349          // Description  : Initial V Boundary for Auto Function Measure
+ 350          // Input Value  : V Boundary Start/End
+ 351          // Output Value : None
+ 352          //--------------------------------------------------
+ 353          void ScalerMeasureAutoFuncVBoundInitial(WORD usVBoundStart, WORD usVBoundEnd)
+ 354          {
+ 355   1          // Set V boundary
+ 356   1          ScalerSetBit(P0_7C_AUTO_DUMMY, ~(_BIT3 | _BIT2), (((HIBYTE(usVBoundStart) & 0x10) >> 1) | ((HIBYTE(usV
+             -BoundEnd) & 0x10) >> 2)));
+ 357   1          ScalerSetByte(P0_73_V_BOUNDARY_H, (((HIBYTE(usVBoundStart) & 0x0F) << 4) | (HIBYTE(usVBoundEnd) & 0x0F
+             -)));
+ 358   1          ScalerSetByte(P0_74_V_BOUNDARY_STA_L, LOBYTE(usVBoundStart));
+ 359   1          ScalerSetByte(P0_75_V_BOUNDARY_END_L, LOBYTE(usVBoundEnd));
+ 360   1      }
+ 361          
+ 362          //--------------------------------------------------
+ 363          // Description  : Pop Up Auto-Function Result
+ 364          // Input Value  : stActiveRegion --> measure result
+ 365          //                bWait --> wait auto-function stop or not
+ 366          // Output Value : _TRUE or _FALSE
+ 367          //--------------------------------------------------
+ 368          bit ScalerMeasureGetAutoResult(StructAutoActiveData *pstActiveRegion, bit bWait)
+ 369          {
+ 370   1          if((bWait == _WAIT) || (ScalerGetBit(P0_7D_AUTO_ADJ_CTRL1, _BIT6) == 0x00))
+ 371   1          {
+ 372   2              if(ScalerMeasureAutoFuncWaitFinish() == _FALSE)
+ 373   2              {
+ 374   3                  return _FALSE;
+ 375   3              }
+ 376   2          }
+ 377   1      
+ 378   1          pstActiveRegion->usVActiveStart = ((((WORD)ScalerGetBit(P0_7C_AUTO_DUMMY, _BIT1)) << 11) | ((WORD)(Sca
+             -lerGetByte(P0_7E_VER_START_END_H) & 0xF0) << 4) | ScalerGetByte(P0_7F_VER_START_L));
+ 379   1          pstActiveRegion->usVActiveEnd = ((((WORD)ScalerGetBit(P0_7C_AUTO_DUMMY, _BIT0)) << 12) | ((WORD)(Scale
+             -rGetByte(P0_7E_VER_START_END_H) & 0x0F) << 8) | ScalerGetByte(P0_80_VER_END_L));
+ 380   1          pstActiveRegion->usHActiveStart = ((((WORD)ScalerGetBit(P0_78_BLU_NOISE_MARGIN, _BIT1)) << 11) | ((WOR
+             -D)(ScalerGetByte(P0_81_H_START_END_H) & 0xF0) << 4) | ScalerGetByte(P0_82_H_START_L)) + 1;
+ 381   1          pstActiveRegion->usHActiveEnd = ((((WORD)ScalerGetBit(P0_78_BLU_NOISE_MARGIN, _BIT0)) << 12) | ((WORD)
+             -(ScalerGetByte(P0_81_H_START_END_H) & 0x0F) << 8) | ScalerGetByte(P0_83_H_END_L)) + 1;
+ 382   1      
+ 383   1          // Check auto-function measure result
+ 384   1          if(((pstActiveRegion->usVActiveStart == 0x00) &&
+ 385   1              (pstActiveRegion->usVActiveEnd == 0x00)) ||
+ 386   1             (pstActiveRegion->usHActiveStart == 0x00) ||
+ 387   1             (pstActiveRegion->usHActiveEnd == 0x00))
+ 388   1          {
+ 389   2              // No IDEN found.
+ 390   2              return _FALSE;
+ 391   2          }
+ 392   1      
+ 393   1          return _TRUE;
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 8   
+
+ 394   1      }
+ 395          //--------------------------------------------------
+ 396          // Description  : Measure Input Timing
+ 397          // Input Value  : ucSourceType --> Input source type
+ 398          // Output Value : _TURE => All Required Timing Info is done
+ 399          //--------------------------------------------------
+ 400          bit ScalerMeasureInputInfo(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSourceSearchPort)
+ 401          {
+ 402   1      #if(_AIO_MODERN_STANDBY_SUPPORT == _ON)
+                  StructAutoActiveData stBackupActiveRegion;
+                  StructMeasureSyncData stBackupMeasureSyncHV;
+                  StructTimingInfo stBackupInputTimingData;
+              
+                  stBackupActiveRegion = g_stActiveRegion;
+                  stBackupMeasureSyncHV = g_stMeasureSyncHV;
+                  stBackupInputTimingData = g_stInputTimingData;
+              #endif
+ 411   1      
+ 412   1          //===========================================================================================
+ 413   1          // 0. Initialization
+ 414   1          //===========================================================================================
+ 415   1      
+ 416   1          // Initial the inteface to be measured
+ 417   1          ScalerMeasureInterfaceInitial(enumSourceType, &enumSourceSearchPort);
+ 418   1      
+ 419   1          // Initial measure & auto-function
+ 420   1          ScalerMeasureInitialSetting(enumSourceType, enumSourceSearchPort);
+ 421   1      
+ 422   1          // Initial Interlace Check Block
+ 423   1          ScalerMeasureInterlaceInitial(enumSourceType, enumSourceSearchPort);
+ 424   1      
+ 425   1      #if(_URGENT_EVENT_CHECK_MODE == _ON)
+ 426   1          if((ScalerSyncCheckUrgentEvent() == _TRUE))
+ 427   1          {
+ 428   2              return _FALSE;
+ 429   2          }
+ 430   1      #endif
+ 431   1      
+ 432   1      #if(_AIO_MODERN_STANDBY_SUPPORT == _ON)
+                  if(GET_AIO_MODERN_STANDBY_MODE() == _TRUE)
+                  {
+                      g_stActiveRegion = g_stSingleActiveRegion;
+                      g_stMeasureSyncHV = g_stSingleMeasureSyncHV;
+                      g_stInputTimingData = g_stSingleInputTimingData;
+                  }
+                  else
+              #endif
+ 441   1          {
+ 442   2              //===========================================================================================
+ 443   2              // 1. Start measure block & pop-out result
+ 444   2              //===========================================================================================
+ 445   2      
+ 446   2              // Wait for 2 raw IVS for digital; Pop out measure result
+ 447   2              if((ScalerTimerWaitForEvent(_EVENT_IVS) == _FALSE) ||
+ 448   2                 (ScalerTimerWaitForEvent(_EVENT_IVS) == _FALSE) ||
+ 449   2                 (ScalerMeasureGetOfflineMeasureResult(&g_stMeasureSyncHV, enumSourceSearchPort) == _FALSE))
+ 450   2              {
+ 451   3                  DebugMessageMeasure("Digital off-line measure fail", 0x00);
+ 452   3                  return _FALSE;
+ 453   3              }
+ 454   2      
+ 455   2              //===========================================================================================
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 9   
+
+ 456   2              // 2. Check VGIP HS/VS polarity
+ 457   2              //===========================================================================================
+ 458   2      
+ 459   2              // Update input timing polarity
+ 460   2              ScalerMeasureUpdateInputTimingPolarity(enumSourceType, enumSourceSearchPort, &g_stMeasureSyncHV);
+ 461   2      
+ 462   2              // Modify VGIP sync polarity
+ 463   2              ScalerVgipModifyPolarity(enumSourceType);
+ 464   2      
+ 465   2              // Update input timing data from variable "g_stMeasureSyncHV"
+ 466   2              ScalerMeasureUpdateInputTimingData(&g_stMeasureSyncHV, &g_stActiveRegion);
+ 467   2      
+ 468   2              //===========================================================================================
+ 469   2              // 3. Start auto-function
+ 470   2              //===========================================================================================
+ 471   2      
+ 472   2              // Set auto-function digital measure
+ 473   2              ScalerMeasureSetAuto(_NORMAL_MEASURE);
+ 474   2      
+ 475   2      #if(_URGENT_EVENT_CHECK_MODE == _ON)
+ 476   2              if((ScalerSyncCheckUrgentEvent() == _TRUE))
+ 477   2              {
+ 478   3                  return _FALSE;
+ 479   3              }
+ 480   2      #endif
+ 481   2      
+ 482   2              // Wait for 2 latched IVS; Pop out auto-function result
+ 483   2              if((ScalerTimerWaitForEvent(_EVENT_IVS) == _FALSE) ||
+ 484   2                 (ScalerTimerWaitForEvent(_EVENT_IVS) == _FALSE) ||
+ 485   2                 (ScalerMeasureGetAutoResult(&g_stActiveRegion, _NOT_WAIT) == _FALSE))
+ 486   2              {
+ 487   3                  DebugMessageMeasure("Digital auto-function fail", 0x00);
+ 488   3                  return _FALSE;
+ 489   3              }
+ 490   2      
+ 491   2      #if(_URGENT_EVENT_CHECK_MODE == _ON)
+ 492   2              if((ScalerSyncCheckUrgentEvent() == _TRUE))
+ 493   2              {
+ 494   3                  return _FALSE;
+ 495   3              }
+ 496   2      #endif
+ 497   2      
+ 498   2              // Update input timing data
+ 499   2              ScalerMeasureUpdateInputTimingData(&g_stMeasureSyncHV, &g_stActiveRegion);
+ 500   2      
+ 501   2              //===========================================================================================
+ 502   2              // 4. Detect interlace format
+ 503   2              //===========================================================================================
+ 504   2      
+ 505   2              // Check interlace by flag
+ 506   2              if(ScalerMeasureInterlaceCheck(enumSourceType, enumSourceSearchPort) == _TRUE)
+ 507   2              {
+ 508   3                  DebugMessageMeasure("Interlace: detect by flag", 0x00);
+ 509   3                  g_stInputTimingData.b1Interlace = _TRUE;
+ 510   3      
+ 511   3      #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+ 512   3                  // Update video field
+ 513   3                  if(ScalerGetBit(P0_32_SCALE_CONTROL_REG, _BIT6) == _BIT6)
+ 514   3                  {
+ 515   4                      g_stInputTimingData.b1VideoField = _TRUE;
+ 516   4                  }
+ 517   3      #endif
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 10  
+
+ 518   3              }
+ 519   2      
+ 520   2              // Update input timing data
+ 521   2              ScalerMeasureUpdateInputTimingData(&g_stMeasureSyncHV, &g_stActiveRegion);
+ 522   2      
+ 523   2              //===========================================================================================
+ 524   2              // 5. Double-check current timing
+ 525   2              //===========================================================================================
+ 526   2      
+ 527   2              // Check consistency between different measure results
+ 528   2              if(ScalerMeasureCheckInputInfoConsistency(enumSourceType, enumSourceSearchPort) == _FALSE)
+ 529   2              {
+ 530   3                  return _FALSE;
+ 531   3              }
+ 532   2      
+ 533   2              //===========================================================================================
+ 534   2              // 6. Measure final settings
+ 535   2              //===========================================================================================
+ 536   2      
+ 537   2      #if(_HDMI_2_0_SUPPORT == _ON)
+ 538   2              // Check color space for 420
+ 539   2              ScalerFmtCnv420To422FinalSetting(enumSourceSearchPort);
+ 540   2      #endif
+ 541   2      
+ 542   2      #if(_URGENT_EVENT_CHECK_MODE == _ON)
+ 543   2              if((ScalerSyncCheckUrgentEvent() == _TRUE))
+ 544   2              {
+ 545   3                  return _FALSE;
+ 546   3              }
+ 547   2      #endif
+ 548   2      
+ 549   2      #if(_AIO_MODERN_STANDBY_SUPPORT == _ON)
+                      g_stSingleActiveRegion = g_stActiveRegion;
+                      g_stSingleMeasureSyncHV = g_stMeasureSyncHV;
+                      g_stSingleInputTimingData = g_stInputTimingData;
+              #endif
+ 554   2          }
+ 555   1      
+ 556   1          // Decide I-domain path setting in format conversion
+ 557   1          if(ScalerFmtCnvGetHalfDataPathEvenOddModeStatus() == _FALSE)
+ 558   1          {
+ 559   2              // Final format conversion setting
+ 560   2              ScalerFmtCnvFinalSetting();
+ 561   2      
+ 562   2              // Check VS bypass
+ 563   2              if(ScalerMeasureCheckVsBypass(enumSourceType, enumSourceSearchPort) == _TRUE)
+ 564   2              {
+ 565   3                  ScalerVgipVsBypassEnable(_ENABLE);
+ 566   3              }
+ 567   2          }
+ 568   1      
+ 569   1      #if(_AIO_MODERN_STANDBY_SUPPORT == _ON)
+                  if(GET_AIO_MODERN_STANDBY_MODE() == _TRUE)
+                  {
+                      g_stActiveRegion = stBackupActiveRegion;
+                      g_stMeasureSyncHV = stBackupMeasureSyncHV;
+                      g_stInputTimingData = stBackupInputTimingData;
+                  }
+                  else
+              #endif
+ 578   1          {
+ 579   2              // Double-cheeck auto-function again
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 11  
+
+ 580   2              // Set auto-function digital measure
+ 581   2              ScalerMeasureSetAuto(_NORMAL_MEASURE);
+ 582   2      
+ 583   2              // Pop out auto result
+ 584   2              if((ScalerTimerWaitForEvent(_EVENT_IVS) == _FALSE) ||
+ 585   2                 (ScalerTimerWaitForEvent(_EVENT_IVS) == _FALSE) ||
+ 586   2                 (ScalerMeasureGetAutoResult(&g_stActiveRegion, _NOT_WAIT) == _FALSE))
+ 587   2              {
+ 588   3                  DebugMessageMeasure("Digital format conversion fail", 0x00);
+ 589   3                  return _FALSE;
+ 590   3              }
+ 591   2          }
+ 592   1      
+ 593   1          // Set format conversion background color
+ 594   1          ScalerFmtCnvSetBackgroundColor();
+ 595   1      
+ 596   1          // Update input timing data
+ 597   1          ScalerMeasureUpdateInputTimingData(&g_stMeasureSyncHV, &g_stActiveRegion);
+ 598   1      
+ 599   1          // Perform measure final setting
+ 600   1          if(ScalerMeasureFinalSetting(enumSourceType, enumSourceSearchPort) == _FALSE)
+ 601   1          {
+ 602   2              DebugMessageMeasure("Final setting in measure fail", 0x00);
+ 603   2              return _FALSE;
+ 604   2          }
+ 605   1      
+ 606   1          return _TRUE;
+ 607   1      }
+ 608          //--------------------------------------------------
+ 609          // Description  : Initialization for Picture Position <easure by Auto Function Measure
+ 610          // Input Value  : EnumMeasureFieldSelect --> Measure for Even or Odd Field
+ 611          // Output Value : None
+ 612          //--------------------------------------------------
+ 613          void ScalerMeasureSetAuto(EnumMeasureFieldSelect enumFieldSelect)
+ 614          {
+ 615   1          // Disable auto-function
+ 616   1          ScalerSetBit(P0_7D_AUTO_ADJ_CTRL1, ~_BIT0, 0x00);
+ 617   1      
+ 618   1          // Set auto VS delay to 0
+ 619   1          ScalerSetBit(P0_1E_M1_VGIP_HV_DELAY, ~(_BIT5 | _BIT4), 0x00);
+ 620   1      
+ 621   1          if(enumFieldSelect == _EVEN_FIELD_MEASURE)
+ 622   1          {
+ 623   2              // Field Select to Even, Disable LPF, Disable Accelecration Mode, Vertical Boundary Search 1 pixel
+             -, Select B channel
+ 624   2              ScalerSetByte(P0_7A_AUTO_ADJ_CTRL0, 0x80);
+ 625   2          }
+ 626   1          else if(enumFieldSelect == _ODD_FIELD_MEASURE)
+ 627   1          {
+ 628   2              // Field Select to Odd, Disable LPF, Disable Accelecration Mode, Vertical Boundary Search 1 pixel,
+             - Select B channel
+ 629   2              ScalerSetByte(P0_7A_AUTO_ADJ_CTRL0, 0xC0);
+ 630   2          }
+ 631   1          else
+ 632   1          {
+ 633   2              // Disable Field Select, Disable LPF, Disable Accelecration Mode, Vertical Boundary Search 1 pixel
+             -, Select B channel
+ 634   2              ScalerSetByte(P0_7A_AUTO_ADJ_CTRL0, 0x00);
+ 635   2          }
+ 636   1      
+ 637   1          // Set HW auto-phase: step = 31
+ 638   1          ScalerSetByte(P0_7B_HW_AUTO_PHASE_CTRL0, 0xF8);
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 12  
+
+ 639   1      
+ 640   1          // Set H boundary
+ 641   1          ScalerMeasureAutoFuncHBoundInitial(0x0002, 0x1FFF);
+ 642   1      
+ 643   1          // Set V Boundary
+ 644   1          ScalerMeasureAutoFuncVBoundInitial(0x0000, 0x1FFF);
+ 645   1      
+ 646   1          // Digital Measure Mode, Select Auto Balance, Start Auto Function Measure; Start auto-function measure
+ 647   1          ScalerSetBit(P0_7D_AUTO_ADJ_CTRL1, ~(_BIT7 | _BIT6 | _BIT1 | _BIT0), (_BIT7 | _BIT6 | _BIT0));
+ 648   1      }
+ 649          
+ 650          #endif // End of #if(_DIGITAL_PORT_SUPPORT == _ON)
+ 651          
+ 652          //--------------------------------------------------
+ 653          // Description  : Update timing info HS/VS polarity
+ 654          // Input Value  : ucSourceType --> source type
+ 655          //                stMeasureSyncHV --> measured timing data
+ 656          // Output Value : None
+ 657          //--------------------------------------------------
+ 658          void ScalerMeasureUpdateInputTimingPolarity(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSou
+             -rceSearchPort, StructMeasureSyncData *pstMeasureSyncHV)
+ 659          {
+ 660   1          WORD usHdmiPage = 0x0000;
+ 661   1          enumSourceSearchPort = enumSourceSearchPort;
+ 662   1          pstMeasureSyncHV = pstMeasureSyncHV;
+ 663   1      
+ 664   1          switch(enumSourceType)
+ 665   1          {
+ 666   2      #if(_VGA_SUPPORT == _ON)
+                      case _SOURCE_VGA:
+              
+                          // Get Raw HSync Polarity by SyncProcessor Auto Run
+                          if(ScalerGetBit(P0_47_SYNC_SELECT, _BIT6) == _BIT6)
+                          {
+                              g_stInputTimingData.b1HSP = (bit)(pstMeasureSyncHV->b1HSP ^
+                                                                (((bit)ScalerGetBit(P0_48_SYNC_INVERT, _BIT3) ? _BIT0 : 
+             -0x00) ^
+                                                                 ((bit)ScalerGetBit(P0_50_STABLE_PERIOD_H, _BIT6) ? _BIT
+             -0 : 0x00)));
+                          }
+                          else
+                          {
+                              g_stInputTimingData.b1HSP = (bit)(pstMeasureSyncHV->b1HSP ^ (((bit)ScalerGetBit(P0_48_SYNC
+             -_INVERT, _BIT3) ? _BIT0 : 0x00)));
+                          }
+              
+                          g_stInputTimingData.b1VSP = (pstMeasureSyncHV->b1VSP ^ (bit)ScalerGetBit(P30_01_MEAS_CTL0, _BI
+             -T3));
+              
+                          break;
+              #endif
+ 685   2      
+ 686   2      #if(_DP_SUPPORT == _ON)
+ 687   2              case _SOURCE_DP:
+ 688   2      
+ 689   2                  switch(enumSourceSearchPort)
+ 690   2                  {
+ 691   3      #if(_D0_DP_EXIST == _ON)
+                              case _D0_INPUT_PORT:
+              
+                                  // Pop out DP polarity
+                                  ScalerSetBit(PB6_00_MN_STRM_ATTR_CTRL, ~(_BIT7 | _BIT6 | _BIT5), (_BIT7 | _BIT6 | _BIT
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 13  
+
+             -5));
+                                  g_stInputTimingData.b1HSP = (bit)(ScalerGetBit(PB6_0E_MSA_HSW_0, _BIT7) == 0x00);
+                                  g_stInputTimingData.b1VSP = (bit)(ScalerGetBit(PB6_18_MSA_VSW_0, _BIT7) == 0x00);
+              
+                                  break;
+              #endif
+ 701   3      
+ 702   3      #if(_D1_DP_EXIST == _ON)
+ 703   3                      case _D1_INPUT_PORT:
+ 704   3      
+ 705   3                          // Pop out DP polarity
+ 706   3                          ScalerSetBit(PB9_00_MN_STRM_ATTR_CTRL, ~(_BIT7 | _BIT6 | _BIT5), (_BIT7 | _BIT6 | _BIT
+             -5));
+ 707   3                          g_stInputTimingData.b1HSP = (bit)(ScalerGetBit(PB9_0E_MSA_HSW_0, _BIT7) == 0x00);
+ 708   3                          g_stInputTimingData.b1VSP = (bit)(ScalerGetBit(PB9_18_MSA_VSW_0, _BIT7) == 0x00);
+ 709   3      
+ 710   3                          break;
+ 711   3      #endif
+ 712   3      
+ 713   3                      default:
+ 714   3      
+ 715   3                          break;
+ 716   3                  }
+ 717   2      
+ 718   2                  break;
+ 719   2      #endif
+ 720   2      
+ 721   2      #if((_HDMI_SUPPORT == _ON) || (_DVI_SUPPORT == _ON))
+ 722   2              case _SOURCE_HDMI:
+ 723   2              case _SOURCE_DVI:
+ 724   2      
+ 725   2                  usHdmiPage = ScalerMeasureGetTmdsPageOffset(enumSourceSearchPort);
+ 726   2      
+ 727   2                  if(ScalerGetBit((usHdmiPage + P71_A7_TMDS_PWDCTL), _BIT7) == _BIT7)
+ 728   2                  {
+ 729   3                      if(ScalerGetBit((usHdmiPage + P71_A4_TMDS_CTRL), (_BIT4 | _BIT3)) == (_BIT4 | _BIT3))
+ 730   3                      {
+ 731   4                          // Read HS/VS polarity from MAC
+ 732   4                          g_stInputTimingData.b1HSP = (ScalerGetBit((usHdmiPage + P71_C0_HDCP_CR), _BIT6) == 0x0
+             -0);
+ 733   4                          g_stInputTimingData.b1VSP = (ScalerGetBit((usHdmiPage + P71_C0_HDCP_CR), _BIT5) == 0x0
+             -0);
+ 734   4                      }
+ 735   3                      else
+ 736   3                      {
+ 737   4                          // Positive HS/VS under DE-only mode
+ 738   4                          g_stInputTimingData.b1HSP = _TRUE;
+ 739   4                          g_stInputTimingData.b1VSP = _TRUE;
+ 740   4                      }
+ 741   3                  }
+ 742   2                  else
+ 743   2                  {
+ 744   3                      g_stInputTimingData.b1HSP = pstMeasureSyncHV->b1HSP;
+ 745   3                      g_stInputTimingData.b1VSP = pstMeasureSyncHV->b1VSP;
+ 746   3                  }
+ 747   2      
+ 748   2                  if(pstMeasureSyncHV->b1VSP == _FALSE)
+ 749   2                  {
+ 750   3                      // Set HDMI VS intert
+ 751   3                      ScalerSetBit((usHdmiPage + P71_AF_TMDS_WDC), ~_BIT3, _BIT3);
+ 752   3                      pstMeasureSyncHV->b1VSP = _TRUE;
+ 753   3                  }
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 14  
+
+ 754   2      
+ 755   2                  if(pstMeasureSyncHV->b1HSP == _FALSE)
+ 756   2                  {
+ 757   3                      // Set HDMI HS intert
+ 758   3                      ScalerSetBit((usHdmiPage + P71_AF_TMDS_WDC), ~_BIT2, _BIT2);
+ 759   3                      pstMeasureSyncHV->b1HSP = _TRUE;
+ 760   3                  }
+ 761   2      
+ 762   2                  break;
+ 763   2      #endif
+ 764   2              default:
+ 765   2      
+ 766   2                  break;
+ 767   2          }
+ 768   1      }
+ 769          
+ 770          #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+ 771          //--------------------------------------------------
+ 772          // Description  : Return HDMI/DVI port page offset
+ 773          // Input Value  : enumSourceSearchPort
+ 774          // Output Value : HDMI page offset by port
+ 775          //--------------------------------------------------
+ 776          WORD ScalerMeasureGetTmdsPageOffset(EnumSourceSearchPort enumSourceSearchPort)
+ 777          {
+ 778   1          WORD usHdmiPage = 0x0000;
+ 779   1      
+ 780   1          switch(enumSourceSearchPort)
+ 781   1          {
+ 782   2      #if(_D2_TMDS_SUPPORT == _ON)
+ 783   2              case _D2_INPUT_PORT:
+ 784   2                  break;
+ 785   2      #endif
+ 786   2      
+ 787   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 788   2              case _D3_INPUT_PORT:
+ 789   2                  usHdmiPage = 0x7200 - 0x7100;
+ 790   2                  break;
+ 791   2      #endif
+ 792   2      
+ 793   2              default:
+ 794   2                  break;
+ 795   2          }
+ 796   1      
+ 797   1          return usHdmiPage;
+ 798   1      }
+ 799          
+ 800          //--------------------------------------------------
+ 801          // Description  : Check V start position for interlaced format
+ 802          // Input Value  : usVstart --> alternative V start
+ 803          // Output Value : _TRUE or _FALSE
+ 804          //--------------------------------------------------
+ 805          bit ScalerMeasureCheckInterlaceVst(WORD usVstart, WORD usVend)
+ 806          {
+ 807   1          if(usVstart == g_stActiveRegion.usVActiveStart)
+ 808   1          {
+ 809   2              // For 1035i
+ 810   2              if((usVend - usVstart) == (g_stActiveRegion.usVActiveEnd - g_stActiveRegion.usVActiveStart))
+ 811   2              {
+ 812   3                  // Toggle Video Compensation field
+ 813   3                  ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT6, (~(ScalerGetByte(P0_32_SCALE_CONTROL_REG)) & _BI
+             -T6));
+ 814   3              }
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 15  
+
+ 815   2              else if((usVend - usVstart) < 250)
+ 816   2              {
+ 817   3                  // For 487i
+ 818   3                  ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT6, (~(ScalerGetByte(P0_32_SCALE_CONTROL_REG)) & _BI
+             -T6));
+ 819   3              }
+ 820   2          }
+ 821   1          else if(abs(usVstart - g_stActiveRegion.usVActiveStart) == 0x01)
+ 822   1          {
+ 823   2              StructAutoActiveData stAutoActiveData;
+ 824   2              memset(&stAutoActiveData, 0, sizeof(StructAutoActiveData));
+ 825   2      
+ 826   2              // Store the smaller Vstart
+ 827   2              if(usVstart < g_stActiveRegion.usVActiveStart)
+ 828   2              {
+ 829   3                  --g_stActiveRegion.usVActiveStart;
+ 830   3                  --g_stActiveRegion.usVActiveEnd;
+ 831   3              }
+ 832   2      
+ 833   2              // Enable ODD delay one line
+ 834   2              ScalerSetBit(P0_13_M1_VGIP_ODD_CTRL, ~(_BIT7 | _BIT6), _BIT6);
+ 835   2              ScalerSetBit(P40_13_M2_VGIP_ODD_CTRL, ~(_BIT7 | _BIT6), _BIT6);
+ 836   2      
+ 837   2              // Toggle Video Compensation field
+ 838   2              ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT6, (~(ScalerGetByte(P0_32_SCALE_CONTROL_REG)) & _BIT6))
+             -;
+ 839   2      
+ 840   2              if((ScalerTimerWaitForEvent(_EVENT_IVS) == _FALSE) ||
+ 841   2                 (ScalerTimerWaitForEvent(_EVENT_IVS) == _FALSE) ||
+ 842   2                 (ScalerTimerWaitForEvent(_EVENT_IVS) == _FALSE))
+ 843   2              {
+ 844   3                  return _FALSE;
+ 845   3              }
+ 846   2      
+ 847   2              // Pop up auto-function result
+ 848   2              if(ScalerMeasureGetAutoResult(&stAutoActiveData, _NOT_WAIT) == _FALSE)
+ 849   2              {
+ 850   3                  return _FALSE;
+ 851   3              }
+ 852   2      
+ 853   2              // Double-check delay-one-line field polarity
+ 854   2              if(stAutoActiveData.usVActiveStart != g_stActiveRegion.usVActiveStart)
+ 855   2              {
+ 856   3                  // Toggle delay-one-line field
+ 857   3                  ScalerSetBit(P0_13_M1_VGIP_ODD_CTRL, ~_BIT7, (~(ScalerGetByte(P0_13_M1_VGIP_ODD_CTRL)) & _BIT7
+             -));
+ 858   3                  ScalerSetBit(P40_13_M2_VGIP_ODD_CTRL, ~_BIT7, (~(ScalerGetByte(P40_13_M2_VGIP_ODD_CTRL)) & _BI
+             -T7));
+ 859   3              }
+ 860   2          }
+ 861   1      
+ 862   1          return _TRUE;
+ 863   1      }
+ 864          
+ 865          //--------------------------------------------------
+ 866          // Description  : Measure H width for the first line
+ 867          // Input Value  : usFrameHwidth: H width from measure block
+ 868          // Output Value : _TRUE or _FALSE
+ 869          //--------------------------------------------------
+ 870          void ScalerMeasureCheckFirstLineShift(EnumSourceSearchPort enumSourceSearchPort, WORD usFrameHwidth)
+ 871          {
+ 872   1          WORD usHdmiPage = ScalerMeasureGetTmdsPageOffset(enumSourceSearchPort);
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 16  
+
+ 873   1          BYTE ucHwidthFactor = 0x01;
+ 874   1          BYTE ucDiffPixel = (ScalerGetBit(P30_00_SYNC_SELECT, _BIT7) == _BIT7) ? 2 : 1;
+ 875   1      
+ 876   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+ 877   1          if(ScalerFmtCnvHalfSDGetStatus() == _TRUE)
+ 878   1          {
+ 879   2              ucHwidthFactor *= 2;
+ 880   2          }
+ 881   1      #endif
+ 882   1      
+ 883   1          // Check under DE-only mode with raw HS/VS
+ 884   1          if((ScalerGetBit((usHdmiPage + P71_A7_TMDS_PWDCTL), _BIT7) == _BIT7) &&
+ 885   1             (ScalerGetBit((usHdmiPage + P71_A4_TMDS_CTRL), (_BIT4 | _BIT3)) == (_BIT4 | _BIT3)))
+ 886   1          {
+ 887   2              // Stop auto-function
+ 888   2              ScalerSetBit(P0_7D_AUTO_ADJ_CTRL1, ~_BIT0, _BIT0);
+ 889   2      
+ 890   2              // Set measure boundary to first line
+ 891   2              ScalerMeasureAutoFuncHBoundInitial(0x0002, 0x1FFF);
+ 892   2              ScalerMeasureAutoFuncVBoundInitial((GET_ACTIVE_V_START() + 1), GET_INPUT_TIMING_VTOTAL());
+ 893   2      
+ 894   2              // Start auto-function measure
+ 895   2              ScalerSetBit(P0_7D_AUTO_ADJ_CTRL1, ~_BIT0, _BIT0);
+ 896   2      
+ 897   2              if((ScalerTimerWaitForEvent(_EVENT_IVS) == _FAIL) ||
+ 898   2                 (ScalerTimerWaitForEvent(_EVENT_IVS) == _FAIL))
+ 899   2              {
+ 900   3                  return;
+ 901   3              }
+ 902   2      
+ 903   2              // Calculate first H width
+ 904   2              PDATA_WORD(0) = ((((WORD)ScalerGetBit(P0_81_H_START_END_H, 0xF0)) << 4) | ScalerGetByte(P0_82_H_ST
+             -ART_L)); // H st
+ 905   2              PDATA_WORD(1) = ((((WORD)ScalerGetBit(P0_81_H_START_END_H, 0x0F)) << 8) | ScalerGetByte(P0_83_H_EN
+             -D_L)); // H end
+ 906   2              PDATA_WORD(2) = (PDATA_WORD(1) - PDATA_WORD(0) + 1) * ucHwidthFactor; // H width
+ 907   2      
+ 908   2              if(abs(PDATA_WORD(2) - usFrameHwidth) <= ucDiffPixel)
+ 909   2              {
+ 910   3                  // First line shift detected; Disable DE-only mode
+ 911   3                  ScalerTMDSSetDeOnlyModeConfig(enumSourceSearchPort, (EnumDeOnlyConfig)(_DE_ONLY_DISABLE | _DE_
+             -ONLY_HS_72T));
+ 912   3              }
+ 913   2          }
+ 914   1      }
+ 915          
+ 916          //--------------------------------------------------
+ 917          // Description  : Judge Timing for TMDS DE Only mode enable or not
+ 918          // Input Value  : StructMeasureSyncData *pstMeasureSyncHV, usIVFreq
+ 919          // Output Value : _TRUE or _FALSE
+ 920          //--------------------------------------------------
+ 921          bit ScalerMeasureCheckTmdsDeOnlyTiming(StructMeasureSyncData *pstMeasureSyncHV, WORD usIVFreq)
+ 922          {
+ 923   1          // Timing-1 : 1280x1024@120Hz (Source : Apple MacBook Air 13" / ChipSet : Apple M1)
+ 924   1          if((pstMeasureSyncHV->usHWidth == 1280) && (pstMeasureSyncHV->usVHeight == 1024) &&
+ 925   1             ((usIVFreq >= 1190) && (usIVFreq <= 1210)))
+ 926   1          {
+ 927   2              return _FALSE;
+ 928   2          }
+ 929   1      
+ 930   1          return _TRUE;
+ 931   1      }
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 17  
+
+ 932          #endif // End of #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+ 933          
+ 934          //--------------------------------------------------
+ 935          // Description  : Initial Interlace Detection Method
+ 936          // Input Value  : Source Type
+ 937          // Output Value : None
+ 938          //--------------------------------------------------
+ 939          void ScalerMeasureInterlaceInitial(BYTE ucSourceType, EnumSourceSearchPort enumSourceSearchPort)
+ 940          {
+ 941   1          enumSourceSearchPort = enumSourceSearchPort;
+ 942   1      
+ 943   1          // Disable IVS Delay one line; Default field source from interface
+ 944   1          ScalerSetBit(P0_13_M1_VGIP_ODD_CTRL, ~(_BIT7 | _BIT6 | _BIT0), 0x00);
+ 945   1          ScalerSetBit(P40_13_M2_VGIP_ODD_CTRL, ~(_BIT7 | _BIT6 | _BIT0), 0x00);
+ 946   1      
+ 947   1          // Clear VGIP Interlace Toggle Flag
+ 948   1          ScalerSetBit(P0_1A_M1_IPV_ACT_LEN_H, ~_BIT5, _BIT5);
+ 949   1      
+ 950   1          switch(ucSourceType)
+ 951   1          {
+ 952   2      #if(_VGA_SUPPORT == _ON)
+                      case _SOURCE_VGA:
+              
+                          // Clear Interlace toggle flag
+                          ScalerSetBit(P0_4A_STABLE_HIGH_PERIOD_H, ~(_BIT6 | _BIT4), (_BIT6 | _BIT4));
+              
+                          break;
+              #endif
+ 960   2      
+ 961   2      #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+ 962   2      
+ 963   2              case _SOURCE_DVI:
+ 964   2              case _SOURCE_HDMI:
+ 965   2      
+ 966   2                  switch(enumSourceSearchPort)
+ 967   2                  {
+ 968   3      #if(_D2_TMDS_SUPPORT == _ON)
+ 969   3                      case _D2_INPUT_PORT:
+ 970   3                          // Clear Interlace toggle and error flag
+ 971   3                          ScalerSetDataPortBit(P71_C9_HDMI_AP, _P71_CA_PT_50_PORT_PAGE71_HDMI_VCR, ~(_BIT6 | _BI
+             -T5), (_BIT6 | _BIT5));
+ 972   3      
+ 973   3                          // Disable IHV delay control; inverted odd signal; odd from IHV delay
+ 974   3                          ScalerSetBit(P71_70_IVHS_CTRL_0, ~(_BIT7 | _BIT2), _BIT2);
+ 975   3                          ScalerSetBit(P71_72_IVHS_CTRL_2, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 976   3                          break;
+ 977   3      #endif
+ 978   3      
+ 979   3      #if(_D3_TMDS_SUPPORT == _ON)
+ 980   3                      case _D3_INPUT_PORT:
+ 981   3                          // Clear Interlace toggle and error flag
+ 982   3                          ScalerSetDataPortBit(P72_C9_HDMI_AP, _P72_CA_PT_50_PORT_PAGE72_HDMI_VCR, ~(_BIT6 | _BI
+             -T5), (_BIT6 | _BIT5));
+ 983   3      
+ 984   3                          // Disable IHV delay control; inverted odd signal; odd from IHV delay
+ 985   3                          ScalerSetBit(P72_70_IVHS_CTRL_0, ~(_BIT7 | _BIT2), _BIT2);
+ 986   3                          ScalerSetBit(P72_72_IVHS_CTRL_2, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 987   3                          break;
+ 988   3      #endif
+ 989   3      
+ 990   3      #if(_D4_TMDS_SUPPORT == _ON)
+                              case _D4_INPUT_PORT:
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 18  
+
+                                  // Clear Interlace toggle and error flag
+                                  ScalerSetDataPortBit(P73_C9_HDMI_AP, _P73_CA_PT_50_PORT_PAGE73_HDMI_VCR, ~(_BIT6 | _BI
+             -T5), (_BIT6 | _BIT5));
+              
+                                  // Disable IHV delay control; inverted odd signal; odd from IHV delay
+                                  ScalerSetBit(P73_70_IVHS_CTRL_0, ~(_BIT7 | _BIT2), _BIT2);
+                                  ScalerSetBit(P73_72_IVHS_CTRL_2, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+                                  break;
+              #endif
+1000   3      
+1001   3      #if(_D5_TMDS_SUPPORT == _ON)
+                              case _D5_INPUT_PORT:
+                                  // Clear Interlace toggle and error flag
+                                  ScalerSetDataPortBit(P74_C9_HDMI_AP, _P74_CA_PT_50_PORT_PAGE74_HDMI_VCR, ~(_BIT6 | _BI
+             -T5), (_BIT6 | _BIT5));
+              
+                                  // Disable IHV delay control; inverted odd signal; odd from IHV delay
+                                  ScalerSetBit(P74_70_IVHS_CTRL_0, ~(_BIT7 | _BIT2), _BIT2);
+                                  ScalerSetBit(P74_72_IVHS_CTRL_2, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+                                  break;
+              #endif
+1011   3      
+1012   3                      default:
+1013   3      
+1014   3                          break;
+1015   3                  }
+1016   2      
+1017   2                  break;
+1018   2      #endif
+1019   2      
+1020   2      #if(_DP_SUPPORT == _ON)
+1021   2              case _SOURCE_DP:
+1022   2      
+1023   2                  break;
+1024   2      #endif
+1025   2      
+1026   2              default:
+1027   2                  break;
+1028   2          }
+1029   1      }
+1030          
+1031          //--------------------------------------------------
+1032          // Description  : Check Interlace
+1033          // Input Value  : Source Type
+1034          // Output Value : TRUE => Interlaced Detected
+1035          //--------------------------------------------------
+1036          bit ScalerMeasureInterlaceCheck(BYTE ucSourceType, EnumSourceSearchPort enumSourceSearchPort)
+1037          {
+1038   1      #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+1039   1          WORD usHdmiPage = 0x0000;
+1040   1          WORD usVstart = 0x0000;
+1041   1          WORD usVend = 0x0000;
+1042   1      #endif
+1043   1      
+1044   1          enumSourceSearchPort = enumSourceSearchPort;
+1045   1      
+1046   1          switch(ucSourceType)
+1047   1          {
+1048   2      #if(_VGA_SUPPORT == _ON)
+                      case _SOURCE_VGA:
+              
+                          if(ScalerMeasureVgaInterlaceCheck(enumSourceSearchPort) == _TRUE)
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 19  
+
+                          {
+                              return _TRUE;
+                          }
+              
+                          break;
+              #endif
+1058   2      
+1059   2      #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+1060   2      
+1061   2              case _SOURCE_DVI:
+1062   2              case _SOURCE_HDMI:
+1063   2      
+1064   2      #if(_D4_INPUT_PORT_TYPE == _D4_DUAL_DVI_PORT)
+                          if(enumSourceSearchPort == _D4_INPUT_PORT)
+                          {
+                              if(ScalerDualLinkDVIRx4GetDualDVIMode() == _FALSE)
+                              {
+                                  enumSourceSearchPort = _D5_INPUT_PORT;
+                              }
+                          }
+              #endif
+1073   2      
+1074   2                  usHdmiPage = ScalerMeasureGetTmdsPageOffset(enumSourceSearchPort);
+1075   2      
+1076   2                  // Clear VGIP Interlace Toggle Flag
+1077   2                  ScalerSetBit((usHdmiPage + P71_72_IVHS_CTRL_2), ~_BIT6, _BIT6);
+1078   2      
+1079   2                  // Clear Interlace toggle flag
+1080   2                  ScalerSetDataPortBit((usHdmiPage + P71_C9_HDMI_AP), _P71_CA_PT_50_PORT_PAGE71_HDMI_VCR, ~_BIT6
+             -, _BIT6);
+1081   2      
+1082   2                  // Delay until field stable
+1083   2                  if(GET_INPUT_TIMING_DOUBLE_CHECK() == _FALSE)
+1084   2                  {
+1085   3                      ScalerTimerWaitForEvent(_EVENT_IVS);
+1086   3                      g_stActiveRegion.usVActiveStart = ((((WORD)ScalerGetBit(P0_7C_AUTO_DUMMY, _BIT1)) << 11) |
+             - ((WORD)(ScalerGetByte(P0_7E_VER_START_END_H) & 0xF0) << 4) | ScalerGetByte(P0_7F_VER_START_L));
+1087   3                      g_stActiveRegion.usVActiveEnd = ((((WORD)ScalerGetBit(P0_7C_AUTO_DUMMY, _BIT0)) << 12) | (
+             -(WORD)(ScalerGetByte(P0_7E_VER_START_END_H) & 0x0F) << 8) | ScalerGetByte(P0_80_VER_END_L));
+1088   3      
+1089   3                      // Get another V start
+1090   3                      ScalerTimerWaitForEvent(_EVENT_IVS);
+1091   3                      usVstart = ((((WORD)ScalerGetBit(P0_7C_AUTO_DUMMY, _BIT1)) << 11) | ((WORD)(ScalerGetByte(
+             -P0_7E_VER_START_END_H) & 0xF0) << 4) | ScalerGetByte(P0_7F_VER_START_L));
+1092   3                      usVend = ((((WORD)ScalerGetBit(P0_7C_AUTO_DUMMY, _BIT0)) << 12) | ((WORD)(ScalerGetByte(P0
+             -_7E_VER_START_END_H) & 0x0F) << 8) | ScalerGetByte(P0_80_VER_END_L));
+1093   3                  }
+1094   2                  else
+1095   2                  {
+1096   3                      ScalerTimerWaitForEvent(_EVENT_IVS);
+1097   3                      ScalerTimerWaitForEvent(_EVENT_IVS);
+1098   3                  }
+1099   2      
+1100   2      #if(_DVI_DE_ONLY_SUPPORT == _ON)
+1101   2                  if(ScalerGetBit((usHdmiPage + P71_A4_TMDS_CTRL), (_BIT4 | _BIT3)) != (_BIT4 | _BIT3))
+1102   2                  {
+1103   3                      // Detect by Vtotal
+1104   3                      if(ScalerGetBit((usHdmiPage + P71_72_IVHS_CTRL_2), _BIT6) == _BIT6)
+1105   3                      {
+1106   4                          if(GET_INPUT_TIMING_DOUBLE_CHECK() == _FALSE)
+1107   4                          {
+1108   5                              // Interlace field signal from IHV delay; Odd inverted
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 20  
+
+1109   5                              ScalerSetBit((usHdmiPage + P71_70_IVHS_CTRL_0), ~(_BIT7 | _BIT2), (_BIT7 | _BIT2))
+             -;
+1110   5                              ScalerSetBit((usHdmiPage + P71_72_IVHS_CTRL_2), ~_BIT7, _BIT7);
+1111   5      
+1112   5                              // Set Video Compensation to ODD Field
+1113   5                              ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT6, 0x00);
+1114   5      
+1115   5                              // Wait until TMDS IHV delay change
+1116   5                              ScalerTimerWaitForEvent(_EVENT_IVS);
+1117   5      
+1118   5                              // Check delay one line (with one-mimus Vstart after IHV delay enabled)
+1119   5                              g_stActiveRegion.usVActiveStart -= 1;
+1120   5                              g_stActiveRegion.usVActiveEnd -= 1;
+1121   5                              usVstart -= 1;
+1122   5                              usVend -= 1;
+1123   5      
+1124   5                              ScalerMeasureCheckInterlaceVst(usVstart, usVend);
+1125   5                          }
+1126   4      
+1127   4                          // Clear VGIP Interlace Toggle Flag
+1128   4                          ScalerSetBit((usHdmiPage + P71_72_IVHS_CTRL_2), ~_BIT6, _BIT6);
+1129   4      
+1130   4                          return _TRUE;
+1131   4                      }
+1132   3                  }
+1133   2                  else
+1134   2      #endif
+1135   2                  {
+1136   3                      // Detect by VS Position
+1137   3                      if(ScalerGetDataPortBit((usHdmiPage + P71_C9_HDMI_AP), _P71_CA_PT_50_PORT_PAGE71_HDMI_VCR,
+             - _BIT6) == _BIT6)
+1138   3                      {
+1139   4                          if(ScalerGetDataPortBit((usHdmiPage + P71_C9_HDMI_AP), _P71_CA_PT_50_PORT_PAGE71_HDMI_
+             -VCR, _BIT5) == 0x00)
+1140   4                          {
+1141   5                              if(GET_INPUT_TIMING_DOUBLE_CHECK() == _FALSE)
+1142   5                              {
+1143   6                                  // Interlace field signal from interface
+1144   6                                  ScalerSetBit((usHdmiPage + P71_72_IVHS_CTRL_2), ~_BIT7, 0x00);
+1145   6      
+1146   6                                  // Set Video Compensation to EVEN Field
+1147   6                                  ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT6, _BIT6);
+1148   6      
+1149   6                                  // Check delay one line
+1150   6                                  ScalerMeasureCheckInterlaceVst(usVstart, usVend);
+1151   6                              }
+1152   5      
+1153   5                              // Clear Interlace toggle flag
+1154   5                              ScalerSetDataPortBit((usHdmiPage + P71_C9_HDMI_AP), _P71_CA_PT_50_PORT_PAGE71_HDMI
+             -_VCR, ~_BIT6, _BIT6);
+1155   5                              return _TRUE;
+1156   5                          }
+1157   4                      }
+1158   3                  }
+1159   2      
+1160   2                  // Clear VGIP Interlace Toggle Flag
+1161   2                  ScalerSetBit((usHdmiPage + P71_72_IVHS_CTRL_2), ~_BIT6, _BIT6);
+1162   2      
+1163   2                  // Clear Interlace toggle and error flag
+1164   2                  ScalerSetDataPortBit((usHdmiPage + P71_C9_HDMI_AP), _P71_CA_PT_50_PORT_PAGE71_HDMI_VCR, ~(_BIT
+             -6 | _BIT5), (_BIT6 | _BIT5));
+1165   2      
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 21  
+
+1166   2                  break;
+1167   2      #endif
+1168   2      
+1169   2      #if(_DP_SUPPORT == _ON)
+1170   2      
+1171   2              case _SOURCE_DP:
+1172   2      
+1173   2                  if(((enumSourceSearchPort == _D0_INPUT_PORT) && (ScalerGetBit(PB5_57_INTERLACE_MODE_CONFIG, (_
+             -BIT7 | _BIT6)) == _BIT7)) ||
+1174   2                     ((enumSourceSearchPort == _D1_INPUT_PORT) && (ScalerGetBit(PB8_57_INTERLACE_MODE_CONFIG, (_
+             -BIT7 | _BIT6)) == _BIT7)))
+1175   2                  {
+1176   3                      if(GET_INPUT_TIMING_DOUBLE_CHECK() == _FALSE)
+1177   3                      {
+1178   4                          // Interlace field signal from interface
+1179   4                          ScalerSetBit(P0_13_M1_VGIP_ODD_CTRL, ~_BIT0, 0x00);
+1180   4                          ScalerSetBit(P40_13_M2_VGIP_ODD_CTRL, ~_BIT0, 0x00);
+1181   4      
+1182   4                          // Set Video Compensation to EVEN Field
+1183   4                          ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT6, _BIT6);
+1184   4                      }
+1185   3      
+1186   3                      return _TRUE;
+1187   3                  }
+1188   2      
+1189   2                  if(((enumSourceSearchPort == _D0_INPUT_PORT) && (ScalerGetBit(PB5_57_INTERLACE_MODE_CONFIG, (_
+             -BIT7 | _BIT6)) == (_BIT7 | _BIT6))) ||
+1190   2                     ((enumSourceSearchPort == _D1_INPUT_PORT) && (ScalerGetBit(PB8_57_INTERLACE_MODE_CONFIG, (_
+             -BIT7 | _BIT6)) == (_BIT7 | _BIT6))))
+1191   2                  {
+1192   3      #if(_MEASURE_INTERLACE_FIELD_SELECT_BY_VTOTAL_MIN == _ON)
+                              if(ScalerFmtCnvFtoPGetStatus() == _FALSE)
+                              {
+                                  if(ScalerGetBit(P0_1A_M1_IPV_ACT_LEN_H, _BIT5) == _BIT5)
+                                  {
+                                      if(GET_INPUT_TIMING_DOUBLE_CHECK() == _FALSE)
+                                      {
+                                          BYTE ucFieldFromVgip = _TRUE;
+              
+                                          // Check input path count
+                                          // - extra check required for E/O mode
+                                          BYTE ucIndex = 0;
+                                          WORD pusVtotal[2] = {0};
+              
+                                          // Get V-total for 2 frames
+                                          for(; ucIndex < sizeof(pusVtotal) / sizeof(pusVtotal[0]); ++ucIndex)
+                                          {
+                                              // Wait until IHV delay change
+                                              ScalerTimerWaitForEvent(_EVENT_IVS);
+              
+                                              // Pop-out off-line measure result
+                                              ScalerSetBit(P30_02_MEAS_CTL1, ~_BIT6, _BIT6);
+              
+                                              pusVtotal[ucIndex] = TO_WORD(
+                                                  ScalerGetByte(P30_08_MEAS_VS_PERIOD_A_M) & 0x3F,
+                                                  ScalerGetByte(P30_09_MEAS_VS_PERIOD_A_L)) + 1;
+                                          }
+              
+                                          // Check whether Vtotal-min is even or odd
+                                          // - EVEN : select field from VGIP
+                                          // - ODD  : select field from DP mac
+                                          pusVtotal[0] = MINOF(pusVtotal[0], pusVtotal[1]);
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 22  
+
+              
+                                          if((pusVtotal[0] % 2) == 1)
+                                          {
+                                              ucFieldFromVgip = _FALSE;
+                                          }
+              
+                                          if(ucFieldFromVgip == _TRUE)
+                                          {
+                                              // Select Filed Signal from VGIP
+                                              ScalerSetBit(P0_13_M1_VGIP_ODD_CTRL, ~_BIT0, _BIT0);
+                                              ScalerSetBit(P40_13_M2_VGIP_ODD_CTRL, ~_BIT0, _BIT0);
+              
+                                              // Set Video Compensation to ODD Field
+                                              ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT6, 0x00);
+              
+                                              // Clear VGIP Interlace Toggle Flag
+                                              ScalerSetBit(P0_1A_M1_IPV_ACT_LEN_H, ~_BIT5, _BIT5);
+                                          }
+                                          else
+                                          {
+                                              // Interlace field signal from interface
+                                              ScalerSetBit(P0_13_M1_VGIP_ODD_CTRL, ~_BIT0, 0x00);
+                                              ScalerSetBit(P40_13_M2_VGIP_ODD_CTRL, ~_BIT0, 0x00);
+              
+                                              // Set Video Compensation to EVEN Field
+                                              ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT6, _BIT6);
+                                          }
+                                      }
+              
+                                      return _TRUE;
+                                  }
+                              }
+                              else
+                              {
+                                  // for SysJudgeCheckStatus
+                                  // Check if field single is from VGIP
+                                  if(ScalerGetBit(P0_13_M1_VGIP_ODD_CTRL, _BIT0) == _BIT0)
+                                  {
+                                      if(ScalerGetBit(P0_1A_M1_IPV_ACT_LEN_H, _BIT5) == _BIT5)
+                                      {
+                                          // Clear VGIP Interlace Toggle Flag
+                                          ScalerSetBit(P0_1A_M1_IPV_ACT_LEN_H, ~_BIT5, _BIT5);
+              
+                                          return _TRUE;
+                                      }
+                                  }
+                                  else
+                                  {
+                                      return _TRUE;
+                                  }
+                              }
+              #else
+1276   3                      if(ScalerGetBit(P0_1A_M1_IPV_ACT_LEN_H, _BIT5) == _BIT5)
+1277   3                      {
+1278   4                          if(GET_INPUT_TIMING_DOUBLE_CHECK() == _FALSE)
+1279   4                          {
+1280   5                              // Select Filed Signal from VGIP
+1281   5                              ScalerSetBit(P0_13_M1_VGIP_ODD_CTRL, ~_BIT0, _BIT0);
+1282   5                              ScalerSetBit(P40_13_M2_VGIP_ODD_CTRL, ~_BIT0, _BIT0);
+1283   5      
+1284   5                              // Set Video Compensation to ODD Field
+1285   5                              ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT6, 0x00);
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 23  
+
+1286   5                          }
+1287   4      
+1288   4                          // Clear VGIP Interlace Toggle Flag
+1289   4                          ScalerSetBit(P0_1A_M1_IPV_ACT_LEN_H, ~_BIT5, _BIT5);
+1290   4      
+1291   4                          return _TRUE;
+1292   4                      }
+1293   3      #endif
+1294   3                  }
+1295   2      
+1296   2                  if(((enumSourceSearchPort == _D0_INPUT_PORT) && (ScalerGetBit(PB6_01_DP_VBID, _BIT2) == _BIT2)
+             -) ||
+1297   2                     ((enumSourceSearchPort == _D1_INPUT_PORT) && (ScalerGetBit(PB9_01_DP_VBID, _BIT2) == _BIT2)
+             -))
+1298   2                  {
+1299   3                      g_stInputTimingData.b1DpInterlaceVBID = _TRUE;
+1300   3                  }
+1301   2      
+1302   2                  // Clear VGIP Interlace Toggle Flag
+1303   2                  ScalerSetBit(P0_1A_M1_IPV_ACT_LEN_H, ~_BIT5, _BIT5);
+1304   2      
+1305   2                  break;
+1306   2      #endif
+1307   2              default:
+1308   2                  break;
+1309   2          }
+1310   1      
+1311   1          return _FALSE;
+1312   1      }
+1313          
+1314          //--------------------------------------------------
+1315          // Description  : Check VGIP VS bypass
+1316          // Input Value  : enumSourceType -> source type
+1317          //                enumSourceSearchPort -> port type
+1318          // Output Value : _TRUE or _FALSE
+1319          //--------------------------------------------------
+1320          bit ScalerMeasureCheckVsBypass(EnumSourceTypeDef enumSourceType, EnumSourceSearchPort enumSourceSearchPort
+             -)
+1321          {
+1322   1      #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+1323   1          EnumDeOnlyConfig enumDeOnlyConfig = ScalerTMDSGetDeOnlyModeConfig(enumSourceSearchPort);
+1324   1      #endif
+1325   1      
+1326   1          switch(enumSourceType)
+1327   1          {
+1328   2              case _SOURCE_DP:
+1329   2      
+1330   2                  switch(enumSourceSearchPort)
+1331   2                  {
+1332   3      #if(_D0_DP_EXIST == _ON)
+                              case _D0_INPUT_PORT:
+                                  return ScalerDpRx0CheckVgipVsBypass();
+              #endif
+1336   3      
+1337   3      
+1338   3      #if(_D1_DP_EXIST == _ON)
+1339   3                      case _D1_INPUT_PORT:
+1340   3      
+1341   3                          return ScalerDpRx1CheckVgipVsBypass();
+1342   3      #endif
+1343   3                      default:
+1344   3                          break;
+C51 COMPILER V8.12   RL6449_SERIES_MEASURE                                                 01/02/2025 16:31:44 PAGE 24  
+
+1345   3                  }
+1346   2                  break;
+1347   2      
+1348   2      #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+1349   2              case _SOURCE_DVI:
+1350   2              case _SOURCE_HDMI:
+1351   2                  if((enumDeOnlyConfig & _DE_ONLY_ENABLE) == _DE_ONLY_ENABLE)
+1352   2                  {
+1353   3                      if((GET_INPUT_TIMING_HTOTAL() > GET_INPUT_TIMING_HWIDTH()) &&
+1354   3                         (GET_INPUT_TIMING_VTOTAL() > GET_INPUT_TIMING_VHEIGHT()))
+1355   3                      {
+1356   4                          if(((GET_INPUT_TIMING_HTOTAL() - GET_INPUT_TIMING_HWIDTH()) < _VGIP_IH_CAPTURE_MIN_VAL
+             -UE + _TMDS_D_ONLY_MODE_H_FRONT_PORCH) ||
+1357   4                             ((GET_INPUT_TIMING_VTOTAL() - GET_INPUT_TIMING_VHEIGHT()) <= _VGIP_IV_CAPTURE_MIN_V
+             -ALUE + _TMDS_D_ONLY_MODE_V_FRONT_PORCH))
+1358   4                          {
+1359   5                              DebugMessageMeasure("DVI/HDMI: VGIP VS Bypass Mode", 0);
+1360   5                              return _TRUE;
+1361   5                          }
+1362   4                      }
+1363   3                      else
+1364   3                      {
+1365   4                          DebugMessageMeasure("DVI/HDMI: VGIP VS Bypass Mode", 0);
+1366   4                          return _TRUE;
+1367   4                      }
+1368   3                  }
+1369   2      
+1370   2                  break;
+1371   2      #endif
+1372   2      
+1373   2              default:
+1374   2                  break;
+1375   2          }
+1376   1      
+1377   1          return _FALSE;
+1378   1      }
+1379          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3495    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      44
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

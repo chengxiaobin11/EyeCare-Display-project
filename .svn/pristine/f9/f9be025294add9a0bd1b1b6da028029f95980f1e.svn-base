@@ -1,0 +1,2021 @@
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SCALERDDR1
+OBJECT MODULE PLACED IN .\Output\RL6432\ScalerDDR1.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerDDR1.c LARGE OPTIMIZE(9,SPEED) I
+                    -NCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Ker
+                    -nel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.
+                    -\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Series
+                    -_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kernel\
+                    -User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Fact
+                    -ory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_
+                    -PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\ScalerDDR1.lst) TABS(2) OB
+                    -JECT(.\Output\RL6432\ScalerDDR1.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerDDR1.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_DDR1__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          #if(_DDR1_PHASE_CALIBRATION == _ON)
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          #define _DDR1_MCU_ALL_PHASE_CHECK               _OFF
+  26          
+  27          #define _DDR1_MCU_COMMAND_NOP_FINISH            0
+  28          #define _DDR1_MCU_COMMAND_PRECHARGE             0x20
+  29          #define _DDR1_MCU_COMMAND_AUTO_REFRESH          0x40
+  30          #define _DDR1_MCU_COMMAND_LOAD_MODE_REGISTER    0x60
+  31          #define _DDR1_MCU_COMMAND_WRITE                 0x80
+  32          #define _DDR1_MCU_COMMAND_READ                  0xA0
+  33          
+  34          #define _DDR1_MCU_ONLINE_START_LOOP             60
+  35          #define _DDR1_MCU_ONLINE_END_LOOP               1
+  36          
+  37          #define _DDR1_ONLINE_TAP_DIFF_THRESHOLD         10
+  38          
+  39          //****************************************************************************
+  40          // STRUCT / TYPE / ENUM DEFINITTIONS
+  41          //****************************************************************************
+  42          typedef enum
+  43          {
+  44              _DDR1_TX_CLK0 = 0,
+  45              _DDR1_TX_DQS0,
+  46              _DDR1_TX_DQS1,
+  47              _DDR1_RX_DQS0_R,
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 2   
+
+  48              _DDR1_RX_DQS0_F,
+  49              _DDR1_RX_DQS1_R,
+  50              _DDR1_RX_DQS1_F,
+  51          } Enum1stDDR1Clk;
+  52          
+  53          #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              typedef enum
+              {
+                  _DDR1_TX_CLK1 = 0,
+                  _DDR1_TX_DQS2,
+                  _DDR1_TX_DQS3,
+                  _DDR1_RX_DQS2_R,
+                  _DDR1_RX_DQS2_F,
+                  _DDR1_RX_DQS3_R,
+                  _DDR1_RX_DQS3_F,
+              } Enum2ndDDR1Clk;
+              #endif
+  65          
+  66          
+  67          //****************************************************************************
+  68          // CODE TABLES
+  69          //****************************************************************************
+  70          BYTE code tDDR_PATTERN[16] = {0x33, 0x33, 0x55, 0x55, 0xaa, 0xaa, 0xcc, 0xcc, 0x22, 0x22, 0x44, 0x44, 0x88
+             -, 0x88, 0xBB, 0xBB};
+  71          
+  72          WORD code tDDR1_FINE_DLY_REG0[] =
+  73          {
+  74              P4_C1_TX_CLK_DLY2,
+  75              P4_CD_DDR_TX_DLY0,
+  76              P4_CE_DDR_TX_DLY1,
+  77              P4_D0_DDR_RX_DLY1,
+  78              P4_D1_DDR_RX_DLY2,
+  79              P4_D2_DDR_RX_DLY3,
+  80              P4_D3_DDR_RX_DLY4,
+  81          };
+  82          
+  83          #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              WORD code tDDR1_FINE_DLY_REG1[] =
+              {
+                  P4_22_TX2_CLK_DLY,
+                  P4_25_DDR_TX2_DLY2,
+                  P4_26_DDR_TX2_DLY3,
+                  P4_30_DDR_RX2_DLY1,
+                  P4_31_DDR_RX2_DLY2,
+                  P4_32_DDR_RX2_DLY3,
+                  P4_33_DDR_RX2_DLY4,
+              };
+              #endif
+  95          
+  96          //****************************************************************************
+  97          // VARIABLE DECLARATIONS
+  98          //****************************************************************************
+  99          BYTE g_ucPhaseCount;
+ 100          BYTE g_pucDDR1InitialPhase[7];
+ 101          BYTE g_pucDDR1DelayChain[7];
+ 102          BYTE g_pucDDR1OnLineDelayChain[7];
+ 103          BYTE g_ucDDR1RxIenDelayChain;
+ 104          
+ 105          #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              BYTE g_pucDDR1InitialPhase2[7];
+              BYTE g_pucDDR1DelayChain2[7];
+              BYTE g_pucDDR1OnLineDelayChain2[7];
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 3   
+
+              BYTE g_ucDDR1Rx2IenDelayChain2;
+              #endif
+ 111          
+ 112          //*************************************************//
+ 113          //g_pucDDR1DelayChain[0] = g_ucTxClkDelayChain;
+ 114          //g_pucDDR1DelayChain[1] = g_ucTxDqs0DelayChain;
+ 115          //g_pucDDR1DelayChain[2] = g_ucTxDqs1DelayChain;
+ 116          //g_pucDDR1DelayChain[3] = g_ucRxDqs0RiseDelayChain;
+ 117          //g_pucDDR1DelayChain[4] = g_ucRxDqs0FallDelayChain;
+ 118          //g_pucDDR1DelayChain[5] = g_ucRxDqs1RiseDelayChain;
+ 119          //g_pucDDR1DelayChain[6] = g_ucRxDqs1FallDelayChain;
+ 120          //*************************************************//
+ 121          
+ 122          //*************************************************//
+ 123          //g_pucDDR1DelayChain2[0] = g_ucTx2ClkDelayChain;
+ 124          //g_pucDDR1DelayChain2[1] = g_ucTx2Dqs2DelayChain;
+ 125          //g_pucDDR1DelayChain2[2] = g_ucTx2Dqs3DelayChain;
+ 126          //g_pucDDR1DelayChain2[3] = g_ucRx2Dqs2RiseDelayChain;
+ 127          //g_pucDDR1DelayChain2[4] = g_ucRx2Dqs2FallDelayChain;
+ 128          //g_pucDDR1DelayChain2[5] = g_ucRx2Dqs3RiseDelayChain;
+ 129          //g_pucDDR1DelayChain2[6] = g_ucRx2Dqs3FallDelayChain;
+ 130          //*************************************************//
+ 131          #endif // End of #if(_DDR1_PHASE_CALIBRATION == _ON)
+ 132          
+ 133          //****************************************************************************
+ 134          // FUNCTION DECLARATIONS
+ 135          //****************************************************************************
+ 136          #if(_MEMORY_TYPE_CONFIG == _MEMORY_DDR1)
+ 137          void ScalerDDR1PowerControl(bit bOn);
+ 138          void ScalerDDR1MclkGenReset(void);
+ 139          void ScalerDDR1SystemInitial(void);
+ 140          void ScalerDDR1PinshareInitial(void);
+ 141          void ScalerDDR1ControlReset(void);
+ 142          #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+ 143          void ScalerDDR1SetFRCDisplayTokenRing(EnumFunctionOnOFF enumOn);
+ 144          #endif
+ 145          #endif
+ 146          
+ 147          #if(_DDR1_PHASE_CALIBRATION == _ON)
+ 148          void ScalerDDR1TokenRingSet(void);
+ 149          void ScalerDDR1SearchPhase(void);
+ 150          void ScalerDDR1SearchPhaseCheck(void);
+ 151          void ScalerDDR1TxClkSearchPhase(void);
+ 152          void ScalerDDR1TxDqsSearchPhase(void);
+ 153          void ScalerDDR1RxIenSearchPhase(void);
+ 154          void ScalerDDR1RxDqsSearchPhase(void);
+ 155          void ScalerDDR1TxClkCalibrationEnable(bit bEn);
+ 156          void ScalerDDR1TxDqsCalibrationEnable(bit bEn);
+ 157          void ScalerDDR1RxDqsCalibrationEnable(bit bEn);
+ 158          bit ScalerDDR1McuReadWriteCheck(BYTE ucAddrH, BYTE ucAddrM, BYTE ucAddrL);
+ 159          void ScalerDDR1WriteToFifo(void);
+ 160          void ScalerDDR1ReadFromFifo(void);
+ 161          void ScalerDDR1ClearFifo(void);
+ 162          bit ScalerDDR1CheckCommandFinish(void);
+ 163          void ScalerDDR1OnLinePhaseCntCheck(void);
+ 164          void ScalerDDR1OnLinePhaseCalibration(bit bEn);
+ 165          void ScalerDDR1RestoreInitialPhase(void);
+ 166          #endif
+ 167          
+ 168          //****************************************************************************
+ 169          // FUNCTION DEFINITIONS
+ 170          //****************************************************************************
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 4   
+
+ 171          #if(_MEMORY_TYPE_CONFIG == _MEMORY_DDR1)
+ 172          //--------------------------------------------------
+ 173          // Description  : DDR Power On/Off
+ 174          // Input Value  : None
+ 175          // Output Value : None
+ 176          //--------------------------------------------------
+ 177          void ScalerDDR1PowerControl(bit bOn)
+ 178          {
+ 179   1          // Set MPLL CLK
+ 180   1          ScalerPLLSetMPLLFreq((DWORD)_MEMORY_PLL_CLOCK * 1000);
+ 181   1      
+ 182   1          // Set Mclk Gen Reset Align MPLL
+ 183   1          ScalerDDR1MclkGenReset();
+ 184   1      
+ 185   1          if(bOn == _ON)
+ 186   1          {
+ 187   2              // Set DDR1 Module Power Status
+ 188   2              ScalerDDR1PowerEnable(_ON);
+ 189   2      
+ 190   2              // Set DDR1 System Initial
+ 191   2              ScalerDDR1SystemInitial();
+ 192   2          }
+ 193   1          else
+ 194   1          {
+ 195   2              // Set DDR1 Module Power Status
+ 196   2              ScalerDDR1PowerEnable(_OFF);
+ 197   2      
+ 198   2              // Power off MPLL
+ 199   2              ScalerSetBit(P0_F8_MPLL_WD, ~_BIT0, _BIT0);
+ 200   2          }
+ 201   1      }
+ 202          
+ 203          //--------------------------------------------------
+ 204          // Description  : DDR1 Mclk Gen Reset
+ 205          // Input Value  : None
+ 206          // Output Value : None
+ 207          //--------------------------------------------------
+ 208          void ScalerDDR1MclkGenReset(void)
+ 209          {
+ 210   1          // Set Mclk Gen Local Reset
+ 211   1          ScalerSetBit(P4_A8_SDR_CLK_ALIGN, ~_BIT7, _BIT7);
+ 212   1      
+ 213   1          // Delay Time us [300,x] Waiting for DDR1 Mclk Reset
+ 214   1          DELAY_XUS(300);
+ 215   1      
+ 216   1          // Set Mclk Gen Local Reset
+ 217   1          ScalerSetBit(P4_A8_SDR_CLK_ALIGN, ~_BIT7, 0x00);
+ 218   1      }
+ 219          
+ 220          //--------------------------------------------------
+ 221          // Description  : DDR1 system initial
+ 222          // Input Value  : None
+ 223          // Output Value : None
+ 224          //--------------------------------------------------
+ 225          void ScalerDDR1SystemInitial(void)
+ 226          {
+ 227   1          // Set DDR1 Pinshare Initial
+ 228   1          ScalerDDR1PinshareInitial();
+ 229   1      
+ 230   1          // Set DDR1 Module Active to Read and Write delay
+ 231   1          ScalerSetBit(P4_A1_SDR_CTRL0, ~(_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT4 | _BIT3 | _BIT1
+             - | _BIT0));
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 5   
+
+ 232   1      
+ 233   1          // Set DDR1 Module CAS Latency
+ 234   1          ScalerSetBit(P4_A2_SDR_CTRL1, ~(_BIT7 | _BIT6 | _BIT5 | _BIT3 | _BIT2 | _BIT1), (_BIT6 | _BIT5 | _BIT2
+             - | _BIT1));
+ 235   1      
+ 236   1          // Set DDR1 Auto Refresh Time
+ 237   1          ScalerSetByte(P4_A3_SDR_AREF_TIME, 0x0D);
+ 238   1      
+ 239   1          // Set DDR1 Precharge Duty Cycle
+ 240   1          ScalerSetBit(P4_A4_SDR_PRCG, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+ 241   1      
+ 242   1          ScalerDDR1MemoryType();
+ 243   1      
+ 244   1          // Set DDR1 Slew Rate DDR mode
+ 245   1          ScalerSetBit(P4_A6_SDR_SLEW_RATE, ~_BIT7, 0x00);
+ 246   1      
+ 247   1          // Set DDR1 Refresh time 15.6us
+ 248   1          ScalerSetByte(P4_A7_SDR_AREF_CNT, 0x0D);
+ 249   1      
+ 250   1      #if(_DDR1_PHASE_CALIBRATION == _ON)
+ 251   1          ScalerDDR1TokenRingSet();
+ 252   1      #endif
+ 253   1      
+ 254   1          // Set DDR1 Control Reset
+ 255   1          ScalerDDR1ControlReset();
+ 256   1      
+ 257   1          // Set DDR1 Control Reset Ready
+ 258   1          ScalerTimerPollingFlagProc(5, P4_B5_SDR_ABTR_STATUS1, _BIT0, _TRUE);
+ 259   1      }
+ 260          
+ 261          //--------------------------------------------------
+ 262          // Description  : DDR1 Pinshare Initial
+ 263          // Input Value  : None
+ 264          // Output Value : None
+ 265          //--------------------------------------------------
+ 266          void ScalerDDR1PinshareInitial(void)
+ 267          {
+ 268   1          ScalerSetByte(P4_01_SDDR_CLK_CTRL0, 0x80);
+ 269   1          ScalerSetByte(P4_02_SDDR_CLK_CTRL1, 0x55);
+ 270   1          ScalerSetByte(P4_03_SDDR_CDAR_CTRL, 0x50);
+ 271   1          ScalerSetByte(P4_04_SDDR_DQSX0_CTRL0, 0x00);
+ 272   1          ScalerSetByte(P4_05_SDDR_DQSX0_CTRL1, 0x55);
+ 273   1          ScalerSetByte(P4_06_SDDR_DQX0_CTRL0, 0x00);
+ 274   1          ScalerSetByte(P4_07_SDDR_DQX0_CTRL1, 0x55);
+ 275   1          ScalerSetByte(P4_08_SDDR_DQSX1_CTRL0, 0x00);
+ 276   1          ScalerSetByte(P4_09_SDDR_DQSX1_CTRL1, 0x55);
+ 277   1          ScalerSetByte(P4_0A_SDDR_DQX1_CTRL0, 0x00);
+ 278   1          ScalerSetByte(P4_0B_SDDR_DQX1_CTRL1, 0x55);
+ 279   1      
+ 280   1      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+                  ScalerSetByte(P4_11_SDDR_CLK_CTRL0, 0x80);
+                  ScalerSetByte(P4_12_SDDR_CLK_CTRL1, 0x55);
+                  ScalerSetByte(P4_13_SDDR_CDAR_CTRL, 0x50);
+                  ScalerSetByte(P4_14_SDDR_DQSX0_CTRL0, 0x00);
+                  ScalerSetByte(P4_15_SDDR_DQSX0_CTRL1, 0x55);
+                  ScalerSetByte(P4_16_SDDR_DQX0_CTRL0, 0x00);
+                  ScalerSetByte(P4_17_SDDR_DQX0_CTRL1, 0x55);
+                  ScalerSetByte(P4_18_SDDR_DQSX1_CTRL0, 0x00);
+                  ScalerSetByte(P4_19_SDDR_DQSX1_CTRL1, 0x55);
+                  ScalerSetByte(P4_1A_SDDR_DQX1_CTRL0, 0x00);
+                  ScalerSetByte(P4_1B_SDDR_DQX1_CTRL1, 0x55);
+              #endif
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 6   
+
+ 293   1      }
+ 294          
+ 295          //--------------------------------------------------
+ 296          // Description  : DDR1 Reset
+ 297          // Input Value  : None
+ 298          // Output Value : None
+ 299          //--------------------------------------------------
+ 300          void ScalerDDR1ControlReset(void)
+ 301          {
+ 302   1          ScalerSetBit(P4_A4_SDR_PRCG, ~_BIT4, _BIT4);
+ 303   1          ScalerSetBit(P4_A4_SDR_PRCG, ~_BIT4, 0x00);
+ 304   1      
+ 305   1          // Delay Time us [300,x] Waiting for DDR1 Control Reset
+ 306   1          DELAY_XUS(300);
+ 307   1      
+ 308   1          ScalerDDR1MclkGenReset();
+ 309   1      }
+ 310          
+ 311          #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+ 312          //--------------------------------------------------
+ 313          // Description  : Set Display Token Ring according to OD status
+ 314          // Input Value  : EnumFunctionOnOFF enumOn
+ 315          // Output Value : None
+ 316          //--------------------------------------------------
+ 317          void ScalerDDR1SetFRCDisplayTokenRing(EnumFunctionOnOFF enumOn)
+ 318          {
+ 319   1          if((enumOn == _FUNCTION_ON) && (GET_OD_USE_BIT() != _OFF))
+ 320   1          {
+ 321   2              ScalerSetByte(P4_AE_SDR_RSC_MAIN, 0x44);
+ 322   2          }
+ 323   1          else
+ 324   1          {
+ 325   2              ScalerSetByte(P4_AE_SDR_RSC_MAIN, 0xFF);
+ 326   2          }
+ 327   1      }
+ 328          #endif // End of #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+ 329          #endif // End of #if(_MEMORY_TYPE_CONFIG == _MEMORY_DDR1)
+ 330          
+ 331          #if(_DDR1_PHASE_CALIBRATION == _ON)
+ 332          //--------------------------------------------------
+ 333          // Description  : DDR1 Token Ring Set
+ 334          // Input Value  : None
+ 335          // Output Value : None
+ 336          //--------------------------------------------------
+ 337          void ScalerDDR1TokenRingSet(void)
+ 338          {
+ 339   1          ScalerSetByte(P4_AA_SDR_RSC_AREF, 0xFF);
+ 340   1      
+ 341   1      #if(_MEMORY_PHASE_CALIBRATION_MODE == _MEMORY_PHASE_CALIBRATION_MCU_MODE)
+ 342   1          ScalerSetByte(P4_AB_SDR_RSC_MCU, 0x20);
+ 343   1      #elif(_MEMORY_PHASE_CALIBRATION_MODE == _MEMORY_PHASE_CALIBRATION_FRC_MODE)
+                  ScalerSetByte(P4_AB_SDR_RSC_MCU, 0x00);
+              #endif
+ 346   1      
+ 347   1      #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _OFF))
+              
+                  ScalerSetByte(P4_AC_SDR_RSC_CAP1, 0x00);
+                  ScalerSetByte(P4_AE_SDR_RSC_MAIN, 0x00);
+                  ScalerSetByte(P4_B0_SDR_RSC_RTC_RD, 0x44);
+                  ScalerSetByte(P4_B1_SDR_RSC_RTC_WR, 0x88);
+              
+              #elif((_OD_SUPPORT == _OFF) && (_FRC_SUPPORT == _ON))
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 7   
+
+                  ScalerSetByte(P4_AC_SDR_RSC_CAP1, 0xFF);
+                  ScalerSetByte(P4_AE_SDR_RSC_MAIN, 0xFF);
+              
+                  ScalerSetByte(P4_B0_SDR_RSC_RTC_RD, 0x11);
+                  ScalerSetByte(P4_B1_SDR_RSC_RTC_WR, 0xAA);
+              
+              #elif((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+ 362   1          ScalerSetByte(P4_AC_SDR_RSC_CAP1, 0xFF);
+ 363   1          ScalerSetByte(P4_AE_SDR_RSC_MAIN, 0x44);
+ 364   1      
+ 365   1          ScalerSetByte(P4_B0_SDR_RSC_RTC_RD, 0x11);
+ 366   1          ScalerSetByte(P4_B1_SDR_RSC_RTC_WR, 0xAA);
+ 367   1      #endif
+ 368   1      }
+ 369          
+ 370          //--------------------------------------------------
+ 371          // Description  : DDR1 Search Phase
+ 372          // Input Value  : None
+ 373          // Output Value : None
+ 374          //--------------------------------------------------
+ 375          void ScalerDDR1SearchPhase(void)
+ 376          {
+ 377   1          // Tx Clk Search Phase
+ 378   1          ScalerDDR1TxClkSearchPhase();
+ 379   1      
+ 380   1          // Tx Dqs Search Phase
+ 381   1          ScalerDDR1TxDqsSearchPhase();
+ 382   1      
+ 383   1          // Rx Ien Search Phase
+ 384   1          ScalerDDR1RxIenSearchPhase();
+ 385   1      
+ 386   1          // Rx Dqs Search Phase
+ 387   1          ScalerDDR1RxDqsSearchPhase();
+ 388   1      
+ 389   1          // Check finish phase
+ 390   1          ScalerDDR1SearchPhaseCheck();
+ 391   1      }
+ 392          
+ 393          //--------------------------------------------------
+ 394          // Description  : DDR1 Search Phase Check Check
+ 395          // Input Value  : None
+ 396          // Output Value : None
+ 397          //--------------------------------------------------
+ 398          void ScalerDDR1SearchPhaseCheck(void)
+ 399          {
+ 400   1          if((g_pucDDR1InitialPhase[0] != 0x00) ||
+ 401   1             ((ScalerGetByte(P4_D0_DDR_RX_DLY1) == 0x00) &&
+ 402   1              (ScalerGetByte(P4_D1_DDR_RX_DLY2) == 0x00) &&
+ 403   1              (ScalerGetByte(P4_D2_DDR_RX_DLY3) == 0x00) &&
+ 404   1              (ScalerGetByte(P4_D3_DDR_RX_DLY4) == 0x00)))
+ 405   1          {
+ 406   2              // Tx Clk Search Phase
+ 407   2              ScalerDDR1TxClkSearchPhase();
+ 408   2      
+ 409   2              // Tx Dqs Search Phase
+ 410   2              ScalerDDR1TxDqsSearchPhase();
+ 411   2      
+ 412   2              // Rx Ien Search Phase
+ 413   2              ScalerDDR1RxIenSearchPhase();
+ 414   2      
+ 415   2              // Rx Dqs Search Phase
+ 416   2              ScalerDDR1RxDqsSearchPhase();
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 8   
+
+ 417   2          }
+ 418   1      
+ 419   1      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+                  if((g_pucDDR1InitialPhase2[0] != 0x00) ||
+                     ((ScalerGetByte(P4_30_DDR_RX2_DLY1) == 0x00) &&
+                      (ScalerGetByte(P4_31_DDR_RX2_DLY2) == 0x00) &&
+                      (ScalerGetByte(P4_32_DDR_RX2_DLY3) == 0x00) &&
+                      (ScalerGetByte(P4_33_DDR_RX2_DLY4) == 0x00)))
+                  {
+                      // Tx Clk Search Phase
+                      ScalerDDR1TxClkSearchPhase();
+              
+                      // Tx Dqs Search Phase
+                      ScalerDDR1TxDqsSearchPhase();
+              
+                      // Rx Ien Search Phase
+                      ScalerDDR1RxIenSearchPhase();
+              
+                      // Rx Dqs Search Phase
+                      ScalerDDR1RxDqsSearchPhase();
+                  }
+              #endif
+ 439   1      }
+ 440          
+ 441          //--------------------------------------------------
+ 442          // Description  : DDR1 Tx Clk Search Phase
+ 443          // Input Value  : None
+ 444          // Output Value : None
+ 445          //--------------------------------------------------
+ 446          void ScalerDDR1TxClkSearchPhase(void)
+ 447          {
+ 448   1          BYTE ucCount = 0;
+ 449   1          BYTE ucInitialPhase = 0;
+ 450   1          BYTE ucPhase0 = _FALSE;
+ 451   1          BYTE ucEndPhase = 0;
+ 452   1          BYTE ucTempDiffPhase = 0;
+ 453   1          BYTE ucBestPhase = 0;
+ 454   1          bit bPhaseSearch = _FALSE;
+ 455   1      
+ 456   1          // Set Tx clk Initial Phase
+ 457   1          ScalerSetByte(P4_C1_TX_CLK_DLY2, 0x00);
+ 458   1      
+ 459   1      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+                  // Set Tx2 clk Initial Phase
+                  ScalerSetByte(P4_22_TX2_CLK_DLY, 0x00);
+              #endif
+ 463   1      
+ 464   1          // Enable Tx Clk Calibration Circuit
+ 465   1          ScalerDDR1TxClkCalibrationEnable(_ON);
+ 466   1      
+ 467   1          for(ucCount = 0; ucCount <= (BYTE)(g_pucDDR1DelayChain[0] * 2); ucCount++)
+ 468   1          {
+ 469   2              ScalerSetByte(P4_C1_TX_CLK_DLY2, ucCount);
+ 470   2      
+ 471   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+                      ScalerSetByte(P4_22_TX2_CLK_DLY, ucCount);
+              #endif
+ 474   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT6, _BIT6);
+ 475   2      
+ 476   2              ScalerDDR1ControlReset();
+ 477   2      
+ 478   2              g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 9   
+
+ 479   2      
+ 480   2              if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+ 481   2              {
+ 482   3                  ucInitialPhase = ucCount;
+ 483   3      
+ 484   3                  bPhaseSearch = _ON;
+ 485   3      
+ 486   3                  // Checking the Phase0 is good phase or not
+ 487   3                  if((ucCount == 0) && (ucInitialPhase == 0))
+ 488   3                  {
+ 489   4                      ucPhase0 = _TRUE;
+ 490   4                  }
+ 491   3              }
+ 492   2      
+ 493   2              if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+ 494   2              {
+ 495   3                  ucEndPhase = ucCount;
+ 496   3      
+ 497   3                  pData[2] = ucEndPhase - ucInitialPhase;
+ 498   3      
+ 499   3                  if(pData[2] > ucTempDiffPhase)
+ 500   3                  {
+ 501   4                      ucTempDiffPhase = pData[2];
+ 502   4      
+ 503   4                      ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+ 504   4                  }
+ 505   3      
+ 506   3                  bPhaseSearch = _FALSE;
+ 507   3      
+ 508   3                  break;
+ 509   3              }
+ 510   2      
+ 511   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("tx clk", g_ucPhaseCount);
+              #endif
+ 515   2          }
+ 516   1      
+ 517   1          if(ucPhase0 == _TRUE)
+ 518   1          {
+ 519   2              pData[3] = 0;
+ 520   2          }
+ 521   1          else
+ 522   1          {
+ 523   2              pData[3] = ucBestPhase;
+ 524   2          }
+ 525   1      
+ 526   1          g_pucDDR1InitialPhase[0] = pData[3];
+ 527   1      
+ 528   1          ScalerSetByte(P4_C1_TX_CLK_DLY2, pData[3]);
+ 529   1      
+ 530   1      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              //**********************************************************************************//
+              //**********************************TX2 Clock Phase*********************************//
+              //**********************************************************************************//
+              
+                  ucTempDiffPhase = 0;
+              
+                  for(ucCount = 0; ucCount <= (BYTE)(g_pucDDR1DelayChain2[0] * 2); ucCount++)
+                  {
+                      ScalerSetByte(P4_22_TX2_CLK_DLY, ucCount);
+              
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 10  
+
+                      ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT6, _BIT6);
+              
+                      ScalerDDR1ControlReset();
+              
+                      g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+              
+                      if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+                      {
+                          ucInitialPhase = ucCount;
+              
+                          bPhaseSearch = _ON;
+              
+                          // Checking the Phase0 is good phase or not
+                          if((ucCount == 0) && (ucInitialPhase == 0))
+                          {
+                              ucPhase0 = _TRUE;
+                          }
+                      }
+              
+                      if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+                      {
+                          ucEndPhase = ucCount;
+              
+                          pData[2] = ucEndPhase - ucInitialPhase;
+              
+                          if(pData[2] > ucTempDiffPhase)
+                          {
+                              ucTempDiffPhase = pData[2];
+              
+                              ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+                          }
+              
+                          bPhaseSearch = _FALSE;
+              
+                          break;
+                      }
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("tx2 clk", g_ucPhaseCount);
+              #endif
+                  }
+              
+                  if(ucPhase0 == _TRUE)
+                  {
+                      pData[3] = 0;
+                  }
+                  else
+                  {
+                      pData[3] = ucBestPhase;
+                  }
+              
+                  g_pucDDR1InitialPhase2[0] = pData[3];
+              
+                  ScalerSetByte(P4_22_TX2_CLK_DLY, pData[3]);
+              
+              #endif // End of #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+ 598   1          ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~_BIT6, _BIT6);
+ 599   1      
+ 600   1          // Enable Tx Clk Calibration Circuit
+ 601   1          ScalerDDR1TxClkCalibrationEnable(_OFF);
+ 602   1      }
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 11  
+
+ 603          
+ 604          //--------------------------------------------------
+ 605          // Description  : DDR1 Tx Dqs Search Phase
+ 606          // Input Value  : None
+ 607          // Output Value : None
+ 608          //--------------------------------------------------
+ 609          void ScalerDDR1TxDqsSearchPhase(void)
+ 610          {
+ 611   1          BYTE ucCount = 0;
+ 612   1          BYTE ucInitialPhase = 0;
+ 613   1          BYTE ucPhase0 = _FALSE;
+ 614   1          BYTE ucEndPhase = 0;
+ 615   1          BYTE ucTempDiffPhase = 0;
+ 616   1          BYTE ucBestPhase = 0;
+ 617   1          bit bPhaseSearch = _FALSE;
+ 618   1      
+ 619   1          // Enable Tx Dqs Calibration Circuit
+ 620   1          ScalerDDR1TxDqsCalibrationEnable(_ON);
+ 621   1      
+ 622   1          // Disable Tx Dqs Calibration Circuit
+ 623   1          ScalerDDR1TxDqsCalibrationEnable(_OFF);
+ 624   1      
+ 625   1      //**********************************************************************************//
+ 626   1      //**********************************TX DQS0/1 Phase*********************************//
+ 627   1      //**********************************************************************************//
+ 628   1      
+ 629   1          for(ucCount = 0; ucCount <= g_pucDDR1DelayChain[1]; ucCount++)
+ 630   1          {
+ 631   2              ScalerSetByte(P4_CD_DDR_TX_DLY0, ucCount);
+ 632   2              ScalerSetByte(P4_CE_DDR_TX_DLY1, ucCount);
+ 633   2      
+ 634   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+                      ScalerSetByte(P4_25_DDR_TX2_DLY2, ucCount);
+                      ScalerSetByte(P4_26_DDR_TX2_DLY3, ucCount);
+              #endif
+ 638   2              ScalerDDR1ControlReset();
+ 639   2      
+ 640   2              g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+ 641   2      
+ 642   2              if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+ 643   2              {
+ 644   3                  ucInitialPhase = ucCount;
+ 645   3      
+ 646   3                  bPhaseSearch = _ON;
+ 647   3      
+ 648   3                  // Checking the Phase0 is good phase or not
+ 649   3                  if((ucCount == 0) && (ucInitialPhase == 0))
+ 650   3                  {
+ 651   4                      ucPhase0 = _TRUE;
+ 652   4                  }
+ 653   3              }
+ 654   2      
+ 655   2              if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+ 656   2              {
+ 657   3                  ucEndPhase = ucCount;
+ 658   3      
+ 659   3                  pData[2] = ucEndPhase - ucInitialPhase;
+ 660   3      
+ 661   3                  if(pData[2] > ucTempDiffPhase)
+ 662   3                  {
+ 663   4                      ucTempDiffPhase = pData[2];
+ 664   4      
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 12  
+
+ 665   4                      ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+ 666   4                  }
+ 667   3      
+ 668   3                  bPhaseSearch = _FALSE;
+ 669   3              }
+ 670   2      
+ 671   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("tx dqs", g_ucPhaseCount);
+              #endif
+ 675   2          }
+ 676   1      
+ 677   1          if((ucBestPhase > (g_pucDDR1DelayChain[1] / 2)) && (ucTempDiffPhase > ((g_pucDDR1DelayChain[1] / 2) + 
+             -(g_pucDDR1DelayChain[1] / 4))))
+ 678   1          {
+ 679   2              pData[3] = (ucBestPhase / 2);
+ 680   2          }
+ 681   1          else
+ 682   1          {
+ 683   2              if(ucPhase0 == _TRUE)
+ 684   2              {
+ 685   3                  pData[3] = 0;
+ 686   3              }
+ 687   2              else
+ 688   2              {
+ 689   3                  pData[3] = ucBestPhase;
+ 690   3              }
+ 691   2          }
+ 692   1      
+ 693   1          g_pucDDR1InitialPhase[1] = pData[3];
+ 694   1          g_pucDDR1InitialPhase[2] = pData[3];
+ 695   1      
+ 696   1          ScalerSetByte(P4_CD_DDR_TX_DLY0, pData[3]);
+ 697   1          ScalerSetByte(P4_CE_DDR_TX_DLY1, pData[3]);
+ 698   1      
+ 699   1      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              //**********************************************************************************//
+              //**********************************TX DQS2/3 Phase*********************************//
+              //**********************************************************************************//
+              
+                  ucTempDiffPhase = 0;
+              
+                  for(ucCount = 0; ucCount <= g_pucDDR1DelayChain2[1]; ucCount++)
+                  {
+                      ScalerSetByte(P4_25_DDR_TX2_DLY2, ucCount);
+                      ScalerSetByte(P4_26_DDR_TX2_DLY3, ucCount);
+              
+                      ScalerDDR1ControlReset();
+              
+                      g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+              
+                      if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+                      {
+                          ucInitialPhase = ucCount;
+              
+                          bPhaseSearch = _ON;
+              
+                          // Checking the Phase0 is good phase or not
+                          if((ucCount == 0) && (ucInitialPhase == 0))
+                          {
+                              ucPhase0 = _TRUE;
+                          }
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 13  
+
+                      }
+              
+                      if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+                      {
+                          ucEndPhase = ucCount;
+              
+                          pData[2] = ucEndPhase - ucInitialPhase;
+              
+                          if(pData[2] > ucTempDiffPhase)
+                          {
+                              ucTempDiffPhase = pData[2];
+              
+                              ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+                          }
+              
+                          bPhaseSearch = _FALSE;
+                      }
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("tx2 dqs", g_ucPhaseCount);
+              #endif
+                  }
+              
+                  if((ucBestPhase > (g_pucDDR1DelayChain2[1] / 2)) && (ucTempDiffPhase > ((g_pucDDR1DelayChain2[1] / 2) 
+             -+ (g_pucDDR1DelayChain2[1] / 4))))
+                  {
+                      pData[3] = (ucBestPhase / 2);
+                  }
+                  else
+                  {
+                      if(ucPhase0 == _TRUE)
+                      {
+                          pData[3] = 0;
+                      }
+                      else
+                      {
+                          pData[3] = ucBestPhase;
+                      }
+                  }
+              
+                  g_pucDDR1InitialPhase2[1] = pData[3];
+                  g_pucDDR1InitialPhase2[2] = pData[3];
+              
+                  ScalerSetByte(P4_25_DDR_TX2_DLY2, pData[3]);
+                  ScalerSetByte(P4_26_DDR_TX2_DLY3, pData[3]);
+              
+              #endif // End of #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+ 773   1      }
+ 774          
+ 775          //--------------------------------------------------
+ 776          // Description  : DDR1 Rx Ien Search Phase
+ 777          // Input Value  : None
+ 778          // Output Value : None
+ 779          //--------------------------------------------------
+ 780          void ScalerDDR1RxIenSearchPhase(void)
+ 781          {
+ 782   1          BYTE ucCount = 0;
+ 783   1          BYTE ucInitialPhase = 0;
+ 784   1          BYTE ucEndPhase = 0;
+ 785   1          BYTE ucTempDiffPhase = 0;
+ 786   1          BYTE ucBestPhase = 0;
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 14  
+
+ 787   1          bit bPhaseSearch = _FALSE;
+ 788   1      
+ 789   1      //**********************************************************************************//
+ 790   1      //**********************************RX Ien Phase************************************//
+ 791   1      //**********************************************************************************//
+ 792   1      
+ 793   1          for(ucCount = 0; ucCount < 128; ucCount++)
+ 794   1          {
+ 795   2              ScalerSetByte(P4_CF_DDR_RX_DLY0, ucCount);
+ 796   2      
+ 797   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+                      ScalerSetByte(P4_27_DDR_RX2_DLY0, ucCount);
+              #endif
+ 800   2              g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+ 801   2      
+ 802   2              if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+ 803   2              {
+ 804   3                  ucInitialPhase = ucCount;
+ 805   3      
+ 806   3                  bPhaseSearch = _ON;
+ 807   3              }
+ 808   2      
+ 809   2              if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+ 810   2              {
+ 811   3                  ucEndPhase = ucCount;
+ 812   3      
+ 813   3                  pData[2] = ucEndPhase - ucInitialPhase;
+ 814   3      
+ 815   3                  if(pData[2] > ucTempDiffPhase)
+ 816   3                  {
+ 817   4                      ucTempDiffPhase = pData[2];
+ 818   4      
+ 819   4                      ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+ 820   4                  }
+ 821   3      
+ 822   3                  bPhaseSearch = _FALSE;
+ 823   3              }
+ 824   2      
+ 825   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx ien", g_ucPhaseCount);
+              #endif
+ 829   2          }
+ 830   1      
+ 831   1          if(bPhaseSearch == _ON)
+ 832   1          {
+ 833   2              if((128 - ucInitialPhase) > ucBestPhase)
+ 834   2              {
+ 835   3                  ucBestPhase = (128 + ucInitialPhase) / 2;
+ 836   3              }
+ 837   2          }
+ 838   1      
+ 839   1          // Rx Ien1 Set Best Phase 1/4T
+ 840   1          g_ucDDR1RxIenDelayChain = (ucBestPhase / 2);
+ 841   1          ScalerSetByte(P4_CF_DDR_RX_DLY0, (ucBestPhase / 2));
+ 842   1      
+ 843   1      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              //**********************************************************************************//
+              //**********************************RX2 Ien Phase************************************//
+              //**********************************************************************************//
+              
+                  ucTempDiffPhase = 0;
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 15  
+
+              
+                  for(ucCount = 0; ucCount < 128; ucCount++)
+                  {
+                      ScalerSetByte(P4_27_DDR_RX2_DLY0, ucCount);
+              
+                      g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+              
+                      if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+                      {
+                          ucInitialPhase = ucCount;
+              
+                          bPhaseSearch = _ON;
+                      }
+              
+                      if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+                      {
+                          ucEndPhase = ucCount;
+              
+                          pData[2] = ucEndPhase - ucInitialPhase;
+              
+                          if(pData[2] > ucTempDiffPhase)
+                          {
+                              ucTempDiffPhase = pData[2];
+              
+                              ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+                          }
+              
+                          bPhaseSearch = _FALSE;
+                      }
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx2 ien", g_ucPhaseCount);
+              #endif
+                  }
+              
+                  if(bPhaseSearch == _ON)
+                  {
+                      if((128 - ucInitialPhase) > ucBestPhase)
+                      {
+                          ucBestPhase = (128 + ucInitialPhase) / 2;
+                      }
+                  }
+              
+                  // Rx Ien2 Set Best Phase 1/4T
+                  g_ucDDR1Rx2IenDelayChain2 = (ucBestPhase / 2);
+              
+                  ScalerSetByte(P4_27_DDR_RX2_DLY0, (ucBestPhase / 2));
+              
+              #endif // End of #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+ 899   1      }
+ 900          
+ 901          //--------------------------------------------------
+ 902          // Description  : DDR1 Rx Dqs Search Phse
+ 903          // Input Value  : None
+ 904          // Output Value : None
+ 905          //--------------------------------------------------
+ 906          void ScalerDDR1RxDqsSearchPhase(void)
+ 907          {
+ 908   1          BYTE ucCount = 0;
+ 909   1          BYTE ucInitialPhase = 0;
+ 910   1          BYTE ucEndPhase = 0;
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 16  
+
+ 911   1          BYTE ucTempDiffPhase = 0;
+ 912   1          BYTE ucBestPhase = 0;
+ 913   1          bit bPhaseSearch = _FALSE;
+ 914   1      
+ 915   1          // Enable Rx Dqs Calibration Circuit
+ 916   1          ScalerDDR1RxDqsCalibrationEnable(_ON);
+ 917   1      
+ 918   1          // Disable Rx Dqs Calibration Circuit
+ 919   1          ScalerDDR1RxDqsCalibrationEnable(_OFF);
+ 920   1      
+ 921   1      //**********************************************************************************//
+ 922   1      //**********************************RX DQS0 Rising Phase****************************//
+ 923   1      //**********************************************************************************//
+ 924   1      
+ 925   1          for(ucCount = 0; ucCount <= g_pucDDR1DelayChain[3]; ucCount++)
+ 926   1          {
+ 927   2              ScalerSetByte(P4_D0_DDR_RX_DLY1, ucCount);
+ 928   2      
+ 929   2              g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+ 930   2      
+ 931   2              if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+ 932   2              {
+ 933   3                  ucInitialPhase = ucCount;
+ 934   3      
+ 935   3                  bPhaseSearch = _ON;
+ 936   3              }
+ 937   2      
+ 938   2              if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+ 939   2              {
+ 940   3                  ucEndPhase = ucCount;
+ 941   3      
+ 942   3                  pData[2] = ucEndPhase - ucInitialPhase;
+ 943   3      
+ 944   3                  if(pData[2] > ucTempDiffPhase)
+ 945   3                  {
+ 946   4                      ucTempDiffPhase = pData[2];
+ 947   4      
+ 948   4                      ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+ 949   4                  }
+ 950   3      
+ 951   3                  bPhaseSearch = _FALSE;
+ 952   3              }
+ 953   2      
+ 954   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx dqs0 rise", g_ucPhaseCount);
+              #endif
+ 958   2          }
+ 959   1      
+ 960   1          if(bPhaseSearch == _ON)
+ 961   1          {
+ 962   2              if((g_pucDDR1DelayChain[3] - ucInitialPhase) > ucBestPhase)
+ 963   2              {
+ 964   3                  ucBestPhase = (g_pucDDR1DelayChain[3] + ucInitialPhase) / 2;
+ 965   3              }
+ 966   2          }
+ 967   1      
+ 968   1          // Best Phase >= 1/4T Position
+ 969   1          if(ucBestPhase >= (g_pucDDR1DelayChain[3] / 2))
+ 970   1          {
+ 971   2              ucBestPhase = (ucBestPhase / 4);
+ 972   2          }
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 17  
+
+ 973   1          else
+ 974   1          {
+ 975   2              ucBestPhase = (ucBestPhase / 2);
+ 976   2          }
+ 977   1      
+ 978   1          g_pucDDR1InitialPhase[3] = ucBestPhase;
+ 979   1      
+ 980   1          ScalerSetByte(P4_D0_DDR_RX_DLY1, ucBestPhase);
+ 981   1      
+ 982   1      //**********************************************************************************//
+ 983   1      //*********************************RX DQS0 Falling Phase*****************************//
+ 984   1      //**********************************************************************************//
+ 985   1          ucTempDiffPhase = 0;
+ 986   1      
+ 987   1          for(ucCount = 0; ucCount <= g_pucDDR1DelayChain[4]; ucCount++)
+ 988   1          {
+ 989   2              ScalerSetByte(P4_D1_DDR_RX_DLY2, ucCount);
+ 990   2      
+ 991   2              g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+ 992   2      
+ 993   2              if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+ 994   2              {
+ 995   3                  ucInitialPhase = ucCount;
+ 996   3      
+ 997   3                  bPhaseSearch = _ON;
+ 998   3              }
+ 999   2      
+1000   2              if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+1001   2              {
+1002   3                  ucEndPhase = ucCount;
+1003   3      
+1004   3                  pData[2] = ucEndPhase - ucInitialPhase;
+1005   3      
+1006   3                  if(pData[2] > ucTempDiffPhase)
+1007   3                  {
+1008   4                      ucTempDiffPhase = pData[2];
+1009   4      
+1010   4                      ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+1011   4                  }
+1012   3      
+1013   3                  bPhaseSearch = _FALSE;
+1014   3              }
+1015   2      
+1016   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx dqs0 fall", g_ucPhaseCount);
+              #endif
+1020   2          }
+1021   1      
+1022   1          if(bPhaseSearch == _ON)
+1023   1          {
+1024   2              if((g_pucDDR1DelayChain[4] - ucInitialPhase) > ucBestPhase)
+1025   2              {
+1026   3                  ucBestPhase = (g_pucDDR1DelayChain[4] + ucInitialPhase) / 2;
+1027   3              }
+1028   2          }
+1029   1      
+1030   1          // Best Phase >= 1/4T Position
+1031   1          if(ucBestPhase >= (g_pucDDR1DelayChain[4] / 2))
+1032   1          {
+1033   2              ucBestPhase = (ucBestPhase / 4);
+1034   2          }
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 18  
+
+1035   1          else
+1036   1          {
+1037   2              ucBestPhase = (ucBestPhase / 2);
+1038   2          }
+1039   1      
+1040   1          g_pucDDR1InitialPhase[4] = ucBestPhase;
+1041   1      
+1042   1          ScalerSetByte(P4_D1_DDR_RX_DLY2, ucBestPhase);
+1043   1      
+1044   1      //**********************************************************************************//
+1045   1      //**********************************RX DQS1 Rising Phase****************************//
+1046   1      //**********************************************************************************//
+1047   1          ucTempDiffPhase = 0;
+1048   1      
+1049   1          for(ucCount = 0; ucCount <= g_pucDDR1DelayChain[5]; ucCount++)
+1050   1          {
+1051   2              ScalerSetByte(P4_D2_DDR_RX_DLY3, ucCount);
+1052   2      
+1053   2              g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+1054   2      
+1055   2              if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+1056   2              {
+1057   3                  ucInitialPhase = ucCount;
+1058   3      
+1059   3                  bPhaseSearch = _ON;
+1060   3              }
+1061   2      
+1062   2              if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+1063   2              {
+1064   3                  ucEndPhase = ucCount;
+1065   3      
+1066   3                  pData[2] = ucEndPhase - ucInitialPhase;
+1067   3      
+1068   3                  if(pData[2] > ucTempDiffPhase)
+1069   3                  {
+1070   4                      ucTempDiffPhase = pData[2];
+1071   4      
+1072   4                      ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+1073   4                  }
+1074   3      
+1075   3                  bPhaseSearch = _FALSE;
+1076   3              }
+1077   2      
+1078   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx dqs1 rise", g_ucPhaseCount);
+              #endif
+1082   2          }
+1083   1      
+1084   1          if(bPhaseSearch == _ON)
+1085   1          {
+1086   2              if((g_pucDDR1DelayChain[5] - ucInitialPhase) > ucBestPhase)
+1087   2              {
+1088   3                  ucBestPhase = (g_pucDDR1DelayChain[5] + ucInitialPhase) / 2;
+1089   3              }
+1090   2          }
+1091   1      
+1092   1          // Best Phase >= 1/4T Position
+1093   1          if(ucBestPhase >= (g_pucDDR1DelayChain[5] / 2))
+1094   1          {
+1095   2              ucBestPhase = (ucBestPhase / 4);
+1096   2          }
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 19  
+
+1097   1          else
+1098   1          {
+1099   2              ucBestPhase = (ucBestPhase / 2);
+1100   2          }
+1101   1      
+1102   1          g_pucDDR1InitialPhase[5] = ucBestPhase;
+1103   1      
+1104   1          ScalerSetByte(P4_D2_DDR_RX_DLY3, ucBestPhase);
+1105   1      
+1106   1      //**********************************************************************************//
+1107   1      //*********************************RX DQS1 Falling Phase****************************//
+1108   1      //**********************************************************************************//
+1109   1          ucTempDiffPhase = 0;
+1110   1      
+1111   1          for(ucCount = 0; ucCount <= g_pucDDR1DelayChain[6]; ucCount++)
+1112   1          {
+1113   2              ScalerSetByte(P4_D3_DDR_RX_DLY4, ucCount);
+1114   2      
+1115   2              g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+1116   2      
+1117   2              if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+1118   2              {
+1119   3                  ucInitialPhase = ucCount;
+1120   3      
+1121   3                  bPhaseSearch = _ON;
+1122   3              }
+1123   2      
+1124   2              if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+1125   2              {
+1126   3                  ucEndPhase = ucCount;
+1127   3      
+1128   3                  pData[2] = ucEndPhase - ucInitialPhase;
+1129   3      
+1130   3                  if(pData[2] > ucTempDiffPhase)
+1131   3                  {
+1132   4                      ucTempDiffPhase = pData[2];
+1133   4      
+1134   4                      ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+1135   4                  }
+1136   3      
+1137   3                  bPhaseSearch = _FALSE;
+1138   3              }
+1139   2      
+1140   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx dqs1 fall", g_ucPhaseCount);
+              #endif
+1144   2          }
+1145   1      
+1146   1          if(bPhaseSearch == _ON)
+1147   1          {
+1148   2              if((g_pucDDR1DelayChain[6] - ucInitialPhase) > ucBestPhase)
+1149   2              {
+1150   3                  ucBestPhase = (g_pucDDR1DelayChain[6] + ucInitialPhase) / 2;
+1151   3              }
+1152   2          }
+1153   1      
+1154   1          // Best Phase >= 1/4T Position
+1155   1          if(ucBestPhase >= (g_pucDDR1DelayChain[6] / 2))
+1156   1          {
+1157   2              ucBestPhase = (ucBestPhase / 4);
+1158   2          }
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 20  
+
+1159   1          else
+1160   1          {
+1161   2              ucBestPhase = (ucBestPhase / 2);
+1162   2          }
+1163   1      
+1164   1          g_pucDDR1InitialPhase[6] = ucBestPhase;
+1165   1      
+1166   1          ScalerSetByte(P4_D3_DDR_RX_DLY4, ucBestPhase);
+1167   1      
+1168   1      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              //**********************************************************************************//
+              //**********************************RX2 DQS2 Rising Phase****************************//
+              //**********************************************************************************//
+              
+                  ucTempDiffPhase = 0;
+                  for(ucCount = 0; ucCount <= g_pucDDR1DelayChain2[3]; ucCount++)
+                  {
+                      ScalerSetByte(P4_30_DDR_RX2_DLY1, ucCount);
+              
+                      g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+              
+                      if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+                      {
+                          ucInitialPhase = ucCount;
+              
+                          bPhaseSearch = _ON;
+                      }
+              
+                      if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+                      {
+                          ucEndPhase = ucCount;
+              
+                          pData[2] = ucEndPhase - ucInitialPhase;
+              
+                          if(pData[2] > ucTempDiffPhase)
+                          {
+                              ucTempDiffPhase = pData[2];
+              
+                              ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+                          }
+              
+                          bPhaseSearch = _FALSE;
+                      }
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx2 dqs2 rise", g_ucPhaseCount);
+              #endif
+                  }
+              
+                  if(bPhaseSearch == _ON)
+                  {
+                      if((g_pucDDR1DelayChain2[3] - ucInitialPhase) > ucBestPhase)
+                      {
+                          ucBestPhase = (g_pucDDR1DelayChain2[3] + ucInitialPhase) / 2;
+                      }
+                  }
+              
+                  // Best Phase >= 1/4T Position
+                  if(ucBestPhase >= (g_pucDDR1DelayChain2[3] / 2))
+                  {
+                      ucBestPhase = (ucBestPhase / 4);
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 21  
+
+                  }
+                  else
+                  {
+                      ucBestPhase = (ucBestPhase / 2);
+                  }
+              
+                  g_pucDDR1InitialPhase2[3] = ucBestPhase;
+              
+                  ScalerSetByte(P4_30_DDR_RX2_DLY1, ucBestPhase);
+              
+              //**********************************************************************************//
+              //*********************************RX2 DQS2 Falling Phase*****************************//
+              //**********************************************************************************//
+                  ucTempDiffPhase = 0;
+              
+                  for(ucCount = 0; ucCount <= g_pucDDR1DelayChain2[4]; ucCount++)
+                  {
+                      ScalerSetByte(P4_31_DDR_RX2_DLY2, ucCount);
+              
+                      g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+              
+                      if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+                      {
+                          ucInitialPhase = ucCount;
+              
+                          bPhaseSearch = _ON;
+                      }
+              
+                      if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+                      {
+                          ucEndPhase = ucCount;
+              
+                          pData[2] = ucEndPhase - ucInitialPhase;
+              
+                          if(pData[2] > ucTempDiffPhase)
+                          {
+                              ucTempDiffPhase = pData[2];
+              
+                              ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+                          }
+              
+                          bPhaseSearch = _FALSE;
+                      }
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx2 dqs2 fall", g_ucPhaseCount);
+              #endif
+                  }
+              
+                  if(bPhaseSearch == _ON)
+                  {
+                      if((g_pucDDR1DelayChain2[4] - ucInitialPhase) > ucBestPhase)
+                      {
+                          ucBestPhase = (g_pucDDR1DelayChain2[4] + ucInitialPhase) / 2;
+                      }
+                  }
+              
+                  // Best Phase >= 1/4T Position
+                  if(ucBestPhase >= (g_pucDDR1DelayChain2[4] / 2))
+                  {
+                      ucBestPhase = (ucBestPhase / 4);
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 22  
+
+                  }
+                  else
+                  {
+                      ucBestPhase = (ucBestPhase / 2);
+                  }
+              
+                  g_pucDDR1InitialPhase2[4] = ucBestPhase;
+              
+                  ScalerSetByte(P4_31_DDR_RX2_DLY2, ucBestPhase);
+              
+              //**********************************************************************************//
+              //**********************************RX2 DQS3 Rising Phase****************************//
+              //**********************************************************************************//
+              
+                  ucTempDiffPhase = 0;
+                  for(ucCount = 0; ucCount <= g_pucDDR1DelayChain2[5]; ucCount++)
+                  {
+                      ScalerSetByte(P4_32_DDR_RX2_DLY3, ucCount);
+              
+                      g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+              
+                      if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+                      {
+                          ucInitialPhase = ucCount;
+              
+                          bPhaseSearch = _ON;
+                      }
+              
+                      if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+                      {
+                          ucEndPhase = ucCount;
+              
+                          pData[2] = ucEndPhase - ucInitialPhase;
+              
+                          if(pData[2] > ucTempDiffPhase)
+                          {
+                              ucTempDiffPhase = pData[2];
+              
+                              ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+                          }
+              
+                          bPhaseSearch = _FALSE;
+                      }
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx dqs3 rise", g_ucPhaseCount);
+              #endif
+                  }
+              
+                  if(bPhaseSearch == _ON)
+                  {
+                      if((g_pucDDR1DelayChain2[5] - ucInitialPhase) > ucBestPhase)
+                      {
+                          ucBestPhase = (g_pucDDR1DelayChain2[5] + ucInitialPhase) / 2;
+                      }
+                  }
+              
+                  // Best Phase >= 1/4T Position
+                  if(ucBestPhase >= (g_pucDDR1DelayChain2[5] / 2))
+                  {
+                      ucBestPhase = (ucBestPhase / 4);
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 23  
+
+                  }
+                  else
+                  {
+                      ucBestPhase = (ucBestPhase / 2);
+                  }
+              
+                  g_pucDDR1InitialPhase2[5] = ucBestPhase;
+              
+                  ScalerSetByte(P4_32_DDR_RX2_DLY3, ucBestPhase);
+              
+              //**********************************************************************************//
+              //*********************************RX2 DQS3 Falling Phase*****************************//
+              //**********************************************************************************//
+                  ucTempDiffPhase = 0;
+              
+                  for(ucCount = 0; ucCount <= g_pucDDR1DelayChain2[6]; ucCount++)
+                  {
+                      ScalerSetByte(P4_33_DDR_RX2_DLY4, ucCount);
+              
+                      g_ucPhaseCount = ScalerDDR1McuReadWriteCheck((ucCount >> 6), ((ucCount << 2) & 0xFC), 0x00);
+              
+                      if((g_ucPhaseCount == _TRUE) && (bPhaseSearch == _FALSE))
+                      {
+                          ucInitialPhase = ucCount;
+              
+                          bPhaseSearch = _ON;
+                      }
+              
+                      if((g_ucPhaseCount == _FALSE) && (bPhaseSearch == _ON))
+                      {
+                          ucEndPhase = ucCount;
+              
+                          pData[2] = ucEndPhase - ucInitialPhase;
+              
+                          if(pData[2] > ucTempDiffPhase)
+                          {
+                              ucTempDiffPhase = pData[2];
+              
+                              ucBestPhase = (ucInitialPhase + ucEndPhase) / 2;
+                          }
+              
+                          bPhaseSearch = _FALSE;
+                      }
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("counter", ucCount);
+                      DebugMessageMemoryPhaseCal("rx dqs3 fall", g_ucPhaseCount);
+              #endif
+                  }
+              
+                  if(bPhaseSearch == _ON)
+                  {
+                      if((g_pucDDR1DelayChain2[6] - ucInitialPhase) > ucBestPhase)
+                      {
+                          ucBestPhase = (g_pucDDR1DelayChain2[6] + ucInitialPhase) / 2;
+                      }
+                  }
+              
+                  // Best Phase >= 1/4T Position
+                  if(ucBestPhase >= (g_pucDDR1DelayChain2[6] / 2))
+                  {
+                      ucBestPhase = (ucBestPhase / 4);
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 24  
+
+                  }
+                  else
+                  {
+                      ucBestPhase = (ucBestPhase / 2);
+                  }
+              
+                  g_pucDDR1InitialPhase2[6] = ucBestPhase;
+              
+                  ScalerSetByte(P4_33_DDR_RX2_DLY4, ucBestPhase);
+              
+              #endif // End of  #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+1418   1      }
+1419          
+1420          //--------------------------------------------------
+1421          // Description  : DDR1 Tx Clk Calibration
+1422          // Input Value  : None
+1423          // Output Value : None
+1424          //--------------------------------------------------
+1425          void ScalerDDR1TxClkCalibrationEnable(bit bEn)
+1426          {
+1427   1          // Set Clk Gatting Idel and Stop time
+1428   1          ScalerSetByte(P4_C9_SDR_STOPCLK_CNT, 0x02);
+1429   1          ScalerSetByte(P4_CA_STOP_WAIT_CNT, 0x02);
+1430   1      
+1431   1          if(bEn == _ON)
+1432   1          {
+1433   2              // Enable DDR1 Clk Gatting Function
+1434   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~(_BIT5 | _BIT1), (_BIT5 | _BIT1));
+1435   2      
+1436   2              // Enable Tx Calibration Function
+1437   2              ScalerSetBit(P4_CB_TX_PHASE_CALIBRATION, ~_BIT2, _BIT2);
+1438   2      
+1439   2              // Pob Tx delay chain value of half clock cycle
+1440   2              g_pucDDR1DelayChain[0] = (ScalerGetByte(P4_CC_TX_CALIBRATION_RESULT) & 0x7F);
+1441   2      
+1442   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("Tx clk half T", g_pucDDR1DelayChain[0]);
+              #endif
+1445   2      
+1446   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Enable Tx2 Calibration Function
+                      ScalerSetBit(P4_20_TX_PHASE_CALIBRATION_2, ~_BIT2, _BIT2);
+              
+                      // Pob Tx2 delay chain value of half clock cycle
+                      g_pucDDR1DelayChain2[0] = (ScalerGetByte(P4_21_TX_CALIBRATION_RESULT_2) & 0x7F);
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("Tx2 clk half T", g_pucDDR1DelayChain2[0]);
+              #endif
+              
+              #endif
+1459   2          }
+1460   1          else
+1461   1          {
+1462   2              // Disable DDR1 Clk Gatting Function
+1463   2              ScalerSetBit(P4_BE_SDR_RX_PHASE_CALIBRATION, ~(_BIT5 | _BIT1), 0x00);
+1464   2      
+1465   2              // Disable Tx Calibration Function
+1466   2              ScalerSetBit(P4_CB_TX_PHASE_CALIBRATION, ~_BIT2, 0x00);
+1467   2      
+1468   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 25  
+
+              
+                      // Disable Tx2 Calibration Function
+                      ScalerSetBit(P4_20_TX_PHASE_CALIBRATION_2, ~_BIT2, 0x00);
+              #endif
+1473   2          }
+1474   1      }
+1475          
+1476          //--------------------------------------------------
+1477          // Description  : DDR1 Tx Dqs Calibration
+1478          // Input Value  : None
+1479          // Output Value : None
+1480          //--------------------------------------------------
+1481          void ScalerDDR1TxDqsCalibrationEnable(bit bEn)
+1482          {
+1483   1          if(bEn == _ON)
+1484   1          {
+1485   2              // Enable Tx Dqs0 Calibration Circuit
+1486   2              ScalerSetBit(P4_F6_DDR_AUTO_CALIB4, ~_BIT7, _BIT7);
+1487   2      
+1488   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Enable Tx Dqs Generation 8 dqa cycle
+                      ScalerSetBit(P4_20_TX_PHASE_CALIBRATION_2, ~_BIT1, _BIT1);
+              
+                      // Enable Tx Dqs2 Calibration Circuit
+                      ScalerSetBit(P4_23_DDR_AUTO_CALIB6, ~_BIT7, _BIT7);
+              #endif
+1496   2      
+1497   2              for(PDATA_WORD(3) = 0; PDATA_WORD(3) < 270; PDATA_WORD(3)++)
+1498   2              {
+1499   3                  ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _DDR1_MCU_COMMAND_WRITE);
+1500   3                  ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _DDR1_MCU_COMMAND_NOP_FINISH);
+1501   3              }
+1502   2      
+1503   2              // Pob Tx Dqs0 delay chain value of half clock cycle
+1504   2              g_pucDDR1DelayChain[1] = (ScalerGetByte(P4_F7_DDR_AUTO_CALIB_RLT4) & 0x7F);
+1505   2      
+1506   2              // Pob Tx Dqs1 delay chain value of half clock cycle
+1507   2              g_pucDDR1DelayChain[2] = g_pucDDR1DelayChain[1];
+1508   2      
+1509   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("Tx dqs0 half T", g_pucDDR1DelayChain[1]);
+                      DebugMessageMemoryPhaseCal("Tx dqs1 half T", g_pucDDR1DelayChain[2]);
+              #endif
+1513   2      
+1514   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Pob Tx Dqs2 delay chain value of half clock cycle
+                      g_pucDDR1DelayChain2[1] = (ScalerGetByte(P4_24_DDR_AUTO_CALIB_RLT6) & 0x7F);
+              
+                      // Pob Tx Dqs3 delay chain value of half clock cycle
+                      g_pucDDR1DelayChain2[2] = g_pucDDR1DelayChain2[1];
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("Tx dqs2 half T", g_pucDDR1DelayChain2[1]);
+                      DebugMessageMemoryPhaseCal("Tx dqs3 half T", g_pucDDR1DelayChain2[2]);
+              #endif
+              
+              #endif
+1528   2          }
+1529   1          else
+1530   1          {
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 26  
+
+1531   2              // Disable Tx Dqs0 Calibration Circuit
+1532   2              ScalerSetBit(P4_F6_DDR_AUTO_CALIB4, ~_BIT7, 0x00);
+1533   2      
+1534   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Disable Tx2 Dqs Generation 8 dqa cycle
+                      ScalerSetBit(P4_20_TX_PHASE_CALIBRATION_2, ~_BIT1, 0x00);
+              
+                      // Disable Tx Dqs2 Calibration Circuit
+                      ScalerSetBit(P4_23_DDR_AUTO_CALIB6, ~_BIT7, 0x00);
+              #endif
+1542   2          }
+1543   1      }
+1544          
+1545          //--------------------------------------------------
+1546          // Description  : DDR1 Rx Dqs Calibration
+1547          // Input Value  : None
+1548          // Output Value : None
+1549          //--------------------------------------------------
+1550          void ScalerDDR1RxDqsCalibrationEnable(bit bEn)
+1551          {
+1552   1          if(bEn == _ON)
+1553   1          {
+1554   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // For 2PCS DDR1 RX Calibration Read Data of Half T
+                      ScalerSetByte(P4_BD_SDR_MCU_RD_LEN, 0x02);
+              #endif
+1559   2      
+1560   2              // Enable Rx Dqs0 Rising Calibration Circuit
+1561   2              ScalerSetBit(P4_D9_DDR_AUTO_CALIB0, ~_BIT7, _BIT7);
+1562   2      
+1563   2              // Enable Rx Dqs0 Falling Calibration Circuit
+1564   2              ScalerSetBit(P4_DB_DDR_AUTO_CALIB1, ~_BIT7, _BIT7);
+1565   2      
+1566   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Enable Rx Dqs2 Rising Calibration Circuit
+                      ScalerSetBit(P4_28_DDR_AUTO_CALIB7, ~_BIT7, _BIT7);
+              
+                      // Enable Rx Dqs2 Falling Calibration Circuit
+                      ScalerSetBit(P4_2A_DDR_AUTO_CALIB8, ~_BIT7, _BIT7);
+              #endif
+1574   2      
+1575   2              for(PDATA_WORD(3) = 0; PDATA_WORD(3) < 270; PDATA_WORD(3)++)
+1576   2              {
+1577   3                  ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _DDR1_MCU_COMMAND_READ);
+1578   3                  ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _DDR1_MCU_COMMAND_NOP_FINISH);
+1579   3              }
+1580   2      
+1581   2              // Pob Rx Dqs0 Rising delay chain value of half clock cycle
+1582   2              g_pucDDR1DelayChain[3] = (ScalerGetByte(P4_DA_DDR_AUTO_CALIB_RLT0) & 0x7F);
+1583   2      
+1584   2              // Pob Rx Dqs0 Falling delay chain value of half clock cycle
+1585   2              g_pucDDR1DelayChain[4] = (ScalerGetByte(P4_DC_DDR_AUTO_CALIB_RLT1) & 0x7F);
+1586   2      
+1587   2              // Pob Rx Dqs1 Rising delay chain value of half clock cycle
+1588   2              g_pucDDR1DelayChain[5] = g_pucDDR1DelayChain[3];
+1589   2      
+1590   2              // Pob Rx Dqs1 Falling delay chain value of half clock cycle
+1591   2              g_pucDDR1DelayChain[6] = g_pucDDR1DelayChain[4];
+1592   2      
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 27  
+
+1593   2      #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("Rx dqs0 half T", g_pucDDR1DelayChain[3]);
+                      DebugMessageMemoryPhaseCal("Rx dqs1 half T", g_pucDDR1DelayChain[4]);
+                      DebugMessageMemoryPhaseCal("Rx dqs2 half T", g_pucDDR1DelayChain[5]);
+                      DebugMessageMemoryPhaseCal("Rx dqs3 half T", g_pucDDR1DelayChain[6]);
+              #endif
+1599   2      
+1600   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Pob Rx Dqs2 Rising delay chain value of half clock cycle
+                      g_pucDDR1DelayChain2[3] = (ScalerGetByte(P4_29_DDR_AUTO_CALIB_RLT7) & 0x7F);
+              
+                      // Pob Rx Dqs2 Falling delay chain value of half clock cycle
+                      g_pucDDR1DelayChain2[4] = (ScalerGetByte(P4_2B_DDR_AUTO_CALIB_RLT8) & 0x7F);
+              
+                      // Pob Rx Dqs3 Rising delay chain value of half clock cycle
+                      g_pucDDR1DelayChain2[5] = g_pucDDR1DelayChain2[3];
+              
+                      // Pob Rx Dqs3 Falling delay chain value of half clock cycle
+                      g_pucDDR1DelayChain2[6] = g_pucDDR1DelayChain2[4];
+              
+              #if(_DDR1_MCU_ALL_PHASE_CHECK == _ON)
+                      DebugMessageMemoryPhaseCal("Rx2 dqs0 half T", g_pucDDR1DelayChain2[3]);
+                      DebugMessageMemoryPhaseCal("Rx2 dqs1 half T", g_pucDDR1DelayChain2[4]);
+                      DebugMessageMemoryPhaseCal("Rx2 dqs2 half T", g_pucDDR1DelayChain2[5]);
+                      DebugMessageMemoryPhaseCal("Rx2 dqs3 half T", g_pucDDR1DelayChain2[6]);
+              #endif
+              
+              #endif
+1622   2          }
+1623   1          else
+1624   1          {
+1625   2              // Disable Rx Dqs0 Rising Calibration Circuit
+1626   2              ScalerSetBit(P4_D9_DDR_AUTO_CALIB0, ~_BIT7, 0x00);
+1627   2      
+1628   2              // Disable Rx Dqs0 Falling Calibration Circuit
+1629   2              ScalerSetBit(P4_DB_DDR_AUTO_CALIB1, ~_BIT7, 0x00);
+1630   2      
+1631   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Disable Rx Dqs2 Rising Calibration Circuit
+                      ScalerSetBit(P4_28_DDR_AUTO_CALIB7, ~_BIT7, 0x00);
+              
+                      // Disable Rx Dqs2 Falling Calibration Circuit
+                      ScalerSetBit(P4_2A_DDR_AUTO_CALIB8, ~_BIT7, 0x00);
+              
+                      // Restore 2PCS DDR1 SRAM Length
+                      ScalerSetByte(P4_BD_SDR_MCU_RD_LEN, 0x01);
+              #endif
+1642   2          }
+1643   1      }
+1644          
+1645          //--------------------------------------------------
+1646          // Description  : DDR1 Read Write Check
+1647          // Input Value  : None
+1648          // Output Value : None
+1649          //--------------------------------------------------
+1650          bit ScalerDDR1McuReadWriteCheck(BYTE ucAddrH, BYTE ucAddrM, BYTE ucAddrL)
+1651          {
+1652   1          ScalerSetByte(P4_B8_SDR_ADDR_H, ucAddrH);
+1653   1          ScalerSetByte(P4_B9_SDR_ADDR_M, ucAddrM);
+1654   1          ScalerSetByte(P4_BA_SDR_ADDR_L, ucAddrL);
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 28  
+
+1655   1      
+1656   1          ScalerDDR1WriteToFifo();
+1657   1      
+1658   1          ScalerDDR1ReadFromFifo();
+1659   1      
+1660   1          ScalerSetByte(P4_BB_SDR_ACCESS_CMD, 0x00);
+1661   1      
+1662   1          for(pData[14] = 0; pData[14] < sizeof(tDDR_PATTERN); pData[14]++)
+1663   1          {
+1664   2              if(ScalerGetByte(P4_BC_SDR_DATA_BUF) != tDDR_PATTERN[pData[14]])
+1665   2              {
+1666   3                  return _FALSE;
+1667   3              }
+1668   2          }
+1669   1      
+1670   1          return _TRUE;
+1671   1      }
+1672          
+1673          //--------------------------------------------------
+1674          // Description  : DDR1 Write Data To FIFO
+1675          // Input Value  : None
+1676          // Output Value : None
+1677          //--------------------------------------------------
+1678          void ScalerDDR1WriteToFifo(void)
+1679          {
+1680   1          ScalerDDR1ClearFifo();
+1681   1      
+1682   1          ScalerSetByte(P4_BB_SDR_ACCESS_CMD, 0x00);
+1683   1      
+1684   1          for(pData[14] = 0; pData[14] < sizeof(tDDR_PATTERN); pData[14]++)
+1685   1          {
+1686   2              ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), pData[14]);
+1687   2              ScalerSetByte(P4_BC_SDR_DATA_BUF, tDDR_PATTERN[pData[14]]);
+1688   2          }
+1689   1      
+1690   1          ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _DDR1_MCU_COMMAND_WRITE);
+1691   1      
+1692   1          if(ScalerDDR1CheckCommandFinish() == _FALSE)
+1693   1          {
+1694   2              DebugMessageMemoryPhaseCal("Write Command Fail", 0x00);
+1695   2          }
+1696   1      }
+1697          
+1698          //--------------------------------------------------
+1699          // Description  : DDR1 Write Data To FIFO
+1700          // Input Value  : None
+1701          // Output Value : None
+1702          //--------------------------------------------------
+1703          void ScalerDDR1ReadFromFifo(void)
+1704          {
+1705   1          ScalerDDR1ClearFifo();
+1706   1      
+1707   1          ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _DDR1_MCU_COMMAND_READ);
+1708   1      
+1709   1          if(ScalerDDR1CheckCommandFinish() == _FALSE)
+1710   1          {
+1711   2              DebugMessageMemoryPhaseCal("Read Command Fail", 0x00);
+1712   2          }
+1713   1      }
+1714          
+1715          //--------------------------------------------------
+1716          // Description  : DDR1 Clear Fifo
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 29  
+
+1717          // Input Value  : None
+1718          // Output Value : None
+1719          //--------------------------------------------------
+1720          void ScalerDDR1ClearFifo(void)
+1721          {
+1722   1          ScalerSetByte(P4_BB_SDR_ACCESS_CMD, 0x00);
+1723   1      
+1724   1          for(pData[14] = 0; pData[14] < 32; pData[14]++)
+1725   1          {
+1726   2              ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), pData[14]);
+1727   2              ScalerSetByte(P4_BC_SDR_DATA_BUF, 0x00);
+1728   2          }
+1729   1      }
+1730          
+1731          //--------------------------------------------------
+1732          // Description  : DDR1 Check Command Finish
+1733          // Input Value  : None
+1734          // Output Value : None
+1735          //--------------------------------------------------
+1736          bit ScalerDDR1CheckCommandFinish(void)
+1737          {
+1738   1          if(ScalerTimerPollingFlagProc(5, P4_BB_SDR_ACCESS_CMD, (_BIT7 | _BIT6 | _BIT5), 0x00) == _FALSE)
+1739   1          {
+1740   2              return _FALSE;
+1741   2          }
+1742   1          else
+1743   1          {
+1744   2              return _TRUE;
+1745   2          }
+1746   1      }
+1747          
+1748          //--------------------------------------------------
+1749          // Description  : DDR1 On Line Phase Check
+1750          // Input Value  : None
+1751          // Output Value : None
+1752          //--------------------------------------------------
+1753          void ScalerDDR1OnLinePhaseCntCheck(void)
+1754          {
+1755   1          static BYTE sucDDR1OnLineCheckLoop = _DDR1_MCU_ONLINE_START_LOOP;
+1756   1      
+1757   1          if(sucDDR1OnLineCheckLoop-- == _DDR1_MCU_ONLINE_END_LOOP)
+1758   1          {
+1759   2              BYTE ucRxClkIndex = 0;
+1760   2              SWORD shHalfCycleTapDiff = 0;
+1761   2              SWORD shCurrOneCycleTap = 0;
+1762   2      
+1763   2              // Set Loop Counter 60 times Restore
+1764   2              sucDDR1OnLineCheckLoop = _DDR1_MCU_ONLINE_START_LOOP;
+1765   2      
+1766   2              ScalerDDR1OnLinePhaseCalibration(_ON);
+1767   2      
+1768   2              for(ucRxClkIndex = _DDR1_RX_DQS0_R; ucRxClkIndex <= _DDR1_RX_DQS1_F; ucRxClkIndex++)
+1769   2              {
+1770   3                  shHalfCycleTapDiff = (SWORD)g_pucDDR1OnLineDelayChain[ucRxClkIndex] - (SWORD)g_pucDDR1DelayCha
+             -in[ucRxClkIndex];
+1771   3      
+1772   3                  if(abs(shHalfCycleTapDiff) > _DDR1_ONLINE_TAP_DIFF_THRESHOLD)
+1773   3                  {
+1774   4                      shCurrOneCycleTap = g_pucDDR1OnLineDelayChain[ucRxClkIndex] * 2;
+1775   4                      ScalerSetByte(tDDR1_FINE_DLY_REG0[ucRxClkIndex],
+1776   4                                    (BYTE)(((SWORD)g_pucDDR1InitialPhase[ucRxClkIndex] + shHalfCycleTapDiff / 2 
+             -+ shCurrOneCycleTap) % shCurrOneCycleTap));
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 30  
+
+1777   4                  }
+1778   3              }
+1779   2      
+1780   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+                      for(ucRxClkIndex = _DDR1_RX_DQS2_R; ucRxClkIndex <= _DDR1_RX_DQS3_F; ucRxClkIndex++)
+                      {
+                          shHalfCycleTapDiff = (SWORD)g_pucDDR1OnLineDelayChain2[ucRxClkIndex] - (SWORD)g_pucDDR1DelayCh
+             -ain2[ucRxClkIndex];
+              
+                          if(abs(shHalfCycleTapDiff) > _DDR1_ONLINE_TAP_DIFF_THRESHOLD)
+                          {
+                              shCurrOneCycleTap = g_pucDDR1OnLineDelayChain2[ucRxClkIndex] * 2;
+                              ScalerSetByte(tDDR1_FINE_DLY_REG1[ucRxClkIndex],
+                                            (BYTE)(((SWORD)g_pucDDR1InitialPhase2[ucRxClkIndex] + shHalfCycleTapDiff / 2
+             - + shCurrOneCycleTap) % shCurrOneCycleTap));
+                          }
+                      }
+              #endif // End of  #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+1793   2      
+1794   2              ScalerDDR1OnLinePhaseCalibration(_OFF);
+1795   2          }
+1796   1      }
+1797          //--------------------------------------------------
+1798          // Description  : DDR1 On Line Phase Calibration
+1799          // Input Value  : None
+1800          // Output Value : None
+1801          //--------------------------------------------------
+1802          void ScalerDDR1OnLinePhaseCalibration(bit bEn)
+1803          {
+1804   1          if(bEn == _ON)
+1805   1          {
+1806   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // For 2PCS DDR1 RX Calibration Read Data of Half T
+                      ScalerSetByte(P4_BD_SDR_MCU_RD_LEN, 0x02);
+              #endif
+1811   2              // Enable MCU Mode Token Ring
+1812   2              ScalerSetByte(P4_AB_SDR_RSC_MCU, 0x30);
+1813   2      
+1814   2              // Enable Rx Dqs0 Rising Calibration Circuit
+1815   2              ScalerSetBit(P4_D9_DDR_AUTO_CALIB0, ~_BIT7, _BIT7);
+1816   2      
+1817   2              // Enable Rx Dqs0 Falling Calibration Circuit
+1818   2              ScalerSetBit(P4_DB_DDR_AUTO_CALIB1, ~_BIT7, _BIT7);
+1819   2      
+1820   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Enable Rx Dqs2 Rising Calibration Circuit
+                      ScalerSetBit(P4_28_DDR_AUTO_CALIB7, ~_BIT7, _BIT7);
+              
+                      // Enable Rx Dqs2 Falling Calibration Circuit
+                      ScalerSetBit(P4_2A_DDR_AUTO_CALIB8, ~_BIT7, _BIT7);
+              #endif
+1828   2      
+1829   2              for(PDATA_DWORD(3) = 0; PDATA_DWORD(3) < 270; PDATA_DWORD(3)++)
+1830   2              {
+1831   3                  ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _DDR1_MCU_COMMAND_READ);
+1832   3      
+1833   3                  // Delay Time us [85,x]
+1834   3                  DELAY_XUS(85);
+1835   3      
+1836   3                  ScalerSetBit(P4_BB_SDR_ACCESS_CMD, ~(_BIT7 | _BIT6 | _BIT5), _DDR1_MCU_COMMAND_NOP_FINISH);
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 31  
+
+1837   3              }
+1838   2      
+1839   2              // Pob Rx Dqs0 Rising delay chain value of half clock cycle
+1840   2              g_pucDDR1OnLineDelayChain[3] = (ScalerGetByte(P4_DA_DDR_AUTO_CALIB_RLT0) & 0x7F);
+1841   2      
+1842   2              // Pob Rx Dqs0 Falling delay chain value of half clock cycle
+1843   2              g_pucDDR1OnLineDelayChain[4] = (ScalerGetByte(P4_DC_DDR_AUTO_CALIB_RLT1) & 0x7F);
+1844   2      
+1845   2              // Pob Rx Dqs1 Rising delay chain value of half clock cycle
+1846   2              g_pucDDR1OnLineDelayChain[5] = g_pucDDR1DelayChain[3];
+1847   2      
+1848   2              // Pob Rx Dqs1 Falling delay chain value of half clock cycle
+1849   2              g_pucDDR1OnLineDelayChain[6] = g_pucDDR1DelayChain[4];
+1850   2      
+1851   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Pob Rx Dqs2 Rising delay chain value of half clock cycle
+                      g_pucDDR1OnLineDelayChain2[3] = (ScalerGetByte(P4_29_DDR_AUTO_CALIB_RLT7) & 0x7F);
+              
+                      // Pob Rx Dqs2 Falling delay chain value of half clock cycle
+                      g_pucDDR1OnLineDelayChain2[4] = (ScalerGetByte(P4_2B_DDR_AUTO_CALIB_RLT8) & 0x7F);
+              
+                      // Pob Rx Dqs3 Rising delay chain value of half clock cycle
+                      g_pucDDR1OnLineDelayChain2[5] = g_pucDDR1DelayChain2[3];
+              
+                      // Pob Rx Dqs3 Falling delay chain value of half clock cycle
+                      g_pucDDR1OnLineDelayChain2[6] = g_pucDDR1DelayChain2[4];
+              #endif
+1865   2          }
+1866   1          else
+1867   1          {
+1868   2              // Disable MCU Mode Token Ring
+1869   2              ScalerSetByte(P4_AB_SDR_RSC_MCU, 0x00);
+1870   2      
+1871   2              // Disable Rx Dqs0 Rising Calibration Circuit
+1872   2              ScalerSetBit(P4_D9_DDR_AUTO_CALIB0, ~_BIT7, 0x00);
+1873   2      
+1874   2              // Disable Rx Dqs0 Falling Calibration Circuit
+1875   2              ScalerSetBit(P4_DB_DDR_AUTO_CALIB1, ~_BIT7, 0x00);
+1876   2      
+1877   2      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+              
+                      // Disable Rx2 Dqs2 Rising Calibration Circuit
+                      ScalerSetBit(P4_28_DDR_AUTO_CALIB7, ~_BIT7, 0x00);
+              
+                      // Disable Rx2 Dqs2 Falling Calibration Circuit
+                      ScalerSetBit(P4_2A_DDR_AUTO_CALIB8, ~_BIT7, 0x00);
+              
+                      // Restore 2PCS DDR1 SRAM Length
+                      ScalerSetByte(P4_BD_SDR_MCU_RD_LEN, 0x01);
+              #endif
+1888   2          }
+1889   1      }
+1890          
+1891          //--------------------------------------------------
+1892          // Description  : DDR1 Restore Initial Phase
+1893          // Input Value  : None
+1894          // Output Value : None
+1895          //--------------------------------------------------
+1896          void ScalerDDR1RestoreInitialPhase(void)
+1897          {
+1898   1          ScalerSetByte(P4_C1_TX_CLK_DLY2, g_pucDDR1InitialPhase[0]);
+C51 COMPILER V9.60.0.0   SCALERDDR1                                                        09/09/2025 18:16:20 PAGE 32  
+
+1899   1          ScalerSetByte(P4_CD_DDR_TX_DLY0, g_pucDDR1InitialPhase[1]);
+1900   1          ScalerSetByte(P4_CE_DDR_TX_DLY1, g_pucDDR1InitialPhase[2]);
+1901   1          ScalerSetByte(P4_D0_DDR_RX_DLY1, g_pucDDR1InitialPhase[3]);
+1902   1          ScalerSetByte(P4_D1_DDR_RX_DLY2, g_pucDDR1InitialPhase[4]);
+1903   1          ScalerSetByte(P4_D2_DDR_RX_DLY3, g_pucDDR1InitialPhase[5]);
+1904   1          ScalerSetByte(P4_D3_DDR_RX_DLY4, g_pucDDR1InitialPhase[6]);
+1905   1          ScalerSetByte(P4_CF_DDR_RX_DLY0, g_ucDDR1RxIenDelayChain);
+1906   1      
+1907   1      #if(_MEMORY_SIZE_CONFIG == _4M_16BIT_DDR1_2PCS)
+                  ScalerSetByte(P4_22_TX2_CLK_DLY, g_pucDDR1InitialPhase2[0]);
+                  ScalerSetByte(P4_25_DDR_TX2_DLY2, g_pucDDR1InitialPhase2[1]);
+                  ScalerSetByte(P4_26_DDR_TX2_DLY3, g_pucDDR1InitialPhase2[2]);
+                  ScalerSetByte(P4_30_DDR_RX2_DLY1, g_pucDDR1InitialPhase2[3]);
+                  ScalerSetByte(P4_31_DDR_RX2_DLY2, g_pucDDR1InitialPhase2[4]);
+                  ScalerSetByte(P4_32_DDR_RX2_DLY3, g_pucDDR1InitialPhase2[5]);
+                  ScalerSetByte(P4_33_DDR_RX2_DLY4, g_pucDDR1InitialPhase2[6]);
+                  ScalerSetByte(P4_27_DDR_RX2_DLY0, g_ucDDR1Rx2IenDelayChain2);
+              #endif
+1917   1      }
+1918          
+1919          #endif  // End of #if(_DDR1_PHASE_CALIBRATION == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2311    ----
+   CONSTANT SIZE    =     30    ----
+   XDATA SIZE       =     24      27
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       9
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,431 @@
+C51 COMPILER V9.60.0.0   RL6432_SERIES_SYNC                                                08/27/2025 11:01:43 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE RL6432_SERIES_SYNC
+OBJECT MODULE PLACED IN .\Output\RL6432\RL6432_Series_Sync.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\Scaler\RL6432_Series_Scaler\Code\RL6432_Series_Sync.c LARGE OPTIM
+                    -IZE(9,SPEED) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Syste
+                    -m\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunctio
+                    -n\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler
+                    -\RL6432_Series_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\He
+                    -ader;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.
+                    -\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\He
+                    -ader) DEFINE(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\RL6432_Serie
+                    -s_Sync.lst) TABS(2) OBJECT(.\Output\RL6432\RL6432_Series_Sync.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6432_Series_Sync.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RL6432_SERIES_SYNC__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          #if(_DIGITAL_PORT_SUPPORT == _ON)
+  25          BYTE idata g_pucHdcpBksvBackup[5];
+  26          #endif
+  27          
+  28          //****************************************************************************
+  29          // STRUCT / TYPE / ENUM DEFINITTIONS
+  30          //****************************************************************************
+  31          
+  32          //****************************************************************************
+  33          // CODE TABLES
+  34          //****************************************************************************
+  35          
+  36          //****************************************************************************
+  37          // VARIABLE DECLARATIONS
+  38          //****************************************************************************
+  39          
+  40          //****************************************************************************
+  41          // FUNCTION DECLARATIONS
+  42          //****************************************************************************
+  43          WORD ScalerSyncGetInputPixelClk(void);
+  44          
+  45          #if(_DIGITAL_PORT_SUPPORT == _ON)
+  46          void ScalerSyncHdcpEnableDownLoadKey(bit bEnable);
+  47          void ScalerSyncHdcpDownLoadBKsv(BYTE ucSubAddr, BYTE ucLength, BYTE *pucReadArray);
+C51 COMPILER V9.60.0.0   RL6432_SERIES_SYNC                                                08/27/2025 11:01:43 PAGE 2   
+
+  48          void ScalerSyncHdcpDownLoadKey(WORD usLength, BYTE *pucReadArray);
+  49          #if(_HDCP_1_4_KEY_LOCATION == _TABLE_LOCATION_EFUSE)
+              void ScalerSyncGetEfuseHDCPKey(WORD usSubAddr, WORD usLength, BYTE *pucReadArray);
+              void ScalerSyncGetEfuseHDCPKeyBKsv(WORD usSubAddr, WORD usLength, BYTE *pucReadArray);
+              #endif
+  53          #endif
+  54          
+  55          #if(_FREESYNC_SUPPORT == _ON)
+  56          void ScalerSyncFREESYNCTestPinEnable(void);
+  57          #endif
+  58          
+  59          //****************************************************************************
+  60          // FUNCTION DEFINITIONS
+  61          //****************************************************************************
+  62          //--------------------------------------------------
+  63          // Description  : Let Upper Layer Get I-domain Pixel Clk
+  64          // Input Value  : None
+  65          // Output Value : Input Pixel Clk (in 0.1MHz)
+  66          //--------------------------------------------------
+  67          WORD ScalerSyncGetInputPixelClk(void)
+  68          {
+  69   1          switch(ScalerFmtCnvGetSourceType())
+  70   1          {
+  71   2      #if(_D2_INPUT_PORT_TYPE == _D2_DUAL_DVI_PORT)
+                      case _FC_SOURCE_DUAL_DVI:
+              
+                          // Check dual DVI status
+                          if(ScalerDualLinkDVIRx2GetDualDVIMode() == _TRUE)
+                          {
+                              return (GET_INPUT_PIXEL_CLK() << 1);
+                          }
+                          break;
+              #endif // End of #if(_D2_INPUT_PORT_TYPE == _D2_DUAL_DVI_PORT)
+  81   2      
+  82   2              default:
+  83   2      
+  84   2                  break;
+  85   2          }
+  86   1      
+  87   1          return GET_INPUT_PIXEL_CLK();
+  88   1      }
+  89          
+  90          #if(_DIGITAL_PORT_SUPPORT == _ON)
+  91          //--------------------------------------------------
+  92          // Description  : Enable/Disable DownLoad HDCP Key
+  93          // Input Value  : None
+  94          // Output Value : None
+  95          //--------------------------------------------------
+  96          void ScalerSyncHdcpEnableDownLoadKey(bit bEnable)
+  97          {
+  98   1          if(bEnable == _ENABLE)
+  99   1          {
+ 100   2      #if(_HDCP_1_4_KEY_LOCATION == _TABLE_LOCATION_EFUSE)
+              
+                      // Enable eFuse Module Clk
+                      ScalerSetBit(P24_A3_EFUSE_CTRL_0, ~(_BIT7 | _BIT6 | _BIT0), 0x00);
+              #endif
+ 105   2      
+ 106   2      #if(_D0_DP_EXIST == _ON)
+ 107   2              // Enable HDCP Block and Key download port
+ 108   2              ScalerSetBit(PB_17_DP_HDCP_CONTROL, ~(_BIT7 | _BIT0), (_BIT7 | _BIT0));
+ 109   2      
+C51 COMPILER V9.60.0.0   RL6432_SERIES_SYNC                                                08/27/2025 11:01:43 PAGE 3   
+
+ 110   2              // Set Km Clock to Xtal Clock
+ 111   2              ScalerSetBit(PB_1A_HDCP_IRQ, ~_BIT3, 0x00);
+ 112   2      #endif
+ 113   2      
+ 114   2      #if(_D1_DP_EXIST == _ON)
+                      // Enable HDCP Block and Key download port
+                      ScalerSetBit(PB0_17_DP_HDCP_CONTROL, ~(_BIT7 | _BIT0), (_BIT7 | _BIT0));
+              
+                      // Set Km Clock to Xtal Clock
+                      ScalerSetBit(PB0_1A_HDCP_IRQ, ~_BIT3, 0x00);
+              #endif
+ 121   2      
+ 122   2      #if((_D1_TMDS_SUPPORT == _ON) || (_D2_TMDS_SUPPORT == _ON))
+ 123   2              // Disable HDMI Repeater Function
+ 124   2              ScalerSetDataPortBit(P71_C3_HDCP_AP, _P71_C4_PT_40_PORT_PAGE71_BCAPS, ~_BIT6, 0x00);
+ 125   2      
+ 126   2              // Suspend Key Calculation before load key
+ 127   2              ScalerSetBit(P71_AE_TMDS_RPS, ~(_BIT1 | _BIT0), _BIT0);
+ 128   2      
+ 129   2              // Manual Select Key SRAM Access Right
+ 130   2              ScalerSetBit(P71_A9_TMDS_ABC0, ~_BIT4, 0x00);
+ 131   2      
+ 132   2              // Enable HDCP Block Clk
+ 133   2              ScalerSetBit(P71_C2_HDCP_PCR, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 134   2      
+ 135   2              // Enable HDCP Block, and Key download port
+ 136   2              ScalerSetBit(P71_C0_HDCP_CR, ~(_BIT7 | _BIT1 | _BIT0), (_BIT7 | _BIT1 | _BIT0));
+ 137   2      
+ 138   2      #if(_TMDS_HDCP_2_2_SUPPORT == _ON)
+ 139   2              // Disable HDCP 2.2 Function
+ 140   2              ScalerSetBit(P2D_26_HDCP_I2C_CTRL_0, ~_BIT7, 0x00);
+ 141   2      
+ 142   2              // Enable HDCP 2.2 IRQ
+ 143   2              ScalerSetBit(P2D_36_HDCP_I2C_CTRL_8, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), _BIT0);
+ 144   2              ScalerSetBit(P2D_35_HDCP_I2C_CTRL_7, ~_BIT0, _BIT0);
+ 145   2      
+ 146   2              // Set Support HDCP 2.2 Feature
+ 147   2              ScalerSetDataPortByte(P71_C3_HDCP_AP, _P71_C4_PT_50_PORT_PAGE71_HDCP2_VER, 0x04);
+ 148   2      
+ 149   2      #if((_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT) || (_D1_INPUT_PORT_TYPE == _D1_MHL_PORT))
+ 150   2              g_pucTmdsRx1Caps[0] = 0x02;
+ 151   2              g_pucTmdsRx1Caps[1] = 0x00;
+ 152   2              g_pucTmdsRx1Caps[2] = 0x00;
+ 153   2      #elif((_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT) || (_D2_INPUT_PORT_TYPE == _D2_MHL_PORT))
+                      g_pucTmdsRx2Caps[0] = 0x02;
+                      g_pucTmdsRx2Caps[1] = 0x00;
+                      g_pucTmdsRx2Caps[2] = 0x00;
+              #endif
+ 158   2      
+ 159   2      #endif
+ 160   2              // Set Km Clock to EMCU Clock
+ 161   2              ScalerSetBit(P71_AC_TMDS_Z0CC2, ~_BIT4, 0x00);
+ 162   2      #endif
+ 163   2      
+ 164   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 165   2              // Disable HDMI Repeater Function
+ 166   2              ScalerSetDataPortBit(P72_C3_HDCP_AP, _P72_C4_PT_40_PORT_PAGE72_BCAPS, ~_BIT6, 0x00);
+ 167   2      
+ 168   2              // Suspend Key Calculation before load key
+ 169   2              ScalerSetBit(P72_AE_TMDS_RPS, ~(_BIT1 | _BIT0), _BIT0);
+ 170   2      
+ 171   2              // Manual Select Key SRAM Access Right
+C51 COMPILER V9.60.0.0   RL6432_SERIES_SYNC                                                08/27/2025 11:01:43 PAGE 4   
+
+ 172   2              ScalerSetBit(P72_A9_TMDS_ABC0, ~_BIT4, 0x00);
+ 173   2      
+ 174   2              // Enable HDCP Block Clk
+ 175   2              ScalerSetBit(P72_C2_HDCP_PCR, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 176   2      
+ 177   2              // Enable HDCP Block, and Key download port
+ 178   2              ScalerSetBit(P72_C0_HDCP_CR, ~(_BIT7 | _BIT1 | _BIT0), (_BIT7 | _BIT1 | _BIT0));
+ 179   2      
+ 180   2      #if((_TMDS_HDCP_2_2_SUPPORT == _ON) && ((_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT) || (_D3_INPUT_PORT_TYPE == 
+             -_D3_MHL_PORT)))
+ 181   2              // Disable HDCP 2.2 Function
+ 182   2              ScalerSetBit(P2E_26_HDCP_I2C_CTRL_0, ~_BIT7, 0x00);
+ 183   2      
+ 184   2              // Enable HDCP 2.2 IRQ
+ 185   2              ScalerSetBit(P2E_36_HDCP_I2C_CTRL_8, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), _BIT0);
+ 186   2              ScalerSetBit(P2E_35_HDCP_I2C_CTRL_7, ~_BIT0, _BIT0);
+ 187   2      
+ 188   2              // Set Support HDCP 2.2 Feature
+ 189   2              ScalerSetDataPortByte(P72_C3_HDCP_AP, _P72_C4_PT_50_PORT_PAGE72_HDCP2_VER, 0x04);
+ 190   2              g_pucTmdsRx3Caps[0] = 0x02;
+ 191   2              g_pucTmdsRx3Caps[1] = 0x00;
+ 192   2              g_pucTmdsRx3Caps[2] = 0x00;
+ 193   2      #endif
+ 194   2              // Set Km Clock to EMCU Clock
+ 195   2              ScalerSetBit(P72_AC_TMDS_Z0CC2, ~_BIT4, 0x00);
+ 196   2      #endif
+ 197   2          }
+ 198   1          else if(bEnable == _DISABLE)
+ 199   1          {
+ 200   2      #if(_HDCP_1_4_KEY_LOCATION == _TABLE_LOCATION_EFUSE)
+              
+                      // Disable eFuse Module Clk
+                      ScalerSetBit(P24_A3_EFUSE_CTRL_0, ~(_BIT7 | _BIT6 | _BIT0), _BIT0);
+              #endif
+ 205   2      
+ 206   2      #if(_D0_DP_EXIST == _ON)
+ 207   2              // Disable Key download port
+ 208   2              ScalerSetBit(PB_17_DP_HDCP_CONTROL, ~_BIT0, 0x00);
+ 209   2      #endif
+ 210   2      
+ 211   2      #if(_D1_DP_EXIST == _ON)
+                      // Disable Key download port
+                      ScalerSetBit(PB0_17_DP_HDCP_CONTROL, ~_BIT0, 0x00);
+              #endif
+ 215   2      
+ 216   2      #if((_D1_TMDS_SUPPORT == _ON) || (_D2_TMDS_SUPPORT == _ON))
+ 217   2      
+ 218   2              // Disable Key download port
+ 219   2              ScalerSetBit(P71_C0_HDCP_CR, ~_BIT1, 0x00);
+ 220   2      
+ 221   2              // New Cipher Mode
+ 222   2              ScalerSetBit(P71_C0_HDCP_CR, ~_BIT7, _BIT7);
+ 223   2      
+ 224   2              // For Chroma HDCP1.4 20k IIC r0 issue
+ 225   2              // Clear only AKSV IRQ Flag
+ 226   2              ScalerSetBit(P71_A9_TMDS_ABC0, ~(_BIT7 | _BIT6 | _BIT5 | _BIT2), (_BIT7));
+ 227   2      
+ 228   2              // Enable HDCP 1.4 AKSV IRQ
+ 229   2              ScalerSetBit(P71_AA_TMDS_ABC1, ~(_BIT4), _BIT4);
+ 230   2      #endif
+ 231   2      
+ 232   2      #if(_D3_TMDS_SUPPORT == _ON)
+C51 COMPILER V9.60.0.0   RL6432_SERIES_SYNC                                                08/27/2025 11:01:43 PAGE 5   
+
+ 233   2      
+ 234   2              // Disable Key download port
+ 235   2              ScalerSetBit(P72_C0_HDCP_CR, ~_BIT1, 0x00);
+ 236   2      
+ 237   2              // New Cipher Mode
+ 238   2              ScalerSetBit(P72_C0_HDCP_CR, ~_BIT7, _BIT7);
+ 239   2      
+ 240   2              // For Chroma HDCP1.4 20k IIC r0 issue
+ 241   2              // Clear only AKSV IRQ Flag
+ 242   2              ScalerSetBit(P72_A9_TMDS_ABC0, ~(_BIT7 | _BIT6 | _BIT5 | _BIT2), (_BIT7));
+ 243   2      
+ 244   2              // Enable HDCP 1.4 AKSV IRQ
+ 245   2              ScalerSetBit(P72_AA_TMDS_ABC1, ~(_BIT4), _BIT4);
+ 246   2      #endif
+ 247   2      
+ 248   2              // Internal IRQ Enable (Global)
+ 249   2              ScalerGlobalIRQControl(_ENABLE);
+ 250   2      
+ 251   2              EX0 = 1;
+ 252   2          }
+ 253   1      }
+ 254          
+ 255          //--------------------------------------------------
+ 256          // Description  : DownLoad HDCP BKsv
+ 257          // Input Value  : None
+ 258          // Output Value : None
+ 259          //--------------------------------------------------
+ 260          void ScalerSyncHdcpDownLoadBKsv(BYTE ucSubAddr, BYTE ucLength, BYTE *pucReadArray)
+ 261          {
+ 262   1          for(pData[0] = ucSubAddr; pData[0] < ucLength; pData[0]++)
+ 263   1          {
+ 264   2      #if((_D1_TMDS_SUPPORT == _ON) || (_D2_TMDS_SUPPORT == _ON))
+ 265   2              ScalerSetDataPortByte(P71_C3_HDCP_AP, pData[0], pucReadArray[pData[0]]);
+ 266   2      #endif
+ 267   2      
+ 268   2      #if(_D3_TMDS_SUPPORT == _ON)
+ 269   2              ScalerSetDataPortByte(P72_C3_HDCP_AP, pData[0], pucReadArray[pData[0]]);
+ 270   2      #endif
+ 271   2      
+ 272   2      #if(_DP_SUPPORT == _ON)
+ 273   2      #if(_D0_DP_EXIST == _ON)
+ 274   2              ScalerDpRx0SetDpcdValue(0x06, 0x80, (0x00 | pData[0]), pucReadArray[pData[0]]);
+ 275   2      #endif
+ 276   2      
+ 277   2      #if(_D1_DP_EXIST == _ON)
+                      ScalerDpRx1SetDpcdValue(0x06, 0x80, (0x00 | pData[0]), pucReadArray[pData[0]]);
+              #endif
+ 280   2      
+ 281   2      #if(_D0_DP_EXIST == _ON)
+ 282   2              // Enable DP Link Integrity Enable
+ 283   2              ScalerSetBit(PB_1B_HDCP_INTGT_VRF, ~_BIT7, _BIT7);
+ 284   2      #endif
+ 285   2      
+ 286   2      #if(_D1_DP_EXIST == _ON)
+                      // Enable DP Link Integrity Enable
+                      ScalerSetBit(PB0_1B_HDCP_INTGT_VRF, ~_BIT7, _BIT7);
+              #endif
+ 290   2      #endif
+ 291   2              g_pucHdcpBksvBackup[pData[0]] = pucReadArray[pData[0]];
+ 292   2          }
+ 293   1      
+ 294   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[0]);
+C51 COMPILER V9.60.0.0   RL6432_SERIES_SYNC                                                08/27/2025 11:01:43 PAGE 6   
+
+ 295   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[1]);
+ 296   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[2]);
+ 297   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[3]);
+ 298   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[4]);
+ 299   1      }
+ 300          
+ 301          //--------------------------------------------------
+ 302          // Description  : DownLoad HDCP Key
+ 303          // Input Value  : None
+ 304          // Output Value : None
+ 305          //--------------------------------------------------
+ 306          void ScalerSyncHdcpDownLoadKey(WORD usLength, BYTE *pucReadArray)
+ 307          {
+ 308   1      #if(_D0_DP_EXIST == _ON)
+ 309   1          ScalerWrite(PB_18_DP_HDCP_DOWNLOAD_PORT, usLength, pucReadArray, _NON_AUTOINC);
+ 310   1      #endif
+ 311   1      
+ 312   1      #if(_D1_DP_EXIST == _ON)
+                  ScalerWrite(PB0_18_DP_HDCP_DOWNLOAD_PORT, usLength, pucReadArray, _NON_AUTOINC);
+              #endif
+ 315   1      
+ 316   1      #if((_D1_TMDS_SUPPORT == _ON) || (_D2_TMDS_SUPPORT == _ON))
+ 317   1          ScalerWrite(P71_C1_HDCP_DKAP, usLength, pucReadArray, _NON_AUTOINC);
+ 318   1      #endif
+ 319   1      
+ 320   1      #if(_D3_TMDS_SUPPORT == _ON)
+ 321   1          ScalerWrite(P72_C1_HDCP_DKAP, usLength, pucReadArray, _NON_AUTOINC);
+ 322   1      #endif
+ 323   1      }
+ 324          
+ 325          #if(_HDCP_1_4_KEY_LOCATION == _TABLE_LOCATION_EFUSE)
+              //--------------------------------------------------
+              // Description  : Get HDCP Key From eFuse
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerSyncGetEfuseHDCPKey(WORD usSubAddr, WORD usLength, BYTE *pucReadArray)
+              {
+                  WORD usIndex = 0;
+              
+                  ScalerSetByte(P24_A1_EFUSE_BURN_IN_1, (usSubAddr / 2));
+              
+                  ScalerSetBit(P24_A3_EFUSE_CTRL_0, ~(_BIT7 | _BIT6 | _BIT4), _BIT6);
+              
+                  // Delay Time us [10,x]
+                  DELAY_10US();
+              
+                  for(usIndex = 0; usIndex < usLength; usIndex++)
+                  {
+                      pucReadArray[usIndex] = ScalerGetByte(P24_A6_EFUSE_DATA0 + usIndex);
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get HDCP Key From eFuse
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerSyncGetEfuseHDCPKeyBKsv(WORD usSubAddr, WORD usLength, BYTE *pucReadArray)
+              {
+                  WORD usIndex = 0;
+              
+C51 COMPILER V9.60.0.0   RL6432_SERIES_SYNC                                                08/27/2025 11:01:43 PAGE 7   
+
+                  ScalerSetByte(P24_A1_EFUSE_BURN_IN_1, (usSubAddr + 320) / 2);
+              
+                  ScalerSetBit(P24_A3_EFUSE_CTRL_0, ~(_BIT7 | _BIT6 | _BIT4), _BIT6);
+              
+                  // Delay Time us [10,x]
+                  DELAY_10US();
+              
+                  for(usIndex = 0; usIndex < usLength; usIndex++)
+                  {
+                      pucReadArray[usIndex] = ScalerGetByte(P24_A6_EFUSE_DATA0 + usIndex);
+                  }
+              }
+              #endif // End of #if(_HDCP_1_4_KEY_LOCATION == _TABLE_LOCATION_EFUSE)
+ 370          #endif
+ 371          
+ 372          #if(_FREESYNC_SUPPORT == _ON)
+ 373          //--------------------------------------------------
+ 374          // Description  : Enable Freesync Test Pin
+ 375          // Input Value  : None
+ 376          // Output Value : None
+ 377          //--------------------------------------------------
+ 378          void ScalerSyncFREESYNCTestPinEnable(void)
+ 379          {
+ 380   1          // Set DVS test pin (TestOut0) and DHS test pin (TestOut1)
+ 381   1          ScalerSetDataPortByte(P0_2A_DISPLAY_FORMAT_ADDR_PORT, _P0_2B_PT_48_D_DOMAIN_TESTOUT, 0x0A);
+ 382   1          ScalerSetDataPortByte(P0_8D_TEST_MODE_PORT_ADDR, _P0_8E_PT_00_TEST_MODE, 0x0A);
+ 383   1          ScalerSetDataPortByte(P0_8D_TEST_MODE_PORT_ADDR, _P0_8E_PT_01_TEST_MODE_CTRL, 0x81);
+ 384   1          ScalerSetDataPortByte(P0_8D_TEST_MODE_PORT_ADDR, _P0_8E_PT_20_TESTOUT_SEL0, 0x67);
+ 385   1          ScalerSetDataPortByte(P0_8D_TEST_MODE_PORT_ADDR, _P0_8E_PT_21_TESTOUT_SEL1, 0x66);
+ 386   1      }
+ 387          #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    545    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       9
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =      5    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

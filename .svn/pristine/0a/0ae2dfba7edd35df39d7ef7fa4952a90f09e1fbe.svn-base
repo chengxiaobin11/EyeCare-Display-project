@@ -1,0 +1,2161 @@
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RTD2014KEY
+OBJECT MODULE PLACED IN .\Output\RL6463\RTD2014Key.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE User\RTD Series\RTD2014Osd\Code\RTD2014Key.c LARGE OPTIMIZE(9,SPEED)
+                    - INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\K
+                    -ernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header
+                    -;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler\RL6463_Seri
+                    -es_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD
+                    -2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User
+                    -\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6
+                    -463\RTD2014Key.lst) OBJECT(.\Output\RL6463\RTD2014Key.obj)
+
+line level    source
+
+   1                  /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RTD2014Key.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RTD_KEY__
+  18          
+  19          #include "UserCommonInclude.h"
+  20          
+  21          extern bit ddcci_reset;
+  22          
+  23          #if(_OSD_TYPE == _REALTEK_2014_OSD)
+  24          /*
+  25          BYTE code KeyDefault[10] = 
+  26          {
+  27                  POWER_KEY,
+  28                  MENU_KEY,       
+  29                  EXIT_KEY,
+  30                  RIGHT_KEY,
+  31                  LEFT_KEY,
+  32                  
+  33                  POWER_REG,
+  34                  MENU_REG,       
+  35                  EXIT_REG,
+  36                  RIGHT_REG,
+  37                  LEFT_REG,
+  38          };
+  39          */
+  40          //****************************************************************************
+  41          // DEFINITIONS / MACROS
+  42          //****************************************************************************
+  43          //--------------------------------------------------
+  44          // Definitions of Key Mask
+  45          //--------------------------------------------------
+  46          #define _RELEASE_KEY_MASK                           0x00
+  47          #define _POWER_KEY_MASK                             0x01
+  48          #define _MENU_KEY_MASK                              0x02
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 2   
+
+  49          #define _RIGHT_KEY_MASK                             0x04
+  50          #define _LEFT_KEY_MASK                              0x08
+  51          #define _EXIT_KEY_MASK                              0x10
+  52          #define _MIDDLE_KEY_MASK                            0x20
+  53          #define _UP_KEY_MASK                                0x40
+  54          #define _DOWN_KEY_MASK                              0x80
+  55          
+  56          #if(_5KEY_MENU_STYLE)   //2025.02.11 tx
+              
+              #define _LOCK_KEY_MASK                                                          (_LEFT_KEY_MASK | _RIGHT_KEY_MASK)
+              
+              #define _POWER_LOCK_KEY_MASK                                            (_RIGHT_KEY_MASK | _MENU_KEY_MASK)
+              #define _LOGO_BOOTUP_KEY_MASK                                           (_MENU_KEY_MASK | _EXIT_KEY_MASK)
+              #if(_DEF_VGA_TIMING_KEY_2_4)
+              #define _SWITCH_MODE_KEY_MASK                                           (_LEFT_KEY_MASK | _EXIT_KEY_MASK)//(_4_KEY_MASK | _2_KEY_MASK)//0x20    //
+             -VGA Timing 切换
+              #endif
+              
+              #else
+  67          #define _LOCK_KEY_MASK                                                          (_LEFT_KEY_MASK | _MENU_KEY_MASK)
+  68          
+  69          #define _POWER_LOCK_KEY_MASK                                            (_RIGHT_KEY_MASK | _MENU_KEY_MASK)
+  70          #define _LOGO_BOOTUP_KEY_MASK                                           (_LEFT_KEY_MASK | _EXIT_KEY_MASK)
+  71          
+  72          #if(_DEF_VGA_TIMING_KEY_2_4)
+  73          #define _SWITCH_MODE_KEY_MASK                                           (_RIGHT_KEY_MASK | _EXIT_KEY_MASK)//(_4_KEY_MASK | _2_KEY_MASK)//0x20   /
+             -/VGA Timing 切换
+  74          #endif
+  75          
+  76          #endif
+  77          
+  78          #define _AUTO_COLOR_KEY_MASK                                    0x40//(_2_KEY_MASK | _3_KEY_MASK | _4_KEY_MASK)
+  79          
+  80          
+  81          
+  82          
+  83          #define _POWER_RIGHT_KEY_MASK                       (_POWER_KEY_MASK | _RIGHT_KEY_MASK)
+  84          #define _POWER_MENU_KEY_MASK                        (_POWER_KEY_MASK | _MENU_KEY_MASK)
+  85          #define _POWER_LEFT_RIGHT_KEY_MASK                  (_POWER_KEY_MASK | _LEFT_KEY_MASK | _RIGHT_KEY_MASK)
+  86          
+  87          //--------------------------------------------------
+  88          // Definitions of IR Key Code
+  89          //--------------------------------------------------
+  90          #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+              #if(_IR_PROTOCAL == _IR_NEC_DTV328)
+              #define _IR_CODE_KEY_POWER                          0x0408
+              #define _IR_CODE_KEY_MENU                           0x0443
+              #define _IR_CODE_KEY_RIGHT                          0x0406
+              #define _IR_CODE_KEY_LEFT                           0x0407
+              #define _IR_CODE_KEY_EXIT                           0x045B
+              
+              #elif(_IR_PROTOCAL == _IR_SONY_B102P)
+              #define _IR_CODE_KEY_POWER                          0x0950
+              #define _IR_CODE_KEY_MENU                           0x0A50
+              #define _IR_CODE_KEY_RIGHT                          0x0920
+              #define _IR_CODE_KEY_LEFT                           0x0930
+              #define _IR_CODE_KEY_EXIT                           0x0940
+              
+              #elif(_IR_PROTOCAL == _IR_PHILIPS_RC6)
+              #define _IR_CODE_KEY_POWER                          0x000C
+              #define _IR_CODE_KEY_MENU                           0x005C
+              #define _IR_CODE_KEY_RIGHT                          0x005B
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 3   
+
+              #define _IR_CODE_KEY_LEFT                           0x005A
+              #define _IR_CODE_KEY_EXIT                           0x000A
+              
+              #endif
+              #endif
+ 114          
+ 115          
+ 116          //****************************************************************************
+ 117          // STRUCT / TYPE / ENUM DEFINITTIONS
+ 118          //****************************************************************************
+ 119          
+ 120          
+ 121          //****************************************************************************
+ 122          // CODE TABLES
+ 123          //****************************************************************************
+ 124          
+ 125          
+ 126          //****************************************************************************
+ 127          // VARIABLE DECLARATIONS
+ 128          //****************************************************************************
+ 129          BYTE g_ucKeyStatePrev;
+ 130          BYTE g_ucKeyStateCurr;
+ 131          BYTE g_ucKeyStateSkip;
+ 132          
+ 133          #if(_AD_KEY_SUPPORT == _ON)
+ 134          BYTE g_ucBackupKeyState = 0xFF;
+ 135          #endif
+ 136          
+ 137          BYTE g_usOsdKeyDirectionType = _LAYER_NONE;
+ 138          
+ 139          extern void RTDKeyPressHightLight(BYTE KeyMask);
+ 140          
+ 141          //****************************************************************************
+ 142          // FUNCTION DECLARATIONS
+ 143          //****************************************************************************
+ 144          void UserInterfaceKeyHandler(void);
+ 145          void RTDKeyInitial(void);
+ 146          bit RTDKeyScanReady(void);
+ 147          BYTE RTDKeyScan(void);
+ 148          bit RTDKeyPowerKeyProc(void);
+ 149          void RTDKeyPowerKeyMix(void);
+ 150          void RTDKeyMessageProc(void);
+ 151          void RTDKeyMessageConvert(BYTE ucKeyMask, BYTE ucKeyMsg);
+ 152          
+ 153          bit RTDKeySpecialProc(BYTE ucKeyMask);
+ 154          void RTDKeyHoldKeyTimerCancel(void);
+ 155          void RTDKeyHoldKeyCheck(void);
+ 156          void KeyLedPowerIndicator(BYTE ucGetKey);
+ 157          BYTE KeyMaskRotate(BYTE ucKeyMask);
+ 158          
+ 159          
+ 160          #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+              BYTE RTDIRKeyScan(void);
+              #endif
+ 163          
+ 164          //****************************************************************************
+ 165          // FUNCTION DEFINITIONS
+ 166          //****************************************************************************
+ 167          //--------------------------------------------------
+ 168          // Description  : Key Handler, executed in the main loop.
+ 169          // Input Value  : None
+ 170          // Output Value : None
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 4   
+
+ 171          //--------------------------------------------------
+ 172          void UserInterfaceKeyHandler(void)
+ 173          {
+ 174   1      
+ 175   1      #if(_DEF_KEY_ROCKER)
+              
+                      BYTE ucKeyState = 0;
+                      BYTE ucVoltage0 = 0;
+                      BYTE ucVoltage1 = 0;
+                      BYTE ucVoltage2 = 0;
+                      BYTE ucVoltage3 = 0;
+              
+                      ucVoltage0 = PCB_ADKEY0();
+                      ucVoltage1 = PCB_ADKEY1();
+                      ucVoltage2 = PCB_ADKEY2();
+                      ucVoltage3 = PCB_ADKEY3();
+                      
+              #endif
+ 189   1      
+ 190   1          // Skip key status update for tool
+ 191   1          if(g_ucKeyStateSkip != 0)
+ 192   1          {
+ 193   2              g_ucKeyStateSkip = 0;
+ 194   2              return;
+ 195   2          }
+ 196   1      
+ 197   1          // Clear the key message
+ 198   1          if(GET_KEYMESSAGE() != _HOLD_KEY_MESSAGE)
+ 199   1          {
+ 200   2              SET_KEYMESSAGE(_NONE_KEY_MESSAGE);
+ 201   2          }
+ 202   1              
+ 203   1      #if(_DEF_KEY_ROCKER)
+                      if(( SysPowerGetPowerStatus() == _POWER_STATUS_AC_ON))  
+                              PCB_KEY_STATE(ucVoltage0, ucVoltage1, ucVoltage2, ucVoltage3, ucKeyState);
+              
+                      if((SysPowerGetPowerStatus() == _POWER_STATUS_AC_ON) && (KeyMaskRotate(ucKeyState) == _LEFT_KEY_MASK))
+                      {
+              
+                              SET_FACTORY_MODE(_ON);
+                              SET_OSD_HOTKEY_BURNIN(_ON);
+                              TPVNVRamSaveFactoryDate();
+              
+                              SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL); // 进入老化后立刻开机
+              
+                      }
+              #endif
+ 218   1      
+ 219   1          if(RTDKeyScanReady() == _TRUE)
+ 220   1          {
+ 221   2              // Store previous key state
+ 222   2              g_ucKeyStatePrev = g_ucKeyStateCurr;
+ 223   2      
+ 224   2              // Get current key state
+ 225   2              g_ucKeyStateCurr = RTDKeyScan();
+ 226   2      
+ 227   2              // Power key process, return if power key is pressed
+ 228   2              if(RTDKeyPowerKeyProc() == _TRUE)
+ 229   2              {
+ 230   3                  return;
+ 231   3              }
+ 232   2      
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 5   
+
+ 233   2      
+ 234   2              // Convert key state to key message, store in (ucKeyNotify)
+ 235   2              RTDKeyMessageProc();
+ 236   2          }
+ 237   1      }
+ 238          
+ 239          
+ 240          //--------------------------------------------------
+ 241          // Description  :
+ 242          // Input Value  : None
+ 243          // Output Value : Return Key status
+ 244          //--------------------------------------------------
+ 245          void RTDKeyCheckRelease(BYTE ucKey)
+ 246          {
+ 247   1              switch(ucKey)
+ 248   1              {
+ 249   2                      case _LOCK_KEY_MASK:
+ 250   2                      case _LOGO_BOOTUP_KEY_MASK:
+ 251   2                      case _POWER_LOCK_KEY_MASK:
+ 252   2                              SET_KEY_LONG_PRESSED(_TRUE);
+ 253   2                              SET_KEY_COMBINE(_FALSE);
+ 254   2                              //DebugMessageOsd("1.RTDKeyCheckRelease",ucKey);
+ 255   2                              break;
+ 256   2      
+ 257   2                      default:
+ 258   2                          SET_KEY_LONG_PRESSED(_FALSE);
+ 259   2                              break;
+ 260   2              }
+ 261   1      }
+ 262          
+ 263          
+ 264          //--------------------------------------------------
+ 265          // Description  :
+ 266          // Input Value  : None
+ 267          // Output Value : None
+ 268          //--------------------------------------------------
+ 269          void OsdDisplayCombineKeyFunction(bit bKeyMode, BYTE ucValue)
+ 270          {
+ 271   1          BYTE ucColnum = 0;
+ 272   1      
+ 273   1              if(GET_OSD_RESOLUTION_STATUS() == _TRUE)
+ 274   1              {
+ 275   2                      ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_Timing_Notice);
+ 276   2              }
+ 277   1              
+ 278   1              //DebugMessageOsd("1.ucValue",ucValue);
+ 279   1              
+ 280   1      #if(_DEF_KEY_ROCKER)
+                      if(ucValue>10)
+                              SET_KEY_COMBINE(_FALSE);
+              #endif
+ 284   1      
+ 285   1              if(GET_KEY_COMBINE() == _FALSE)
+ 286   1              {
+ 287   2                      SET_KEY_COMBINE(_TRUE);
+ 288   2                      ucValue = 0;
+ 289   2                      CLR_KEY_TIME_FOR_SECOND();
+ 290   2                      
+ 291   2      #if(_INSTANT_TIMER_EVENT_0 == _ON)
+ 292   2                      ScalerTimer0SetTimerCount(20); // this timer always counter
+ 293   2      #endif
+ 294   2      
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 6   
+
+ 295   2              if(bKeyMode ==_COMBINE_LOCK_OSD )//
+ 296   2                      {
+ 297   3                              OsdDispOsdMessage(_OSD_DISP_LOCKING_STATUS_MSG);
+ 298   3                      }
+ 299   2                      else//(ucKeyMode == _POWER_LOCK_KEY_MASK)
+ 300   2                      {
+ 301   3                              OsdDispOsdMessage(_OSD_DISP_POWER_LOCKING_STATUS_MSG);
+ 302   3                      }
+ 303   2                      OsdFuncEnableOsd();
+ 304   2              }
+ 305   1              
+ 306   1      
+ 307   1      //      if((GET_AUTO_POWEROFF_STATUS() == _FALSE) ||
+ 308   1      //         ((GET_AUTO_POWEROFF_STATUS() == _TRUE) && (bKeyMode != _POWER_LOCK_KEY_MASK)))
+ 309   1              {
+ 310   2                  ucColnum = (_OSD_MSG_COL_NUM_23 - _SLIDER_BAR_LENGTH - 3) / 2 + 1;
+ 311   2                      OsdDisplaySubSlider(ROW(_COMBINE_KEY_SLIDER_ROW), COL(ucColnum), ucValue, MAX(_LOCK_KEY_TIME), MIN(_SLID
+             -ER_MIN), _SLIDER_BAR_LENGTH,_OSD_NORMAL_TYPE);
+ 312   2                      OsdPropShowNumber_1(ROW(_COMBINE_KEY_SLIDER_ROW), COL(ucColnum+_SLIDER_BAR_LENGTH+1), ucValue, (_ALIGN_L
+             -EFT | _FORCE_SHOW_NUMBER_OFF | _SHOW_1), _PFONT_PAGE_SLIDER, COLOR(_CP_WHITE, _CP_BG));
+ 313   2              }
+ 314   1      }
+ 315          
+ 316          
+ 317          
+ 318          //--------------------------------------------------
+ 319          // Description  : Key intial.
+ 320          // Input Value  : None
+ 321          // Output Value : None
+ 322          //--------------------------------------------------
+ 323          void RTDKeyInitial(void)
+ 324          {
+ 325   1          CLR_KEYSCANREADY();
+ 326   1          CLR_KEYSCANSTART();
+ 327   1      }
+ 328          
+ 329          //--------------------------------------------------
+ 330          // Description  : Key scan ready process. We wait 0.02 sec in order to keep the keypad debounce
+ 331          // Input Value  : None
+ 332          // Output Value : None
+ 333          //--------------------------------------------------
+ 334          bit RTDKeyScanReady(void)
+ 335          {
+ 336   1          if((GET_KEYSCANSTART() == _TRUE) && (GET_KEYSCANREADY() == _TRUE) \
+ 337   1                      || (SysPowerGetPowerStatus()==_POWER_STATUS_AC_ON))
+ 338   1          {
+ 339   2              return _TRUE;
+ 340   2          }
+ 341   1          else if(GET_KEYSCANSTART() == _FALSE)
+ 342   1          {
+ 343   2              // Set Scan start flag.
+ 344   2              SET_KEYSCANSTART();
+ 345   2      
+ 346   2              // SET_KEYSCANREADY();
+ 347   2              // Wait 0.02 sec in order to keep the keypad debounce
+ 348   2                      if((GetOsdShowType(GET_OSD_STATE()) != _TYPE_SLIDER  && (OSD_HOT_KEY_PAGE != _OSD_HOTKEY_CONBRI)) && (GE
+             -T_KEYREPEATSTART() == _TRUE))
+ 349   2                      {
+ 350   3                              ScalerTimerReactiveTimerEvent(SEC(0.15), _USER_TIMER_EVENT_KEY_SCAN_READY);
+ 351   3                      }     
+ 352   2                      else
+ 353   2                      {
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 7   
+
+ 354   3                              ScalerTimerReactiveTimerEvent(SEC(0.01), _USER_TIMER_EVENT_KEY_SCAN_READY);
+ 355   3                      }
+ 356   2      
+ 357   2                      
+ 358   2              return _FALSE;
+ 359   2          }
+ 360   1      
+ 361   1          return _FALSE;
+ 362   1      }
+ 363          
+ 364          //--------------------------------------------------
+ 365          // Description  : Get key status
+ 366          // Input Value  : None
+ 367          // Output Value : Return Key status
+ 368          //--------------------------------------------------
+ 369          BYTE RTDKeyScan(void)
+ 370          {
+ 371   1          BYTE ucKeyState = 0;
+ 372   1          BYTE ucVoltage0 = 0;
+ 373   1          BYTE ucVoltage1 = 0;
+ 374   1          BYTE ucVoltage2 = 0;
+ 375   1          BYTE ucVoltage3 = 0;
+ 376   1      #if(_AD_KEY_SUPPORT == _ON)
+ 377   1              BYTE i = 0;
+ 378   1              BYTE j = 0;
+ 379   1              BYTE ms_i = 0;
+ 380   1      #endif
+ 381   1              bit bShowAutoIcon = 1;
+ 382   1              //bit bAutoKey = 0;
+ 383   1      
+ 384   1      #if(_AD_KEY_SUPPORT == _ON)
+ 385   1      
+ 386   1      
+ 387   1      
+ 388   1          ucVoltage0 = PCB_ADKEY0();
+ 389   1          ucVoltage1 = PCB_ADKEY1();
+ 390   1          ucVoltage2 = PCB_ADKEY2();
+ 391   1          ucVoltage3 = PCB_ADKEY3();
+ 392   1      
+ 393   1      
+ 394   1      #if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+ 395   1              CLR_KEY_TIME_FOR_SECOND();
+ 396   1              i=3;
+ 397   1              if(GET_OSD_STATE() == _MENU_NONE)
+ 398   1              {
+ 399   2                      ms_i = 10;      //多一些时间 让组合快捷键更容易按出 20--出菜单会太慢
+ 400   2              }
+ 401   1      #if 0//(_AUDIO_SUPPORT == _ON)
+                      else if(GET_OSD_ADJUST() && GET_OSD_STATE() == _VOLUME_ADJUST)
+                      {
+                              ms_i = 1;
+                      }
+                      else if(GET_OSD_ADJUST())
+              //进度条
+                      {
+                              ms_i = _DEF_ADJ_Delay_Time;//0
+                      }
+                      
+              #endif
+ 413   1              else
+ 414   1              {
+ 415   2                      ms_i = 1;
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 8   
+
+ 416   2              }
+ 417   1      
+ 418   1              while(i)
+ 419   1              {
+ 420   2                      ucVoltage0 = PCB_ADKEY0();
+ 421   2                      ScalerTimerDelayXms(ms_i);
+ 422   2                      j = PCB_ADKEY0();
+ 423   2                      if(abs(ucVoltage0-j)<5)
+ 424   2                              break;
+ 425   2                      i--;
+ 426   2              }
+ 427   1      
+ 428   1              i=3;
+ 429   1              while(i)
+ 430   1              {
+ 431   2                      ucVoltage1 = PCB_ADKEY1();
+ 432   2                      ScalerTimerDelayXms(ms_i);
+ 433   2                      j = PCB_ADKEY1();
+ 434   2                      if(abs(ucVoltage1-j)<5)
+ 435   2                              break;
+ 436   2                      i--;
+ 437   2              }
+ 438   1      
+ 439   1              i=3;
+ 440   1              while(i)
+ 441   1              {
+ 442   2                      ucVoltage2 = PCB_ADKEY2();
+ 443   2                      ScalerTimerDelayXms(ms_i);
+ 444   2                      j = PCB_ADKEY2();
+ 445   2                      if(abs(ucVoltage2-j)<5)
+ 446   2                              break;
+ 447   2                      i--;
+ 448   2              }
+ 449   1      
+ 450   1              i=3;
+ 451   1              while(i)
+ 452   1              {
+ 453   2                      ucVoltage3 = PCB_ADKEY3();
+ 454   2                      ScalerTimerDelayXms(ms_i);
+ 455   2                      j = PCB_ADKEY3();
+ 456   2                      if(abs(ucVoltage3-j)<5)
+ 457   2                              break;
+ 458   2                      i--;
+ 459   2              }
+ 460   1      
+ 461   1      
+ 462   1          PCB_KEY_STATE(ucVoltage0, ucVoltage1, ucVoltage2, ucVoltage3, ucKeyState);
+ 463   1      
+ 464   1          if((g_ucBackupKeyState == ucKeyState) && (ucKeyState != 0))
+ 465   1          {
+ 466   2              if(GET_KEYREPEATENABLE() != _ON)
+ 467   2              {
+ 468   3                  RTDKeyInitial();
+ 469   3              }
+ 470   2      
+ 471   2              //return g_ucBackupKeyState;
+ 472   2          }
+ 473   1          else
+ 474   1          {
+ 475   2              g_ucBackupKeyState = ucKeyState;
+ 476   2              ucKeyState = 0;
+ 477   2          }
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 9   
+
+ 478   1      
+ 479   1      #else
+                      //CLR_KEY_TIME_FOR_SECOND();
+              
+                      PCB_KEY_STATE(ucVoltage0, ucVoltage1, ucVoltage2, ucVoltage3, ucKeyState);
+              
+                      if((g_ucBackupKeyState == ucKeyState) && (ucKeyState != 0))
+                      {
+                              if(GET_KEYREPEATENABLE() != _ON)
+                              {
+                                      RTDKeyInitial();
+                              }
+                              //return ucKeyState;
+                      }
+              
+                      pData[0] = 0;
+                      do
+                      {
+                              ScalerTimerDelayXms(1);
+              
+                              if((abs(PCB_ADKEY0() - ucVoltage0) < 2) && (abs(PCB_ADKEY1() - ucVoltage1) < 2) && (abs(PCB_ADKEY2() - u
+             -cVoltage2) < 2) && (abs(PCB_ADKEY3() - ucVoltage3) < 2))
+                              {
+                                      break;
+                              }
+                              else
+              
+                              {
+                                      ucVoltage0 = PCB_ADKEY0();
+                                      ucVoltage1 = PCB_ADKEY1();
+                                      ucVoltage2 = PCB_ADKEY2();
+                                      ucVoltage3 = PCB_ADKEY3();
+                              }
+              
+                              pData[0]++;
+                      }
+                      while(pData[0] < 10);
+              
+                      ucKeyState = 0;
+              
+                      PCB_KEY_STATE(ucVoltage0, ucVoltage1, ucVoltage2, ucVoltage3, ucKeyState);
+                      g_ucBackupKeyState = ucKeyState;
+              
+              #endif // 
+ 521   1      
+ 522   1      
+ 523   1      #else
+                  PCB_KEY_STATE(ucVoltage0, ucVoltage1, ucVoltage2, ucVoltage3, ucKeyState);
+              #endif // End of #if(_AD_KEY_SUPPORT == _ON)
+ 526   1      
+ 527   1      #if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+ 528   1      
+ 529   1      
+ 530   1                      if(ucKeyState != 0)
+ 531   1                      {
+ 532   2                              SET_KEY_PRESSED(_TRUE);
+ 533   2      
+ 534   2                      }
+ 535   1                      else
+ 536   1                      {
+ 537   2                          SET_KEY_PRESSED(_FALSE);
+ 538   2                          SET_KEY_LONG_PRESSED(_FALSE);
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 10  
+
+ 539   2                  }
+ 540   1                      // 防止一直按组合键的时候重复秀组合键
+ 541   1                      if((GET_KEY_PRESSED() == _TRUE)&&(GET_KEY_LONG_PRESSED() == _TRUE))
+ 542   1                      {
+ 543   2                              //KeyLongPressCondition = _FALSE;
+ 544   2                              ucKeyState = 0;
+ 545   2                      }
+ 546   1      
+ 547   1      
+ 548   1                      KeyLedPowerIndicator(ucKeyState);
+ 549   1      
+ 550   1      
+ 551   1      
+ 552   1      
+ 553   1      /*************************组合键开始*********************************/
+ 554   1      
+ 555   1              if((ucKeyState == _LOCK_KEY_MASK) && (GET_OSD_STATE() == _MENU_NONE) && SysModeGetModeState() == _MODE_ST
+             -ATUS_ACTIVE)
+ 556   1              {
+ 557   2                      //while((GET_KEY_TIME_FOR_SECOND() <= _LOCK_KEY_TIME) && (abs(PCB_ADKEY1() - ucVoltage1) < _KEYPAD_DEBOU
+             -NCE) && (abs(PCB_ADKEY2() - ucVoltage2) < _KEYPAD_DEBOUNCE))
+ 558   2      #if(_PROJECT_ID ==_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)||(_PROJECT_ID==_ID_ZQ_2513E
+             -05_BOE_HV320FHB_F4A_8BIT_FHD75_VA2271_H_20250301)
+                              while((GET_KEY_TIME_FOR_SECOND() <= _LOCK_KEY_TIME)&&((b_KEY4==0&&b_KEY2==0)) )   
+              #elif(_DEFAULT_OSD_STYLE==_SUMA_OSD_STYLE)
+ 561   2                      while((GET_KEY_TIME_FOR_SECOND() <= _LOCK_KEY_TIME)&&((LEFT_KEY==0&&(abs(PCB_ADKEY2() - ucVoltage2) < _K
+             -EYPAD_DEBOUNCE))) )   
+ 562   2      #endif
+ 563   2                      {
+ 564   3                              OsdDisplayCombineKeyFunction(_COMBINE_LOCK_OSD, GET_KEY_TIME_FOR_SECOND());
+ 565   3                      }
+ 566   2      
+ 567   2                      if(GET_KEY_TIME_FOR_SECOND() < _LOCK_KEY_TIME)
+ 568   2                      {
+ 569   3                              ucKeyState = 0;
+ 570   3                      }
+ 571   2                      
+ 572   2                      RTDKeyCheckRelease(ucKeyState);
+ 573   2              }
+ 574   1              else if((GET_OSD_STATE() == _MENU_NONE) && (ucKeyState == _POWER_LOCK_KEY_MASK))
+ 575   1              {
+ 576   2      #if(_OSD_LOCK_ON_PowerLock_AND_LogoLock_SUPPORT)
+ 577   2                      if((GET_OSD_STATE() == _MENU_NONE) && SysModeGetModeState() == _MODE_STATUS_ACTIVE && !GET_OSD_LOCK_STAT
+             -US())
+ 578   2      #else
+                              if((GET_OSD_STATE() == _MENU_NONE) && SysModeGetModeState() == _MODE_STATUS_ACTIVE)
+              #endif
+ 581   2                      {
+ 582   3                              if(GET_AUTO_POWEROFF_STATUS() == _FALSE)
+ 583   3                              {
+ 584   4      #if(_AD_KEY_SUPPORT == _ON)
+ 585   4                                      //while((GET_KEY_TIME_FOR_SECOND() <= _LOCK_KEY_TIME) && (abs(PCB_ADKEY1() - ucVoltage1) < _KEYPAD_DEB
+             -OUNCE) && (abs(PCB_ADKEY2() - ucVoltage2) < _KEYPAD_DEBOUNCE))
+ 586   4      #if(_PROJECT_ID ==_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)||(_PROJECT_ID==_ID_ZQ_2513E
+             -05_BOE_HV320FHB_F4A_8BIT_FHD75_VA2271_H_20250301)
+                                              while((GET_KEY_TIME_FOR_SECOND() <= _LOCK_KEY_TIME)&&((b_KEY2==0&&b_KEY3==0)) )   
+              #elif(_DEFAULT_OSD_STYLE==_SUMA_OSD_STYLE)
+ 589   4                                      while((GET_KEY_TIME_FOR_SECOND() <= _LOCK_KEY_TIME)&&((LEFT_KEY==0&&(abs(PCB_ADKEY2() - ucVoltage2) < 
+             -_KEYPAD_DEBOUNCE))) )   
+ 590   4      #endif
+ 591   4                      {
+ 592   5                                              OsdDisplayCombineKeyFunction(_COMBINE_LOCK_POWERKEY, GET_KEY_TIME_FOR_SECOND());
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 11  
+
+ 593   5                                      }
+ 594   4                                      if(GET_KEY_TIME_FOR_SECOND() < _LOCK_KEY_TIME)
+ 595   4                                      {
+ 596   5                                              ucKeyState = 0;
+ 597   5      #if(_DEF_KEY_ROCKER)
+                                                      //g_ucKeyLongTimeFlag = g_ucKeyLongTimeFlag | _BIT2;                    
+              #endif
+ 600   5                                              //ScalerTimerDelayXms(200); //结束长按避免弹出其它菜单
+ 601   5                                      }
+ 602   4      #else
+                                              //ucKeyState = KeyCheckKeyContinue(ucKeyState, ucVoltage1, SECOND(11));
+              #endif
+ 605   4                              }
+ 606   3                              RTDKeyCheckRelease(ucKeyState);
+ 607   3                      }
+ 608   2                      else
+ 609   2                      {
+ 610   3                              if(ScalerOsdGetOsdEnable() == _DISABLE && (GET_OSD_LOCK_STATUS()) && SysModeGetModeState() == _MODE_STA
+             -TUS_ACTIVE)
+ 611   3                              {
+ 612   4                                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+ 613   4                              }
+ 614   3                      
+ 615   3                      }
+ 616   2      
+ 617   2              }
+ 618   1      #if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+ 619   1              else if((ucKeyState == _MENU_KEY_MASK) && (GET_OSD_STATE() == _MENU_FUN_TEMP) )
+ 620   1              {
+ 621   2      #if(_AD_KEY_SUPPORT == _ON)
+ 622   2      
+ 623   2      #if(_INSTANT_TIMER_EVENT_0 == _ON)
+ 624   2                      ScalerTimer0SetTimerCount(20); // this timer always counter
+ 625   2      #endif
+ 626   2      
+ 627   2      
+ 628   2      #if 0
+                              while((abs(PCB_ADKEY1() - ucVoltage1) < _KEYPAD_DEBOUNCE) && (abs(PCB_ADKEY2() - ucVoltage2) < _KEYPAD_D
+             -EBOUNCE))
+                              {
+                                      ScalerTimerDelayXms(10);
+                                      
+                              if(GET_KEY_TIME_FOR_SECOND() >= 5)
+                                      {
+                                              if((bShowAutoIcon == 1) && (SysSourceGetSourceType() == _SOURCE_VGA))
+                                              {
+                                                      bShowAutoIcon = 0;
+              #if 0//(_OSD_ROTATE_3_ORIENTATION_SUPPORT == _ON)
+                                                      if(GET_OSD_ROTATE_STATUS() != _OSD_ROTATE_DEGREE_0)
+                                                      {
+              #if(_OSD_BOTTOM_BUTTON_V_SPACE_SUPPORT == _OFF)
+                                                              OsdTableFuncPutIcon1BitAndColor((_OSD_MAP_B_ROW_OFFSET + 4), 1, _ICON_1BIT_AUTO_COLOR, _CP_WHITE, _C
+             -P_BG ,_FONT_PAGE1);
+              #else
+                                                              OsdTableFuncPutIcon1BitAndColor((_OSD_MAP_B_ROW_OFFSET + 6), 1, _ICON_1BIT_AUTO_COLOR, _CP_WHITE, _C
+             -P_DARKGRAY ,_FONT_PAGE1);
+              #endif
+                                                      }
+                                                      else
+              #endif
+                                                      {       
+              #if(_OSD_BOTTOM_BUTTON_H_SPACE_SUPPORT == _ON)
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 12  
+
+                                                              //OsdTableFuncPutIcon1BitAndColor(_OSD_MAP_B_ROW_OFFSET, 11, _ICON_1BIT_AUTO_COLOR, _CP_WHITE, _CP_D
+             -ARKGRAY ,_FONT_PAGE1);
+              #else
+                                                              //OsdTableFuncPutIcon1BitAndColor(_OSD_MAP_B_ROW_OFFSET, _OSD_MAP_B_COL_3, _ICON_1BIT_AUTO_COLOR, _C
+             -P_WHITE, _CP_DARKGRAY ,_FONT_PAGE1);
+              #endif                          
+                                                      }
+                                                      ScalerTimerDelayXms(300);
+                                                      ucKeyState = _AUTO_COLOR_KEY_MASK;
+              
+                                              return ucKeyState;
+                                              }
+              
+                                      //bAutoKey = 1;
+                                      }
+                              }
+              #endif
+ 666   2      #else
+                              //ucKeyState = KeyCheckKeyContinue(ucKeyState, ucVoltage1, SECOND(5));
+              
+              #endif
+ 670   2              RTDKeyCheckRelease(ucKeyState);
+ 671   2      
+ 672   2              }
+ 673   1      #endif
+ 674   1      
+ 675   1              if(GET_OSD_STATE() == _OSD_MSG_INPUT_SOURCE)
+ 676   1              {
+ 677   2                      ucKeyState = 0; 
+ 678   2              }
+ 679   1      
+ 680   1      /*************************组合键结束*********************************/
+ 681   1      #endif
+ 682   1      
+ 683   1      
+ 684   1      
+ 685   1      
+ 686   1      #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+                  if(ucKeyState == 0x00)
+                  {
+                      ucKeyState = RTDIRKeyScan();
+                  }
+              #endif // End of #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+ 692   1      
+ 693   1          if(ucKeyState != 0)
+ 694   1          {
+ 695   2              RTDKeyInitial();
+ 696   2          }
+ 697   1      
+ 698   1          return ucKeyState;
+ 699   1      }
+ 700          
+ 701          //--------------------------------------------------
+ 702          // Description  : Power key process
+ 703          // Input Value  : None
+ 704          // Output Value : Return _TRUE if power key is pressed
+ 705          //--------------------------------------------------
+ 706          bit RTDKeyPowerKeyProc(void)
+ 707          {
+ 708   1      #if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+ 709   1      
+ 710   1          if((g_ucKeyStateCurr & _POWER_KEY_MASK) != 0)
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 13  
+
+ 711   1          {
+ 712   2              if(((g_ucKeyStatePrev ^ g_ucKeyStateCurr) & _POWER_KEY_MASK) != 0)
+ 713   2              {
+ 714   3                      if(GET_OSD_PWKEY_LOCK_STATUS() == _TRUE)
+ 715   3                              {
+ 716   4                                      if((GET_OSD_LOGO_ON() == _OFF)&&(SysModeGetModeState() == _MODE_STATUS_ACTIVE) \
+ 717   4                                              &&(g_usOsdKeyDirectionType == _LAYER_NONE  \
+ 718   4                                              || g_usOsdKeyDirectionType == _LAYER_HOTKEY_LANGUAGE \
+ 719   4                                              || g_usOsdKeyDirectionType == _LAYER_HOTKEY_DISTRICT  \
+ 720   4                                              || g_usOsdKeyDirectionType == _LAYER_POWER_CONSUMPTION )\
+ 721   4                                              )
+ 722   4                                      {
+ 723   5                                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_POWER_LOCK_MSG);
+ 724   5                                      }
+ 725   4                                      return _FALSE;
+ 726   4                              }
+ 727   3      
+ 728   3      #if(_DEF_LONG_PRESS_POWER_OFF_3_SEC)
+              
+                                  if(SysModeGetModeState() == _MODE_STATUS_ACTIVE) //(g_usOsdKeyDirectionType != _LAYER_NONE)
+                              {
+                                      if(g_usOsdKeyDirectionType != _LAYER_HOTKEY_LANGUAGE 
+                                                      && g_usOsdKeyDirectionType != _LAYER_HOTKEY_DISTRICT
+              #if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+                                                      && g_usOsdKeyDirectionType != _LAYER_POWER_CONSUMPTION
+              #endif
+                                                      )
+                                      return  _FALSE;
+                                      }
+              
+              #elif(_PROJECT_ID ==_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223|| _PROJECT_ID==_ID_ZQ_2513
+             -E05_BOE_HV320FHB_F4A_8BIT_FHD75_VA2271_H_20250301) && (!_DEF_LONG_PRESS_POWER_OFF_3_SEC)
+              
+                                  if((SysModeGetModeState() == _MODE_STATUS_ACTIVE))// && (g_usOsdKeyDirectionType != _LAYER_NONE))
+                              {
+                                      if(g_usOsdKeyDirectionType != _LAYER_HOTKEY_LANGUAGE 
+                                                      && g_usOsdKeyDirectionType != _LAYER_HOTKEY_DISTRICT
+              #if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+                                                      && g_usOsdKeyDirectionType != _LAYER_POWER_CONSUMPTION
+              #endif
+                                                      &&(ScalerOsdGetOsdEnable())
+                                                      )
+                                      return  _FALSE;
+                                      }
+              
+              #endif
+ 756   3                              
+ 757   3                  RTDKeyPowerKeyMix();
+ 758   3      
+ 759   3      #if(_MPRT_SUPPORT == _ON)
+ 760   3                              UserAdjustMPRTFuntion(_OFF);
+ 761   3      #endif
+ 762   3      
+ 763   3                  if(SysPowerGetPowerStatus() == _POWER_STATUS_OFF)
+ 764   3                  {
+ 765   4                      SET_OSD_STATE(_MENU_NONE);
+ 766   4                      SET_OSD_IN_FACTORY_MENU_STATUS(_FALSE);
+ 767   4                      SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL);
+ 768   4                  }
+ 769   3                  else
+ 770   3                  {
+ 771   4                  
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 14  
+
+ 772   4      #if(_DEF_INDICATO_LIGHT_Flick_EANBLE)
+                                              ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_INDICATO_LIGHT_FACTORY_FLICKER);
+              #endif
+ 775   4                                      //SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_OFF);
+ 776   4      
+ 777   4                                      SET_FACTORY_MODE(_OFF);
+ 778   4                                      SET_FACTORY_BURNIN(_OFF);
+ 779   4                                  Input_New_State=10;
+ 780   4                      Input_Old_State=11;
+ 781   4                                      ddcci_reset=0;
+ 782   4                                      TPVNVRamSaveFactoryDate();
+ 783   4      #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+                              UserAdjustAudioTtsPlayEvent(_AUDIO_TTS_EVENT_POWER_OFF);
+                              ScalerTimerReactiveTimerEvent(SEC(2), _USER_TIMER_EVENT_AUDIO_TTS_POWER_OFF);
+              #else
+ 787   4                              
+ 788   4                      #if(_5KEY_MENU_STYLE)  //2025.2.13  tx wan
+                                              RTDKeyPressHightLight(_POWER_KEY_MASK);
+                                          ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+                              #endif
+ 792   4                      SysPowerSetTargetPowerStatus(_POWER_STATUS_OFF);
+ 793   4      #endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+ 794   4                  }
+ 795   3      
+ 796   3                  return _TRUE;
+ 797   3              }
+ 798   2          }
+ 799   1      
+ 800   1      #elif(_DEF_KEY_ROCKER)
+              
+                      if(((g_ucKeyStateCurr & _MIDDLE_KEY_MASK) != 0))
+                      {
+                              if(((g_ucKeyStatePrev ^ g_ucKeyStateCurr) & _MIDDLE_KEY_MASK) != 0)
+                              {
+                                      //DebugMessageOsd("4.g_ucKeyStatePrev", g_ucKeyStatePrev);
+              
+                                      RTDKeyPowerKeyMix();
+              
+                                      if(SysPowerGetPowerStatus() == _POWER_STATUS_OFF)
+                                      {
+                                              SET_OSD_STATE(_MENU_NONE);
+                                              SET_OSD_IN_FACTORY_MENU_STATUS(_FALSE);
+                                              SysPowerSetTargetPowerStatus(_POWER_STATUS_NORMAL);
+                                              return _TRUE;
+                                      }
+                              }
+                      }
+              
+              #endif
+ 821   1      
+ 822   1          return _FALSE;
+ 823   1      }
+ 824          
+ 825          //--------------------------------------------------
+ 826          // Description  : We can add some settings here while combo key with power key
+ 827          // Input Value  : None
+ 828          // Output Value : None
+ 829          //--------------------------------------------------
+ 830          void RTDKeyPowerKeyMix(void)
+ 831          {
+ 832   1          switch(g_ucKeyStateCurr)
+ 833   1          {
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 15  
+
+ 834   2      
+ 835   2              case _POWER_RIGHT_KEY_MASK:
+ 836   2                  break;
+ 837   2      
+ 838   2      
+ 839   2      
+ 840   2              case _POWER_MENU_KEY_MASK:
+ 841   2      #if(!_DEF_KEY_ROCKER)
+ 842   2      
+ 843   2                              SET_FACTORY_MODE(_ON);
+ 844   2                              SET_OSD_HOTKEY_BURNIN(_ON);
+ 845   2                              TPVNVRamSaveFactoryDate();
+ 846   2      
+ 847   2      #if(_VIEWMODE_SUPPORT == _ON)
+ 848   2                  SET_OSD_VIEWMODE_TYPE(_VIEWMODE_DEFAULT);
+ 849   2      #if(_PROJECT_ID==_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)||(_PROJECT_ID==_ID_ZQ_2513E0
+             -5_BOE_HV320FHB_F4A_8BIT_FHD75_VA2271_H_20250301)// 2025.0306 lj 工厂恢复默认值
+                                      UserAdjustViewModeType(GET_OSD_VIEWMODE_TYPE());
+                                      
+                                      UserCommonNVRamRestoreSystemData();
+                                      RTDNVRamRestoreOSDData();
+                                      RTDNVRamRestoreUserColorSetting();
+                                      RTDNVRamLoadColorSetting(GET_COLOR_TEMP_TYPE());
+                                      RTDNVRamRestoreViewModeParameters(); //还原情景模式结构体
+                                      RTDNVRamRestoreBriCon();
+                                      RTDNVRamRestoreBacklight();
+              #if(_DEF_VIEW_SONIC_DCR)//UserInterfaceAdjustColorProc
+              #if(_DCR_SUPPORT)
+                                      UserAdjustDCRControl(GET_OSD_DCR_STATUS());
+              #endif  
+              #endif
+                              
+              #endif  
+ 866   2      #endif
+ 867   2      #if(_OSD_GAME_SUPPORT == _ON)
+ 868   2                  SET_OSD_GAME_MODE(_GM_OFF);
+ 869   2      #endif
+ 870   2      
+ 871   2      #endif
+ 872   2      
+ 873   2                  break;
+ 874   2      
+ 875   2              case _POWER_LEFT_RIGHT_KEY_MASK:
+ 876   2                  break;
+ 877   2      
+ 878   2              default:
+ 879   2                  break;
+ 880   2          }
+ 881   1      }
+ 882          
+ 883          
+ 884          //--------------------------------------------------
+ 885          // Description  : Convert keypad status into key message, stores in ucKeyNotify
+ 886          // Input Value  : None
+ 887          // Output Value : None
+ 888          //--------------------------------------------------
+ 889          #define _NAVIGATION_KEY_PRESS_WIN                                               _OSD_WINDOW_4_2
+ 890          #define _NAVIGATION_KEY_SELECT_FONT_COLOR                               _CP_WHITE
+ 891          #define _NAVIGATION_KEY_SELECT_BG_COLORT                                _CP_BLUE
+ 892          #ifndef ENABLE_KEY_PRESS_HIGHLIGHT
+              #define ENABLE_KEY_PRESS_HIGHLIGHT                                              _OFF
+              #endif
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 16  
+
+ 895          
+ 896          void RTDKeyPressHightLight(BYTE KeyMask)
+ 897          {
+ 898   1      
+ 899   1      #if(ENABLE_KEY_PRESS_HIGHLIGHT == _OFF)
+ 900   1      
+ 901   1                      if(GET_POWER_INDICATOR() == _OFF)
+ 902   1                      {
+ 903   2                              KeyLedPowerIndicator(KeyMask);
+ 904   2                      }
+ 905   1      
+ 906   1                      return;
+ 907   1      #endif
+ 908   1      
+ 909   1              if(g_usOsdKeyDirectionType == _LAYER_NONE || g_usOsdKeyDirectionType == _LAYER_Timing_Tips)
+ 910   1                      return ;
+ 911   1              
+ 912   1              SET_OSD_WINDOW_REFERENCE_DELAY(1);      // Map B
+ 913   1              
+ 914   1              switch(KeyMask)
+ 915   1              {
+ 916   2              
+ 917   2      #if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+ 918   2      
+ 919   2                      case _LEFT_KEY_MASK:
+ 920   2      #if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+                                      if(g_usOsdKeyDirectionType == _LAYER_POWER_CONSUMPTION)
+                                      {
+              #if(_5KEY_MENU_STYLE)
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 0) ,      PIXELROW(_KEY_INDEX_ROW), 
+                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 3)-12 ,   PIXELROW(_KEY_INDEX_ROW + 2),
+                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+              
+              #else
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 0) + _KEY_INDEX_OFFSET,   PIXELROW(_KEY_INDEX_ROW),
+             - 
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 3-_KEY_ICON_WIDTH_OFFSET*3) + _KEY_INDEX_OFFSET,  
+             -PIXELROW(_KEY_INDEX_ROW + 2),
+                                                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+              #endif
+              
+                                      }
+                                      else
+              #endif
+ 939   2                              {
+ 940   3                                      OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+ 941   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 0) + _KEY_INDEX_OFFSET,   PIXELROW(_KEY_INDEX_ROW),
+             - 
+ 942   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 1-_KEY_ICON_WIDTH_OFFSET) + _KEY_INDEX_OFFSET,    PI
+             -XELROW(_KEY_INDEX_ROW + 2),
+ 943   3                                                                                              _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+ 944   3                              }
+ 945   2                      break;
+ 946   2                      
+ 947   2                      case _RIGHT_KEY_MASK:
+ 948   2      #if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+                                      if(g_usOsdKeyDirectionType == _LAYER_POWER_CONSUMPTION)
+                                      {
+              #if(_5KEY_MENU_STYLE)
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 17  
+
+                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 0) ,      PIXELROW(_KEY_INDEX_ROW), 
+                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 3)-12 ,   PIXELROW(_KEY_INDEX_ROW + 2),
+                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+              
+              #else
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 0) + _KEY_INDEX_OFFSET,   PIXELROW(_KEY_INDEX_ROW),
+             - 
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 3-_KEY_ICON_WIDTH_OFFSET*3) + _KEY_INDEX_OFFSET,  
+             -PIXELROW(_KEY_INDEX_ROW + 2),
+                                                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+              #endif
+              
+                                      }
+                                      else
+              #endif
+ 967   2                              {
+ 968   3                                      OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+ 969   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 1) + _KEY_INDEX_OFFSET + _KEY_INDEX_GAP * 1,      PIXE
+             -LROW(_KEY_INDEX_ROW), 
+ 970   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 2-_KEY_ICON_WIDTH_OFFSET) + _KEY_INDEX_OFFSET + _
+             -KEY_INDEX_GAP * 1,    PIXELROW(_KEY_INDEX_ROW + 2),
+ 971   3                                                                                              _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+ 972   3                              }
+ 973   2                      break;
+ 974   2                      
+ 975   2                      case _MENU_KEY_MASK:
+ 976   2                              
+ 977   2                              //DebugMessageOsd("2.g_usOsdKeyDirectionType",g_usOsdKeyDirectionType);
+ 978   2                              if(g_usOsdKeyDirectionType == _LAYER4_ADJ || (OsdStateDefine[OSD_MAIN_MENU_ITEM][OSD_SubMenuCur]==_MENU
+             -_FUN_INFORMATION))
+ 979   2                                      ;
+ 980   2      #if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+                                      else if(g_usOsdKeyDirectionType == _LAYER_POWER_CONSUMPTION)
+                                      {
+              #if(_5KEY_MENU_STYLE)
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 0) ,      PIXELROW(_KEY_INDEX_ROW), 
+                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 3)-12 ,   PIXELROW(_KEY_INDEX_ROW + 2),
+                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+              
+              #else
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 0) + _KEY_INDEX_OFFSET,   PIXELROW(_KEY_INDEX_ROW),
+             - 
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 3-_KEY_ICON_WIDTH_OFFSET*3) + _KEY_INDEX_OFFSET,  
+             -PIXELROW(_KEY_INDEX_ROW + 2),
+                                                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+              #endif
+              
+                                      }
+              #endif
+ 998   2                              else
+ 999   2                              {
+1000   3                                      OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+1001   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 2) + _KEY_INDEX_OFFSET + _KEY_INDEX_GAP * 2,      PIXE
+             -LROW(_KEY_INDEX_ROW), 
+1002   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 3-_KEY_ICON_WIDTH_OFFSET) + _KEY_INDEX_OFFSET + _
+             -KEY_INDEX_GAP * 2,    PIXELROW(_KEY_INDEX_ROW + 2),
+1003   3                                                                                              _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+1004   3                              }
+1005   2                      break;
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 18  
+
+1006   2      
+1007   2                      case _EXIT_KEY_MASK:    
+1008   2                              
+1009   2                              if(OSD_HOT_KEY_PAGE == _OSD_HOTKEY_LANGUAGE_SELECT || OSD_HOT_KEY_PAGE == _OSD_HOTKEY_DISTRICT_SELECT) 
+             -// 退出键不能高亮
+1010   2                                      ;
+1011   2      #if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+                                      else if(g_usOsdKeyDirectionType == _LAYER_POWER_CONSUMPTION)
+                                      {
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 3) + _KEY_INDEX_OFFSET + _KEY_INDEX_GAP_POWER * 1
+             -,        PIXELROW(_KEY_INDEX_ROW), 
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 4-_KEY_ICON_WIDTH_OFFSET) + _KEY_INDEX_OFFSET + _
+             -KEY_INDEX_GAP_POWER * 1,      PIXELROW(_KEY_INDEX_ROW + 2),
+                                                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+                                      }
+              #endif
+1020   2                              else
+1021   2                              {
+1022   3                                      OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+1023   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 3) + _KEY_INDEX_OFFSET + _KEY_INDEX_GAP * 3,      PIXE
+             -LROW(_KEY_INDEX_ROW), 
+1024   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 4-_KEY_ICON_WIDTH_OFFSET) + _KEY_INDEX_OFFSET + _
+             -KEY_INDEX_GAP * 3,    PIXELROW(_KEY_INDEX_ROW + 2),
+1025   3                                                                                              _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+1026   3                              }
+1027   2                      break;
+1028   2      
+1029   2                      case _POWER_KEY_MASK:
+1030   2      #if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+                                      if(g_usOsdKeyDirectionType == _LAYER_POWER_CONSUMPTION)
+                                      {
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 4) + _KEY_INDEX_OFFSET + _KEY_INDEX_GAP * 2,      PIXE
+             -LROW(_KEY_INDEX_ROW), 
+                                                                                                      PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 5-_KEY_ICON_WIDTH_OFFSET) + _KEY_INDEX_OFFSET + _
+             -KEY_INDEX_GAP * 2,    PIXELROW(_KEY_INDEX_ROW + 2),
+                                                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+                                      }
+                                      else
+              #endif
+1040   2                              {
+1041   3                                      OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+1042   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 4) + _KEY_INDEX_OFFSET + _KEY_INDEX_GAP * 4,      PIXE
+             -LROW(_KEY_INDEX_ROW), 
+1043   3                                                                                              PIXELCOL(_KEY_INDEX_COL + (_KEY_ICON_WIDTH) * 5-_KEY_ICON_WIDTH_OFFSET) + _KEY_INDEX_OFFSET + _
+             -KEY_INDEX_GAP * 4,    PIXELROW(_KEY_INDEX_ROW + 2),
+1044   3                                                                                              _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+1045   3                              }
+1046   2                      break;
+1047   2      
+1048   2      /**************************************_DEF_KEY_ROCKER********************************************/
+1049   2      #elif(_DEF_KEY_ROCKER)
+              
+              
+                              case _MIDDLE_KEY_MASK:
+                                      OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                              PIXELCOL(_KEY_5_ICON_COL),      PIXELROW(_KEY_5_ICON_ROW), 
+                                                                                              PIXELCOL(_KEY_5_ICON_COL+4),PIXELROW(_KEY_5_ICON_ROW+2),
+                                                                                              _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+              
+                              break;
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 19  
+
+              
+                              case _UP_KEY_MASK:
+                                      OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                              PIXELCOL(_KEY_3_ICON_COL),      PIXELROW(_KEY_3_ICON_ROW), 
+                                                                                              PIXELCOL(_KEY_3_ICON_COL+4),PIXELROW(_KEY_3_ICON_ROW+2),
+                                                                                              _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+              
+                              break;
+              
+                              case _DOWN_KEY_MASK:
+                                      OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                              PIXELCOL(_KEY_4_ICON_COL),      PIXELROW(_KEY_4_ICON_ROW), 
+                                                                                              PIXELCOL(_KEY_4_ICON_COL+4),PIXELROW(_KEY_4_ICON_ROW+2),
+                                                                                              _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+              
+                              break;
+              
+                              case _LEFT_KEY_MASK:
+                                      if(g_usOsdKeyDirectionType == _LAYER_Timing_Tips)
+                                      {
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                                      PIXELCOL(0)+1,  PIXELROW(_KEY_1_ICON_ROW), 
+                                                                                                      PIXELCOL(6),PIXELROW(_KEY_1_ICON_ROW+2),
+                                                                                                      _NAVIGATION_KEY_SELECT_BG_COLORT, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_
+             -COLORT);
+                                      }
+                                      else
+                                      {
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                                      PIXELCOL(_KEY_1_ICON_COL),      PIXELROW(_KEY_1_ICON_ROW), 
+                                                                                                      PIXELCOL(_KEY_1_ICON_COL+4),PIXELROW(_KEY_1_ICON_ROW+2),
+                                                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+                                      }
+                              break;
+              
+                              case _RIGHT_KEY_MASK:
+                                      if(g_usOsdKeyDirectionType == _LAYER_Timing_Tips)
+                                      {
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                                      PIXELCOL(_KEY_2_ICON_COL),      PIXELROW(_KEY_2_ICON_ROW), 
+                                                                                                      PIXELCOL(_KEY_2_ICON_COL+6),PIXELROW(_KEY_2_ICON_ROW+2),
+                                                                                                      _NAVIGATION_KEY_SELECT_BG_COLORT, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_
+             -COLORT);
+                                      }
+                                      else
+                                      {
+                                              OsdWindowDrawingHighlight(WINNO(_NAVIGATION_KEY_PRESS_WIN),
+                                                                                                      PIXELCOL(_KEY_2_ICON_COL),      PIXELROW(_KEY_2_ICON_ROW), 
+                                                                                                      PIXELCOL(_KEY_2_ICON_COL+4),PIXELROW(_KEY_2_ICON_ROW+2),
+                                                                                                      _CP_BG, _NAVIGATION_KEY_SELECT_FONT_COLOR, _NAVIGATION_KEY_SELECT_BG_COLORT);
+                                      }
+              
+                              break;
+              
+              #endif
+1112   2                      case _RELEASE_KEY_MASK:
+1113   2                      default:
+1114   2                              ScalerOsdWindowDisable(_NAVIGATION_KEY_PRESS_WIN);
+1115   2                              break;
+1116   2              }
+1117   1              SET_OSD_WINDOW_REFERENCE_DELAY(0);      // Map A
+1118   1      }
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 20  
+
+1119          
+1120          
+1121          
+1122          
+1123          //--------------------------------------------------
+1124          // Description  : Convert keypad status into key message, stores in ucKeyNotify
+1125          // Input Value  : None
+1126          // Output Value : None
+1127          //--------------------------------------------------
+1128          void RTDKeyMessageProc(void)
+1129          {
+1130   1              
+1131   1          switch(g_ucKeyStateCurr)
+1132   1          {
+1133   2          
+1134   2      #if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+1135   2      
+1136   2              case _MENU_KEY_MASK:
+1137   2                  CLR_KEYREPEATENABLE();
+1138   2                              if(g_usOsdKeyDirectionType == _LAYER4_ADJ || (g_usOsdKeyDirectionType == _LAYER2 && OsdStateDefine[OSD_
+             -MAIN_MENU_ITEM][OSD_SubMenuCur] == _MENU_FUN_INFORMATION))
+1139   2                              {
+1140   3                                      RTDKeyMessageConvert(_MENU_KEY_MASK, _NONE_KEY_MESSAGE);
+1141   3                              }
+1142   2                              else
+1143   2                              {
+1144   3                                      RTDKeyPressHightLight(_MENU_KEY_MASK);
+1145   3                                      RTDKeyMessageConvert(_MENU_KEY_MASK, _MENU_KEY_MESSAGE);
+1146   3      
+1147   3                              }
+1148   2      
+1149   2                  break;
+1150   2      
+1151   2              case _RIGHT_KEY_MASK:
+1152   2                              RTDKeyPressHightLight(_RIGHT_KEY_MASK);
+1153   2      #if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+                                      if(g_usOsdKeyDirectionType == _LAYER_POWER_CONSUMPTION)
+                                              RTDKeyMessageConvert(_RIGHT_KEY_MASK, _MENU_KEY_MESSAGE);
+                                      else
+              #endif
+1158   2                  RTDKeyMessageConvert(_RIGHT_KEY_MASK, _RIGHT_KEY_MESSAGE);
+1159   2                  break;
+1160   2      
+1161   2              case _LEFT_KEY_MASK:
+1162   2                              RTDKeyPressHightLight(_LEFT_KEY_MASK);
+1163   2      #if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+                                      if(g_usOsdKeyDirectionType == _LAYER_POWER_CONSUMPTION)
+                                              RTDKeyMessageConvert(_LEFT_KEY_MASK, _MENU_KEY_MESSAGE);
+                                      else
+              #endif
+1168   2                  RTDKeyMessageConvert(_LEFT_KEY_MASK, _LEFT_KEY_MESSAGE);
+1169   2                  break;
+1170   2      
+1171   2              case _EXIT_KEY_MASK:
+1172   2                  CLR_KEYREPEATENABLE();
+1173   2                              RTDKeyPressHightLight(_EXIT_KEY_MASK);
+1174   2                  RTDKeyMessageConvert(_EXIT_KEY_MASK, _EXIT_KEY_MESSAGE);
+1175   2                  break;
+1176   2      
+1177   2      #if(_DEF_VGA_TIMING_KEY_2_4)
+1178   2                      case _SWITCH_MODE_KEY_MASK:
+1179   2                               DebugMessageOsd("use_vga_t",1138);
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 21  
+
+1180   2                              if((GET_OSD_STATE() == _MENU_NONE) && ( SysSourceGetSourceType() == _SOURCE_VGA) && (SysPowerGetPowerSt
+             -atus() == _POWER_STATUS_NORMAL))
+1181   2                              {
+1182   3                                  DebugMessageOsd("use_vga_t",1141);
+1183   3                                      CLR_KEYREPEATENABLE();
+1184   3                                      RTDKeyMessageConvert(_SWITCH_MODE_KEY_MASK, _SWITCH_MODE_KEY_MESSAGE);
+1185   3                              }
+1186   2                              break;
+1187   2      #endif          
+1188   2      
+1189   2      /*********************************_DEF_KEY_ROCKER***********************************/
+1190   2      #elif(_DEF_KEY_ROCKER)
+              
+                              
+              
+                              case _MIDDLE_KEY_MASK:
+                                      RTDKeyPressHightLight(_MIDDLE_KEY_MASK);
+                                      if(g_usOsdKeyDirectionType == _LAYER_HOTKEY_INPUT_NOSIGNAL)
+                                      {
+                                              //OsdDispDisableOsd();
+                                              ScalerTimerReactiveTimerEvent(SEC(0.5), _USER_TIMER_EVENT_OSD_SHOW_NO_SIGNAL);
+                                      }
+                                      else
+                                              RTDKeyMessageConvert(_MIDDLE_KEY_MASK, _MIDDLE_KEY_MESSAGE);
+                                      /*if((g_usOsdKeyDirectionType != _LAYER_NONE) && (g_usOsdKeyDirectionType != _LAYER_Timing_Tips) && !((
+             -g_usOsdKeyDirectionType >= _LAYER_HOTKEY_VIEWMODE) && (g_usOsdKeyDirectionType <= _LAYER_HOTKEY_INPUT)))
+                                      {
+                                              OsdDispDisableOsd();
+                                              RTDKeyHoldKeyTimerCancel();
+                                      }
+                                      else if(g_usOsdKeyDirectionType >= _LAYER_HOTKEY_VIEWMODE && g_usOsdKeyDirectionType <= _LAYER_HOTKEY_I
+             -NPUT)
+                                      {
+                                              RTDKeyHoldKeyTimerCancel();
+                                      }*/
+              
+                                      break;
+              
+                              case _UP_KEY_MASK:
+                              case _DOWN_KEY_MASK:
+                              case _LEFT_KEY_MASK:
+                              case _RIGHT_KEY_MASK:
+              
+                                      if(KeyMaskRotate(g_ucKeyStateCurr) == _UP_KEY_MASK)
+                                      {
+                                              RTDKeyPressHightLight(g_ucKeyStateCurr);
+                                              if( g_usOsdKeyDirectionType == _LAYER_SLIDER_ADJUST 
+                                                      || g_usOsdKeyDirectionType == _LAYER4_ADJ 
+                                                      || g_usOsdKeyDirectionType == _LAYER_VOLUME_ADJUST 
+                                                      || g_usOsdKeyDirectionType == _LAYER_HOTKEY_CONBRI
+                                                      || (g_usOsdKeyDirectionType == _LAYER2 && GetOsdShowType(GET_OSD_STATE()) == _TYPE_SLIDER)
+                                                      )
+                                                      RTDKeyMessageConvert(g_ucKeyStateCurr, _EXIT_KEY_MESSAGE);
+                                              else
+                                                      RTDKeyMessageConvert(g_ucKeyStateCurr, _UP_KEY_MESSAGE);
+              
+                                      }
+                                      else if(KeyMaskRotate(g_ucKeyStateCurr) == _DOWN_KEY_MASK)
+                                      {
+                                              
+                                              RTDKeyPressHightLight(g_ucKeyStateCurr);
+                                              if(g_usOsdKeyDirectionType == _LAYER1 || g_usOsdKeyDirectionType == _LAYER_HOTKEY_CONBRI)
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 22  
+
+                                                      RTDKeyMessageConvert(g_ucKeyStateCurr, _MENU_KEY_MESSAGE);
+                                              else if(g_usOsdKeyDirectionType == _LAYER_SLIDER_ADJUST 
+                                                      || g_usOsdKeyDirectionType == _LAYER4_ADJ 
+                                                      || g_usOsdKeyDirectionType == _LAYER_VOLUME_ADJUST
+                                                      || (g_usOsdKeyDirectionType == _LAYER2 && GetOsdShowType(GET_OSD_STATE()) == _TYPE_SLIDER)
+                                                      )
+                                                      RTDKeyMessageConvert(g_ucKeyStateCurr, _NONE_KEY_MESSAGE);
+                                              else
+                                                      RTDKeyMessageConvert(g_ucKeyStateCurr, _DOWN_KEY_MESSAGE);
+              
+                                      }
+                                      else if(KeyMaskRotate(g_ucKeyStateCurr) == _LEFT_KEY_MASK)
+                                      {
+                      
+                                              if(GET_KEY_LONG_PRESSED() == _TRUE)
+                                              {       
+                                                      if(GET_KEY_TIME_FOR_SECOND() >= (_LOCK_KEY_TIME+1))
+                                                      {  
+                                                              SET_KEY_LONG_PRESSED(_FALSE);
+                                                              CLR_KEY_HOLD();
+                                                              CLR_KEYREPEATENABLE();
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _LOCK_KEY_MESSAGE);
+                                                              SET_OSD_LOCK_STATUS(!GET_OSD_LOCK_STATUS());
+                                                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+                                                              RTDNVRamSaveOSDData();
+                                                      }
+                                              }
+                                              else
+                                              {
+                                                      RTDKeyPressHightLight(g_ucKeyStateCurr);                                
+                      
+                                                      if(g_usOsdKeyDirectionType == _LAYER_HOTKEY_LANGUAGE || g_usOsdKeyDirectionType == _LAYER_HOTKEY_DIST
+             -RICT)
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _NONE_KEY_MESSAGE);
+              #if(_DEF_KEY_ROCKER)                            
+                                                      else if(g_usOsdKeyDirectionType == _LAYER2 && GetOsdShowType(GET_OSD_STATE())==_TYPE_SLIDER)
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _LEFT_KEY_MESSAGE);
+              #endif
+                                                      else if(g_usOsdKeyDirectionType == _LAYER2|| g_usOsdKeyDirectionType == _LAYER3 || g_usOsdKeyDirectio
+             -nType == _LAYER_HOTKEY_VIEWMODE \
+                                                              || g_usOsdKeyDirectionType == _LAYER_HOTKEY_INPUT || g_usOsdKeyDirectionType == _LAYER_NoFun || g_us
+             -OsdKeyDirectionType == _LAYER_HOTKEY_INPUT_NOSIGNAL)
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _EXIT_KEY_MESSAGE);
+                                                      else
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _LEFT_KEY_MESSAGE);
+                                              }
+              
+                                      }
+                                      else if(KeyMaskRotate(g_ucKeyStateCurr) == _RIGHT_KEY_MASK)
+                                      {
+                                              if(GET_KEY_LONG_PRESSED() == _TRUE)
+                                              {
+                                                      if(GET_KEY_TIME_FOR_SECOND() >= (_LOCK_KEY_TIME+1))
+                                                      {
+                                                              SET_KEY_LONG_PRESSED(_FALSE);
+                                                              CLR_KEY_HOLD();
+                                                              CLR_KEYREPEATENABLE();
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _POWER_LOCK_KEY_MESSAGE);
+                                                              OsdFuncPowerKeyProc(!GET_OSD_PWKEY_LOCK_STATUS());
+                                                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_POWER_LOCK_MSG);
+                                                              RTDNVRamSaveOSDData();
+                                                      }
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 23  
+
+                                              }
+                                              else
+                                              {
+                                                      RTDKeyPressHightLight(g_ucKeyStateCurr);
+                      
+                                                      if(g_usOsdKeyDirectionType == _LAYER_NoFun)
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _NONE_KEY_MESSAGE);
+              #if(_DEF_KEY_ROCKER)                            
+                                                      else if(g_usOsdKeyDirectionType == _LAYER2 && GetOsdShowType(GET_OSD_STATE())==_TYPE_SLIDER)
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _RIGHT_KEY_MESSAGE);
+              #endif
+                                                      else if(g_usOsdKeyDirectionType == _LAYER2 || g_usOsdKeyDirectionType == _LAYER3 
+                                                              || g_usOsdKeyDirectionType == _LAYER_HOTKEY_VIEWMODE || g_usOsdKeyDirectionType == _LAYER_HOTKEY_INP
+             -UT || g_usOsdKeyDirectionType == _LAYER_HOTKEY_LANGUAGE \
+                                                              || g_usOsdKeyDirectionType == _LAYER_HOTKEY_DISTRICT || g_usOsdKeyDirectionType == _LAYER_HOTKEY_INP
+             -UT_NOSIGNAL)
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _MENU_KEY_MESSAGE);
+                                                      
+                      
+                                                      else
+                                                              RTDKeyMessageConvert(g_ucKeyStateCurr, _RIGHT_KEY_MESSAGE);
+                                              }
+              
+                                      }
+              
+                                      break;
+              
+              
+              
+              
+              #endif
+1327   2      
+1328   2      
+1329   2      
+1330   2      #if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+1331   2                      case _AUTO_COLOR_KEY_MASK:
+1332   2                              //if(GET_OSD_STATE() == _MENU_NONE)
+1333   2                              if(GET_KEY_TIME_FOR_SECOND() >= 5)
+1334   2                              {
+1335   3                                      CLR_KEYREPEATENABLE(); 
+1336   3                                      OsdFontPut1BitTable(_OSD_MAP_B_ROW_OFFSET+_KEY_INDEX_ROW, _KEY_INDEX_COL + 1 + (_KEY_ICON_WIDTH + 1) *
+             - 2, tiOSD_OSDKEY_WBALANCE_ICON, COLOR(_CP_WHITE, _CP_DARKGRAY));
+1337   3                                      //OsdDisplayKeyIndex(_LAYER1);
+1338   3                                      ScalerTimerDelayXms(500);
+1339   3                                      RTDKeyMessageConvert(_AUTO_COLOR_KEY_MASK, _AUTO_COLOR_KEY_MESSAGE);
+1340   3                              }
+1341   2                              break;
+1342   2      #endif
+1343   2      
+1344   2      
+1345   2              case _POWER_KEY_MASK:
+1346   2                  CLR_KEYREPEATENABLE();
+1347   2                              RTDKeyPressHightLight(_POWER_KEY_MASK);
+1348   2                  RTDKeyMessageConvert(_POWER_KEY_MASK, _NONE_KEY_MESSAGE);
+1349   2                              if(g_usOsdKeyDirectionType != _LAYER_NONE)
+1350   2                      {
+1351   3      #if(_5KEY_MENU_STYLE)  //2025.2.13  tx wan
+                                          ScalerTimerDelayXms(_KEY_DELAYED_TIME); 
+              #endif
+1354   3                                      OsdDispDisableOsd();
+1355   3                              }
+1356   2      #if(_5KEY_MENU_STYLE)  
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 24  
+
+                                      else if(ScalerOsdGetOsdEnable())
+                                      {
+                                              OsdDispDisableOsd();
+                                      }
+                                      else if(GET_OSD_STATE() == _OSD_MSG_INPUT_SOURCE)
+                                      {
+                                              OsdDispDisableOsd();
+                                      }
+              #endif
+1366   2                  break;
+1367   2      
+1368   2                      case _LOCK_KEY_MASK:
+1369   2      
+1370   2                  if(SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL)
+1371   2                  {
+1372   3                                  if(GET_KEY_TIME_FOR_SECOND() >= _LOCK_KEY_TIME)
+1373   3                              {
+1374   4                              CLR_KEYREPEATENABLE();
+1375   4                              RTDKeyMessageConvert(_LOCK_KEY_MASK, _LOCK_KEY_MESSAGE);
+1376   4                      }
+1377   3                  }
+1378   2                              break;
+1379   2                      
+1380   2                      case _POWER_LOCK_KEY_MASK:
+1381   2                              
+1382   2                              if(SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL)
+1383   2                              {
+1384   3                                      if((GET_OSD_STATE() == _MENU_NONE) && (GET_AUTO_POWEROFF_STATUS() == _TRUE))
+1385   3                                      {
+1386   4                                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_AUTO_POWER_OFF_MSG);
+1387   4                                      }
+1388   3                                      
+1389   3                                      if(GET_AUTO_POWEROFF_STATUS() == _FALSE)
+1390   3                                      {
+1391   4                                              if(GET_KEY_TIME_FOR_SECOND() >= _LOCK_KEY_TIME)
+1392   4                                              {
+1393   5                                                      CLR_KEYREPEATENABLE();
+1394   5                                                      RTDKeyMessageConvert(_POWER_LOCK_KEY_MASK, _POWER_LOCK_KEY_MESSAGE);
+1395   5                                              }
+1396   4                                      }
+1397   3                              }
+1398   2                              break;
+1399   2                      
+1400   2                      case _LOGO_BOOTUP_KEY_MASK:
+1401   2                              if((GET_OSD_STATE() == _MENU_NONE) && SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL)
+1402   2                              {
+1403   3                                      SET_KEYREPEATENABLE();
+1404   3      #if(_DEF_HotOSD_Logo_MessageEanble_swtich)
+                                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_LOGOBOOTUP_MSG);
+                                              //SET_OSD_STATE(_OSD_HOTKEY_BLUELIGHT);         //_OSD_HOTKEY_BLUELIGHT 没用到,暂时用一下
+              #else
+1408   3                                      SET_FACTORY_FORCE_LOGO_OFF(!GET_FACTORY_FORCE_LOGO_OFF());
+1409   3                                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_LOGOBOOTUP_MSG);
+1410   3                                      TPVNVRamSaveFactoryDate();
+1411   3      #endif
+1412   3                                      RTDKeyMessageConvert(_LOGO_BOOTUP_KEY_MASK, _LOGO_BOOTUP_KEY_MESSAGE);
+1413   3                              }
+1414   2                              break;
+1415   2      
+1416   2      
+1417   2              default:
+1418   2                  if((g_ucKeyStateCurr == _RELEASE_KEY_MASK) &&
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 25  
+
+1419   2                     (g_ucKeyStatePrev != _RELEASE_KEY_MASK))
+1420   2                  {
+1421   3                      RTDKeyHoldKeyCheck(); // Check key release
+1422   3                      RTDKeyPressHightLight(_RELEASE_KEY_MASK);
+1423   3                  }
+1424   2      
+1425   2                  CLR_KEYREPEATSTART();
+1426   2                  CLR_KEYREPEATENABLE();
+1427   2                  ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_KEY_REPEAT_ENABLE);
+1428   2      #if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+1429   2                              if(GET_KEY_COMBINE() == _TRUE)
+1430   2                  {
+1431   3                      SET_KEY_COMBINE(_FALSE);
+1432   3                      OsdDispDisableOsd();
+1433   3                  }
+1434   2      #endif
+1435   2                  break;
+1436   2          }
+1437   1      }
+1438          
+1439          
+1440          
+1441          //--------------------------------------------------
+1442          // Description  : Hot Key message execute
+1443          // Input Value  : ucKeyMsg      --> Key message
+1444          
+1445          // Output Value : None
+1446          //--------------------------------------------------
+1447          void RTDKeyMessageExecute(BYTE ucKeyMsg)
+1448          {
+1449   1              switch(ucKeyMsg)
+1450   1              {
+1451   2                      case _LOCK_KEY_MESSAGE:
+1452   2                              SET_OSD_LOCK_STATUS(!GET_OSD_LOCK_STATUS());
+1453   2                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_OSD_LOCK_MSG);
+1454   2                              RTDNVRamSaveOSDData();
+1455   2                              break;
+1456   2      
+1457   2      #if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+1458   2                      case _AUTO_COLOR_KEY_MESSAGE:
+1459   2                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_DO_AUTO_COLOR_MSG);
+1460   2                              break;
+1461   2      #endif
+1462   2      
+1463   2      
+1464   2                      case _POWER_LOCK_KEY_MESSAGE:
+1465   2      #if 0//(_AUTO_SLEEP_SUPPORT == _ON)
+                                      if(GET_AUTO_SLEEP_STATUS() != _SLEEP_OFF)
+                                      {
+                                              OsdSleepFunOffSet();
+                                      }
+              #endif
+1471   2      
+1472   2                              SET_OSD_PWKEY_LOCK_STATUS(!GET_OSD_PWKEY_LOCK_STATUS());
+1473   2                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_POWER_LOCK_MSG);
+1474   2                              RTDNVRamSaveOSDData();
+1475   2                              break;
+1476   2      
+1477   2                      //case _SWITCH_MODE_KEY_MESSAGE:
+1478   2                              //SET_OSD_EVENT_MESSAGE(_OSDEVENT_SWITCHMODE_MSG);
+1479   2                              //break;
+1480   2      
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 26  
+
+1481   2      #if(_DEF_VGA_TIMING_KEY_2_4)
+1482   2                      case _SWITCH_MODE_KEY_MESSAGE:
+1483   2                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SWITCHMODE_MSG);
+1484   2                              break;
+1485   2      #endif
+1486   2      
+1487   2      
+1488   2      #if(0)
+              
+                              #if(_A0_INPUT_PORT_TYPE != _A0_NO_PORT)
+                              case _AUTO_COLOR_KEY_MESSAGE:
+                                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_DO_AUTO_COLOR_MSG);
+                                      break;
+                              #endif
+              
+                              case _LOGO_BOOTUP_KEY_MESSAGE:
+              #if(_DEF_HotOSD_Logo_MessageEanble_swtich)
+                                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_LOGOBOOTUP_MSG);
+                                      //SET_OSD_STATE(_OSD_HOTKEY_BLUELIGHT);         //_OSD_HOTKEY_BLUELIGHT 没用到,暂时用一下
+              #else
+                                      SET_FACTORY_FORCE_LOGO_OFF(!GET_FACTORY_FORCE_LOGO_OFF());
+                                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_LOGOBOOTUP_MSG);
+                                      TPVNVRamSaveFactoryDate();
+              #endif
+                                      break;
+              /*
+                              case _DDCCI_KEY_MESSAGE:
+                                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_WAKE_UP_SWITCH_DDCCI_PORT_MSG);
+                                      break;
+              
+                              case _RECALL_DEFAULT_KEY_MESSAGE:
+                                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_RECALL_MODE_MSG);
+                                      break;
+              */
+              
+              
+                              case _FACTORY_BRIGHTNESS_HOTKEY_MESSAGE:
+                                      if(usCurrentContrast != _CONTRAST_MAX)
+                                      {
+                                          UserAdjustBacklight(_BACKLIGHT_MAX);
+                                       UserAdjustContrast(_CONTRAST_MAX);
+                                      }
+                                      else
+                                      {
+                                          UserAdjustBacklight(_OSD_BACKLIGHT_DEFAULE);
+                                       UserAdjustContrast(_CONTRAST_DEFAULT);
+                                      }
+                                      
+                                      break;
+              /*
+                              case _FACTORY_VOLUME_HOTKEY_MESSAGE:
+                                      if(ucCurrentVolume != _OSD_VOLUME_MAX)
+                                      {
+                                       UserAdjustAudioVolume(_OSD_VOLUME_MAX);
+                                      }
+                                      else
+                                      {
+                                       UserAdjustAudioVolume(_VOLUME_DEFAULT);
+                                      }
+                                      
+                                      break;
+              */
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 27  
+
+                      
+              #endif
+1545   2                      default:
+1546   2                              SET_KEYMESSAGE(ucKeyMsg);
+1547   2                              break;
+1548   2              }
+1549   1      
+1550   1              
+1551   1      }
+1552          
+1553          
+1554          //--------------------------------------------------
+1555          // Description  : Key message translation
+1556          // Input Value  : ucKeyMask     --> Key mask
+1557          //                ucKeyMsg      --> Key message
+1558          // Output Value : None
+1559          //--------------------------------------------------
+1560          void RTDKeyMessageConvert(BYTE ucKeyMask, BYTE ucKeyMsg)
+1561          {
+1562   1      
+1563   1          // Key different
+1564   1          if((g_ucKeyStatePrev != g_ucKeyStateCurr) && (ucKeyMask == g_ucKeyStateCurr))
+1565   1          {
+1566   2              // KeyLock function
+1567   2              if (RTDKeySpecialProc(ucKeyMask) == _FALSE)
+1568   2              {
+1569   3                  //SET_KEYMESSAGE(ucKeyMsg);
+1570   3                              
+1571   3                              RTDKeyMessageExecute(ucKeyMsg);
+1572   3                  RTDKeyHoldKeyTimerCancel();
+1573   3      
+1574   3                              
+1575   3      #if(_DEF_OSD_CURSOR_FLICKER_TIPS)
+                                      if(g_OsdCursorFlickerTips_Num)
+                                      {
+                                              g_OsdCursorFlickerTips_Num = 0x60;
+                                              OsdDisplayCursorFlickerTipFun();
+                                              g_OsdCursorFlickerTips_Num = 0;
+                                      }
+              #endif
+1583   3      
+1584   3              }
+1585   2          }
+1586   1          else // Key the same
+1587   1          {
+1588   2              if(GET_KEYREPEATENABLE() == _TRUE)
+1589   2              {
+1590   3                  if(GET_KEYREPEATSTART() == _TRUE)
+1591   3                  {
+1592   4                      SET_KEYMESSAGE(ucKeyMsg);
+1593   4                  }
+1594   3                  else
+1595   3                  {
+1596   4                      // Set repeat key after 500ms.
+1597   4                      ScalerTimerActiveTimerEvent(SEC(0.5), _USER_TIMER_EVENT_KEY_REPEAT_ENABLE);
+1598   4                  }
+1599   3              }
+1600   2          }
+1601   1      }
+1602          
+1603          
+1604          
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 28  
+
+1605          //--------------------------------------------------
+1606          // Description  :  for special key check
+1607          // Input Value  : scan Key data
+1608          // Output Value : None
+1609          //--------------------------------------------------
+1610          bit RTDKeySpecialProc(BYTE ucKeyMask)
+1611          {
+1612   1      
+1613   1      #if(_DEF_KEY_ROCKER)
+                      if((SysPowerGetPowerStatus() == _POWER_STATUS_SAVING) && (ucKeyMask == _MIDDLE_KEY_MASK))
+                      {
+                              if(GET_OSD_PWKEY_LOCK_STATUS() == _TRUE)
+                              {
+                                      if((GET_OSD_LOGO_ON() == _OFF)&&(SysModeGetModeState() == _MODE_STATUS_ACTIVE) )
+                                      {
+                                              SET_OSD_EVENT_MESSAGE(_OSDEVENT_SHOW_POWER_LOCK_MSG);
+                                      }
+                              }
+                              else
+                              {
+                                      SET_FACTORY_MODE(_OFF);
+                                      SET_FACTORY_BURNIN(_OFF);
+                                      TPVNVRamSaveFactoryDate();
+              
+                                      //if(GET_AUTO_SLEEP_STATUS() != _SleepPowerSaving_OFF)
+                                      {
+                                              //SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_OFF);
+                                              //RTDNVRamSaveOSDData();
+                                      }
+                                      
+                                      SysPowerSetTargetPowerStatus(_POWER_STATUS_OFF);
+                              }
+                              return _TRUE;
+              
+                      }
+              
+                      if((SysPowerGetPowerStatus() != _POWER_STATUS_OFF) && (ucKeyMask == _MIDDLE_KEY_MASK))
+                      {
+                              ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_POWER_DOWN);
+                              SET_KEY_HOLD();
+                              CLR_KEYREPEATENABLE();
+                              return _TRUE;
+                      }
+              
+              
+              
+                      if((SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL) && (KeyMaskRotate(ucKeyMask) == _LEFT_KEY_MASK) && 
+             -(GET_OSD_STATE() == _MENU_NONE) && (OsdDisplayCheckkeyValid() == _TRUE))
+                      {
+                              ScalerTimerActiveTimerEvent(SEC(5), _USER_TIMER_EVENT_OSD_SHOW_OSD_LOCKING_STATUS_MSG);
+                              SET_KEY_HOLD();
+                              CLR_KEYREPEATENABLE();
+                              
+                              return _TRUE;
+                      }
+                      
+              
+                      if((SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL) && (KeyMaskRotate(ucKeyMask) == _RIGHT_KEY_MASK) &&
+             - (GET_OSD_STATE() == _MENU_NONE) && (OsdDisplayCheckkeyValid() == _TRUE))
+                      {
+                              ScalerTimerActiveTimerEvent(SEC(5), _USER_TIMER_EVENT_OSD_SHOW_POWER_LOCKING_STATUS_MSG);
+                              SET_KEY_HOLD();
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 29  
+
+                              CLR_KEYREPEATENABLE();
+                              
+                              return _TRUE;
+                      }
+              
+                      if((SysPowerGetPowerStatus() == _POWER_STATUS_NORMAL) && (KeyMaskRotate(ucKeyMask) == _UP_KEY_MASK) && (G
+             -ET_OSD_STATE() == _MENU_NONE) && (OsdDisplayCheckkeyValid() == _TRUE))
+                      {
+                              ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_SHOW_LOGO_BOOTUP_STATUS_MSG);
+                              SET_KEY_HOLD();
+                              CLR_KEYREPEATENABLE();
+                              
+                              return _TRUE;
+                      }
+              #elif(_DEF_JS_KEY_ICON_5_KEY_MODE)
+1679   1      
+1680   1      #if(_DEF_LONG_PRESS_POWER_OFF_3_SEC)
+              
+                      if((SysPowerGetPowerStatus() != _POWER_STATUS_OFF) && (ucKeyMask == _POWER_KEY_MASK))
+                      { 
+                      
+                              ScalerTimerActiveTimerEvent(SEC(2), _USER_TIMER_EVENT_POWER_DOWN);
+                              SET_KEY_HOLD();
+                              CLR_KEYREPEATENABLE();
+                              return _TRUE;
+                      }       
+              #endif
+1691   1      
+1692   1      #endif
+1693   1      
+1694   1      /*
+1695   1          if((GET_OSD_STATE() == _MENU_NONE) && (ucKeyMask == _LEFT_KEY_MASK))
+1696   1          {
+1697   1      #if(_DP_SUPPORT == _ON)
+1698   1              ScalerTimerActiveTimerEvent(SEC(3), _USER_TIMER_EVENT_OSD_SHOW_DP_VERSION_SELECT);
+1699   1              SET_KEY_HOLD();
+1700   1              CLR_KEYREPEATENABLE();
+1701   1              return _TRUE;
+1702   1      #endif
+1703   1          }
+1704   1      */
+1705   1      
+1706   1      #if(_VGA_SUPPORT == _ON)
+1707   1          // Press Exit key for 3 sec to do Auto color
+1708   1      
+1709   1         //else if????
+1710   1         if((GET_OSD_STATE() == _MENU_NONE) && (SysSourceGetSourceType() == _SOURCE_VGA))
+1711   1          {
+1712   2              if (ucKeyMask == _MENU_KEY_MASK)
+1713   2              {
+1714   3                  ScalerTimerActiveTimerEvent(SEC(5), _USER_TIMER_EVENT_DO_AUTO_COLOR);
+1715   3                  SET_KEY_HOLD();
+1716   3                  CLR_KEYREPEATENABLE();
+1717   3                  return _TRUE;
+1718   3              }
+1719   2          }
+1720   1      #endif
+1721   1      
+1722   1          return _FALSE;
+1723   1      }
+1724          
+1725          //--------------------------------------------------
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 30  
+
+1726          // Description  :
+1727          // Input Value  : None
+1728          // Output Value : None
+1729          //--------------------------------------------------
+1730          void RTDKeyHoldKeyTimerCancel(void)
+1731          {
+1732   1          if(GET_KEY_HOLD() == _TRUE)
+1733   1          {
+1734   2              CLR_KEY_HOLD();
+1735   2      
+1736   2              // list all off hold key timer event here!!!
+1737   2              ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_DO_AUTO_COLOR);
+1738   2              ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_POWER_DOWN);
+1739   2      #if(_DP_SUPPORT == _ON)
+                      ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_DP_VERSION_SELECT);
+              #endif
+1742   2                      ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_OSD_LOCKING_STATUS_MSG);
+1743   2                      ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_POWER_LOCKING_STATUS_MSG);
+1744   2                      ScalerTimerCancelTimerEvent(_USER_TIMER_EVENT_OSD_SHOW_LOGO_BOOTUP_STATUS_MSG);
+1745   2              SET_KEY_LONG_PRESSED(_FALSE);
+1746   2          }
+1747   1      }
+1748          
+1749          //--------------------------------------------------
+1750          // Description  : Hold Key check
+1751          // Input Value  : None
+1752          // Output Value : None
+1753          //--------------------------------------------------
+1754          void RTDKeyHoldKeyCheck(void)
+1755          {
+1756   1          if(GET_KEY_HOLD() == _TRUE)
+1757   1          {
+1758   2              switch(KeyMaskRotate(g_ucKeyStatePrev))
+1759   2              {
+1760   3                  case _EXIT_KEY_MASK:
+1761   3                      SET_KEYMESSAGE(_EXIT_KEY_MESSAGE);
+1762   3                      break;
+1763   3                                      
+1764   3      #if(_DEF_JS_KEY_ICON_5_KEY_MODE)            
+1765   3                              case _MENU_KEY_MASK:
+1766   3                      SET_KEYMESSAGE(_MENU_KEY_MESSAGE);
+1767   3                      break;
+1768   3      #elif(_DEF_KEY_ROCKER)
+                                      case _MIDDLE_KEY_MASK:
+                                      case _MENU_KEY_MASK:
+                                              //if(!(g_usOsdKeyDirectionType >= _LAYER_HOTKEY_VIEWMODE && g_usOsdKeyDirectionType <= _LAYER_HOTKEY_I
+             -NPUT))
+                                                      //SET_KEYMESSAGE(_MENU_KEY_MESSAGE); //_MIDDLE_KEY_MESSAGE
+                                                      
+                                              if(g_usOsdKeyDirectionType >= _LAYER_HOTKEY_VIEWMODE && g_usOsdKeyDirectionType <= _LAYER_HOTKEY_INPUT
+             -)
+                                              {
+                                                      SET_KEYMESSAGE(_NONE_KEY_MESSAGE); 
+                                              }                               
+                                              else if(g_usOsdKeyDirectionType == _LAYER_HOTKEY_LANGUAGE || g_usOsdKeyDirectionType == _LAYER_HOTKEY_
+             -DISTRICT)
+                                              {
+                                                      SET_KEYMESSAGE(_EXIT_KEY_MESSAGE); 
+                                              }
+                                              else if(g_usOsdKeyDirectionType > _LAYER_NONE && g_usOsdKeyDirectionType < _LAYER_HOTKEY_VIEWMODE  \
+                                                      || g_usOsdKeyDirectionType ==_LAYER_VOLUME_ADJUST || g_usOsdKeyDirectionType ==  _LAYER_NoFun)
+                                              {
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 31  
+
+                                                       OsdDispDisableOsd();
+                                              }
+                                              else if(g_usOsdKeyDirectionType == _LAYER_NONE)
+                                              {
+                                                       SET_KEYMESSAGE(_MENU_KEY_MESSAGE); 
+                                              }
+                                              break;
+              
+              #endif
+1794   3      
+1795   3                  case _RIGHT_KEY_MASK:
+1796   3                      SET_KEYMESSAGE(_RIGHT_KEY_MESSAGE);
+1797   3                      break;
+1798   3                  case _LEFT_KEY_MASK:
+1799   3                      SET_KEYMESSAGE(_LEFT_KEY_MESSAGE);
+1800   3                      break;                  
+1801   3                              case _UP_KEY_MASK:
+1802   3                      SET_KEYMESSAGE(_UP_KEY_MESSAGE);
+1803   3                      break;
+1804   3                  case _DOWN_KEY_MASK:
+1805   3                      SET_KEYMESSAGE(_DOWN_KEY_MESSAGE);
+1806   3                      break;
+1807   3      
+1808   3                 // case _POWER_KEY_MASK:
+1809   3                     // SET_KEYMESSAGE(_POWER_KEY_MESSAGE);
+1810   3                     // break;
+1811   3                  default:
+1812   3                      break;
+1813   3              }
+1814   2      #if(_DEF_KEY_ROCKER)
+                              SET_KEY_COMBINE(_FALSE);
+              #endif
+1817   2              RTDKeyHoldKeyTimerCancel();
+1818   2          }
+1819   1      }
+1820          
+1821          
+1822          #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+              //--------------------------------------------------
+              // Description  : IR Key Scan
+              // Input Value  : None
+              // Output Value : Key Mask
+              //--------------------------------------------------
+              BYTE RTDIRKeyScan(void)
+              {
+                  BYTE pucIRCodeBuffer[8] = {0};
+                  WORD usKeyCode = 0;
+                  BYTE ucKeyState = 0;
+              
+                  if(ScalerIRHWModeGetData(pucIRCodeBuffer) == _TRUE)
+                  {
+              #if(_IR_PROTOCAL == _IR_NEC_DTV328)
+                      if((pucIRCodeBuffer[0] == ~(pucIRCodeBuffer[1])) && (pucIRCodeBuffer[2] == ~(pucIRCodeBuffer[3])))
+                      {
+                          usKeyCode = (((WORD)pucIRCodeBuffer[3]) << 8) + pucIRCodeBuffer[1];
+                      }
+              
+              #elif(_IR_PROTOCAL == _IR_SONY_B102P)
+                      usKeyCode = (((WORD)pucIRCodeBuffer[0]) << 8) + pucIRCodeBuffer[1];
+              
+              #elif(_IR_PROTOCAL == _IR_PHILIPS_RC6)
+                      usKeyCode = (((WORD)pucIRCodeBuffer[2]) << 8) + pucIRCodeBuffer[3];
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 32  
+
+              
+              #endif // End of #if(_IR_PROTOCAL == _IR_NEC_DTV328)
+              
+                      switch(usKeyCode)
+                      {
+                          case _IR_CODE_KEY_POWER:
+                              ucKeyState = _POWER_KEY_MASK;
+                              break;
+              
+                          case _IR_CODE_KEY_MENU:
+                              ucKeyState = _MENU_KEY_MASK;
+                              break;
+              
+                          case _IR_CODE_KEY_RIGHT:
+                              ucKeyState = _RIGHT_KEY_MASK;
+                              break;
+              
+                          case _IR_CODE_KEY_LEFT:
+                              ucKeyState = _LEFT_KEY_MASK;
+                              break;
+              
+                          case _IR_CODE_KEY_EXIT:
+                              ucKeyState = _EXIT_KEY_MASK;
+                              break;
+              
+                          default:
+                              ucKeyState = 0x00;
+                              break;
+                      }
+                  }
+              
+                  return ucKeyState;
+              }
+              #endif // End of #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+1881          
+1882          
+1883          //--------------------------------------------------
+1884          // Description  :
+1885          // Input Value  :
+1886          // Output Value :
+1887          //--------------------------------------------------
+1888          void KeyLedPowerIndicator(BYTE ucGetKey)
+1889          {
+1890   1              if((SysModeGetModeState() != _MODE_STATUS_ACTIVE)
+1891   1              || (GET_FACTORY_MODE() == _TRUE)
+1892   1              #if 0//(_FACTORY_MODE_OWNER == _OWNER_TPV)
+                      || ((TPVDFMModeFlag() == _TRUE)
+                              #if(_AMBIGLOW_TYPE == _ENE_SOLUTION)
+                              && (SysModeGetModeState() != _MODE_STATUS_ACTIVE)
+                              #endif
+                              )
+                      #endif
+1899   1              )
+1900   1              {
+1901   2                      return;
+1902   2              }
+1903   1      
+1904   1      #if(_DEF_JS_KEY_ICON_5_KEY_MODE)
+1905   1              if((GET_POWER_INDICATOR() == _OFF) && (ucGetKey != 0))
+1906   1              {  
+1907   2                      UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+1908   2      
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 33  
+
+1909   2                      ScalerTimerActiveTimerEvent(SEC(0.3), _USER_TIMER_EVENT_POWER_INDICATOR);
+1910   2              }
+1911   1      #elif(_DEF_KEY_ROCKER)
+                      if(ucGetKey != _RELEASE_KEY_MASK)
+                      {  
+                              UserInterfaceKeyPadLedControl(_LED_POWER_ACTIVE);
+                      }
+                      else
+                      {
+                              UserInterfaceKeyPadLedControl(_LED_POWER_OFF);
+                      }
+              #endif
+1921   1      
+1922   1      }
+1923          
+1924          
+1925          //--------------------------------------------------
+1926          // Description  :
+1927          // Input Value  :
+1928          // Output Value :
+1929          //--------------------------------------------------
+1930          BYTE KeyMaskRotate(BYTE ucKeyMask)
+1931          {
+1932   1              switch (GET_OSD_ROTATE_STATUS())
+1933   1              {
+1934   2                      case _OSD_ROTATE_DEGREE_90:
+1935   2                      switch (ucKeyMask)
+1936   2                      {
+1937   3                              case _UP_KEY_MASK:
+1938   3                                      ucKeyMask = _LEFT_KEY_MASK;
+1939   3                                      break;
+1940   3                              case _DOWN_KEY_MASK:
+1941   3                                      ucKeyMask = _RIGHT_KEY_MASK;
+1942   3                                      break;
+1943   3                              case _LEFT_KEY_MASK:
+1944   3                                      ucKeyMask = _DOWN_KEY_MASK;
+1945   3                                      break;
+1946   3                              case _RIGHT_KEY_MASK:
+1947   3                                      ucKeyMask = _UP_KEY_MASK;
+1948   3                                      break;
+1949   3                              default:
+1950   3                                      break;
+1951   3                      }
+1952   2                      break;
+1953   2                      
+1954   2                      case _OSD_ROTATE_DEGREE_270:
+1955   2                      switch (ucKeyMask)
+1956   2                      {
+1957   3                              case _UP_KEY_MASK:
+1958   3                                      ucKeyMask = _RIGHT_KEY_MASK;
+1959   3                                      break;
+1960   3                              case _DOWN_KEY_MASK:
+1961   3                                      ucKeyMask = _LEFT_KEY_MASK;
+1962   3                                      break;
+1963   3                              case _LEFT_KEY_MASK:
+1964   3                                      ucKeyMask = _UP_KEY_MASK;
+1965   3                                      break;
+1966   3                              case _RIGHT_KEY_MASK:
+1967   3                                      ucKeyMask = _DOWN_KEY_MASK;
+1968   3                                      break;
+1969   3                              default:
+1970   3                                      break;
+C51 COMPILER V8.12   RTD2014KEY                                                            03/10/2025 13:51:04 PAGE 34  
+
+1971   3                      }
+1972   2                      break;
+1973   2                      
+1974   2              case _OSD_ROTATE_DEGREE_180:
+1975   2                      switch (ucKeyMask)
+1976   2                      {
+1977   3                              case _UP_KEY_MASK:
+1978   3                                      ucKeyMask = _DOWN_KEY_MASK;
+1979   3                                      break;
+1980   3                              case _DOWN_KEY_MASK:
+1981   3                                      ucKeyMask = _UP_KEY_MASK;
+1982   3                                      break;
+1983   3                              case _LEFT_KEY_MASK:
+1984   3                                      ucKeyMask = _RIGHT_KEY_MASK;
+1985   3                                      break;
+1986   3                              case _RIGHT_KEY_MASK:
+1987   3                                      ucKeyMask = _LEFT_KEY_MASK;
+1988   3                                      break;
+1989   3                              default:
+1990   3                                      break;
+1991   3                      }
+1992   2                      break;
+1993   2                      
+1994   2              default:
+1995   2                      break;
+1996   2              }
+1997   1      
+1998   1              return ucKeyMask;
+1999   1      }
+2000          
+2001          
+2002          
+2003          #endif//#if(_OSD_TYPE == _REALTEK_2014_OSD)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2282    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      5      15
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

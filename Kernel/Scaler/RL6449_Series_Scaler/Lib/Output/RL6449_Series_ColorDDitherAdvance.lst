@@ -1,0 +1,138 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORDDITHERADVANCE                                     03/11/2025 19:56:04 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORDDITHERADVANCE
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorDDitherAdvance.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorDDitherAdvance.c LARGE OPTIMIZE
+                    -(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\Sc
+                    -alerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Serie
+                    -s_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_S
+                    -eries_ColorDDitherAdvance.lst) OBJECT(.\Output\RL6449_Series_ColorDDitherAdvance.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorDDitherAdvance.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          #define _DDITHER_REALIGN_TABLE_LENGTH           (48)
+  22          #define _DDITHER_REALIGN_TEMPO_TABLE_LENGTH     (8)
+  23          #define _DDITHER_LSB_TABLE_LENGTH               (16)
+  24          #define _DDITHER_ADVANCESETTING_TABLE_LENGTH    (45)
+  25          
+  26          
+  27          //****************************************************************************
+  28          // STRUCT / TYPE / ENUM DEFINITTIONS
+  29          //****************************************************************************
+  30          
+  31          
+  32          //****************************************************************************
+  33          // CODE TABLES
+  34          //****************************************************************************
+  35          
+  36          
+  37          //****************************************************************************
+  38          // VARIABLE DECLARATIONS
+  39          //****************************************************************************
+  40          
+  41          
+  42          //****************************************************************************
+  43          // FUNCTION DECLARATIONS
+  44          //****************************************************************************
+  45          void ScalerColorDDitherAdvanceSettingAdjust(BYTE code *pucReAlignTable, BYTE code *pucReAlignTempoTable, B
+             -YTE code *pucLsbTable, BYTE code *pucAdvanceSettingTable, BYTE ucBankAddress);
+  46          
+  47          
+  48          //****************************************************************************
+  49          // FUNCTION DEFINITIONS
+  50          //****************************************************************************
+C51 COMPILER V8.12   RL6449_SERIES_COLORDDITHERADVANCE                                     03/11/2025 19:56:04 PAGE 2   
+
+  51          //--------------------------------------------------
+  52          // Description  : Adjust Advance Setting
+  53          // Input Value  :
+  54          //                pucReAlignTable : ReAlign Table Pointer
+  55          //                pucReAlignTempoTable : ReAlign Temporal Table Pointer
+  56          //                pucLsbTable : LSB Judge Table Pointer
+  57          //                pucAdvanceSettingTable : Advance Setting Table Pointer
+  58          //                ucBankAddress : Bank Address
+  59          // Output Value : None
+  60          //--------------------------------------------------
+  61          void ScalerColorDDitherAdvanceSettingAdjust(BYTE code *pucReAlignTable, BYTE code *pucReAlignTempoTable, B
+             -YTE code *pucLsbTable, BYTE code *pucAdvanceSettingTable, BYTE ucBankAddress)
+  62          {
+  63   1          BYTE ucData = 0;
+  64   1      
+  65   1          ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~(_BIT7 | _BIT6), 0x00);
+  66   1      
+  67   1          if(pucReAlignTable != _NULL_POINTER)
+  68   1          {
+  69   2              ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_80_D_DITHER_REALIGN_SET_R0);
+  70   2              ScalerBurstWrite(pucReAlignTable, _DDITHER_REALIGN_TABLE_LENGTH, ucBankAddress, P0_69_D_DITHER_DAT
+             -A_ACCESS, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  71   2          }
+  72   1      
+  73   1          if(pucReAlignTempoTable != _NULL_POINTER)
+  74   1          {
+  75   2              ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_B0_D_DITHER_REALIGN_OFFSET0);
+  76   2              ScalerBurstWrite(pucReAlignTempoTable, _DDITHER_REALIGN_TEMPO_TABLE_LENGTH, ucBankAddress, P0_69_D
+             -_DITHER_DATA_ACCESS, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  77   2          }
+  78   1      
+  79   1          if(pucLsbTable != _NULL_POINTER)
+  80   1          {
+  81   2              ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_C0_D_DITHER_LSB_TABLE0);
+  82   2              ScalerBurstWrite(pucLsbTable, _DDITHER_LSB_TABLE_LENGTH, ucBankAddress, P0_69_D_DITHER_DATA_ACCESS
+             -, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  83   2          }
+  84   1      
+  85   1          if(pucAdvanceSettingTable != _NULL_POINTER)
+  86   1          {
+  87   2              ucData = ScalerGetByte(P0_6A_D_DITHER_COMMON_CTRL1) & _BIT5;
+  88   2              ScalerBurstWrite(pucAdvanceSettingTable, 1, ucBankAddress, P0_6A_D_DITHER_COMMON_CTRL1, _BURSTWRIT
+             -E_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  89   2              ScalerSetBit(P0_6A_D_DITHER_COMMON_CTRL1, ~(_BIT7 | _BIT6 | _BIT5), ucData);
+  90   2      
+  91   2              ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_00_D_DITHER_COMMON_SET0);
+  92   2              ScalerBurstWrite(pucAdvanceSettingTable + 1, _DDITHER_ADVANCESETTING_TABLE_LENGTH - 1, ucBankAddre
+             -ss, P0_69_D_DITHER_DATA_ACCESS, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  93   2          }
+  94   1      
+  95   1          // reset frame counter
+  96   1          ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_01_D_DITHER_COMMON_SET1);
+  97   1          ucData = ScalerGetByte(P0_69_D_DITHER_DATA_ACCESS) | _BIT7;
+  98   1          ScalerSetByte(P0_6B_D_DITHER_REGISTER_ADDR, _P0_69_PT_01_D_DITHER_COMMON_SET1);
+  99   1          ScalerSetByte(P0_69_D_DITHER_DATA_ACCESS, ucData);
+ 100   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    273    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      10
+C51 COMPILER V8.12   RL6449_SERIES_COLORDDITHERADVANCE                                     03/11/2025 19:56:04 PAGE 3   
+
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

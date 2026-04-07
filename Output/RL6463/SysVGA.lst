@@ -1,0 +1,266 @@
+C51 COMPILER V8.12   SYSVGA                                                                03/10/2025 13:50:16 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SYSVGA
+OBJECT MODULE PLACED IN .\Output\RL6463\SysVGA.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\System\Code\SysVGA.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\
+                    -RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kernel\Scaler\Scal
+                    -erFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\Kernel\Scaler\
+                    -ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Lib\Hea
+                    -der;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\
+                    -User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Hea
+                    -der) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6463\SysVGA.lst) O
+                    -BJECT(.\Output\RL6463\SysVGA.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : SysVGA.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SYSTEM_VGA__
+  18          
+  19          #include "SysInclude.h"
+  20          
+  21          #if(_VGA_SUPPORT == _ON)
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          //--------------------------------------------------
+  26          // Definitions of mode search status
+  27          //--------------------------------------------------
+  28          #define _VGA_MODE_NOSUPPORT                             254
+  29          
+  30          //****************************************************************************
+  31          // STRUCT / TYPE / ENUM DEFINITTIONS
+  32          //****************************************************************************
+  33          
+  34          
+  35          //****************************************************************************
+  36          // CODE TABLES
+  37          //****************************************************************************
+  38          
+  39          
+  40          //****************************************************************************
+  41          // VARIABLE DECLARATIONS
+  42          //****************************************************************************
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DECLARATIONS
+  46          //****************************************************************************
+  47          BYTE SysVgaScanInputPort(BYTE ucInputPort);
+  48          
+C51 COMPILER V8.12   SYSVGA                                                                03/10/2025 13:50:16 PAGE 2   
+
+  49          #if(_UNDERSCAN_SUPPORT == _ON)
+  50          void SysVgaAdjustUnderScan(void);
+  51          #endif
+  52          
+  53          //****************************************************************************
+  54          // FUNCTION DEFINITIONS
+  55          //****************************************************************************
+  56          
+  57          //--------------------------------------------------
+  58          // Description  : Scan VGA Port
+  59          // Input Value  : ucIntputPort
+  60          // Output Value : Source Type
+  61          //--------------------------------------------------
+  62          BYTE SysVgaScanInputPort(BYTE ucInputPort)
+  63          {
+  64   1          BYTE ucModeNo = 0;
+  65   1      
+  66   1          if(ScalerSyncProcPreDetect(ucInputPort) == _FALSE)
+  67   1          {
+  68   2              return _SOURCE_NONE;
+  69   2          }
+  70   1      
+  71   1          if(ScalerSyncProcTypeAutoRun() != _NO_SYNC_STATE)
+  72   1          {
+  73   2              SET_SOURCE_TYPE(g_ucSearchIndex, _SOURCE_VGA);
+  74   2      
+  75   2              // Initial ADC Clock.
+  76   2              if(ScalerSyncProcAdcClkInitial() == _FALSE)
+  77   2              {
+  78   3                  DebugMessageAnalog("Apll initial Fail", 0);
+  79   3      
+  80   3                  return _SOURCE_NONE;
+  81   3              }
+  82   2      
+  83   2              CLR_INPUT_TIMING_DOUBLE_CHECK();
+  84   2      
+  85   2      #if(_VGA_CAPTURE_SUPPORT == _ON)
+                      // Set VGATOP VGIP
+                      ScalerVgaTopInputInitial();
+              #endif
+  89   2      
+  90   2              // Get Measure Info.
+  91   2              if(ScalerMeasureVgaInputInfo() == _FALSE)
+  92   2              {
+  93   3                  DebugMessageSystem("VGA Measure Fail", 0);
+  94   3      
+  95   3                  return _SOURCE_NONE;
+  96   3              }
+  97   2      
+  98   2              DebugMessageSystem("VGA Measure Measure Info", 0);
+  99   2              DebugMessageSystem("Input Timing H Polarity", GET_INPUT_TIMING_H_POLARITY());
+ 100   2              DebugMessageSystem("Input Timing V Polarity", GET_INPUT_TIMING_V_POLARITY());
+ 101   2              DebugMessageSystem("Input Timing InterLace", GET_INPUT_TIMING_INTERLACE_FLG());
+ 102   2              DebugMessageSystem("Input Timing HFreq", GET_INPUT_TIMING_HFREQ());
+ 103   2              DebugMessageSystem("Input Timing HTotal", GET_INPUT_TIMING_HTOTAL());
+ 104   2              DebugMessageSystem("Input Timing HStart", GET_INPUT_TIMING_HSTART());
+ 105   2              DebugMessageSystem("Input Timing HWidth", GET_INPUT_TIMING_HWIDTH());
+ 106   2              DebugMessageSystem("Input Timing HSyncWidth", GET_INPUT_TIMING_HSYNCWIDTH());
+ 107   2              DebugMessageSystem("Input Timing VFreq", GET_INPUT_TIMING_VFREQ());
+ 108   2              DebugMessageSystem("Input Timing VTotal", GET_INPUT_TIMING_VTOTAL());
+ 109   2              DebugMessageSystem("Input Timing VStart", GET_INPUT_TIMING_VSTART());
+ 110   2              DebugMessageSystem("Input Timing VHeight", GET_INPUT_TIMING_VHEIGHT());
+C51 COMPILER V8.12   SYSVGA                                                                03/10/2025 13:50:16 PAGE 3   
+
+ 111   2              DebugMessageSystem("Input Timing VSyncSWidth", GET_INPUT_TIMING_VSYNCWIDTH());
+ 112   2      
+ 113   2              // Mode No. match
+ 114   2              ucModeNo = UserCommonModeSearchModeVGA();
+ 115   2      
+ 116   2              DebugMessageAnalog("9. ucModeNo = ", ucModeNo);
+ 117   2      
+ 118   2      #if(_VGA_FORCE_DISPLAY == _ON)
+              
+                      if(ucModeNo == _VGA_MODE_NOSUPPORT)
+                      {
+                          ucModeNo = UserInterfaceModeSearchModeVGA();
+                      }
+              #endif
+ 125   2              if(ucModeNo == _VGA_MODE_NOSUPPORT)
+ 126   2              {
+ 127   3                  SET_INPUT_TIMING_HWIDTH(0);
+ 128   3                  SET_INPUT_TIMING_VHEIGHT(0);
+ 129   3              }
+ 130   2              else
+ 131   2              {
+ 132   3                  // Confirm Clamp Position Setting.
+ 133   3                  ScalerSyncProcClampPosCheck(UserCommonModeSearchGetModeVideoType(ucModeNo));
+ 134   3      
+ 135   3                  // Color format setting.
+ 136   3                  ScalerADCClampMode(ScalerColorGetColorSpace());
+ 137   3      
+ 138   3                  if(ScalerSyncProcAdcClkSetting() == _FALSE)
+ 139   3                  {
+ 140   4                      return _SOURCE_NONE;
+ 141   4                  }
+ 142   3      
+ 143   3                  // Set VGATOP capture
+ 144   3                  ScalerVgaTopSetCapture();
+ 145   3      
+ 146   3      #if(_UNDERSCAN_SUPPORT == _ON)
+ 147   3                  SysVgaAdjustUnderScan();
+ 148   3      #endif
+ 149   3      
+ 150   3                  // SOG0 DC Restore Disable
+ 151   3                  ScalerADCDCRestoreEn(_OFF);
+ 152   3      
+ 153   3                  // SOG Clamp Enable
+ 154   3                  ScalerADCSOGClampEn(_ON);
+ 155   3      
+ 156   3      #if(_VGA_CHROMA_PATTERN12_SUPPORT == _ON)
+                          // Initial porch voltage check
+                          ScalerSyncProcSetPorchVoltage();
+              #endif
+ 160   3      
+ 161   3                  // Double-check for VS synchronize edge
+ 162   3                  ScalerVgaTopModifyVsLatchEdge(_WAIT);
+ 163   3      
+ 164   3                  // Clear Sync Changed Status flag bit.
+ 165   3                  ScalerSyncProcClearSyncChangeStatus();
+ 166   3      
+ 167   3      #if(_YPBPR_SUPPORT == _ON)
+ 168   3                  if(ScalerColorGetColorSpace() == _COLOR_SPACE_YPBPR)
+ 169   3                  {
+ 170   4                      ScalerColorSetColorimetry(UserCommonInterfaceCheckHDTVMode(ucModeNo));
+ 171   4                  }
+ 172   3      #endif // End of #if (_YPBPR_SUPPORT == _ON)
+C51 COMPILER V8.12   SYSVGA                                                                03/10/2025 13:50:16 PAGE 4   
+
+ 173   3      
+ 174   3                  // Re-start off-line measure after APLL clock adjust
+ 175   3                  ScalerMeasureSetOfflineMeasure(_SOURCE_VGA, _A0_INPUT_PORT);
+ 176   3              }
+ 177   2      
+ 178   2              // Set Timing Confirm Flag.
+ 179   2              SET_MODE_TIMING_CONFIRM();
+ 180   2              SET_INPUT_TIMING_DOUBLE_CHECK();
+ 181   2      
+ 182   2              return _SOURCE_VGA;
+ 183   2          }
+ 184   1      
+ 185   1          // Check sync is invalid
+ 186   1          return _SOURCE_NONE;
+ 187   1      }
+ 188          
+ 189          #if(_UNDERSCAN_SUPPORT == _ON)
+ 190          //--------------------------------------------------
+ 191          // Description  : Modify Timing For Underscan
+ 192          // Input Value  : None
+ 193          // Output Value : None
+ 194          //--------------------------------------------------
+ 195          void SysVgaAdjustUnderScan(void)
+ 196          {
+ 197   1          WORD usUnderScanVHeight = 0;
+ 198   1      
+ 199   1          if(UserInterfaceAdjustUnderScan() == _FALSE)
+ 200   1          {
+ 201   2              return;
+ 202   2          }
+ 203   1      
+ 204   1          if(GET_INPUT_TIMING_VHEIGHT() < GET_UNDERSCAN_VHEIGHT())
+ 205   1          {
+ 206   2              // Adjust VgaTop Vstart for underscan; Default center-positioned
+ 207   2              usUnderScanVHeight = (GET_UNDERSCAN_VHEIGHT() - GET_INPUT_TIMING_VHEIGHT()) / 2;
+ 208   2      
+ 209   2              if(GET_INPUT_TIMING_VSTART() < (usUnderScanVHeight + ScalerIDomainVgipGetVCaptureStartMinValue()))
+ 210   2              {
+ 211   3                  SET_INPUT_TIMING_VSTART(usUnderScanVHeight + ScalerIDomainVgipGetVCaptureStartMinValue());
+ 212   3              }
+ 213   2      
+ 214   2              if((GET_INPUT_TIMING_VSTART() + GET_INPUT_TIMING_VHEIGHT() + 3) > GET_INPUT_TIMING_VTOTAL())
+ 215   2              {
+ 216   3                  SET_INPUT_TIMING_VSTART(GET_INPUT_TIMING_VTOTAL() - GET_INPUT_TIMING_VHEIGHT() - 3);
+ 217   3              }
+ 218   2      
+ 219   2              ScalerVgaTopSetCaptureVStartPosition(GET_INPUT_TIMING_VSTART() - 2);
+ 220   2      
+ 221   2      #if(_ADCNR_SUPPORT == _ON)
+ 222   2              // Disable ADCNR when underscan
+ 223   2              ScalerADCNREn(_DISABLE);
+ 224   2      #endif
+ 225   2          }
+ 226   1      }
+ 227          #endif
+ 228          #endif // End of #if(_VGA_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    364    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       3
+C51 COMPILER V8.12   SYSVGA                                                                03/10/2025 13:50:16 PAGE 5   
+
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

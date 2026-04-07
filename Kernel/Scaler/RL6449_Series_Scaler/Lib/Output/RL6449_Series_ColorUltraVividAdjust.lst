@@ -1,0 +1,140 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORULTRAVIVIDADJUST                                   03/11/2025 19:56:11 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORULTRAVIVIDADJUST
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorUltraVividAdjust.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorUltraVividAdjust.c LARGE OPTIMI
+                    -ZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\
+                    -ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Ser
+                    -ies_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449
+                    -_Series_ColorUltraVividAdjust.lst) OBJECT(.\Output\RL6449_Series_ColorUltraVividAdjust.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorUltraVividAdjust.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          //--------------------------------------------------
+  22          // Table Length
+  23          //--------------------------------------------------
+  24          #define _ULTRAVIVID_TABLE_SIZE                  238
+  25          #define _ULTRAVIVID_TABLE_SIZE_CDS              29
+  26          
+  27          
+  28          //****************************************************************************
+  29          // STRUCT / TYPE / ENUM DEFINITTIONS
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // CODE TABLES
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // VARIABLE DECLARATIONS
+  40          //****************************************************************************
+  41          
+  42          
+  43          //****************************************************************************
+  44          // FUNCTION DECLARATIONS
+  45          //****************************************************************************
+  46          void ScalerColorUltraVividAdjust(BYTE code *pucUltraVividSetting, BYTE ucBankNum);
+  47          
+  48          //****************************************************************************
+  49          // FUNCTION DEFINITIONS
+  50          //****************************************************************************
+  51          //--------------------------------------------------
+C51 COMPILER V8.12   RL6449_SERIES_COLORULTRAVIVIDADJUST                                   03/11/2025 19:56:11 PAGE 2   
+
+  52          // Description  : UltraVivid Adjust
+  53          // Input Value  : UltraVivid Table and ucBankNum
+  54          // Output Value : None
+  55          //--------------------------------------------------
+  56          void ScalerColorUltraVividAdjust(BYTE code *pucUltraVividSetting, BYTE ucBankNum)
+  57          {
+  58   1          if(GET_V_SCALE_UP() == _TRUE)
+  59   1          {
+  60   2              ScalerGetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_03_VER_SCALE_FACTOR_H, 2, pData, _AUTOINC);
+  61   2              pData[0] = ((pData[0] << 4) | (pData[1] >> 4));
+  62   2      
+  63   2              if(pData[0] < 85)  // IVHeight/DVHeight <= 1/4
+  64   2              {
+  65   3                  ScalerBurstWrite(pucUltraVividSetting, _ULTRAVIVID_TABLE_SIZE, ucBankNum, P11_B9_SCALER_LSR_HL
+             -W, _BURSTWRITE_COMMAND, _BURSTWRITE_FROM_FLASH);
+  66   3              }
+  67   2              else if(pData[0] < 170)  // IVHeight/DVHeight < 2/3
+  68   2              {
+  69   3                  ScalerBurstWrite(pucUltraVividSetting + _ULTRAVIVID_TABLE_SIZE, _ULTRAVIVID_TABLE_SIZE, ucBank
+             -Num, P11_B9_SCALER_LSR_HLW, _BURSTWRITE_COMMAND, _BURSTWRITE_FROM_FLASH);
+  70   3              }
+  71   2              else  // IVHeight/DVHeight <= 1
+  72   2              {
+  73   3                  ScalerBurstWrite(pucUltraVividSetting + _ULTRAVIVID_TABLE_SIZE * 2, _ULTRAVIVID_TABLE_SIZE, uc
+             -BankNum, P11_B9_SCALER_LSR_HLW, _BURSTWRITE_COMMAND, _BURSTWRITE_FROM_FLASH);
+  74   3              }
+  75   2      
+  76   2              // Bypass DSHP
+  77   2              ScalerSetBit(P12_A0_SR_SHP_CTRL_0, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), _BIT7);
+  78   2              ScalerSetBit(P12_A1_SR_SHP_CTRL_1, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+  79   2          }
+  80   1          else if(GET_V_SCALE_DOWN() == _TRUE)
+  81   1          {
+  82   2              ScalerBurstWrite(pucUltraVividSetting + _ULTRAVIVID_TABLE_SIZE * 3, _ULTRAVIVID_TABLE_SIZE, ucBank
+             -Num, P11_B9_SCALER_LSR_HLW, _BURSTWRITE_COMMAND, _BURSTWRITE_FROM_FLASH);
+  83   2      
+  84   2              // if VSD is on, then LSR shold be off.
+  85   2              ScalerSetBit(P14_C0_LSR_CTRL, ~_BIT7, 0x00);
+  86   2          }
+  87   1          else // by pass
+  88   1          {
+  89   2              ScalerBurstWrite(pucUltraVividSetting + _ULTRAVIVID_TABLE_SIZE * 4, _ULTRAVIVID_TABLE_SIZE, ucBank
+             -Num, P11_B9_SCALER_LSR_HLW, _BURSTWRITE_COMMAND, _BURSTWRITE_FROM_FLASH);
+  90   2      
+  91   2              // Bypass DSHP
+  92   2              ScalerSetBit(P12_A0_SR_SHP_CTRL_0, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), _BIT7);
+  93   2              ScalerSetBit(P12_A1_SR_SHP_CTRL_1, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+  94   2          }
+  95   1      
+  96   1          ScalerBurstWrite(pucUltraVividSetting + _ULTRAVIVID_TABLE_SIZE * 5, _ULTRAVIVID_TABLE_SIZE_CDS, ucBank
+             -Num, P13_A0_SR_CDS_CTRL_0, _BURSTWRITE_COMMAND, _BURSTWRITE_FROM_FLASH);
+  97   1      
+  98   1          // Disable IDLTI
+  99   1          ScalerSetBit(P11_A1_I_DLTI_CTRL_M1, ~_BIT0, 0x00);
+ 100   1      
+ 101   1          // Wait for Event
+ 102   1          ScalerGlobalIDDomainDBApply(_DB_APPLY_NONE);
+ 103   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    303    ----
+C51 COMPILER V8.12   RL6449_SERIES_COLORULTRAVIVIDADJUST                                   03/11/2025 19:56:11 PAGE 3   
+
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       3
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

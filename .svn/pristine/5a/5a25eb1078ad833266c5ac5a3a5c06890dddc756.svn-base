@@ -1,0 +1,1147 @@
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_DP_INT
+OBJECT MODULE PLACED IN .\Output\RL6449_Projecr\RL6449_Series_DP_INT.obj
+COMPILER INVOKED BY: D:\ToolSort\KeilC51V812_\C51\BIN\C51.EXE Kernel\Scaler\RL6449_Series_Scaler\Code\RL6449_Series_DP_I
+                    -NT.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Commo
+                    -n;.\Kernel\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scal
+                    -er\ScalerFunction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header
+                    -;.\Kernel\Scaler\RL6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Seri
+                    -es_Common\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD
+                    -2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User
+                    -\None Factory\Header) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6
+                    -449_Projecr\RL6449_Series_DP_INT.lst) OBJECT(.\Output\RL6449_Projecr\RL6449_Series_DP_INT.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_DP_INT.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          #if(_DP_SUPPORT == _ON)
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          
+  25          //****************************************************************************
+  26          // STRUCT / TYPE / ENUM DEFINITTIONS
+  27          //****************************************************************************
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          BYTE ScalerDpAuxJudgeHandler_EXINT0(void);
+  42          void ScalerDpIntHandler_EXINT0(void);
+  43          
+  44          #if(_WD_TIMER_INT_SUPPORT == _ON)
+  45          void ScalerDpWDTimerEventProc_WDINT(EnumScalerWDTimerEventID enumEventID);
+  46          void ScalerDpRxDpcdPortAccessBackup_WDINT(void);
+  47          void ScalerDpRxDpcdPortAccessBackupRestore_WDINT(void);
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 2   
+
+  48          #endif
+  49          
+  50          void ScalerDpExitIntSetting_EXINT0(void);
+  51          
+  52          //****************************************************************************
+  53          // FUNCTION DEFINITIONS
+  54          //****************************************************************************
+  55          //--------------------------------------------------
+  56          // Description  : DP Int Handler
+  57          // Input Value  : None
+  58          // Output Value : None
+  59          //--------------------------------------------------
+  60          BYTE ScalerDpAuxJudgeHandler_EXINT0(void) using 1
+  61          {
+  62   1          bit bReturnValueD0 = _FALSE;
+  63   1          bit bReturnValueD1 = _FALSE;
+  64   1      
+  65   1      #if(_D0_DP_EXIST == _TRUE)
+              
+                  if(ScalerGetBit_EXINT(PB7_7A_AUX_DIG_PHYA, (_BIT4 | _BIT0)) == (_BIT4 | _BIT0))
+                  {
+                      if(ScalerGetBit_EXINT(PB7_79_AUX_DIG_PHY9, (_BIT3 | _BIT2 | _BIT1 | _BIT0)) == 0x00)
+                      {
+                          if((MCU_FFED_MCU_CONTROL & _BIT1) == 0x00)
+                          {
+                              MCU_FFE9_MCU_CLK_CONTROL_1 = (_FLASH_CLK_PS_FAST_DIV | (MCU_FFE9_MCU_CLK_CONTROL_1 & 0xF0)
+             -);
+                          }
+              
+                          // Disable Aux INT
+                          ScalerSetBit_EXINT(PB7_7A_AUX_DIG_PHYA, ~_BIT4, 0x00);
+              
+                          // Enable GDI BandGap
+                          ScalerSetBit_EXINT(P1D_14_BANDGAP_00, ~_BIT7, _BIT7);
+              
+                          // Disable Aux Power Saving Mode
+                          ScalerSetBit_EXINT(PB7_62_AUX_2, ~_BIT1, 0x00);
+              
+                          // Switch Aux PHY to GDI BandGap
+                          ScalerSetBit_EXINT(PB7_63_AUX_3, ~_BIT7, 0x00);
+              
+                          SET_DP_RX0_PS_AUX_TOGGLE();
+              
+                          IP = 0xA0;
+              
+                          // DPCD 022xxh Into INT
+                          if(ScalerGetBit_EXINT(PB7_FB_DUMMY_1, (_BIT7 | _BIT6)) != (_BIT7 | _BIT6))
+                          {
+                              return _TRUE;
+                          }
+                      }
+                      else
+                      {
+                          // Clear Aux INT flag
+                          ScalerSetBit_EXINT(PB7_7A_AUX_DIG_PHYA, ~_BIT0, _BIT0);
+              
+                          // Clear Manchester/Stop pattern/Sync_end pattern/Byte boundary check Error
+                          ScalerSetBit_EXINT(PB7_79_AUX_DIG_PHY9, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT3 | _BIT2 | _BI
+             -T1 | _BIT0));
+              
+                          return _TRUE;
+                      }
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 3   
+
+                  }
+              
+                  // D0 DP Global IRQ
+                  if(ScalerGetBit_EXINT(PB7_DC_AUX_IRQ_STATUS, _BIT7) == _BIT7)
+                  {
+                      if((MCU_FFED_MCU_CONTROL & _BIT1) == 0x00)
+                      {
+                          MCU_FFE9_MCU_CLK_CONTROL_1 = (_FLASH_CLK_PS_FAST_DIV | (MCU_FFE9_MCU_CLK_CONTROL_1 & 0xF0));
+                      }
+              
+                      ScalerDpRxAuxPreIntHandler_EXINT0();
+              
+                      g_pucDpRx0Backup[0] = ScalerGetByte_EXINT(PB7_C1_DPCD_ADDR_PORT_H);
+                      g_pucDpRx0Backup[1] = ScalerGetByte_EXINT(PB7_C2_DPCD_ADDR_PORT_M);
+                      g_pucDpRx0Backup[2] = ScalerGetByte_EXINT(PB7_C3_DPCD_ADDR_PORT_L);
+              
+                      // Backup Dpcd Auto Inc
+                      g_bDpRx0AutoInc = (ScalerGetBit_EXINT(PB7_C0_DPCD_CTRL, _BIT0) == _BIT0);
+              
+                      // Disable Dpcd Auto Inc
+                      ScalerSetBit_EXINT(PB7_C0_DPCD_CTRL, ~_BIT0, 0x00);
+              
+                      // If source i2c_over_aux cmd hit slave addr = 50
+                      if(ScalerGetBit_EXINT(PB7_DA_AUX_FIFO_RST, _BIT4) == _BIT4)
+                      {
+                          // Clear flag
+                          ScalerSetBit_EXINT(PB7_DA_AUX_FIFO_RST, ~(_BIT6 | _BIT4 | _BIT1 | _BIT0), _BIT4);
+              
+                          // if cmd is i2c_over_aux read & addr only
+                          if(((ScalerGetByte_EXINT(PB7_D2_AUX_RX_CMD) & (_BIT7 | _BIT5 | _BIT4)) == _BIT4) &&
+                             (ScalerGetBit_EXINT(PB7_DB_AUX_STATUS, _BIT0) == _BIT0))
+                          {
+                              // RST fifo
+                              ScalerSetBit_EXINT(PB7_DA_AUX_FIFO_RST, ~(_BIT6 | _BIT4 | _BIT1 | _BIT0), _BIT0);
+              
+                              // Force Ack
+                              if(ScalerGetBit_EXINT(PB7_C7_TP1_OCCR, (_BIT2 | _BIT1 | _BIT0)) == _BIT1)
+                              {
+                                  ScalerSetBit_EXINT(PB7_D7_AUX_TX_CMD, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+                              }
+                          }
+              
+                          bReturnValueD0 = _TRUE;
+                      }
+              
+                      // Symbol Error Count Read IRQ
+                      if(ScalerGetBit_EXINT(PB7_FB_DUMMY_1, (_BIT1 | _BIT0)) == (_BIT1 | _BIT0))
+                      {
+                          // Clear IRQ Flag
+                          ScalerSetBit_EXINT(PB7_FB_DUMMY_1, ~(_BIT7 | _BIT5 | _BIT3 | _BIT1), _BIT1);
+              
+                          if(GET_DP_RX0_SOURCE_READ_ERROR_COUNT() == _FALSE)
+                          {
+                              // Only Reply when State Machine is at Transmit Idle Standby State
+                              if(ScalerGetBit_EXINT(PB7_C7_TP1_OCCR, 0x07) == 0x02)
+                              {
+                                  // Reset Aux FIFO
+                                  ScalerSetBit_EXINT(PB7_DA_AUX_FIFO_RST, ~_BIT0, _BIT0);
+              
+                                  ScalerDpRx0ErrorCounterUpdate_EXINT0();
+              
+                                  // Wait for RCV_STANBY, in Order to Reply AUX DEFER
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 4   
+
+                                  ScalerDpRx0AuxWaitRcv_EXINT0();
+              
+                                  SET_DP_RX0_SOURCE_READ_ERROR_COUNT();
+                              }
+                              else
+                              {
+                                  // Reset 8B/10B Error Counter
+                                  ScalerSetBit_EXINT(PB_08_BIST_PATTERN_SEL, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+                                  ScalerSetBit_EXINT(PB_08_BIST_PATTERN_SEL, ~(_BIT2 | _BIT1 | _BIT0), _BIT1);
+                              }
+                          }
+                          else
+                          {
+                              // Update Symbol Error Count by HW Auto Reply
+                              CLR_DP_RX0_SOURCE_READ_ERROR_COUNT();
+              
+                              // Reset 8B/10B Error Counter
+                              ScalerSetBit_EXINT(PB_08_BIST_PATTERN_SEL, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+                              ScalerSetBit_EXINT(PB_08_BIST_PATTERN_SEL, ~(_BIT2 | _BIT1 | _BIT0), _BIT1);
+                          }
+              
+                          bReturnValueD0 = _TRUE;
+                      }
+                      else
+                      {
+                          // Reset Read Error Count Flag Beside Symbol Error Count 00210h ~ 00217h
+                          CLR_DP_RX0_SOURCE_READ_ERROR_COUNT();
+                      }
+              
+                      // DPCD 022xxh Into INT
+                      if(ScalerGetBit_EXINT(PB7_FB_DUMMY_1, (_BIT7 | _BIT6)) == (_BIT7 | _BIT6))
+                      {
+                          WORD usDpRx0AuxAddressStart = 0;
+                          WORD usDpRx0AuxAddressTerm = 0;
+              
+                          // Clear Flag
+                          ScalerSetBit_EXINT(PB7_FB_DUMMY_1, ~(_BIT7 | _BIT5 | _BIT3 | _BIT1), _BIT7);
+              
+                          g_ucDpAuxRx0DpcdAddress -= g_ucDpAuxRx0DpcdLength;
+              
+                          usDpRx0AuxAddressTerm = ((WORD)g_ucDpAuxRx0DpcdAddress) + ((WORD)g_ucDpAuxRx0DpcdLength);
+              
+                          // usDpRx0AuxAddressStart = Dpcd Addr Start, usDpRx0AuxAddressTerm = Dpcd Addr End + 1
+                          for(usDpRx0AuxAddressStart = ((WORD)g_ucDpAuxRx0DpcdAddress); usDpRx0AuxAddressStart < usDpRx0
+             -AuxAddressTerm; usDpRx0AuxAddressStart++)
+                          {
+                              if(usDpRx0AuxAddressStart == 0x00)
+                              {
+                                  ScalerSetByte_EXINT(PB7_D9_AUX_TX_DATA, g_ucDpRx0DPCD02200hValue);
+                              }
+                              else if(usDpRx0AuxAddressStart == 0x01)
+                              {
+                                  ScalerSetByte_EXINT(PB7_D9_AUX_TX_DATA, g_ucDpRx0DPCD02201hValue);
+                              }
+                              else if((usDpRx0AuxAddressStart > 0x01) && (usDpRx0AuxAddressStart <= 0x0F))
+                              {
+                                  // Mirror Dpcd 0x00002~0x0000F
+                                  ScalerSetByte_EXINT(PB7_D9_AUX_TX_DATA, ScalerDpRx0GetDpcdInfo_EXINT0(0x00, 0x00, ((BY
+             -TE)usDpRx0AuxAddressStart)));
+                              }
+                              else if(usDpRx0AuxAddressStart == 0x10)
+                              {
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 5   
+
+                                  // Set DPCD 02210h[3] = 1 --> VSC_SDP_EXTENSION_FOR_COLORIMETRY_SUPPORTED
+                                  ScalerSetByte_EXINT(PB7_D9_AUX_TX_DATA, g_ucDpRx0DPCD02210hValue);
+                              }
+              #if(_DP_ADAPTIVESYNC_SUPPORT == _ON)
+                              else if(usDpRx0AuxAddressStart == 0x14)
+                              {
+                                  // Set DPCD 02214h[0] = 1 --> AS SDP SUPPORTED
+                                  ScalerSetByte_EXINT(PB7_D9_AUX_TX_DATA, g_ucDpRx0DPCD02214hValue);
+                              }
+              #endif
+                              else
+                              {
+                                  ScalerSetByte_EXINT(PB7_D9_AUX_TX_DATA, 0x00);
+                              }
+                          }
+              
+                          // Reload The Length of Aux Message
+                          ScalerSetByte_EXINT(PB7_D8_AUX_TX_LEN, (ScalerGetByte_EXINT(PB7_D5_AUX_RXLEN) & 0x0F));
+              
+                          // Reset Backup DPCD Address and Length
+                          g_ucDpAuxRx0DpcdAddress = 0;
+                          g_ucDpAuxRx0DpcdLength = 0;
+                      }
+              
+                      if((ScalerGetByte_EXINT(PB7_DD_AUX_DPCD_IRQ) & (_BIT7 | _BIT6 | _BIT5)) != 0x00)  // Write Link Co
+             -nfig Field into INT0
+                      {
+                          g_ucDpRx0TrainingPatternSet = (ScalerDpRx0GetDpcdInfo_EXINT0(0x00, 0x01, 0x02) & 0x03);
+              
+                          // Backup Source Write Continous 0x102 and 0x103
+                          g_ucDpRx0LTPatternSet = ScalerGetByte_EXINT(PB7_DD_AUX_DPCD_IRQ);
+              
+                          // SVN Record 777
+                          if(((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_1_FAIL) ||
+                              (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_FAIL)) &&
+                             ((g_ucDpRx0LTPatternSet & (_BIT7 | _BIT6 | _BIT5)) == _BIT6) &&
+                             ((g_ucDpRx0LinkRate != ScalerDpRx0GetDpcdInfo_EXINT0(0x00, 0x01, 0x00)) ||
+                              (g_ucDpRx0LaneCount != (ScalerDpRx0GetDpcdInfo_EXINT0(0x00, 0x01, 0x01) & 0x1F))))
+                          {
+                              g_ucDpRx0TrainingPatternSet = _DP_TRAINING_PATTERN_END;
+              
+                              SET_DP_RX0_LINK_TRAINING_STATUS(_DP_LINK_TRAINING_NONE);
+                          }
+              
+                          g_ucDpRx0LinkRate = ScalerDpRx0GetDpcdInfo_EXINT0(0x00, 0x01, 0x00);
+                          g_ucDpRx0LaneCount = (ScalerDpRx0GetDpcdInfo_EXINT0(0x00, 0x01, 0x01) & 0x1F);
+              
+                          // Clear Flag
+                          ScalerSetBit_EXINT(PB7_DD_AUX_DPCD_IRQ, ~(_BIT7 | _BIT6 | _BIT5), (_BIT7 | _BIT6 | _BIT5));
+              
+                          switch(g_ucDpRx0TrainingPatternSet)
+                          {
+                              case _DP_TRAINING_PATTERN_1:
+              
+                                  CLR_DP_RX0_BACKUP_PD_LINK_STATUS_FLG();
+              
+                                  // Check Source Only Write 0x102 without 0x103~0x106
+                                  if((g_ucDpRx0LTPatternSet & (_BIT7 | _BIT5)) == _BIT7)
+                                  {
+                                      if((GET_DP_RX0_LINK_TRAINING_STATUS() != _DP_NORMAL_TRAINING_PATTERN_1_PASS) &&
+                                         (GET_DP_RX0_LINK_TRAINING_STATUS() != _DP_FAKE_TRAINING_PATTERN_1_PASS) &&
+                                         (GET_DP_RX0_LINK_TRAINING_STATUS() != _DP_NORMAL_TRAINING_PATTERN_1_FAIL) &&
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 6   
+
+                                         (GET_DP_RX0_LINK_TRAINING_STATUS() != _DP_FAKE_TRAINING_PATTERN_1_FAIL))
+                                      {
+                                          ScalerDpRx0SetDpcdValue_EXINT0(0x00, 0x01, 0x03, 0x00);
+                                          ScalerDpRx0SetDpcdValue_EXINT0(0x00, 0x01, 0x04, 0x00);
+                                          ScalerDpRx0SetDpcdValue_EXINT0(0x00, 0x01, 0x05, 0x00);
+                                          ScalerDpRx0SetDpcdValue_EXINT0(0x00, 0x01, 0x06, 0x00);
+              
+                                          g_ucDpRx0LinkRequest01 = 0x00;
+                                          g_ucDpRx0LinkRequest23 = 0x00;
+              
+              #if(_DP_HBR_RBR_LT_FORCE_MARGINAL_LINK == _ON)
+                                          SET_DP_RX_D0_LANE0_MARGIN_LINK_HBR_RBR();
+                                          SET_DP_RX_D0_LANE1_MARGIN_LINK_HBR_RBR();
+                                          SET_DP_RX_D0_LANE2_MARGIN_LINK_HBR_RBR();
+                                          SET_DP_RX_D0_LANE3_MARGIN_LINK_HBR_RBR();
+              #endif
+                                          g_bDpRx0Tp1Initial = _TRUE;
+                                      }
+                                  }
+              
+                                  if((GET_DP_RX0_LINK_TRAINING_STATUS() != _DP_NORMAL_TRAINING_PATTERN_1_PASS) &&
+                                     (GET_DP_RX0_LINK_TRAINING_STATUS() != _DP_FAKE_TRAINING_PATTERN_1_PASS))
+                                  {
+                                      if(GET_DP_RX0_FAKE_LINK_TRAINING() == _FALSE)
+                                      {
+                                          if(ScalerDpRx0TrainingPattern1_EXINT0(_DP_NORMAL_LT) == _TRUE)
+                                          {
+                                              SET_DP_RX0_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_1_PASS);
+                                          }
+                                          else
+                                          {
+                                              SET_DP_RX0_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_1_FAIL);
+                                          }
+                                      }
+                                      else
+                                      {
+                                          if(ScalerDpRx0TrainingPattern1_EXINT0(_DP_FAKE_LT) == _TRUE)
+                                          {
+                                              SET_DP_RX0_LINK_TRAINING_STATUS(_DP_FAKE_TRAINING_PATTERN_1_PASS);
+                                          }
+                                          else
+                                          {
+                                              SET_DP_RX0_LINK_TRAINING_STATUS(_DP_FAKE_TRAINING_PATTERN_1_FAIL);
+                                          }
+                                      }
+                                  }
+              
+                                  bReturnValueD0 = _TRUE;
+              
+                                  break;
+              
+                              case _DP_TRAINING_PATTERN_2:
+                              case _DP_TRAINING_PATTERN_3:
+              
+                                  g_bDpRx0Tp1Initial = _FALSE;
+              
+                                  if((GET_DP_RX0_FAKE_LINK_TRAINING() == _FALSE) &&
+                                     ((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_1_PASS) ||
+                                      (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_FAIL)))
+                                  {
+                                      if(ScalerDpRx0TrainingPattern2_EXINT0(_DP_NORMAL_LT) == _TRUE)
+                                      {
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 7   
+
+                                          SET_DP_RX0_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_2_PASS);
+              
+                                          ScalerSetBit_EXINT(PB_01_PHY_DIG_RESET_CTRL, ~(_BIT4 | _BIT3), 0x00);
+                                      }
+                                      else
+                                      {
+                                          SET_DP_RX0_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_2_FAIL);
+                                      }
+                                  }
+                                  else if((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_1_PASS) ||
+                                          (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_2_FAIL) ||
+                                          (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_1_PASS) ||
+                                          (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_FAIL))
+                                  {
+                                      if(ScalerDpRx0TrainingPattern2_EXINT0(_DP_FAKE_LT) == _TRUE)
+                                      {
+                                          SET_DP_RX0_LINK_TRAINING_STATUS(_DP_FAKE_TRAINING_PATTERN_2_PASS);
+                                      }
+                                      else
+                                      {
+                                          SET_DP_RX0_LINK_TRAINING_STATUS(_DP_FAKE_TRAINING_PATTERN_2_FAIL);
+                                      }
+                                  }
+              
+                                  bReturnValueD0 = _TRUE;
+              
+                                  break;
+              
+                              case _DP_TRAINING_PATTERN_END:
+              
+                                  g_bDpRx0Tp1Initial = _FALSE;
+              
+                                  if((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_LINK_TRAINING_PASS) || (GET_DP_RX0
+             -_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_END_REBUILD_PHY))
+                                  {
+                                      ScalerDpRx0TrainingPatternEnd_EXINT0();
+                                  }
+                                  else if((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_PASS) || (
+             -GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_2_PASS))
+                                  {
+                                      ScalerDpRx0SetDpcdBitValue_EXINT0(0x00, 0x06, 0x00, ~(_BIT2 | _BIT1 | _BIT0), _BIT
+             -0);
+              
+                                      if(GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_PASS)
+                                      {
+                                          ScalerDpRx0TrainingPatternEnd_EXINT0();
+              
+                                          SET_DP_RX0_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_END_REBUILD_PHY);
+              
+                                          ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_RX0_DP_LINK_TRAINI
+             -NG_REBUILD_PHY);
+              
+                                          ScalerTimerWDActivateTimerEvent_EXINT0(30, _SCALER_WD_TIMER_EVENT_RX0_DP_LINK_
+             -TRAINING_REBUILD_PHY);
+                                      }
+                                      else
+                                      {
+                                          SET_DP_RX0_LINK_TRAINING_STATUS(_DP_FAKE_LINK_TRAINING_PASS);
+                                      }
+              
+              #if(_DP_HBR2_MARGIN_LINK_SUPPORT == _ON)
+                                      CLR_DP_RX_D0_MARGIN_LINK_HBR2();
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 8   
+
+              #endif
+                                      // Set DP Receive Port0 In Sync
+                                      ScalerDpRx0SinkStatusSet_EXINT0(_DP_SINK_REVEICE_PORT0, _DP_SINK_IN_SYNC);
+              
+                                      ScalerTimerCancelTimerEvent_EXINT0(_SCALER_TIMER_EVENT_DP_RX0_HDCP_LONG_HOTPLUG_EV
+             -ENT);
+              
+                                      CLR_DP_RX0_HDCP_CPIRQ();
+              
+              #if((_DP_HDCP_2_2_SUPPORT == _ON) && (_WD_TIMER_INT_SUPPORT == _ON))
+                                      ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX0_HDCP2_SKE);
+                                      ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX0_HDCP2_H_PRIME);
+              #endif
+                                  }
+                                  else if((GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_1_FAIL) ||
+                                          (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_FAIL) ||
+                                          (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_1_FAIL) ||
+                                          (GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_2_FAIL))
+                                  {
+                                      SET_DP_RX0_LINK_TRAINING_STATUS(_DP_LINK_TRAINING_FAIL);
+              
+              #if(_DP_HBR2_MARGIN_LINK_SUPPORT == _ON)
+                                      CLR_DP_RX_D0_MARGIN_LINK_HBR2();
+              #endif
+                                  }
+              
+                                  bReturnValueD0 = _TRUE;
+              
+                                  break;
+              
+                              default:
+                                  break;
+                          }
+                      }
+              
+                      ScalerSetByte_EXINT(PB7_C1_DPCD_ADDR_PORT_H, g_pucDpRx0Backup[0]);
+                      ScalerSetByte_EXINT(PB7_C2_DPCD_ADDR_PORT_M, g_pucDpRx0Backup[1]);
+                      ScalerSetByte_EXINT(PB7_C3_DPCD_ADDR_PORT_L, g_pucDpRx0Backup[2]);
+              
+                      // Restore Dpcd Auto Inc
+                      ScalerSetBit_EXINT(PB7_C0_DPCD_CTRL, ~_BIT0, g_bDpRx0AutoInc);
+                  }
+              
+              #endif
+ 453   1      
+ 454   1      #if(_D1_DP_EXIST == _TRUE)
+ 455   1      
+ 456   1          if(ScalerGetBit_EXINT(PBA_7A_AUX_DIG_PHYA, (_BIT4 | _BIT0)) == (_BIT4 | _BIT0))
+ 457   1          {
+ 458   2              if(ScalerGetBit_EXINT(PBA_79_AUX_DIG_PHY9, (_BIT3 | _BIT2 | _BIT1 | _BIT0)) == 0x00)
+ 459   2              {
+ 460   3                  if((MCU_FFED_MCU_CONTROL & _BIT1) == 0x00)
+ 461   3                  {
+ 462   4                      MCU_FFE9_MCU_CLK_CONTROL_1 = (_FLASH_CLK_PS_FAST_DIV | (MCU_FFE9_MCU_CLK_CONTROL_1 & 0xF0)
+             -);
+ 463   4                  }
+ 464   3      
+ 465   3                  // Disable Aux INT
+ 466   3                  ScalerSetBit_EXINT(PBA_7A_AUX_DIG_PHYA, ~_BIT4, 0x00);
+ 467   3      
+ 468   3                  // Enable GDI BandGap
+ 469   3                  ScalerSetBit_EXINT(P1D_14_BANDGAP_00, ~_BIT7, _BIT7);
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 9   
+
+ 470   3      
+ 471   3                  // Disable Aux Power Saving Mode
+ 472   3                  ScalerSetBit_EXINT(PBA_62_AUX_2, ~_BIT1, 0x00);
+ 473   3      
+ 474   3                  // Switch Aux PHY to GDI BandGap
+ 475   3                  ScalerSetBit_EXINT(PBA_63_AUX_3, ~_BIT7, 0x00);
+ 476   3      
+ 477   3                  SET_DP_RX1_PS_AUX_TOGGLE();
+ 478   3      
+ 479   3                  IP = 0xA0;
+ 480   3      
+ 481   3                  // DPCD 022xxh Into INT
+ 482   3                  if(ScalerGetBit_EXINT(PBA_FB_DUMMY_1, (_BIT7 | _BIT6)) != (_BIT7 | _BIT6))
+ 483   3                  {
+ 484   4                      return _TRUE;
+ 485   4                  }
+ 486   3              }
+ 487   2              else
+ 488   2              {
+ 489   3                  // Clear Aux INT flag
+ 490   3                  ScalerSetBit_EXINT(PBA_7A_AUX_DIG_PHYA, ~_BIT0, _BIT0);
+ 491   3      
+ 492   3                  // Clear Manchester/Stop pattern/Sync_end pattern/Byte boundary check Error
+ 493   3                  ScalerSetBit_EXINT(PBA_79_AUX_DIG_PHY9, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT3 | _BIT2 | _BI
+             -T1 | _BIT0));
+ 494   3      
+ 495   3                  return _TRUE;
+ 496   3              }
+ 497   2          }
+ 498   1      
+ 499   1          // D1 DP Global IRQ
+ 500   1          if(ScalerGetBit_EXINT(PBA_DC_AUX_IRQ_STATUS, _BIT7) == _BIT7)
+ 501   1          {
+ 502   2              if((MCU_FFED_MCU_CONTROL & _BIT1) == 0x00)
+ 503   2              {
+ 504   3                  MCU_FFE9_MCU_CLK_CONTROL_1 = (_FLASH_CLK_PS_FAST_DIV | (MCU_FFE9_MCU_CLK_CONTROL_1 & 0xF0));
+ 505   3              }
+ 506   2      
+ 507   2              ScalerDpRxAuxPreIntHandler_EXINT0();
+ 508   2      
+ 509   2              g_pucDpRx1Backup[0] = ScalerGetByte_EXINT(PBA_C1_DPCD_ADDR_PORT_H);
+ 510   2              g_pucDpRx1Backup[1] = ScalerGetByte_EXINT(PBA_C2_DPCD_ADDR_PORT_M);
+ 511   2              g_pucDpRx1Backup[2] = ScalerGetByte_EXINT(PBA_C3_DPCD_ADDR_PORT_L);
+ 512   2      
+ 513   2              // Backup Dpcd Auto Inc
+ 514   2              g_bDpRx1AutoInc = (ScalerGetBit_EXINT(PBA_C0_DPCD_CTRL, _BIT0) == _BIT0);
+ 515   2      
+ 516   2              // Disable Dpcd Auto Inc
+ 517   2              ScalerSetBit_EXINT(PBA_C0_DPCD_CTRL, ~_BIT0, 0x00);
+ 518   2      
+ 519   2              // If source i2c_over_aux cmd hit slave addr = 50
+ 520   2              if(ScalerGetBit_EXINT(PBA_DA_AUX_FIFO_RST, _BIT4) == _BIT4)
+ 521   2              {
+ 522   3                  // Clear flag
+ 523   3                  ScalerSetBit_EXINT(PBA_DA_AUX_FIFO_RST, ~(_BIT6 | _BIT4 | _BIT1 | _BIT0), _BIT4);
+ 524   3      
+ 525   3                  // if cmd is i2c_over_aux read & addr only
+ 526   3                  if(((ScalerGetByte_EXINT(PBA_D2_AUX_RX_CMD) & (_BIT7 | _BIT5 | _BIT4)) == _BIT4) &&
+ 527   3                     (ScalerGetBit_EXINT(PBA_DB_AUX_STATUS, _BIT0) == _BIT0))
+ 528   3                  {
+ 529   4                      // RST fifo
+ 530   4                      ScalerSetBit_EXINT(PBA_DA_AUX_FIFO_RST, ~(_BIT6 | _BIT4 | _BIT1 | _BIT0), _BIT0);
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 10  
+
+ 531   4      
+ 532   4                      // Force Ack
+ 533   4                      if(ScalerGetBit_EXINT(PBA_C7_TP1_OCCR, (_BIT2 | _BIT1 | _BIT0)) == _BIT1)
+ 534   4                      {
+ 535   5                          ScalerSetBit_EXINT(PBA_D7_AUX_TX_CMD, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+ 536   5                      }
+ 537   4                  }
+ 538   3      
+ 539   3                  bReturnValueD1 = _TRUE;
+ 540   3              }
+ 541   2      
+ 542   2              // Symbol Error Count Read IRQ
+ 543   2              if(ScalerGetBit_EXINT(PBA_FB_DUMMY_1, (_BIT1 | _BIT0)) == (_BIT1 | _BIT0))
+ 544   2              {
+ 545   3                  // Clear IRQ Flag
+ 546   3                  ScalerSetBit_EXINT(PBA_FB_DUMMY_1, ~(_BIT7 | _BIT5 | _BIT3 | _BIT1), _BIT1);
+ 547   3      
+ 548   3                  if(GET_DP_RX1_SOURCE_READ_ERROR_COUNT() == _FALSE)
+ 549   3                  {
+ 550   4                      // Only Reply when State Machine is at Transmit Idle Standby State
+ 551   4                      if(ScalerGetBit_EXINT(PBA_C7_TP1_OCCR, 0x07) == 0x02)
+ 552   4                      {
+ 553   5                          // Reset Aux FIFO
+ 554   5                          ScalerSetBit_EXINT(PBA_DA_AUX_FIFO_RST, ~_BIT0, _BIT0);
+ 555   5      
+ 556   5                          ScalerDpRx1ErrorCounterUpdate_EXINT0();
+ 557   5      
+ 558   5                          // Wait for RCV_STANBY, in Order to Reply AUX DEFER
+ 559   5                          ScalerDpRx1AuxWaitRcv_EXINT0();
+ 560   5      
+ 561   5                          SET_DP_RX1_SOURCE_READ_ERROR_COUNT();
+ 562   5                      }
+ 563   4                      else
+ 564   4                      {
+ 565   5                          // Reset 8B/10B Error Counter
+ 566   5                          ScalerSetBit_EXINT(PB0_08_BIST_PATTERN_SEL, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+ 567   5                          ScalerSetBit_EXINT(PB0_08_BIST_PATTERN_SEL, ~(_BIT2 | _BIT1 | _BIT0), _BIT1);
+ 568   5                      }
+ 569   4                  }
+ 570   3                  else
+ 571   3                  {
+ 572   4                      // Update Symbol Error Count by HW Auto Reply
+ 573   4                      CLR_DP_RX1_SOURCE_READ_ERROR_COUNT();
+ 574   4      
+ 575   4                      // Reset 8B/10B Error Counter
+ 576   4                      ScalerSetBit_EXINT(PB0_08_BIST_PATTERN_SEL, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+ 577   4                      ScalerSetBit_EXINT(PB0_08_BIST_PATTERN_SEL, ~(_BIT2 | _BIT1 | _BIT0), _BIT1);
+ 578   4                  }
+ 579   3      
+ 580   3                  bReturnValueD1 = _TRUE;
+ 581   3              }
+ 582   2              else
+ 583   2              {
+ 584   3                  // Reset Read Error Count Flag Beside Symbol Error Count 00210h ~ 00217h
+ 585   3                  CLR_DP_RX1_SOURCE_READ_ERROR_COUNT();
+ 586   3              }
+ 587   2      
+ 588   2              // DPCD 022xxh Into INT
+ 589   2              if(ScalerGetBit_EXINT(PBA_FB_DUMMY_1, (_BIT7 | _BIT6)) == (_BIT7 | _BIT6))
+ 590   2              {
+ 591   3                  WORD usDpRx1AuxAddressStart = 0;
+ 592   3                  WORD usDpRx1AuxAddressTerm = 0;
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 11  
+
+ 593   3      
+ 594   3                  // Clear Flag
+ 595   3                  ScalerSetBit_EXINT(PBA_FB_DUMMY_1, ~(_BIT7 | _BIT5 | _BIT3 | _BIT1), _BIT7);
+ 596   3      
+ 597   3                  g_ucDpAuxRx1DpcdAddress -= g_ucDpAuxRx1DpcdLength;
+ 598   3      
+ 599   3                  usDpRx1AuxAddressTerm = ((WORD)g_ucDpAuxRx1DpcdAddress) + ((WORD)g_ucDpAuxRx1DpcdLength);
+ 600   3      
+ 601   3                  // usDpRx1AuxAddressStart = Dpcd Addr Start, usDpRx1AuxAddressTerm = Dpcd Addr End + 1
+ 602   3                  for(usDpRx1AuxAddressStart = ((WORD)g_ucDpAuxRx1DpcdAddress); usDpRx1AuxAddressStart < usDpRx1
+             -AuxAddressTerm; usDpRx1AuxAddressStart++)
+ 603   3                  {
+ 604   4                      if(usDpRx1AuxAddressStart == 0x00)
+ 605   4                      {
+ 606   5                          ScalerSetByte_EXINT(PBA_D9_AUX_TX_DATA, g_ucDpRx1DPCD02200hValue);
+ 607   5                      }
+ 608   4                      else if(usDpRx1AuxAddressStart == 0x01)
+ 609   4                      {
+ 610   5                          ScalerSetByte_EXINT(PBA_D9_AUX_TX_DATA, g_ucDpRx1DPCD02201hValue);
+ 611   5                      }
+ 612   4                      else if((usDpRx1AuxAddressStart > 0x01) && (usDpRx1AuxAddressStart <= 0x0F))
+ 613   4                      {
+ 614   5                          // Mirror Dpcd 0x00002~0x0000F
+ 615   5                          ScalerSetByte_EXINT(PBA_D9_AUX_TX_DATA, ScalerDpRx1GetDpcdInfo_EXINT0(0x00, 0x00, ((BY
+             -TE)usDpRx1AuxAddressStart)));
+ 616   5                      }
+ 617   4                      else if(usDpRx1AuxAddressStart == 0x10)
+ 618   4                      {
+ 619   5                          // Set DPCD 02210h[3] = 1 --> VSC_SDP_EXTENSION_FOR_COLORIMETRY_SUPPORTED
+ 620   5                          ScalerSetByte_EXINT(PBA_D9_AUX_TX_DATA, g_ucDpRx1DPCD02210hValue);
+ 621   5                      }
+ 622   4      #if(_DP_ADAPTIVESYNC_SUPPORT == _ON)
+                              else if(usDpRx1AuxAddressStart == 0x14)
+                              {
+                                  // Set DPCD 02214h[0] = 1 --> AS SDP SUPPORTED
+                                  ScalerSetByte_EXINT(PBA_D9_AUX_TX_DATA, g_ucDpRx1DPCD02214hValue);
+                              }
+              #endif
+ 629   4                      else
+ 630   4                      {
+ 631   5                          ScalerSetByte_EXINT(PBA_D9_AUX_TX_DATA, 0x00);
+ 632   5                      }
+ 633   4                  }
+ 634   3      
+ 635   3                  // Reload The Length of Aux Message
+ 636   3                  ScalerSetByte_EXINT(PBA_D8_AUX_TX_LEN, (ScalerGetByte_EXINT(PBA_D5_AUX_RXLEN) & 0x0F));
+ 637   3      
+ 638   3                  // Reset Backup DPCD Address and Length
+ 639   3                  g_ucDpAuxRx1DpcdAddress = 0;
+ 640   3                  g_ucDpAuxRx1DpcdLength = 0;
+ 641   3              }
+ 642   2      
+ 643   2              if((ScalerGetByte_EXINT(PBA_DD_AUX_DPCD_IRQ) & (_BIT7 | _BIT6 | _BIT5)) != 0x00)  // Write Link Co
+             -nfig Field into INT0
+ 644   2              {
+ 645   3                  g_ucDpRx1TrainingPatternSet = (ScalerDpRx1GetDpcdInfo_EXINT0(0x00, 0x01, 0x02) & 0x03);
+ 646   3      
+ 647   3                  // Backup Source Write Continous 0x102 and 0x103
+ 648   3                  g_ucDpRx1LTPatternSet = ScalerGetByte_EXINT(PBA_DD_AUX_DPCD_IRQ);
+ 649   3      
+ 650   3                  // SVN Record 777
+ 651   3                  if(((GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_1_FAIL) ||
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 12  
+
+ 652   3                      (GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_FAIL)) &&
+ 653   3                     ((g_ucDpRx1LTPatternSet & (_BIT7 | _BIT6 | _BIT5)) == _BIT6) &&
+ 654   3                     ((g_ucDpRx1LinkRate != ScalerDpRx1GetDpcdInfo_EXINT0(0x00, 0x01, 0x00)) ||
+ 655   3                      (g_ucDpRx1LaneCount != (ScalerDpRx1GetDpcdInfo_EXINT0(0x00, 0x01, 0x01) & 0x1F))))
+ 656   3                  {
+ 657   4                      g_ucDpRx1TrainingPatternSet = _DP_TRAINING_PATTERN_END;
+ 658   4      
+ 659   4                      SET_DP_RX1_LINK_TRAINING_STATUS(_DP_LINK_TRAINING_NONE);
+ 660   4                  }
+ 661   3      
+ 662   3                  g_ucDpRx1LinkRate = ScalerDpRx1GetDpcdInfo_EXINT0(0x00, 0x01, 0x00);
+ 663   3                  g_ucDpRx1LaneCount = (ScalerDpRx1GetDpcdInfo_EXINT0(0x00, 0x01, 0x01) & 0x1F);
+ 664   3      
+ 665   3                  // Clear Flag
+ 666   3                  ScalerSetBit_EXINT(PBA_DD_AUX_DPCD_IRQ, ~(_BIT7 | _BIT6 | _BIT5), (_BIT7 | _BIT6 | _BIT5));
+ 667   3      
+ 668   3                  switch(g_ucDpRx1TrainingPatternSet)
+ 669   3                  {
+ 670   4                      case _DP_TRAINING_PATTERN_1:
+ 671   4      
+ 672   4                          CLR_DP_RX1_BACKUP_PD_LINK_STATUS_FLG();
+ 673   4      
+ 674   4                          // Check Source Only Write 0x102 without 0x103~0x106
+ 675   4                          if((g_ucDpRx1LTPatternSet & (_BIT7 | _BIT5)) == _BIT7)
+ 676   4                          {
+ 677   5                              if((GET_DP_RX1_LINK_TRAINING_STATUS() != _DP_NORMAL_TRAINING_PATTERN_1_PASS) &&
+ 678   5                                 (GET_DP_RX1_LINK_TRAINING_STATUS() != _DP_FAKE_TRAINING_PATTERN_1_PASS) &&
+ 679   5                                 (GET_DP_RX1_LINK_TRAINING_STATUS() != _DP_NORMAL_TRAINING_PATTERN_1_FAIL) &&
+ 680   5                                 (GET_DP_RX1_LINK_TRAINING_STATUS() != _DP_FAKE_TRAINING_PATTERN_1_FAIL))
+ 681   5                              {
+ 682   6                                  ScalerDpRx1SetDpcdValue_EXINT0(0x00, 0x01, 0x03, 0x00);
+ 683   6                                  ScalerDpRx1SetDpcdValue_EXINT0(0x00, 0x01, 0x04, 0x00);
+ 684   6                                  ScalerDpRx1SetDpcdValue_EXINT0(0x00, 0x01, 0x05, 0x00);
+ 685   6                                  ScalerDpRx1SetDpcdValue_EXINT0(0x00, 0x01, 0x06, 0x00);
+ 686   6      
+ 687   6                                  g_ucDpRx1LinkRequest01 = 0x00;
+ 688   6                                  g_ucDpRx1LinkRequest23 = 0x00;
+ 689   6      
+ 690   6      #if(_DP_HBR_RBR_LT_FORCE_MARGINAL_LINK == _ON)
+ 691   6                                  SET_DP_RX_D1_LANE0_MARGIN_LINK_HBR_RBR();
+ 692   6                                  SET_DP_RX_D1_LANE1_MARGIN_LINK_HBR_RBR();
+ 693   6                                  SET_DP_RX_D1_LANE2_MARGIN_LINK_HBR_RBR();
+ 694   6                                  SET_DP_RX_D1_LANE3_MARGIN_LINK_HBR_RBR();
+ 695   6      #endif
+ 696   6                                  g_bDpRx1Tp1Initial = _TRUE;
+ 697   6                              }
+ 698   5                          }
+ 699   4      
+ 700   4                          if((GET_DP_RX1_LINK_TRAINING_STATUS() != _DP_NORMAL_TRAINING_PATTERN_1_PASS) &&
+ 701   4                             (GET_DP_RX1_LINK_TRAINING_STATUS() != _DP_FAKE_TRAINING_PATTERN_1_PASS))
+ 702   4                          {
+ 703   5                              if(GET_DP_RX1_FAKE_LINK_TRAINING() == _FALSE)
+ 704   5                              {
+ 705   6                                  if(ScalerDpRx1TrainingPattern1_EXINT0(_DP_NORMAL_LT) == _TRUE)
+ 706   6                                  {
+ 707   7                                      SET_DP_RX1_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_1_PASS);
+ 708   7                                  }
+ 709   6                                  else
+ 710   6                                  {
+ 711   7                                      SET_DP_RX1_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_1_FAIL);
+ 712   7                                  }
+ 713   6                              }
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 13  
+
+ 714   5                              else
+ 715   5                              {
+ 716   6                                  if(ScalerDpRx1TrainingPattern1_EXINT0(_DP_FAKE_LT) == _TRUE)
+ 717   6                                  {
+ 718   7                                      SET_DP_RX1_LINK_TRAINING_STATUS(_DP_FAKE_TRAINING_PATTERN_1_PASS);
+ 719   7                                  }
+ 720   6                                  else
+ 721   6                                  {
+ 722   7                                      SET_DP_RX1_LINK_TRAINING_STATUS(_DP_FAKE_TRAINING_PATTERN_1_FAIL);
+ 723   7                                  }
+ 724   6                              }
+ 725   5                          }
+ 726   4      
+ 727   4                          bReturnValueD1 = _TRUE;
+ 728   4      
+ 729   4                          break;
+ 730   4      
+ 731   4                      case _DP_TRAINING_PATTERN_2:
+ 732   4                      case _DP_TRAINING_PATTERN_3:
+ 733   4      
+ 734   4                          g_bDpRx1Tp1Initial = _FALSE;
+ 735   4      
+ 736   4                          if((GET_DP_RX1_FAKE_LINK_TRAINING() == _FALSE) &&
+ 737   4                             ((GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_1_PASS) ||
+ 738   4                              (GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_FAIL)))
+ 739   4                          {
+ 740   5                              if(ScalerDpRx1TrainingPattern2_EXINT0(_DP_NORMAL_LT) == _TRUE)
+ 741   5                              {
+ 742   6                                  SET_DP_RX1_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_2_PASS);
+ 743   6      
+ 744   6                                  ScalerSetBit_EXINT(PB0_01_PHY_DIG_RESET_CTRL, ~(_BIT4 | _BIT3), 0x00);
+ 745   6                              }
+ 746   5                              else
+ 747   5                              {
+ 748   6                                  SET_DP_RX1_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_2_FAIL);
+ 749   6                              }
+ 750   5                          }
+ 751   4                          else if((GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_1_PASS) ||
+ 752   4                                  (GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_2_FAIL) ||
+ 753   4                                  (GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_1_PASS) ||
+ 754   4                                  (GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_FAIL))
+ 755   4                          {
+ 756   5                              if(ScalerDpRx1TrainingPattern2_EXINT0(_DP_FAKE_LT) == _TRUE)
+ 757   5                              {
+ 758   6                                  SET_DP_RX1_LINK_TRAINING_STATUS(_DP_FAKE_TRAINING_PATTERN_2_PASS);
+ 759   6                              }
+ 760   5                              else
+ 761   5                              {
+ 762   6                                  SET_DP_RX1_LINK_TRAINING_STATUS(_DP_FAKE_TRAINING_PATTERN_2_FAIL);
+ 763   6                              }
+ 764   5                          }
+ 765   4      
+ 766   4                          bReturnValueD1 = _TRUE;
+ 767   4      
+ 768   4                          break;
+ 769   4      
+ 770   4                      case _DP_TRAINING_PATTERN_END:
+ 771   4      
+ 772   4                          g_bDpRx1Tp1Initial = _FALSE;
+ 773   4      
+ 774   4                          if((GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_LINK_TRAINING_PASS) || (GET_DP_RX1
+             -_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_END_REBUILD_PHY))
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 14  
+
+ 775   4                          {
+ 776   5                              ScalerDpRx1TrainingPatternEnd_EXINT0();
+ 777   5                          }
+ 778   4                          else if((GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_PASS) || (
+             -GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_2_PASS))
+ 779   4                          {
+ 780   5                              ScalerDpRx1SetDpcdBitValue_EXINT0(0x00, 0x06, 0x00, ~(_BIT2 | _BIT1 | _BIT0), _BIT
+             -0);
+ 781   5      
+ 782   5                              if(GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_PASS)
+ 783   5                              {
+ 784   6                                  ScalerDpRx1TrainingPatternEnd_EXINT0();
+ 785   6      
+ 786   6                                  SET_DP_RX1_LINK_TRAINING_STATUS(_DP_NORMAL_TRAINING_PATTERN_END_REBUILD_PHY);
+ 787   6      
+ 788   6                                  ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_RX1_DP_LINK_TRAINI
+             -NG_REBUILD_PHY);
+ 789   6      
+ 790   6                                  ScalerTimerWDActivateTimerEvent_EXINT0(30, _SCALER_WD_TIMER_EVENT_RX1_DP_LINK_
+             -TRAINING_REBUILD_PHY);
+ 791   6                              }
+ 792   5                              else
+ 793   5                              {
+ 794   6                                  SET_DP_RX1_LINK_TRAINING_STATUS(_DP_FAKE_LINK_TRAINING_PASS);
+ 795   6                              }
+ 796   5      
+ 797   5      #if(_DP_HBR2_MARGIN_LINK_SUPPORT == _ON)
+                                      CLR_DP_RX_D1_MARGIN_LINK_HBR2();
+              #endif
+ 800   5                              // Set DP Receive Port0 In Sync
+ 801   5                              ScalerDpRx1SinkStatusSet_EXINT0(_DP_SINK_REVEICE_PORT0, _DP_SINK_IN_SYNC);
+ 802   5      
+ 803   5                              ScalerTimerCancelTimerEvent_EXINT0(_SCALER_TIMER_EVENT_DP_RX1_HDCP_LONG_HOTPLUG_EV
+             -ENT);
+ 804   5      
+ 805   5                              CLR_DP_RX1_HDCP_CPIRQ();
+ 806   5      
+ 807   5      #if((_DP_HDCP_2_2_SUPPORT == _ON) && (_WD_TIMER_INT_SUPPORT == _ON))
+ 808   5                              ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_SKE);
+ 809   5                              ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_H_PRIME);
+ 810   5      #endif
+ 811   5                          }
+ 812   4                          else if((GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_1_FAIL) ||
+ 813   4                                  (GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_2_FAIL) ||
+ 814   4                                  (GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_1_FAIL) ||
+ 815   4                                  (GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_FAKE_TRAINING_PATTERN_2_FAIL))
+ 816   4                          {
+ 817   5                              SET_DP_RX1_LINK_TRAINING_STATUS(_DP_LINK_TRAINING_FAIL);
+ 818   5      
+ 819   5      #if(_DP_HBR2_MARGIN_LINK_SUPPORT == _ON)
+                                      CLR_DP_RX_D1_MARGIN_LINK_HBR2();
+              #endif
+ 822   5                          }
+ 823   4      
+ 824   4                          bReturnValueD1 = _TRUE;
+ 825   4      
+ 826   4                          break;
+ 827   4      
+ 828   4                      default:
+ 829   4                          break;
+ 830   4                  }
+ 831   3              }
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 15  
+
+ 832   2      
+ 833   2              ScalerSetByte_EXINT(PBA_C1_DPCD_ADDR_PORT_H, g_pucDpRx1Backup[0]);
+ 834   2              ScalerSetByte_EXINT(PBA_C2_DPCD_ADDR_PORT_M, g_pucDpRx1Backup[1]);
+ 835   2              ScalerSetByte_EXINT(PBA_C3_DPCD_ADDR_PORT_L, g_pucDpRx1Backup[2]);
+ 836   2      
+ 837   2              // Restore Dpcd Auto Inc
+ 838   2              ScalerSetBit_EXINT(PBA_C0_DPCD_CTRL, ~_BIT0, g_bDpRx1AutoInc);
+ 839   2          }
+ 840   1      
+ 841   1      #endif
+ 842   1      
+ 843   1          if((bReturnValueD0 == _TRUE) || (bReturnValueD1 == _TRUE))
+ 844   1          {
+ 845   2              ScalerDpExitIntSetting_EXINT0();
+ 846   2      
+ 847   2              return _TRUE;
+ 848   2          }
+ 849   1      
+ 850   1          return _FALSE;
+ 851   1      }
+ 852          
+ 853          //--------------------------------------------------
+ 854          // Description  : DP Int Handler
+ 855          // Input Value  : None
+ 856          // Output Value : None
+ 857          //--------------------------------------------------
+ 858          void ScalerDpIntHandler_EXINT0(void) using 1
+ 859          {
+ 860   1      #if(_D0_DP_EXIST == _ON)
+                  ScalerDpRx0IntHandler_EXINT0();
+              #endif
+ 863   1      
+ 864   1      #if(_D1_DP_EXIST == _ON)
+ 865   1          ScalerDpRx1IntHandler_EXINT0();
+ 866   1      #endif
+ 867   1      }
+ 868          
+ 869          #if(_WD_TIMER_INT_SUPPORT == _ON)
+ 870          //--------------------------------------------------
+ 871          // Description  : Handle DP Related WD Timer Event
+ 872          // Input Value  : ucEventID
+ 873          // Output Value : None
+ 874          //--------------------------------------------------
+ 875          void ScalerDpWDTimerEventProc_WDINT(EnumScalerWDTimerEventID enumEventID) using 3
+ 876          {
+ 877   1          BYTE ucTemp = 0;
+ 878   1      
+ 879   1          switch(enumEventID)
+ 880   1          {
+ 881   2      #if(_D0_DP_EXIST == _ON)
+              
+                      case _SCALER_WD_TIMER_EVENT_RX0_DP_LINK_TRAINING_REBUILD_PHY:
+              
+                          if(GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_END_REBUILD_PHY)
+                          {
+                              ucTemp = ScalerGetByte_EXINT(PB7_D0_AUX_MODE_SET);
+              
+                              if((ucTemp & _BIT1) == _BIT1)
+                              {
+                                  SET_DP_RX0_AUX_MANUAL_MODE_EXINT();
+                              }
+              
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 16  
+
+                              ScalerDpRx0RebuildPhy_WDINT(ScalerDpRx0GetDpcdInfo_WDINT(0x00, 0x01, 0x00));
+              
+                              SET_DP_RX0_LINK_TRAINING_STATUS(_DP_NORMAL_LINK_TRAINING_PASS);
+                              SET_DP_RX0_NORMAL_LINK_TRAINING_SETPHY_FINISH();
+              
+                              // De-Skew Circuit Reset
+                              ScalerSetBit_EXINT(PB_0E_DESKEW_PHY, ~(_BIT7 | _BIT6), 0x00);
+                              ScalerSetBit_EXINT(PB_0E_DESKEW_PHY, ~(_BIT7 | _BIT6), _BIT6);
+              
+                              // Mac Reset After Link Clock Stable
+                              ScalerSetBit_EXINT(PB_01_PHY_DIG_RESET_CTRL, ~_BIT1, _BIT1);
+                              ScalerSetBit_EXINT(PB_01_PHY_DIG_RESET_CTRL, ~_BIT1, 0x00);
+              
+                              // Delay Time us [150,x] Delay for Lane Alignment after Mac Reset
+                              DELAY_XUS_EXINT(150);
+              
+              #if((_DP_MST_SUPPORT == _ON) && (_DP_TX_SUPPORT == _ON))
+                              if(g_enumDpMSTCapablePort == _DP_MST_RX0_PORT)
+                              {
+                                  // Reset Daisy Chain Async-fifo
+                                  ScalerSetBit_EXINT(PA_00_MST2SST_RESET, ~_BIT6, _BIT6);
+                                  ScalerSetBit_EXINT(PA_00_MST2SST_RESET, ~_BIT6, 0x00);
+                              }
+              #endif
+              
+                              ScalerDpRx0DecodeErrorCountReset_WDINT();
+              
+                              if((ucTemp & _BIT1) == _BIT1)
+                              {
+                                  SET_DP_RX0_AUX_AUTO_MODE_EXINT();
+                              }
+                          }
+              
+                          break;
+              #endif
+ 929   2      
+ 930   2      #if(_D1_DP_EXIST == _ON)
+ 931   2      
+ 932   2              case _SCALER_WD_TIMER_EVENT_RX1_DP_LINK_TRAINING_REBUILD_PHY:
+ 933   2      
+ 934   2                  if(GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_TRAINING_PATTERN_END_REBUILD_PHY)
+ 935   2                  {
+ 936   3                      ucTemp = ScalerGetByte_EXINT(PBA_D0_AUX_MODE_SET);
+ 937   3      
+ 938   3                      if((ucTemp & _BIT1) == _BIT1)
+ 939   3                      {
+ 940   4                          SET_DP_RX1_AUX_MANUAL_MODE_EXINT();
+ 941   4                      }
+ 942   3      
+ 943   3                      ScalerDpRx1RebuildPhy_WDINT(ScalerDpRx1GetDpcdInfo_WDINT(0x00, 0x01, 0x00));
+ 944   3      
+ 945   3                      SET_DP_RX1_LINK_TRAINING_STATUS(_DP_NORMAL_LINK_TRAINING_PASS);
+ 946   3                      SET_DP_RX1_NORMAL_LINK_TRAINING_SETPHY_FINISH();
+ 947   3      
+ 948   3                      // De-Skew Circuit Reset
+ 949   3                      ScalerSetBit_EXINT(PB0_0E_DESKEW_PHY, ~(_BIT7 | _BIT6), 0x00);
+ 950   3                      ScalerSetBit_EXINT(PB0_0E_DESKEW_PHY, ~(_BIT7 | _BIT6), _BIT6);
+ 951   3      
+ 952   3                      // Mac Reset After Link Clock Stable
+ 953   3                      ScalerSetBit_EXINT(PB0_01_PHY_DIG_RESET_CTRL, ~_BIT1, _BIT1);
+ 954   3                      ScalerSetBit_EXINT(PB0_01_PHY_DIG_RESET_CTRL, ~_BIT1, 0x00);
+ 955   3      
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 17  
+
+ 956   3                      // Delay Time us [150,x] Delay for Lane Alignment after Mac Reset
+ 957   3                      DELAY_XUS_EXINT(150);
+ 958   3      
+ 959   3      #if((_DP_MST_SUPPORT == _ON) && (_DP_TX_SUPPORT == _ON))
+                              if(g_enumDpMSTCapablePort == _DP_MST_RX1_PORT)
+                              {
+                                  // Reset Daisy Chain Async-fifo
+                                  ScalerSetBit_EXINT(PA_00_MST2SST_RESET, ~_BIT6, _BIT6);
+                                  ScalerSetBit_EXINT(PA_00_MST2SST_RESET, ~_BIT6, 0x00);
+                              }
+              #endif
+ 967   3      
+ 968   3                      ScalerDpRx1DecodeErrorCountReset_WDINT();
+ 969   3      
+ 970   3                      if((ucTemp & _BIT1) == _BIT1)
+ 971   3                      {
+ 972   4                          SET_DP_RX1_AUX_AUTO_MODE_EXINT();
+ 973   4                      }
+ 974   3                  }
+ 975   2      
+ 976   2                  break;
+ 977   2      #endif
+ 978   2      
+ 979   2              default:
+ 980   2                  break;
+ 981   2          }
+ 982   1      }
+ 983          
+ 984          //--------------------------------------------------
+ 985          // Description  : DP Dpcd Port Access Backup
+ 986          // Input Value  : None
+ 987          // Output Value : None
+ 988          //--------------------------------------------------
+ 989          void ScalerDpRxDpcdPortAccessBackup_WDINT(void) using 3
+ 990          {
+ 991   1      #if(_D0_DP_EXIST == _ON)
+                  g_pucDpRx0Backup[0] = ScalerGetByte_EXINT(PB7_C1_DPCD_ADDR_PORT_H);
+                  g_pucDpRx0Backup[1] = ScalerGetByte_EXINT(PB7_C2_DPCD_ADDR_PORT_M);
+                  g_pucDpRx0Backup[2] = ScalerGetByte_EXINT(PB7_C3_DPCD_ADDR_PORT_L);
+              
+                  // Backup Dpcd Auto Inc
+                  g_bDpRx0AutoInc = (ScalerGetBit_EXINT(PB7_C0_DPCD_CTRL, _BIT0) == _BIT0);
+              
+                  // Disable Dpcd Auto Inc
+                  ScalerSetBit_EXINT(PB7_C0_DPCD_CTRL, ~_BIT0, 0x00);
+              #endif
+1002   1      
+1003   1      #if(_D1_DP_EXIST == _ON)
+1004   1          g_pucDpRx1Backup[0] = ScalerGetByte_EXINT(PBA_C1_DPCD_ADDR_PORT_H);
+1005   1          g_pucDpRx1Backup[1] = ScalerGetByte_EXINT(PBA_C2_DPCD_ADDR_PORT_M);
+1006   1          g_pucDpRx1Backup[2] = ScalerGetByte_EXINT(PBA_C3_DPCD_ADDR_PORT_L);
+1007   1      
+1008   1          // Backup Dpcd Auto Inc
+1009   1          g_bDpRx1AutoInc = (ScalerGetBit_EXINT(PBA_C0_DPCD_CTRL, _BIT0) == _BIT0);
+1010   1      
+1011   1          // Disable Dpcd Auto Inc
+1012   1          ScalerSetBit_EXINT(PBA_C0_DPCD_CTRL, ~_BIT0, 0x00);
+1013   1      #endif
+1014   1      }
+1015          
+1016          //--------------------------------------------------
+1017          // Description  : DP Dpcd Port Access Backup Restore
+C51 COMPILER V8.12   RL6449_SERIES_DP_INT                                                  01/02/2025 16:31:33 PAGE 18  
+
+1018          // Input Value  : None
+1019          // Output Value : None
+1020          //--------------------------------------------------
+1021          void ScalerDpRxDpcdPortAccessBackupRestore_WDINT(void) using 3
+1022          {
+1023   1      #if(_D0_DP_EXIST == _ON)
+                  ScalerSetByte_EXINT(PB7_C1_DPCD_ADDR_PORT_H, g_pucDpRx0Backup[0]);
+                  ScalerSetByte_EXINT(PB7_C2_DPCD_ADDR_PORT_M, g_pucDpRx0Backup[1]);
+                  ScalerSetByte_EXINT(PB7_C3_DPCD_ADDR_PORT_L, g_pucDpRx0Backup[2]);
+              
+                  // Restore Dpcd Auto Inc
+                  ScalerSetBit_EXINT(PB7_C0_DPCD_CTRL, ~_BIT0, g_bDpRx0AutoInc);
+              #endif
+1031   1      
+1032   1      #if(_D1_DP_EXIST == _ON)
+1033   1          ScalerSetByte_EXINT(PBA_C1_DPCD_ADDR_PORT_H, g_pucDpRx1Backup[0]);
+1034   1          ScalerSetByte_EXINT(PBA_C2_DPCD_ADDR_PORT_M, g_pucDpRx1Backup[1]);
+1035   1          ScalerSetByte_EXINT(PBA_C3_DPCD_ADDR_PORT_L, g_pucDpRx1Backup[2]);
+1036   1      
+1037   1          // Restore Dpcd Auto Inc
+1038   1          ScalerSetBit_EXINT(PBA_C0_DPCD_CTRL, ~_BIT0, g_bDpRx1AutoInc);
+1039   1      #endif
+1040   1      }
+1041          #endif
+1042          
+1043          //--------------------------------------------------
+1044          // Description  : Handle the DP settings when exiting sysint
+1045          // Input Value  : None
+1046          // Output Value : None
+1047          //--------------------------------------------------
+1048          void ScalerDpExitIntSetting_EXINT0(void) using 1
+1049          {
+1050   1      #if(_D0_DP_EXIST == _ON)
+                  // Aux Hardware Control
+                  SET_DP_RX0_AUX_AUTO_MODE_EXINT();
+              #endif
+1054   1      
+1055   1      #if(_D1_DP_EXIST == _ON)
+1056   1          // Aux Hardware Control
+1057   1          SET_DP_RX1_AUX_AUTO_MODE_EXINT();
+1058   1      #endif
+1059   1      }
+1060          #endif // #if(_DP_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1488    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       7
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

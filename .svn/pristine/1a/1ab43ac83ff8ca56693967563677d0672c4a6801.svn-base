@@ -1,0 +1,1227 @@
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SCALERTMDSRX2_SEPTPHY
+OBJECT MODULE PLACED IN .\Output\RL6449\ScalerTMDSRx2_SeptPhy.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerTMDSRx2_SeptPhy.c LARGE OPTIMIZE(9,
+                    -SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Head
+                    -er;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\
+                    -Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kernel\Scaler\RL644
+                    -9_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Common\Lib\Header;.
+                    -\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\
+                    -RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) 
+                    -DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449\ScalerTMDSRx2_Sept
+                    -Phy.lst) OBJECT(.\Output\RL6449\ScalerTMDSRx2_SeptPhy.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerTMDSRx2_SeptPhy.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          #if(_HDMI_IDENTIFY_GAME_SRC_SUPPORT == _ON)
+              StructHdmiSpdInfo g_stTmdsMacRx2SpdInfo;
+              #endif
+  29          
+  30          //****************************************************************************
+  31          // CODE TABLES
+  32          //****************************************************************************
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          #if(_D2_TMDS_SUPPORT == _ON)
+  42          void ScalerTMDSRx2DviVideoSetting(void);
+  43          void ScalerTMDSRx2FirstActiveProc(BYTE ucSourceType);
+  44          void ScalerTMDSRx2SetDeOnlyModeConfig(EnumDeOnlyConfig enumDeonlyConfig);
+  45          EnumDeOnlyConfig ScalerTMDSRx2GetDeOnlyModeConfig(void);
+  46          void ScalerTMDSRx2PowerOffProc(void);
+  47          BYTE ScalerTMDSRx2TMDSVideoDetect(bit bWait);
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 2   
+
+  48          void ScalerTMDSRx2TMDSVideoDetectEvent(void);
+  49          void ScalerTMDSRx2PSIntHandler_EXINT0(void);
+  50          
+  51          #if(_D2_HDMI_SUPPORT == _ON)
+  52          bit ScalerTMDSRx2HdmiAviPixelRepInfoChanged(void);
+  53          BYTE ScalerTMDSRx2HdmiGetAVIInfo(EnumAviInfoContent enumContent);
+  54          BYTE ScalerTMDSRx2HdmiGetColorDepth(void);
+  55          void ScalerTMDSRx2HdmiPacketDetectEvent(void);
+  56          
+  57          #if(_HDMI_IDENTIFY_GAME_SRC_SUPPORT == _ON)
+              void ScalerTMDSRx2SpdInfoPacketDetect(bit bWait);
+              void ScalerTMDSRx2HdmiGetSpdInfo(void);
+              #endif
+  61          
+  62          #if(_D2_HDMI_2_0_SUPPORT == _ON)
+  63          #if(_TMDS_HDMI_2_0_SCDC_RR_CTS_SUPPORT == _ON)
+              void ScalerTMDSRx2HDMI2HPDRRIRQEnable(bit bEnable);
+              void ScalerTMDSRx2SetScdcInfo_EXINT0(void);
+              #if(_HDMI_FREESYNC_SUPPORT == _ON)
+              void ScalerTMDSRx2SetAmdAupiScdcInfo_EXINT0(bit bEnable);
+              #endif
+              #endif
+  70          void ScalerTMDSRx2ScrambleStatusReset(void);
+  71          void ScalerTMDSRx2ScrambleDetectTimeoutTimerEvent(void);
+  72          void ScalerTMDSRx2ScrambleDetectDisable(void);
+  73          void ScalerTMDSRx2Hdmi2FormatResetEvent(void);
+  74          void ScalerTMDSRx2ReadRequestProc_EXINT0(BYTE ucRROutCome);
+  75          void ScalerTMDSRx2ReadRequestTimerEventEnable_WDINT(bit bEnable);
+  76          #endif
+  77          
+  78          #if(_D2_INPUT_PORT_TYPE != _D2_DUAL_DVI_PORT)
+  79          bit ScalerTMDSRx2HdmiDeepColorProc(WORD usTmdsClkCnt);
+  80          bit ScalerTMDSRx2HdmiWaitDeepColorPllLock(void);
+  81          #endif
+  82          
+  83          #endif
+  84          
+  85          #if(_D2_INPUT_PORT_TYPE != _D2_DUAL_DVI_PORT)
+  86          #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+  87          bit ScalerTMDSRx2TMDSNormalPreDetect(void);
+  88          bit ScalerTMDSRx2TMDSPSPreDetect(void);
+  89          #endif
+  90          
+  91          #endif
+  92          
+  93          void ScalerTMDSRx2HotPlugLowProc(void);
+  94          void ScalerTMDSRx2HotPlugHighProc(WORD usHpdTime);
+  95          #endif
+  96          
+  97          //****************************************************************************
+  98          // FUNCTION DEFINITIONS
+  99          //****************************************************************************
+ 100          #if(_D2_TMDS_SUPPORT == _ON)
+ 101          //--------------------------------------------------
+ 102          // Description  : TMDS Video Setting
+ 103          // Input Value  : Source Type
+ 104          // Output Value : None
+ 105          //--------------------------------------------------
+ 106          void ScalerTMDSRx2DviVideoSetting(void)
+ 107          {
+ 108   1          // Manual Set Color Space and disable pixel repetition
+ 109   1          ScalerSetDataPortBit(P71_C9_HDMI_AP, _P71_CA_PT_51_PORT_PAGE71_HDMI_ACRCR, ~(_BIT6 | _BIT5 | _BIT4 | _
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 3   
+
+             -BIT3 | _BIT2), 0x00);
+ 110   1      
+ 111   1          // Disable Down Sampling
+ 112   1          ScalerSetDataPortBit(P71_C9_HDMI_AP, _P71_CA_PT_50_PORT_PAGE71_HDMI_VCR, ~(_BIT3 | _BIT2 | _BIT1 | _BI
+             -T0), 0x00);
+ 113   1      
+ 114   1          // Waiting for Down Sampling Effect
+ 115   1          ScalerTimerDelayXms(20);
+ 116   1      
+ 117   1          SET_COLOR_SPACE(_COLOR_SPACE_RGB);
+ 118   1          SET_COLOR_RGB_QUANTIZATION_RANGE(_RGB_QUANTIZATION_FULL_RANGE);
+ 119   1      
+ 120   1          ScalerTMDSRx2SetPorchColor(GET_COLOR_SPACE());
+ 121   1      }
+ 122          //--------------------------------------------------
+ 123          // Description  : Process Required when Switched to Active State
+ 124          // Input Value  : Input Source
+ 125          // Output Value : None
+ 126          //--------------------------------------------------
+ 127          void ScalerTMDSRx2FirstActiveProc(BYTE ucSourceType)
+ 128          {
+ 129   1          ucSourceType = ucSourceType;
+ 130   1      }
+ 131          
+ 132          //--------------------------------------------------
+ 133          // Description  : Set Config of TMDS Mac Deonly mode
+ 134          // Input Value  : None
+ 135          // Output Value : enumInputPort, enumDeonlyConfig
+ 136          //--------------------------------------------------
+ 137          void ScalerTMDSRx2SetDeOnlyModeConfig(EnumDeOnlyConfig enumDeonlyConfig)
+ 138          {
+ 139   1          // De only enable?
+ 140   1          if((enumDeonlyConfig & _DE_ONLY_DISABLE) == _DE_ONLY_DISABLE)
+ 141   1          {
+ 142   2              ScalerSetBit(P71_A7_TMDS_PWDCTL, ~_BIT7, 0x00);
+ 143   2          }
+ 144   1          else if((enumDeonlyConfig & _DE_ONLY_ENABLE) == _DE_ONLY_ENABLE)
+ 145   1          {
+ 146   2              ScalerSetBit(P71_A7_TMDS_PWDCTL, ~_BIT7, _BIT7);
+ 147   2          }
+ 148   1      
+ 149   1          // Set HS
+ 150   1          if((enumDeonlyConfig & _DE_ONLY_HS_8T) == _DE_ONLY_HS_8T)
+ 151   1          {
+ 152   2              ScalerSetBit(P71_AB_TMDS_ACC2, ~_BIT7, _BIT7);
+ 153   2          }
+ 154   1          else if((enumDeonlyConfig & _DE_ONLY_HS_72T) == _DE_ONLY_HS_72T)
+ 155   1          {
+ 156   2              ScalerSetBit(P71_AB_TMDS_ACC2, ~_BIT7, 0x00);
+ 157   2          }
+ 158   1      }
+ 159          
+ 160          //--------------------------------------------------
+ 161          // Description  : Get Config of TMDS Mac Deonly mode
+ 162          // Input Value  : None
+ 163          // Output Value : EnumDeOnlyConfig
+ 164          //--------------------------------------------------
+ 165          EnumDeOnlyConfig ScalerTMDSRx2GetDeOnlyModeConfig(void)
+ 166          {
+ 167   1          EnumDeOnlyConfig enumDeConfig = _DE_NO_INDICATED;
+ 168   1      
+ 169   1          if(ScalerGetBit(P71_A7_TMDS_PWDCTL, _BIT7) == _BIT7)
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 4   
+
+ 170   1          {
+ 171   2              enumDeConfig = _DE_ONLY_ENABLE;
+ 172   2          }
+ 173   1          else
+ 174   1          {
+ 175   2              enumDeConfig = _DE_ONLY_DISABLE;
+ 176   2          }
+ 177   1      
+ 178   1          if(ScalerGetBit(P71_AB_TMDS_ACC2, _BIT7) == _BIT7)
+ 179   1          {
+ 180   2              enumDeConfig |= _DE_ONLY_HS_8T;
+ 181   2          }
+ 182   1          else
+ 183   1          {
+ 184   2              enumDeConfig |= _DE_ONLY_HS_72T;
+ 185   2          }
+ 186   1      
+ 187   1          return enumDeConfig;
+ 188   1      }
+ 189          
+ 190          //--------------------------------------------------
+ 191          // Description  : TMDS Power Off Process
+ 192          // Input Value  : None
+ 193          // Output Value : None
+ 194          //--------------------------------------------------
+ 195          void ScalerTMDSRx2PowerOffProc(void)
+ 196          {
+ 197   1          // Disable EDID read/ SCL toggle IRQ
+ 198   1          MCU_FE69_DDC2_EDID_IRQ = ((MCU_FE69_DDC2_EDID_IRQ & ~(_BIT3 | _BIT1)) | (_BIT2 | _BIT0));
+ 199   1      
+ 200   1          ScalerTMDSRx2FreqDetectDisable();
+ 201   1      
+ 202   1      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 203   1          ScalerTMDSRx2ScrambleDetectDisable();
+ 204   1      #endif
+ 205   1      }
+ 206          //--------------------------------------------------
+ 207          // Description  : Detect TMDS video mode
+ 208          // Input Value  : bWait => Whether to wait then read
+ 209          // Output Value : TMDS video type
+ 210          //--------------------------------------------------
+ 211          BYTE ScalerTMDSRx2TMDSVideoDetect(bit bWait)
+ 212          {
+ 213   1          BYTE ucTemp = _TMDS_VIDEO_DATA_NONE;
+ 214   1      
+ 215   1          if(bWait == _WAIT)
+ 216   1          {
+ 217   2              // Wait at least 1 frame for HW auto update TMDS video RGBHV valid value
+ 218   2              ScalerTimerPollingFlagProc(45, P71_A4_TMDS_CTRL, _BIT3, _TRUE);
+ 219   2      
+ 220   2              // Wait for HW update DE flag
+ 221   2              if(ScalerTimerPollingFlagProc(20, P71_A4_TMDS_CTRL, (_BIT7 | _BIT6 | _BIT5), _TRUE) == _TRUE)
+ 222   2              {
+ 223   3                  // H/Vsync received
+ 224   3                  if(ScalerGetBit(P71_A4_TMDS_CTRL, (_BIT4 | _BIT3)) == (_BIT4 | _BIT3))
+ 225   3                  {
+ 226   4                      ucTemp = _TMDS_VIDEO_DATA_RGBHV;
+ 227   4                  }
+ 228   3                  else
+ 229   3                  {
+ 230   4                      ucTemp = _TMDS_VIDEO_DATA_DE_ONLY;
+ 231   4                  }
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 5   
+
+ 232   3              }
+ 233   2              else
+ 234   2              {
+ 235   3                  ucTemp = _TMDS_VIDEO_DATA_NONE;
+ 236   3              }
+ 237   2      
+ 238   2              CLR_TMDS_RX2_RGBHV_DETECTING();
+ 239   2      
+ 240   2              return ucTemp;
+ 241   2          }
+ 242   1          else
+ 243   1          {
+ 244   2              // R/G/B data detected
+ 245   2              if(ScalerGetBit(P71_A4_TMDS_CTRL, (_BIT7 | _BIT6 | _BIT5)) == (_BIT7 | _BIT6 | _BIT5))
+ 246   2              {
+ 247   3                  // H/Vsync received
+ 248   3                  if(ScalerGetBit(P71_A4_TMDS_CTRL, (_BIT4 | _BIT3)) == (_BIT4 | _BIT3))
+ 249   3                  {
+ 250   4                      ucTemp = _TMDS_VIDEO_DATA_RGBHV;
+ 251   4                  }
+ 252   3                  else
+ 253   3                  {
+ 254   4                      ucTemp = _TMDS_VIDEO_DATA_DE_ONLY;
+ 255   4                  }
+ 256   3              }
+ 257   2              else
+ 258   2              {
+ 259   3                  ucTemp = _TMDS_VIDEO_DATA_NONE;
+ 260   3              }
+ 261   2      
+ 262   2              // Clear video Detection Flag
+ 263   2              ScalerSetBit(P71_A4_TMDS_CTRL, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT3), (_BIT7 | _BIT6 | _BIT5 | 
+             -_BIT4 | _BIT3));
+ 264   2      
+ 265   2              SET_TMDS_RX2_RGBHV_DETECTING();
+ 266   2      
+ 267   2              // Activate TMDS video Detection Event
+ 268   2              ScalerTimerActiveTimerEvent(45, _SCALER_TIMER_EVENT_RX2_TMDS_VIDEO_DETECT);
+ 269   2      
+ 270   2              return ucTemp;
+ 271   2          }
+ 272   1      }
+ 273          //--------------------------------------------------
+ 274          // Description  : TMDS video Detect Event
+ 275          // Input Value  : None
+ 276          // Output Value : None
+ 277          //--------------------------------------------------
+ 278          void ScalerTMDSRx2TMDSVideoDetectEvent(void)
+ 279          {
+ 280   1          CLR_TMDS_RX2_RGBHV_DETECTING();
+ 281   1      }
+ 282          
+ 283          //--------------------------------------------------
+ 284          // Description  : TMDS Interrupt Process In PS/PD State(EXINT0 Only)
+ 285          // Input Value  : None
+ 286          // Output Value : None
+ 287          //--------------------------------------------------
+ 288          void ScalerTMDSRx2PSIntHandler_EXINT0(void) using 1
+ 289          {
+ 290   1      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 291   1          BYTE pucBackUp[6];
+ 292   1      #else
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 6   
+
+                  BYTE pucBackUp[4];
+              #endif
+ 295   1      
+ 296   1          pucBackUp[0] = ScalerGetByte_EXINT(P71_C9_HDMI_AP);
+ 297   1          pucBackUp[1] = (ScalerGetByte_EXINT(P71_C8_HDMI_APC) & 0x01);
+ 298   1      
+ 299   1          // Set CA Port non-auto increase
+ 300   1          ScalerSetBit_EXINT(P71_C8_HDMI_APC, ~_BIT0, 0x00);
+ 301   1      
+ 302   1          pucBackUp[2] = ScalerGetByte_EXINT(P71_C3_HDCP_AP);
+ 303   1          pucBackUp[3] = (ScalerGetByte_EXINT(P71_C2_HDCP_PCR) & 0x01);
+ 304   1      
+ 305   1          // Set C4 Port non-auto increase
+ 306   1          ScalerSetBit_EXINT(P71_C2_HDCP_PCR, ~(_BIT4 | _BIT0), _BIT0);
+ 307   1      
+ 308   1      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 309   1          pucBackUp[4] = ScalerGetByte_EXINT(P71_39_HDMI_CTRL_39);
+ 310   1          pucBackUp[5] = (ScalerGetByte_EXINT(P71_38_HDMI_CTRL_38) & 0x01);
+ 311   1      
+ 312   1          // Set 3A Port non-auto increase
+ 313   1          ScalerSetBit_EXINT(P71_38_HDMI_CTRL_38, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+ 314   1      #endif
+ 315   1      
+ 316   1          // HDCP 1.4 Write Aksv IRQ have been Received
+ 317   1          if((ScalerGetBit_EXINT(P71_A9_TMDS_ABC0, _BIT7) == _BIT7) && (ScalerGetBit_EXINT(P71_AA_TMDS_ABC1, _BI
+             -T4) == _BIT4))
+ 318   1          {
+ 319   2              // clear AKSV & Ri flag
+ 320   2              ScalerSetBit_EXINT(P71_A9_TMDS_ABC0, ~(_BIT7 | _BIT6 | _BIT5 | _BIT2), (_BIT7 | _BIT6));
+ 321   2      
+ 322   2              // SET KEY ready bit 1
+ 323   2              ScalerSetBit_EXINT(P71_AE_TMDS_RPS, ~_BIT1, _BIT1);
+ 324   2      
+ 325   2      #if(_TMDS_HDCP_2_2_SUPPORT == _ON)
+ 326   2              // Enable HDCP 1.4 Module
+ 327   2              ScalerSetBit_EXINT(P71_C0_HDCP_CR, ~(_BIT7 | _BIT0), (_BIT7 | _BIT0));
+ 328   2      
+ 329   2              // Disable HDCP 2 Function
+ 330   2              ScalerSetBit_EXINT(P2D_26_HDCP_I2C_CTRL_0, ~_BIT7, 0x00);
+ 331   2      #endif
+ 332   2          }
+ 333   1      
+ 334   1      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 335   1          // Detect Source Write Read Request Enable Flag
+ 336   1          if((ScalerGetBit_EXINT(P71_25_HDMI_CTRL_25, _BIT3) == _BIT3) && (ScalerGetBit_EXINT(P71_26_HDMI_CTRL_2
+             -6, _BIT3) == _BIT3))
+ 337   1          {
+ 338   2              // Clear Read Request Flag
+ 339   2              ScalerSetBit_EXINT(P71_25_HDMI_CTRL_25, ~_BIT3, _BIT3);
+ 340   2      
+ 341   2              // Set Read Request Enable
+ 342   2              SET_HDMI_2_0_RX2_RR_ENABLE();
+ 343   2      
+ 344   2              // Enable Test Read Request HW Auto Mode
+ 345   2              ScalerSetBit_EXINT(P71_1C_HDMI_CTRL_1C, ~_BIT1, _BIT1);
+ 346   2      
+ 347   2              // Enable CED Update Read Request Auto Mode
+ 348   2              ScalerSetBit_EXINT(P71_24_HDMI_CTRL_24, ~_BIT0, _BIT0);
+ 349   2      
+ 350   2              // Enable Read Request Done IRQ
+ 351   2              ScalerSetBit_EXINT(P71_1F_HDMI_CTRL_1F, ~_BIT3, _BIT3);
+ 352   2          }
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 7   
+
+ 353   1      
+ 354   1          // Read Request Done into IRQ
+ 355   1          if((ScalerGetBit_EXINT(P71_1F_HDMI_CTRL_1F, _BIT3) == _BIT3) && (ScalerGetBit_EXINT(P71_1C_HDMI_CTRL_1
+             -C, _BIT7) == _BIT7))
+ 356   1          {
+ 357   2              // Clear Read Request Done Flag
+ 358   2              ScalerSetBit_EXINT(P71_1C_HDMI_CTRL_1C, ~_BIT7, _BIT7);
+ 359   2      
+ 360   2              // Read Request Outcome Processing
+ 361   2              ScalerTMDSRx2ReadRequestProc_EXINT0(ScalerGetByte_EXINT(P71_1C_HDMI_CTRL_1C) & 0x70);
+ 362   2          }
+ 363   1      
+ 364   1          // Detect HDMI HPD Rising to Falling into IRQ
+ 365   1      #if(_TMDS_HDMI_2_0_SCDC_RR_CTS_SUPPORT == _ON)
+                  if(ScalerGetBit_EXINT(P71_23_HDMI_CTRL_23, (_BIT6 | _BIT1)) == (_BIT6 | _BIT1))
+                  {
+                      // Clear HPD IRQ Flag
+                      ScalerSetBit_EXINT(P71_23_HDMI_CTRL_23, ~_BIT1, _BIT1);
+              
+                      if(ScalerGetBit_EXINT(P71_23_HDMI_CTRL_23, (_BIT2 | _BIT0)) == 0x00)
+                      {
+                          // Clear All Source Write SCDC Port Register
+                          ScalerSetBit_EXINT(P71_38_HDMI_CTRL_38, ~(_BIT2 | _BIT1), (_BIT2 | _BIT1));
+              
+                          ScalerTMDSHdmiSetScdcInfo_EXINT0(_D2_INPUT_PORT);
+              
+              #if(_HDMI_FREESYNC_SUPPORT == _ON)
+                          if(ScalerTMDSHdmiGetFreeSyncSupport_EXINT0(_D2_INPUT_PORT) == _FREESYNC_SUPPORT_ON)
+                          {
+                              ScalerTMDSHdmiSetAmdAupiScdcInfo_EXINT0(_D2_INPUT_PORT, _ENABLE);
+                          }
+                          else
+                          {
+                              ScalerTMDSHdmiSetAmdAupiScdcInfo_EXINT0(_D2_INPUT_PORT, _DISABLE);
+                          }
+              #endif
+              
+                          // Clear HDMI 2.0 Read Request Enable
+                          CLR_HDMI_2_0_RX2_RR_ENABLE();
+              
+                          // Disable Rising to Falling IRQ, Set IRQ Status Falling to Rising edge IRQ
+                          ScalerSetBit_EXINT(P71_23_HDMI_CTRL_23, ~(_BIT6 | _BIT2 | _BIT1), (_BIT2 | _BIT1));
+              
+                          // Enable Falling to Rising edge IRQ
+                          ScalerSetBit_EXINT(P71_23_HDMI_CTRL_23, ~_BIT6, _BIT6);
+              
+                          /*
+                          // Disable Test Read Request HW Auto Mode
+                          ScalerSetBit_EXINT(P71_1C_HDMI_CTRL_1C, ~_BIT1, 0x00);
+              
+                          // Disable CED Update Read Request Auto Mode
+                          ScalerSetBit_EXINT(P71_24_HDMI_CTRL_24, ~_BIT0, 0x00);
+              
+                          // Disable Character Error Detection Function
+                          ScalerSetBit_EXINT(P71_0B_HDMI_CTRL_0B, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT
+             -1), 0x00);
+              
+                          // Disable Lock Transition IRQ
+                          ScalerSetBit_EXINT(P71_18_HDMI_CTRL_18, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+              
+                          ScalerSetBit_EXINT(P71_17_HDMI_CTRL_17, ~(_BIT2 | _BIT1 | _BIT0), (_BIT2 | _BIT1 | _BIT0));
+              
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 8   
+
+                          // Detect 3 Channel CDR Stable
+                          if((bit)ScalerTMDSRx2CheckCDRStable_EXINT(g_usTMDSRx2ClkCount) == _TRUE)
+                          {
+                              // Disable Rising to Falling IRQ, Set IRQ Status Falling to Rising edge IRQ
+                              ScalerSetBit_EXINT(P71_23_HDMI_CTRL_23, ~(_BIT6 | _BIT2 | _BIT1), (_BIT2 | _BIT1));
+              
+                              // Enable Falling to Rising edge IRQ
+                              ScalerSetBit_EXINT(P71_23_HDMI_CTRL_23, ~_BIT6, _BIT6);
+                          }
+                          */
+                      }
+                      else
+                      {
+                          /*
+                          // Enable CED Function
+                          ScalerSetBit_EXINT(P71_0B_HDMI_CTRL_0B, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2), (_BI
+             -T7 | _BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2));
+              
+                          // Enable CED Lock Transition IRQ
+                          ScalerSetBit_EXINT(P71_17_HDMI_CTRL_17, ~(_BIT2 | _BIT1 | _BIT0), (_BIT2 | _BIT1 | _BIT0));
+              
+                          ScalerSetBit_EXINT(P71_18_HDMI_CTRL_18, ~(_BIT2 | _BIT1 | _BIT0), (_BIT2 | _BIT1 | _BIT0));
+              
+                          // Enable SCDC Module
+                          ScalerSetBit_EXINT(P71_19_HDMI_CTRL_19, ~_BIT7, _BIT7);
+                          */
+              
+                          // Disable Falling to Rising IRQ, Set IRQ Status Rising to Falling edge IRQ
+                          ScalerSetBit_EXINT(P71_23_HDMI_CTRL_23, ~(_BIT6 | _BIT2 | _BIT1), _BIT1);
+              
+                          // Enable Rising to Falling edge IRQ
+                          ScalerSetBit_EXINT(P71_23_HDMI_CTRL_23, ~_BIT6, _BIT6);
+                      }
+                  }
+              #endif // End of #if(_TMDS_HDMI_2_0_SCDC_RR_CTS_SUPPORT == _ON)
+ 447   1      #endif // End of #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 448   1      
+ 449   1          // Clear IRQ Pending Flag
+ 450   1          ScalerSetByte_EXINT(P71_C9_HDMI_AP, _P71_CA_PT_60_PORT_PAGE71_HDMI_INTCR);
+ 451   1          ScalerSetBit_EXINT(P71_CA_HDMI_DP, ~_BIT7, _BIT7);
+ 452   1      
+ 453   1          ScalerSetBit_EXINT(P71_C8_HDMI_APC, ~_BIT0, pucBackUp[1]);
+ 454   1          ScalerSetByte_EXINT(P71_C9_HDMI_AP, pucBackUp[0]);
+ 455   1      
+ 456   1          ScalerSetBit_EXINT(P71_C2_HDCP_PCR, ~(_BIT4 | _BIT0), pucBackUp[3]);
+ 457   1          ScalerSetByte_EXINT(P71_C3_HDCP_AP, pucBackUp[2]);
+ 458   1      
+ 459   1      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 460   1          ScalerSetBit_EXINT(P71_38_HDMI_CTRL_38, ~(_BIT2 | _BIT1 | _BIT0), pucBackUp[5]);
+ 461   1          ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, pucBackUp[4]);
+ 462   1      #endif
+ 463   1      }
+ 464          
+ 465          #if(_D2_HDMI_SUPPORT == _ON)
+ 466          //--------------------------------------------------
+ 467          // Description  : Detect HDMI AVI pixel repetition
+ 468          // Input Value  : None
+ 469          // Output Value : _TRUE => Current Info is different from previous setting
+ 470          //--------------------------------------------------
+ 471          bit ScalerTMDSRx2HdmiAviPixelRepInfoChanged(void)
+ 472          {
+ 473   1          // Check Tmds Pixel Repetition
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 9   
+
+ 474   1          if(ScalerTMDSRx2HdmiGetAVIInfo(_AVI_INFO_PIXEL_REPETITION) != GET_TMDS_RX2_AVI_PIXEL_REPETITION())
+ 475   1          {
+ 476   2              return _TRUE;
+ 477   2          }
+ 478   1      
+ 479   1          return _FALSE;
+ 480   1      }
+ 481          //--------------------------------------------------
+ 482          // Description  : Get HDMI AVI Info Contents
+ 483          // Input Value  : Content of Interest
+ 484          // Output Value : Content Value
+ 485          //--------------------------------------------------
+ 486          BYTE ScalerTMDSRx2HdmiGetAVIInfo(EnumAviInfoContent enumContent)
+ 487          {
+ 488   1          if(GET_HDMI_RX2_AVI_INFO_FRAME_RECEIVED() == _TRUE)
+ 489   1          {
+ 490   2              switch(enumContent)
+ 491   2              {
+ 492   3                  case _AVI_INFO_COLOR_SPACE:
+ 493   3      
+ 494   3                      return (ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x04, (_BIT6 | _BIT5)) >> 5);
+ 495   3      
+ 496   3                  case _AVI_INFO_COLORIMETRY:
+ 497   3      
+ 498   3                      return (ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x05, (_BIT7 | _BIT6)) >> 6);
+ 499   3      
+ 500   3                  case _AVI_INFO_EXTENDED_COLORIMETRY:
+ 501   3      
+ 502   3                      return (ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x06, (_BIT6 | _BIT5 | _BIT4)) >> 4);
+ 503   3      
+ 504   3                  case _AVI_INFO_RGB_QUANTIZATION:
+ 505   3      
+ 506   3                      return (ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x06, (_BIT3 | _BIT2)) >> 2);
+ 507   3      
+ 508   3                  case _AVI_INFO_YCC_QUANTIZATION:
+ 509   3      
+ 510   3                      return (ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x08, (_BIT7 | _BIT6)) >> 6);
+ 511   3      
+ 512   3                  case _AVI_INFO_SCAN_INFO:
+ 513   3      
+ 514   3                      return ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x04, (_BIT1 | _BIT0));
+ 515   3      
+ 516   3                  case _AVI_INFO_IT_CONTENT:
+ 517   3      
+ 518   3                      return (ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x06, _BIT7) >> 7);
+ 519   3      
+ 520   3                  case _AVI_INFO_PIXEL_REPETITION:
+ 521   3      
+ 522   3                      return (ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x08, (_BIT3 | _BIT2 | _BIT1 | _BIT0)));
+ 523   3      
+ 524   3                  case _AVI_INFO_AR:
+ 525   3      
+ 526   3                      return (ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x05, (_BIT5 | _BIT4)) >> 4);
+ 527   3      
+ 528   3                  case _AVI_INFO_VIC:
+ 529   3      
+ 530   3                      return (ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x07, (_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT
+             -3 | _BIT2 | _BIT1 | _BIT0)));
+ 531   3      
+ 532   3                  default:
+ 533   3      
+ 534   3                      break;
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 10  
+
+ 535   3              }
+ 536   2          }
+ 537   1      
+ 538   1          return 0xFF;
+ 539   1      }
+ 540          //--------------------------------------------------
+ 541          // Description  : Get Color Depth
+ 542          // Input Value  : None
+ 543          // Output Value : Received Color Depth
+ 544          //--------------------------------------------------
+ 545          BYTE ScalerTMDSRx2HdmiGetColorDepth(void)
+ 546          {
+ 547   1          if(GET_COLOR_SPACE() == _COLOR_SPACE_YCBCR422)
+ 548   1          {
+ 549   2              return _COLOR_DEPTH_12_BITS;
+ 550   2          }
+ 551   1      
+ 552   1          if(GET_HDMI_RX2_GCP_RECEIVED() == _TRUE)
+ 553   1          {
+ 554   2              if(ScalerGetBit(P71_B4_TMDS_DPC0, 0x07) == 0x05)
+ 555   2              {
+ 556   3                  return _COLOR_DEPTH_10_BITS;
+ 557   3              }
+ 558   2              else if(ScalerGetBit(P71_B4_TMDS_DPC0, 0x07) == 0x06)
+ 559   2              {
+ 560   3                  return _COLOR_DEPTH_12_BITS;
+ 561   3              }
+ 562   2              else if(ScalerGetBit(P71_B4_TMDS_DPC0, 0x07) == 0x07)
+ 563   2              {
+ 564   3                  return _COLOR_DEPTH_16_BITS;
+ 565   3              }
+ 566   2          }
+ 567   1      
+ 568   1          return _COLOR_DEPTH_8_BITS;
+ 569   1      }
+ 570          //--------------------------------------------------
+ 571          // Description  : HDMI Info Frame Packet Detect Event
+ 572          // Input Value  : None
+ 573          // Output Value : None
+ 574          //--------------------------------------------------
+ 575          void ScalerTMDSRx2HdmiPacketDetectEvent(void)
+ 576          {
+ 577   1          CLR_HDMI_RX2_PACKET_DETECTING();
+ 578   1      }
+ 579          
+ 580          #if(_HDMI_IDENTIFY_GAME_SRC_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : HDMI SPD Info Frame Packet Detect
+              // Input Value  : bWait
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTMDSRx2SpdInfoPacketDetect(bit bWait)
+              {
+                  if(bWait == _WAIT)
+                  {
+                      // Polling 3 frame for RSV4 received check
+                      if(ScalerTimerPollingDataBitFlagProc(130, P71_C9_HDMI_AP, _P71_CA_PT_00_PORT_PAGE71_HDMI_SCR, _BIT
+             -7, _TRUE) == _TRUE)
+                      {
+                          ScalerTMDSRx2HdmiGetSpdInfo();
+                      }
+                  }
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 11  
+
+                  else
+                  {
+                      // Check RSV4 received bit
+                      if(ScalerGetDataPortBit(P71_C9_HDMI_AP, _P71_CA_PT_00_PORT_PAGE71_HDMI_SCR, _BIT7) == _BIT7)
+                      {
+                          ScalerTMDSRx2HdmiGetSpdInfo();
+                      }
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get SPD Info Product Description
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTMDSRx2HdmiGetSpdInfo(void)
+              {
+                  BYTE pucHdmiVenderName[4] = {0};
+              
+                  ScalerGetDataPortByte(P71_CD_HDMI_PSAP, 0x90, 4, &pucHdmiVenderName[0], _AUTOINC);
+              
+                  if(((pucHdmiVenderName[0] == 'M') || (pucHdmiVenderName[0] == 'S')) &&
+                     ((pucHdmiVenderName[1] == 'S') || (pucHdmiVenderName[1] == 'C')) &&
+                     ((pucHdmiVenderName[2] == 'F') || (pucHdmiVenderName[2] == 'E')) &&
+                     ((pucHdmiVenderName[3] == 'T') || (pucHdmiVenderName[3] == 'I')))
+                  {
+                      g_stTmdsMacRx2SpdInfo.b1StructValuable = 0x01;
+                      memcpy(&g_stTmdsMacRx2SpdInfo.pucHdmiVendorName[0], pucHdmiVenderName, 4);
+              
+                      ScalerGetDataPortByte(P71_CD_HDMI_PSAP, 0x98, 8, &g_stTmdsMacRx2SpdInfo.pucHdmiProductDescription[
+             -0], _AUTOINC);
+                  }
+              }
+              #endif
+ 629          
+ 630          #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 631          #if(_TMDS_HDMI_2_0_SCDC_RR_CTS_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : TMDS HPD IRQ Enable
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTMDSRx2HDMI2HPDRRIRQEnable(bit bEnable)
+              {
+                  if(bEnable == _ENABLE)
+                  {
+                      // Set HPD Debounce = 700 Clock Cycle
+                      // Set HPD IRQ Detect Rising to Falling Edge IRQ
+                      ScalerSetBit(P71_23_HDMI_CTRL_23, ~(_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1), (_BIT5 | _BIT4 | _BIT3
+             - | _BIT1));
+              
+                      // Enable HDMI HPD IRQ Enable
+                      ScalerSetBit(P71_23_HDMI_CTRL_23, ~_BIT6, _BIT6);
+              
+                      // Write 1 Clear Read Request
+                      ScalerSetBit(P71_25_HDMI_CTRL_25, ~_BIT3, _BIT3);
+              
+                      // Enable HDMI 2.0 SCDC IIC Module
+                      ScalerSetBit(P71_19_HDMI_CTRL_19, ~_BIT7, _BIT7);
+              
+                      // Clear HDMI 2.0 Read Request Enable
+                      CLR_HDMI_2_0_RX2_RR_ENABLE();
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 12  
+
+              
+                      // Enable HDMI 2.0 Read Request Enable Detect IRQ
+                      ScalerSetBit(P71_26_HDMI_CTRL_26, ~_BIT3, _BIT3);
+                  }
+                  else
+                  {
+                      // Write 1 Clear Read Request
+                      ScalerSetBit(P71_25_HDMI_CTRL_25, ~_BIT3, _BIT3);
+              
+                      // Clear HDMI 2.0 Read Request Enable
+                      CLR_HDMI_2_0_RX2_RR_ENABLE();
+              
+                      // Disable HDMI 2.0 Read Request Enable Detect IRQ
+                      ScalerSetBit(P71_26_HDMI_CTRL_26, ~_BIT3, 0x00);
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : TMDS Set SCDC Info
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTMDSRx2SetScdcInfo_EXINT0(void) using 1
+              {
+                  // Set SCDC Info
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D0_PORT_PAGE71_HDMI_SCDC_D0);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.ucManufactureOuiL);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D1_PORT_PAGE71_HDMI_SCDC_D1);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.ucManufactureOuiM);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D2_PORT_PAGE71_HDMI_SCDC_D2);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.ucManufactureOuiH);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D3_PORT_PAGE71_HDMI_SCDC_D3);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.pucIdstring[0]);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D4_PORT_PAGE71_HDMI_SCDC_D4);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.pucIdstring[1]);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D5_PORT_PAGE71_HDMI_SCDC_D5);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.pucIdstring[2]);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D6_PORT_PAGE71_HDMI_SCDC_D6);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.pucIdstring[3]);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D7_PORT_PAGE71_HDMI_SCDC_D7);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.pucIdstring[4]);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D8_PORT_PAGE71_HDMI_SCDC_D8);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.pucIdstring[5]);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_D9_PORT_PAGE71_HDMI_SCDC_D9);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.pucIdstring[6]);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_DA_PORT_PAGE71_HDMI_SCDC_DA);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.pucIdstring[7]);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_DB_PORT_PAGE71_HDMI_SCDC_DB);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.ucHdmiHwVersion);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_DC_PORT_PAGE71_HDMI_SCDC_DC);
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 13  
+
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.ucHdmiFwVersionMajor);
+              
+                  ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_DD_PORT_PAGE71_HDMI_SCDC_DD);
+                  ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stTmdsMacRxScdcInfoSet.ucHdmiFwVersionMinor);
+              }
+              
+              #if(_HDMI_FREESYNC_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : TMDS Set AMD AUPI SCDC Info
+              // Input Value  : bEnable
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerTMDSRx2SetAmdAupiScdcInfo_EXINT0(bit bEnable) using 1
+              {
+                  if(GET_FREESYNC_HDMI_AUPI_INFO() != _TRUE)
+                  {
+                      return;
+                  }
+              
+                  if(bEnable == _ENABLE)
+                  {
+                      // Set SCDC Info
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E0_PORT_PAGE71_HDMI_SCDC_E0);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stDrrHdmiAmdAupiInfo.ucPanelManufactureIdL);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E1_PORT_PAGE71_HDMI_SCDC_E1);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stDrrHdmiAmdAupiInfo.ucPanelManufactureIdM);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E2_PORT_PAGE71_HDMI_SCDC_E2);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stDrrHdmiAmdAupiInfo.ucPanelIdL);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E3_PORT_PAGE71_HDMI_SCDC_E3);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stDrrHdmiAmdAupiInfo.ucPanelIdM);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E4_PORT_PAGE71_HDMI_SCDC_E4);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stDrrHdmiAmdAupiInfo.ucFwCheckSumL);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E5_PORT_PAGE71_HDMI_SCDC_E5);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stDrrHdmiAmdAupiInfo.ucFwCheckSumM);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E6_PORT_PAGE71_HDMI_SCDC_E6);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stDrrHdmiAmdAupiInfo.ucScalerDeviceIdL);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E7_PORT_PAGE71_HDMI_SCDC_E7);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, g_stDrrHdmiAmdAupiInfo.ucScalerDeviceIdL);
+                  }
+                  else
+                  {
+                      // Set SCDC Info
+                      // Set SCDC Info
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E0_PORT_PAGE71_HDMI_SCDC_E0);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, 0x00);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E1_PORT_PAGE71_HDMI_SCDC_E1);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, 0x00);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E2_PORT_PAGE71_HDMI_SCDC_E2);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, 0x00);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E3_PORT_PAGE71_HDMI_SCDC_E3);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, 0x00);
+              
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 14  
+
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E4_PORT_PAGE71_HDMI_SCDC_E4);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, 0x00);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E5_PORT_PAGE71_HDMI_SCDC_E5);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, 0x00);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E6_PORT_PAGE71_HDMI_SCDC_E6);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, 0x00);
+              
+                      ScalerSetByte_EXINT(P71_39_HDMI_CTRL_39, _P71_3A_PT_E7_PORT_PAGE71_HDMI_SCDC_E7);
+                      ScalerSetByte_EXINT(P71_3A_HDMI_CTRL_3A, 0x00);
+                  }
+              }
+              #endif
+              #endif
+ 795          
+ 796          //--------------------------------------------------
+ 797          // Description  : Scramble Status Reset
+ 798          // Input Value  : None
+ 799          // Output Value : None
+ 800          //--------------------------------------------------
+ 801          void ScalerTMDSRx2ScrambleStatusReset(void)
+ 802          {
+ 803   1          // Set Scramble Detect Manual Mode
+ 804   1          ScalerSetBit(P71_38_HDMI_CTRL_38, ~(_BIT4 | _BIT2 | _BIT1), 0x00);
+ 805   1      
+ 806   1          // Disable Scrambling Status
+ 807   1          ScalerSetDataPortBit(P71_39_HDMI_CTRL_39, _P71_3A_PT_21_PORT_PAGE71_HDMI_SCDC_21, ~_BIT0, 0x00);
+ 808   1      
+ 809   1          // Clear Scrambling Detection Flag
+ 810   1          ScalerSetBit(P71_01_HDMI_CTRL_01, ~_BIT3, _BIT3);
+ 811   1      
+ 812   1          ScalerTimerCancelTimerEvent(_SCALER_TIMER_EVENT_RX2_HDMI2_SCRAMBLE_DETECT_TIMEOUT);
+ 813   1      }
+ 814          
+ 815          //--------------------------------------------------
+ 816          // Description  : Scramble Detect timeout event
+ 817          // Input Value  : None
+ 818          // Output Value : None
+ 819          //--------------------------------------------------
+ 820          void ScalerTMDSRx2ScrambleDetectTimeoutTimerEvent(void)
+ 821          {
+ 822   1          // Set Scramble Detect Auto Mode
+ 823   1          ScalerSetBit(P71_38_HDMI_CTRL_38, ~(_BIT4 | _BIT2 | _BIT1), _BIT4);
+ 824   1      
+ 825   1          ScalerTMDSRx2ScrambleDetectDisable();
+ 826   1      }
+ 827          
+ 828          //--------------------------------------------------
+ 829          // Description  : TMDS Scramble Detection IRQ Disable
+ 830          // Input Value  : None
+ 831          // Output Value : None
+ 832          //--------------------------------------------------
+ 833          void ScalerTMDSRx2ScrambleDetectDisable(void)
+ 834          {
+ 835   1          // Disable SCDC 0x20 Change IRQ
+ 836   1          ScalerSetBit(P71_26_HDMI_CTRL_26, ~_BIT4, 0x00);
+ 837   1      }
+ 838          
+ 839          //--------------------------------------------------
+ 840          // Description  : TMDS Format Reset Event
+ 841          // Input Value  : None
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 15  
+
+ 842          // Output Value : None
+ 843          //--------------------------------------------------
+ 844          void ScalerTMDSRx2Hdmi2FormatResetEvent(void)
+ 845          {
+ 846   1          CLR_TMDS_RX2_HDMI_2_0_FORMAT_RESET_WAITING();
+ 847   1      }
+ 848          //--------------------------------------------------
+ 849          // Description  : TMDS Read Request Outcome Case Processing(EXINT0 Only)
+ 850          // Input Value  : None
+ 851          // Output Value : None
+ 852          //--------------------------------------------------
+ 853          void ScalerTMDSRx2ReadRequestProc_EXINT0(BYTE ucRROutCome) using 1
+ 854          {
+ 855   1          // Get Read Request Outcome Case
+ 856   1          switch(ucRROutCome)
+ 857   1          {
+ 858   2              case _HDMI_2_0_READ_REQUEST_ACK_DONE:
+ 859   2              case _HDMI_2_0_READ_REQUEST_ACK_STOP:
+ 860   2      
+ 861   2                  break;
+ 862   2      
+ 863   2              case _HDMI_2_0_READ_REQUEST_NACK1:
+ 864   2      
+ 865   2                  if(GET_HDMI_2_0_RX2_RR_ENABLE() == _TRUE)
+ 866   2                  {
+ 867   3                      // FW Manual Enable Read Request
+ 868   3                      ScalerSetBit_EXINT(P71_1B_HDMI_CTRL_1B, ~_BIT7, _BIT7);
+ 869   3                  }
+ 870   2      
+ 871   2                  break;
+ 872   2      
+ 873   2              case _HDMI_2_0_READ_REQUEST_NACK2:
+ 874   2      
+ 875   2      #if(_WD_TIMER_INT_SUPPORT == _ON)
+ 876   2                  if(GET_HDMI_2_0_RX2_RR_ENABLE() == _TRUE)
+ 877   2                  {
+ 878   3                      // Enable Read Request Retry
+ 879   3                      ScalerTimerWDActivateTimerEvent_EXINT0(10, _SCALER_WD_TIMER_EVENT_RX2_HDMI_RR_RETRY);
+ 880   3                  }
+ 881   2      #endif
+ 882   2      
+ 883   2                  break;
+ 884   2      
+ 885   2              default:
+ 886   2      
+ 887   2                  break;
+ 888   2          }
+ 889   1      }
+ 890          //--------------------------------------------------
+ 891          // Description  : TMDS Read Request Timer Event Enable
+ 892          // Input Value  : None
+ 893          // Output Value : None
+ 894          //--------------------------------------------------
+ 895          void ScalerTMDSRx2ReadRequestTimerEventEnable_WDINT(bit bEnable) using 3
+ 896          {
+ 897   1          if(bEnable == _ENABLE)
+ 898   1          {
+ 899   2              if(GET_HDMI_2_0_RX2_RR_ENABLE() == _TRUE)
+ 900   2              {
+ 901   3                  // FW Manual Enable Read Request
+ 902   3                  ScalerSetBit_EXINT(P71_1B_HDMI_CTRL_1B, ~_BIT7, _BIT7);
+ 903   3              }
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 16  
+
+ 904   2          }
+ 905   1          else
+ 906   1          {
+ 907   2              // Disable Read Request Enable
+ 908   2              ScalerSetBit_EXINT(P71_1B_HDMI_CTRL_1B, ~_BIT7, 0x00);
+ 909   2          }
+ 910   1      }
+ 911          #endif
+ 912          
+ 913          #if(_D2_INPUT_PORT_TYPE != _D2_DUAL_DVI_PORT)
+ 914          //--------------------------------------------------
+ 915          // Description  : HDMI Deep Color Proc
+ 916          // Input Value  : void
+ 917          // Output Value : _TRUE or _FALSE
+ 918          //--------------------------------------------------
+ 919          bit ScalerTMDSRx2HdmiDeepColorProc(WORD usTmdsClkCnt)
+ 920          {
+ 921   1          // Setting Deep Color PLL
+ 922   1          if(ScalerTMDSRx2HdmiSetDeepColorPll(usTmdsClkCnt, GET_COLOR_DEPTH()) == _FALSE)
+ 923   1          {
+ 924   2              return _FALSE;
+ 925   2          }
+ 926   1      
+ 927   1          // Wait for Phase lock
+ 928   1          if(ScalerTMDSRx2HdmiWaitDeepColorPllLock() == _FALSE)
+ 929   1          {
+ 930   2              return _FALSE;
+ 931   2          }
+ 932   1      
+ 933   1          return _TRUE;
+ 934   1      }
+ 935          //--------------------------------------------------
+ 936          // Description  : Wait for Deep Color PLL Phase Lock
+ 937          // Input Value  : None
+ 938          // Output Value : _TRUE = > Phase Locked
+ 939          //--------------------------------------------------
+ 940          bit ScalerTMDSRx2HdmiWaitDeepColorPllLock(void)
+ 941          {
+ 942   1          BYTE ucTemp = 0;
+ 943   1      
+ 944   1          do
+ 945   1          {
+ 946   2              ScalerSetDataPortBit(P71_C9_HDMI_AP, _P71_CA_PT_82_PORT_PAGE71_HDMI_DPC_SET2, ~(_BIT4 | _BIT3), (_
+             -BIT4 | _BIT3));
+ 947   2      
+ 948   2              // Delay for PLL Phase Lock
+ 949   2              ScalerTimerDelayXms(2);
+ 950   2      
+ 951   2              ucTemp++;
+ 952   2          }
+ 953   1          while((ScalerGetDataPortBit(P71_C9_HDMI_AP, _P71_CA_PT_82_PORT_PAGE71_HDMI_DPC_SET2, _BIT1) != 0) && (
+             -ucTemp <= 15));
+ 954   1      
+ 955   1          if(ucTemp > 15)
+ 956   1          {
+ 957   2              return _FALSE;
+ 958   2          }
+ 959   1      
+ 960   1          return _TRUE;
+ 961   1      }
+ 962          #endif
+ 963          #endif
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 17  
+
+ 964          
+ 965          #if(_D2_INPUT_PORT_TYPE != _D2_DUAL_DVI_PORT)
+ 966          #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+ 967          //--------------------------------------------------
+ 968          // Description  : Signal PreDetection for TMDS(Power Normal)
+ 969          // Input Value  : Input Port
+ 970          // Output Value : True : TMDS Signal Detected
+ 971          //              : False : No Signal
+ 972          //--------------------------------------------------
+ 973          bit ScalerTMDSRx2TMDSNormalPreDetect(void)
+ 974          {
+ 975   1      #if(_DEBUG_MESSAGE_SUPPORT == _ON)
+ 976   1          if(ScalerDebugCheckDebugPort(_D2_INPUT_PORT) == _FALSE)
+ 977   1      #endif
+ 978   1          {
+ 979   2              // DDC handshake Detected
+ 980   2              if(GET_TMDS_RX2_DDC_DETECTED() == _TRUE)
+ 981   2              {
+ 982   3                  DebugMessageRx2("7. Normal D2 DDC", 0);
+ 983   3      
+ 984   3                  CLR_TMDS_RX2_DDC_DETECTED();
+ 985   3      
+ 986   3                  return _TRUE;
+ 987   3              }
+ 988   2          }
+ 989   1      
+ 990   1          // Enable DDC Toggle IRQ
+ 991   1          if(((MCU_FE69_DDC2_EDID_IRQ & _BIT3) != _BIT3) && (GET_TMDS_RX2_DDC_DETECTED() != _TRUE))
+ 992   1          {
+ 993   2              MCU_FE69_DDC2_EDID_IRQ |= _BIT2;
+ 994   2              MCU_FE69_DDC2_EDID_IRQ |= _BIT3;
+ 995   2      
+ 996   2              CLR_TMDS_RX2_DDC_DETECTED();
+ 997   2          }
+ 998   1      
+ 999   1          ScalerTimerDelayXms(6);
+1000   1      
+1001   1          if(GET_TMDS_RX2_PHY_SET() == _TRUE)
+1002   1          {
+1003   2              return _TRUE;
+1004   2          }
+1005   1      
+1006   1          return _FALSE;
+1007   1      }
+1008          //--------------------------------------------------
+1009          // Description  : Signal Detection for TMDS(Power Saving)
+1010          // Input Value  : Input Port
+1011          // Output Value : True : TMDS Signal Detected
+1012          //              : False : No Signal
+1013          //--------------------------------------------------
+1014          bit ScalerTMDSRx2TMDSPSPreDetect(void)
+1015          {
+1016   1      #if(_DEBUG_MESSAGE_SUPPORT == _ON)
+1017   1          if(ScalerDebugCheckDebugPort(_D2_INPUT_PORT) == _FALSE)
+1018   1      #endif
+1019   1          {
+1020   2              // DDC handshake Detected
+1021   2              if(GET_TMDS_RX2_DDC_DETECTED() == _TRUE)
+1022   2              {
+1023   3                  DebugMessageRx2("7. PowerSaving D2 DDC", 0);
+1024   3      
+1025   3                  CLR_TMDS_RX2_DDC_DETECTED();
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 18  
+
+1026   3      
+1027   3      #if(_DP_HDMI_COMPATIBLE_MODE == _ON)
+                          SET_D2_HDMI_PS_WAKEUP();
+              #endif
+1030   3      
+1031   3      #if(_TMDS_TOGGLE_HPD_Z0_FOR_ACER == _ON)
+                          SET_TMDS_RX2_TOGGLE_Z0();
+              #endif
+1034   3                  return _TRUE;
+1035   3              }
+1036   2          }
+1037   1      
+1038   1          // Enable DDC Toggle IRQ
+1039   1          if(((MCU_FE69_DDC2_EDID_IRQ & _BIT3) != _BIT3) && (GET_TMDS_RX2_DDC_DETECTED() != _TRUE))
+1040   1          {
+1041   2              MCU_FE69_DDC2_EDID_IRQ |= _BIT2;
+1042   2              MCU_FE69_DDC2_EDID_IRQ |= _BIT3;
+1043   2          }
+1044   1      
+1045   1          // Reset Freq. Detect Counter(Toggle) & Choose Measure Clk to TMDS Clk
+1046   1          ScalerSetBit(P71_E6_HDMI_FREQDET_CTRL, ~(_BIT7 | _BIT5 | _BIT4), 0x00);
+1047   1          ScalerSetBit(P71_E6_HDMI_FREQDET_CTRL, ~_BIT7, _BIT7);
+1048   1      
+1049   1          // Clear Freq. Stable Flag
+1050   1          ScalerSetBit(P71_EF_HDMI_ERROR_TH, ~_BIT6, _BIT6);
+1051   1      
+1052   1          // Clear Unstable Flag
+1053   1          ScalerSetBit(P71_E6_HDMI_FREQDET_CTRL, ~_BIT2, _BIT2);
+1054   1      
+1055   1          // Delay enough time for freq. measure (calculated for measure 5 times)
+1056   1          ScalerTimerDelayXms(5);
+1057   1      
+1058   1          // Detect Freq. Measure Stable
+1059   1          if((ScalerGetBit(P71_E6_HDMI_FREQDET_CTRL, (_BIT6 | _BIT2)) == _BIT6) && (ScalerGetBit(P71_EF_HDMI_ERR
+             -OR_TH, _BIT6) == _BIT6))
+1060   1          {
+1061   2      #if(_DP_HDMI_COMPATIBLE_MODE == _ON)
+                      SET_D2_HDMI_PS_WAKEUP();
+              #endif
+1064   2      
+1065   2      #if(_TMDS_TOGGLE_HPD_Z0_FOR_ACER == _ON)
+                      SET_TMDS_RX2_TOGGLE_Z0();
+              #endif
+1068   2              return _TRUE;
+1069   2          }
+1070   1          else
+1071   1          {
+1072   2              // Disable Freq. Detection
+1073   2              ScalerSetBit(P71_E6_HDMI_FREQDET_CTRL, ~_BIT7, 0x00);
+1074   2      
+1075   2              return _FALSE;
+1076   2          }
+1077   1      
+1078   1          return _FALSE;
+1079   1      }
+1080          #endif
+1081          
+1082          #endif
+1083          
+1084          //--------------------------------------------------
+1085          // Description  : HPD Low Process
+1086          // Input Value  :
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 19  
+
+1087          // Output Value :
+1088          //--------------------------------------------------
+1089          void ScalerTMDSRx2HotPlugLowProc(void)
+1090          {
+1091   1          // MHL mode of MHL PORT can not pull HPD
+1092   1      #if(_D2_INPUT_PORT_TYPE == _D2_MHL_PORT)
+                  if((GET_HDMI_HOTPLUG_TOGGLE() == _TRUE) && (GET_D2_CABLE_STATUS() == _TRUE) && (GET_D2_TMDS_MODE() == 
+             -_TMDS_HDMI_MODE))
+              #else
+1095   1          if((GET_HDMI_HOTPLUG_TOGGLE() == _TRUE) && (GET_D2_CABLE_STATUS() == _TRUE))
+1096   1      #endif
+1097   1          {
+1098   2              PCB_D2_HOTPLUG(_D2_HOT_PLUG_LOW);
+1099   2      
+1100   2      #if(_DP_HDMI_COMPATIBLE_MODE == _ON)
+                      if(GET_TMDS_RX2_HPD_TRIGGER_EVENT() != _TMDS_HPD_EIZO_PS_WAKEUP)
+              #endif
+1103   2              {
+1104   3                  ScalerTMDSRx2SwitchHdcpSlaveAddr();
+1105   3              }
+1106   2      
+1107   2      #if(_DELL_HDMI_HPD_DDC_STYLE_SUPPORT == _ON)
+                      g_ucTmdsD2DdcramNackStatus = ScalerSyncGetDdcForceNackStatus(_D2_INPUT_PORT);
+              
+                      if(g_ucTmdsD2DdcramNackStatus == _FALSE)
+                      {
+                          // DDCRAM Force Nack
+                          ScalerSyncSetDdcForceNack(_D2_INPUT_PORT, _ON);
+                      }
+              
+                      // Set DDCCI Force Nack
+                      ScalerMcuDdcciEnable(_DISABLE, _D2_INPUT_PORT);
+              #endif
+1119   2          }
+1120   1      }
+1121          
+1122          //--------------------------------------------------
+1123          // Description  : HPD High Process
+1124          // Input Value  : usHpdTime
+1125          // Output Value :
+1126          //--------------------------------------------------
+1127          void ScalerTMDSRx2HotPlugHighProc(WORD usHpdTime)
+1128          {
+1129   1          // MHL mode of MHL PORT can not pull HPD
+1130   1      #if(_D2_INPUT_PORT_TYPE == _D2_MHL_PORT)
+                  if((GET_HDMI_HOTPLUG_TOGGLE() == _TRUE) && (GET_D2_CABLE_STATUS() == _TRUE) && (GET_D2_TMDS_MODE() == 
+             -_TMDS_HDMI_MODE))
+              #else
+1133   1          if((GET_HDMI_HOTPLUG_TOGGLE() == _TRUE) && (GET_D2_CABLE_STATUS() == _TRUE))
+1134   1      #endif
+1135   1          {
+1136   2              ScalerTimerDelayXms(usHpdTime);
+1137   2      
+1138   2              PCB_D2_HOTPLUG(_D2_HOT_PLUG_HIGH);
+1139   2          }
+1140   1      }
+1141          #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1444    ----
+   CONSTANT SIZE    =   ----    ----
+C51 COMPILER V9.01   SCALERTMDSRX2_SEPTPHY                                                 05/24/2025 15:51:27 PAGE 20  
+
+   XDATA SIZE       =   ----       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

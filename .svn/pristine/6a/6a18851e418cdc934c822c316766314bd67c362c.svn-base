@@ -1,0 +1,319 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORSIXCOLORADJUSTBRICOMPE                             03/11/2025 19:56:12 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORSIXCOLORADJUSTBRICOMPE
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorSixColorAdjustBriCompensate.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorSixColorAdjustBriCompensate.c L
+                    -ARGE OPTIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\He
+                    -ader;..\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..
+                    -\RL6449_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Ou
+                    -tput\RL6449_Series_ColorSixColorAdjustBriCompensate.lst) OBJECT(.\Output\RL6449_Series_ColorSixColorAdjustBriCompensate.
+                    -obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorSixColorAdjustBriCompensate.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          //--------------------------------------------------
+  22          // Table Length
+  23          //--------------------------------------------------
+  24          #define _SIXCOLOR_TABLE_SIZE_MSB_BRI_COMPENSATE                  16
+  25          #define _SIXCOLOR_TABLE_SIZE_LSB_BRI_COMPENSATE                  4
+  26          #define _SIXCOLOR_TABLE_SIZE_AXIS_BRI_COMPENSATE                 16
+  27          #define _SIXCOLOR_TO_GRAY_TABLE_SIZE_LSB_BRI_COMPENSATE          20
+  28          
+  29          //--------------------------------------------------
+  30          // Definitions of Six Color
+  31          //--------------------------------------------------
+  32          #define _SIX_COLOR_RIGHTBUFFER_BRI_COMPENSATE                    0
+  33          #define _SIX_COLOR_RIGHTWIDTH_BRI_COMPENSATE                     1
+  34          #define _SIX_COLOR_CENTER_BRI_COMPENSATE                         2
+  35          #define _SIX_COLOR_LEFTWIDTH_BRI_COMPENSATE                      3
+  36          #define _SIX_COLOR_LEFTBUFFER_BRI_COMPENSATE                     4
+  37          
+  38          
+  39          //****************************************************************************
+  40          // STRUCT / TYPE / ENUM DEFINITTIONS
+  41          //****************************************************************************
+  42          
+  43          
+  44          //****************************************************************************
+  45          // CODE TABLES
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Code Tables of SixColor
+  49          //--------------------------------------------------
+  50          SWORD code tSIX_COLOR_U_MAX_8_BRI_COMPENSATE[] =
+C51 COMPILER V8.12   RL6449_SERIES_COLORSIXCOLORADJUSTBRICOMPE                             03/11/2025 19:56:12 PAGE 2   
+
+  51          {
+  52              256, -256, -512, -256, 256, 512,
+  53          };
+  54          
+  55          SWORD code tSIX_COLOR_V_MAX_8_BRI_COMPENSATE[] =
+  56          {
+  57              512, 512, 0, -512, -512, 0,
+  58          };
+  59          
+  60          SWORD code tSIX_COLOR_CTOC_DELTA_UV_DOWN_BRI_COMPENSATE[][2] =
+  61          {
+  62              {-512,    0},
+  63              {-256, -512},
+  64              { 256, -512},
+  65              { 512,    0},
+  66              { 256,  512},
+  67              {-256,  512},
+  68          };
+  69          
+  70          SWORD code tSIX_COLOR_CTOC_DELTA_UV_UP_BRI_COMPENSATE[][2] =
+  71          {
+  72              { 256, -512},
+  73              { 512,    0},
+  74              { 256,  512},
+  75              {-256,  512},
+  76              {-512,    0},
+  77              {-256, -512},
+  78          };
+  79          
+  80          SWORD code tSIX_COLOR_CTOC_DELTA_Y_DOWN_BRI_COMPENSATE[] =
+  81          {
+  82              143, -81, 49, -130, 80, -51,
+  83          };
+  84          
+  85          SWORD code tSIX_COLOR_CTOC_DELTA_Y_UP_BRI_COMPENSATE[] =
+  86          {
+  87              79, -131, 81, -46, 131, -80,
+  88          };
+  89          
+  90          code BYTE tICM_TABLE_GRAY_LSB_BRI_COMPENSATE[] =
+  91          {
+  92              0x00, 0x00, 0x00, 0x00,
+  93              0x00, 0x00, 0x00, 0x00,
+  94              0x00, 0x00, 0x00, 0x00,
+  95              0x00, 0x00, 0x00, 0x00,
+  96              0x00, 0x00, 0x00, 0x00,
+  97          };
+  98          
+  99          //****************************************************************************
+ 100          // VARIABLE DECLARATIONS
+ 101          //****************************************************************************
+ 102          
+ 103          
+ 104          //****************************************************************************
+ 105          // FUNCTION DECLARATIONS
+ 106          //****************************************************************************
+ 107          void ScalerColorSixColorAdjustBriCompensate(BYTE ucColorIndex, BYTE ucHuePosition, BYTE ucSatPosition);
+ 108          void ScalerColorSixColorICMLoadBriCompensate(SWORD shDeltaY, BYTE *pucICMData, BYTE ucCMSel, BYTE ucLoadSe
+             -lect);
+ 109          
+ 110          
+ 111          //****************************************************************************
+C51 COMPILER V8.12   RL6449_SERIES_COLORSIXCOLORADJUSTBRICOMPE                             03/11/2025 19:56:12 PAGE 3   
+
+ 112          // FUNCTION DEFINITIONS
+ 113          //****************************************************************************
+ 114          //--------------------------------------------------
+ 115          // Description  : 6 Color ICM adjust
+ 116          // Input Value  : ucColorIndex --> Color Adjusted Now
+ 117          //                ucHuePosition --> Hue position after mapping
+ 118          //                ucSatPosition --> Sat position after mapping
+ 119          // Output Value : None
+ 120          //--------------------------------------------------
+ 121          void ScalerColorSixColorAdjustBriCompensate(BYTE ucColorIndex, BYTE ucHuePosition, BYTE ucSatPosition)
+ 122          {
+ 123   1          BYTE pucCentDeltaUV[16];
+ 124   1          BYTE ucLastIndex = 0;
+ 125   1          BYTE ucNextIndex = 0;
+ 126   1          BYTE ucPointIndex = 0;
+ 127   1          SWORD shDeltaSat = 0;
+ 128   1          SWORD shDeltaUmax1 = 0;
+ 129   1          SWORD shDeltaVmax1 = 0;
+ 130   1          SWORD shDeltaUmax = 0;
+ 131   1          SWORD shDeltaVmax = 0;
+ 132   1          SWORD shDeltaY = 0;
+ 133   1          SWORD shDeltaU = 0;
+ 134   1          SWORD shDeltaV = 0;
+ 135   1          memset(pucCentDeltaUV, 0, sizeof(pucCentDeltaUV));
+ 136   1      
+ 137   1          ucLastIndex = (ucColorIndex == 0) ? 5 : (ucColorIndex - 1);
+ 138   1          ucNextIndex = (ucColorIndex == 5) ? 0 : (ucColorIndex + 1);
+ 139   1      
+ 140   1          // Not Use SCM
+ 141   1          ScalerSetBit(P7_CD_SCM_BLOCK_SELECT, ~_BIT4, 0x00);
+ 142   1      
+ 143   1          // Delta Saturation = (-512 * 200 + ((512 - (-512)) * ucSatPosition)) / 200
+ 144   1          shDeltaSat = ((SDWORD)-102400 + ((SDWORD)ucSatPosition << 10)) / 200;
+ 145   1      
+ 146   1          if(ucHuePosition > 50)
+ 147   1          {
+ 148   2              shDeltaUmax = (SDWORD)tSIX_COLOR_CTOC_DELTA_UV_DOWN_BRI_COMPENSATE[ucColorIndex][0] * (ucHuePositi
+             -on - 50) / 50;
+ 149   2              shDeltaVmax = (SDWORD)tSIX_COLOR_CTOC_DELTA_UV_DOWN_BRI_COMPENSATE[ucColorIndex][1] * (ucHuePositi
+             -on - 50) / 50;
+ 150   2              shDeltaY = (SDWORD)tSIX_COLOR_CTOC_DELTA_Y_DOWN_BRI_COMPENSATE[ucColorIndex] * (ucHuePosition - 50
+             -) / 50;
+ 151   2          }
+ 152   1          else if(ucHuePosition < 50)
+ 153   1          {
+ 154   2              shDeltaUmax = (SDWORD)tSIX_COLOR_CTOC_DELTA_UV_UP_BRI_COMPENSATE[ucColorIndex][0] * (50 - ucHuePos
+             -ition) / 50;
+ 155   2              shDeltaVmax = (SDWORD)tSIX_COLOR_CTOC_DELTA_UV_UP_BRI_COMPENSATE[ucColorIndex][1] * (50 - ucHuePos
+             -ition) / 50;
+ 156   2              shDeltaY = (SDWORD)tSIX_COLOR_CTOC_DELTA_Y_UP_BRI_COMPENSATE[ucColorIndex] * (50 - ucHuePosition) 
+             -/ 50;
+ 157   2          }
+ 158   1          else
+ 159   1          {
+ 160   2              shDeltaUmax = 0;
+ 161   2              shDeltaVmax = 0;
+ 162   2              shDeltaY = 0;
+ 163   2          }
+ 164   1      
+ 165   1          shDeltaUmax1 = tSIX_COLOR_U_MAX_8_BRI_COMPENSATE[ucColorIndex] + shDeltaUmax;
+ 166   1          shDeltaVmax1 = tSIX_COLOR_V_MAX_8_BRI_COMPENSATE[ucColorIndex] + shDeltaVmax;
+ 167   1      
+C51 COMPILER V8.12   RL6449_SERIES_COLORSIXCOLORADJUSTBRICOMPE                             03/11/2025 19:56:12 PAGE 4   
+
+ 168   1          shDeltaUmax1 = (SDWORD)shDeltaSat * shDeltaUmax1 >> 9;
+ 169   1          shDeltaVmax1 = (SDWORD)shDeltaSat * shDeltaVmax1 >> 9;
+ 170   1      
+ 171   1          shDeltaUmax = (shDeltaUmax1 + shDeltaUmax) >> 3;
+ 172   1          shDeltaVmax = (shDeltaVmax1 + shDeltaVmax) >> 3;
+ 173   1      
+ 174   1          for(ucPointIndex = 0; ucPointIndex < 8; ucPointIndex++)
+ 175   1          {
+ 176   2              shDeltaU = (shDeltaUmax * (ucPointIndex + 1)) >> 3;
+ 177   2              shDeltaV = (shDeltaVmax * (ucPointIndex + 1)) >> 3;
+ 178   2      
+ 179   2              shDeltaU = MAXOF(-128, MINOF(127, shDeltaU));
+ 180   2              shDeltaV = MAXOF(-128, MINOF(127, shDeltaV));
+ 181   2      
+ 182   2              pucCentDeltaUV[ucPointIndex << 1] = shDeltaU & 0xFF;
+ 183   2              pucCentDeltaUV[(ucPointIndex << 1) + 1] = shDeltaV & 0xFF;
+ 184   2          }
+ 185   1      
+ 186   1          ScalerColorSixColorICMLoadBriCompensate(shDeltaY, pucCentDeltaUV, ucColorIndex, _SIX_COLOR_CENTER_BRI_
+             -COMPENSATE);
+ 187   1          ScalerColorSixColorICMLoadBriCompensate(shDeltaY, pucCentDeltaUV, ucColorIndex, _SIX_COLOR_LEFTWIDTH_B
+             -RI_COMPENSATE);
+ 188   1          ScalerColorSixColorICMLoadBriCompensate(shDeltaY, pucCentDeltaUV, ucColorIndex, _SIX_COLOR_LEFTBUFFER_
+             -BRI_COMPENSATE);
+ 189   1          ScalerColorSixColorICMLoadBriCompensate(shDeltaY, pucCentDeltaUV, ucNextIndex, _SIX_COLOR_RIGHTWIDTH_B
+             -RI_COMPENSATE);
+ 190   1          ScalerColorSixColorICMLoadBriCompensate(shDeltaY, pucCentDeltaUV, ucNextIndex, _SIX_COLOR_RIGHTBUFFER_
+             -BRI_COMPENSATE);
+ 191   1      
+ 192   1          // Set LSB to 0
+ 193   1          ScalerSetBit(P7_D1_ICM_SEL, ~(_BIT2 | _BIT1 | _BIT0), ucColorIndex);
+ 194   1          ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_6F_PORT_CMN_MST_00_01_UV_OFFSET_L);
+ 195   1          ScalerBurstWrite(tICM_TABLE_GRAY_LSB_BRI_COMPENSATE, _SIXCOLOR_TO_GRAY_TABLE_SIZE_LSB_BRI_COMPENSATE, 
+             -GET_CURRENT_BANK_NUMBER(), P7_D3_ICM_DATA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+ 196   1      
+ 197   1          // Set dy LSB to 0
+ 198   1          ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_87_PORT_CMN_AXIS_DELY_L);
+ 199   1          ScalerSetByte(P7_D3_ICM_DATA, 0x00);
+ 200   1      }
+ 201          
+ 202          //--------------------------------------------------
+ 203          // Description   : Fill 6 Color ICM Data
+ 204          // Input Value   : pucICMData --> Point to ICM uvoffset
+ 205          //                 ucCMSel --> Color selected
+ 206          //                   ucLoadSelect --> Axis selected
+ 207          // Output Value  : None
+ 208          //--------------------------------------------------
+ 209          void ScalerColorSixColorICMLoadBriCompensate(SWORD shDeltaY, BYTE *pucICMData, BYTE ucCMSel, BYTE ucLoadSe
+             -lect)
+ 210          {
+ 211   1          ScalerSetBit(P7_D1_ICM_SEL, ~(_BIT2 | _BIT1 | _BIT0), ucCMSel);
+ 212   1      
+ 213   1          switch(ucLoadSelect)
+ 214   1          {
+ 215   2              case _SIX_COLOR_RIGHTBUFFER_BRI_COMPENSATE:
+ 216   2                  ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_33_PORT_CMN_RBUF_00_DU_H);
+ 217   2                  break;
+ 218   2      
+ 219   2              case _SIX_COLOR_RIGHTWIDTH_BRI_COMPENSATE:
+ 220   2                  ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_13_PORT_CMN_RWID_00_DU_H);
+ 221   2                  break;
+ 222   2      
+C51 COMPILER V8.12   RL6449_SERIES_COLORSIXCOLORADJUSTBRICOMPE                             03/11/2025 19:56:12 PAGE 5   
+
+ 223   2              case _SIX_COLOR_CENTER_BRI_COMPENSATE:
+ 224   2                  ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_03_PORT_CMN_MST_00_DU_H);
+ 225   2                  break;
+ 226   2      
+ 227   2              case _SIX_COLOR_LEFTWIDTH_BRI_COMPENSATE:
+ 228   2                  ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_23_PORT_CMN_LWID_00_DU_H);
+ 229   2                  break;
+ 230   2      
+ 231   2              case _SIX_COLOR_LEFTBUFFER_BRI_COMPENSATE:
+ 232   2                  ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_43_PORT_CMN_LBUF_00_DU_H);
+ 233   2                  break;
+ 234   2      
+ 235   2              default:
+ 236   2                  ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_23_PORT_CMN_LWID_00_DU_H);
+ 237   2                  break;
+ 238   2          }
+ 239   1      
+ 240   1          ScalerBurstWrite(pucICMData, _SIXCOLOR_TABLE_SIZE_AXIS_BRI_COMPENSATE, GET_CURRENT_BANK_NUMBER(), P7_D
+             -3_ICM_DATA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_XRAM);
+ 241   1      
+ 242   1          switch(ucLoadSelect)
+ 243   1          {
+ 244   2              case _SIX_COLOR_RIGHTBUFFER_BRI_COMPENSATE:
+ 245   2                  return;
+ 246   2      
+ 247   2              case _SIX_COLOR_RIGHTWIDTH_BRI_COMPENSATE:
+ 248   2                  ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_6B_PORT_CMN_R_AXIS_DELY_H);
+ 249   2                  break;
+ 250   2      
+ 251   2              case _SIX_COLOR_CENTER_BRI_COMPENSATE:
+ 252   2                  ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_69_PORT_CMN_M_AXIS_DELY_H);
+ 253   2                  break;
+ 254   2      
+ 255   2              case _SIX_COLOR_LEFTWIDTH_BRI_COMPENSATE:
+ 256   2                  ScalerSetByte(P7_D2_ICM_ADDR, _P7_D3_PT_6D_PORT_CMN_L_AXIS_DELY_H);
+ 257   2                  break;
+ 258   2      
+ 259   2              case _SIX_COLOR_LEFTBUFFER_BRI_COMPENSATE:
+ 260   2                  return;
+ 261   2      
+ 262   2              default:
+ 263   2                  return;
+ 264   2          }
+ 265   1      
+ 266   1          ScalerSetByte(P7_D3_ICM_DATA, (BYTE)((shDeltaY >> 8) & 0xFF));
+ 267   1          ScalerSetByte(P7_D3_ICM_DATA, (BYTE)(shDeltaY & 0xFF));
+ 268   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1172    ----
+   CONSTANT SIZE    =    116    ----
+   XDATA SIZE       =   ----      45
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

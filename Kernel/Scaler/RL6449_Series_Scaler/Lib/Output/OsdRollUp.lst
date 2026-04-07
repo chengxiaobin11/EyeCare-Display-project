@@ -1,0 +1,107 @@
+C51 COMPILER V8.12   OSDROLLUP                                                             03/11/2025 19:55:53 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE OSDROLLUP
+OBJECT MODULE PLACED IN .\Output\OsdRollUp.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerFunction\Lib\Code\ScalerOSD\Function\OsdRollUp.c LARGE OPTIMIZE
+                    -(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\Sc
+                    -alerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Serie
+                    -s_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\OsdRollU
+                    -p.lst) OBJECT(.\Output\OsdRollUp.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : OsdRollUp.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "ScalerOSDLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerOsdRollUp(bit bEnable, BYTE ucRowStart, BYTE ucRowBack);
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Description  : Set OSD RollUp function
+  49          // Input Value  :  bEnable    -> _ENABLE or _DISABLE
+  50          //                 ucRowStart -> Set RollUp start (end) row
+  51          //                 ucRowBack  -> Set RollUp reposition row
+C51 COMPILER V8.12   OSDROLLUP                                                             03/11/2025 19:55:53 PAGE 2   
+
+  52          // Output Value :
+  53          //--------------------------------------------------
+  54          void ScalerOsdRollUp(bit bEnable, BYTE ucRowStart, BYTE ucRowBack)
+  55          {
+  56   1          BYTE pucTemp[2];
+  57   1          WORD usCharCommandAddress = 0;
+  58   1          memset(pucTemp, 0, sizeof(pucTemp));
+  59   1      
+  60   1          // Set OSD Special Function Enable/Disable
+  61   1          ScalerSetBit(P3A_18_FRAME_CTRL_18, ~(_BIT7 | _BIT6), ((BYTE)bEnable << 7));
+  62   1      
+  63   1          // Get Font Select Base Address
+  64   1          pucTemp[0] = ScalerGetByte(P3A_0C_FRAME_CTRL_0C);
+  65   1          pucTemp[1] = ScalerGetByte(P3A_0D_FRAME_CTRL_0D);
+  66   1          usCharCommandAddress = (WORD)((pucTemp[1] & 0xF0) << 4) | pucTemp[0];
+  67   1          usCharCommandAddress = usCharCommandAddress + (ucRowStart * GET_OSD_MAPA_COL_MAX());
+  68   1      
+  69   1          // Set Row Command Base 0
+  70   1          ScalerSetByte(P3A_19_FRAME_CTRL_19, ucRowStart);
+  71   1          // Set Row Command Base 1
+  72   1          ScalerSetByte(P3A_1A_FRAME_CTRL_1A, ucRowBack);
+  73   1      
+  74   1          // Set Font Select Base 0
+  75   1          ScalerSetBit(P3A_1B_FRAME_CTRL_1B, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), ((usCharCommandAddress & 0xF00) >
+             -> 4));
+  76   1          ScalerSetByte(P3A_1C_FRAME_CTRL_1C, (usCharCommandAddress & 0x0FF));
+  77   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    127    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

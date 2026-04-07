@@ -1,0 +1,1290 @@
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SCALERDPRX1HDCP2_SEPTPHY
+OBJECT MODULE PLACED IN .\Output\RL6449\ScalerDPRx1HDCP2_SeptPhy.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerDPRx1HDCP2_SeptPhy.c LARGE OPTIMIZE
+                    -(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\H
+                    -eader;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\L
+                    -ib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kernel\Scaler\RL
+                    -6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Common\Lib\Heade
+                    -r;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\Us
+                    -er\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Heade
+                    -r) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449\ScalerDPRx1HDCP
+                    -2_SeptPhy.lst) OBJECT(.\Output\RL6449\ScalerDPRx1HDCP2_SeptPhy.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerDPRx1HDCP2_SeptPhy.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          #if(_DP_HDCP_2_2_SUPPORT == _ON)
+  20          #if(_D1_DP_EXIST == _ON)
+  21          
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          
+  26          //****************************************************************************
+  27          // STRUCT / TYPE / ENUM DEFINITTIONS
+  28          //****************************************************************************
+  29          
+  30          //****************************************************************************
+  31          // CODE TABLES
+  32          //****************************************************************************
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerDpRx1Hdcp2Handler(void);
+  42          void ScalerDpRx1Hdcp2Handler_EXINT0(void);
+  43          void ScalerDpRx1Hdcp2ResetProc(void);
+  44          void ScalerDpRx1Hdcp2ResetProc_EXINT0(void);
+  45          
+  46          #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+              void ScalerDpRx1Hdcp2AesOnlineCtrlErrata(BYTE *pucInputArray, BYTE *pucCipherArray);
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 2   
+
+              #endif
+  49          
+  50          #if(_WD_TIMER_INT_SUPPORT == _ON)
+  51          void ScalerDpRx1Hdcp2SkeProc_WDINT(void);
+  52          void ScalerDpRx1Hdcp2HPrimeProc_WDINT(void);
+  53          void ScalerDpRx1Hdcp2AkeInitProc_WDINT(void);
+  54          void ScalerDpRx1Hdcp2ClearDpcdReadValue_WDINT(BYTE ucRSAType, WORD usLength);
+  55          void ScalerDpRx1Hdcp2LoadDpcdValue_WDINT(BYTE ucDpcdAccessPortH, BYTE ucDpcdAccessPortM, BYTE ucDpcdAccess
+             -PortL, BYTE ucLength, BYTE *pucReadArray);
+  56          void ScalerDpRx1Hdcp2SetDpcdReadValue_WDINT(BYTE ucRSAType, BYTE *pucReadArray, WORD usLength);
+  57          void ScalerDpRx1Hdcp2CpIRQ_WDINT(EnumDpRxBStatusType enumBStatusType);
+  58          void ScalerDpRx1Hdcp2HpdIrqAssert_WDINT(void);
+  59          #endif
+  60          
+  61          //****************************************************************************
+  62          // FUNCTION DEFINITIONS
+  63          //****************************************************************************
+  64          //--------------------------------------------------
+  65          // Description  : HDCP 2.2 Handler Process for DP Rx1
+  66          // Input Value  : None
+  67          // Output Value : None
+  68          //--------------------------------------------------
+  69          void ScalerDpRx1Hdcp2Handler(void)
+  70          {
+  71   1      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                  SET_DP_RX1_HDCP2_AKE_INIT_RECEIVED();
+              #endif
+  74   1      
+  75   1          // Receiver Has Received AKE_INIT
+  76   1          if(GET_DP_RX1_HDCP2_AKE_INIT_RECEIVED() == _TRUE)
+  77   1          {
+  78   2              CLR_DP_RX1_HDCP2_AKE_INIT_RECEIVED();
+  79   2      
+  80   2      #if(_DP_TX_SUPPORT == _ON)
+                      if(GET_DP_RX1_HDCP2_REPEATER_CAPABLE() == _TRUE)
+                      {
+                          SET_DP_RX1_HDCP2_REPEATER_AUTH_1_START();
+                      }
+              
+                      // Clear DPCD Repeater Info
+                      ScalerDpRx1Hdcp2ClearDpcdRepeaterInfo();
+              #endif
+  89   2      
+  90   2              DebugMessageHDCP2("[D1]AKE_INIT", 0);
+  91   2      
+  92   2      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                      // Reset HDCP Cipher
+                      ScalerSetBit(P63_10_HDCP_RSA_CTRL0, ~_BIT3, 0x00);
+                      ScalerSetBit(P63_10_HDCP_RSA_CTRL0, ~_BIT3, _BIT3);
+              
+                      g_pucDpRx1Hdcp2Rtx[0] = 0x18;
+                      g_pucDpRx1Hdcp2Rtx[1] = 0xfa;
+                      g_pucDpRx1Hdcp2Rtx[2] = 0xe4;
+                      g_pucDpRx1Hdcp2Rtx[3] = 0x20;
+                      g_pucDpRx1Hdcp2Rtx[4] = 0x6a;
+                      g_pucDpRx1Hdcp2Rtx[5] = 0xfb;
+                      g_pucDpRx1Hdcp2Rtx[6] = 0x51;
+                      g_pucDpRx1Hdcp2Rtx[7] = 0x49;
+              
+                      g_pucDpRx1Hdcp2Rrx[0] = 0x3b;
+                      g_pucDpRx1Hdcp2Rrx[1] = 0xa0;
+                      g_pucDpRx1Hdcp2Rrx[2] = 0xbe;
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 3   
+
+                      g_pucDpRx1Hdcp2Rrx[3] = 0xde;
+                      g_pucDpRx1Hdcp2Rrx[4] = 0x0c;
+                      g_pucDpRx1Hdcp2Rrx[5] = 0x46;
+                      g_pucDpRx1Hdcp2Rrx[6] = 0xa9;
+                      g_pucDpRx1Hdcp2Rrx[7] = 0x91;
+              
+                      g_pucDpRx1Hdcp2TxCaps[0] = 0x02;
+                      g_pucDpRx1Hdcp2TxCaps[1] = 0x00;
+                      g_pucDpRx1Hdcp2TxCaps[2] = 0x00;
+              
+                      g_pucDPRx1Caps[0] = 0x02;
+                      g_pucDPRx1Caps[1] = 0x00;
+                      g_pucDPRx1Caps[2] = 0x03;
+              
+                      // Load Certrx to DPCD Table
+                      ScalerDpRx1Hdcp2LoadCertRrxKey();
+              #endif
+ 126   2          }
+ 127   1      
+ 128   1      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                  SET_DP_RX1_HDCP2_AKE_NO_STORED_KM_RECEIVED();
+              #endif
+ 131   1      
+ 132   1          // Receiver Has received AKE_NO_STORED_KM
+ 133   1          if(GET_DP_RX1_HDCP2_AKE_NO_STORED_KM_RECEIVED() == _TRUE)
+ 134   1          {
+ 135   2              if(ScalerDpRx1Hdcp2CaptureKpubKm() == _TRUE)
+ 136   2              {
+ 137   3                  // Decrypt Km by FW to Get 128 bit Km
+ 138   3                  if(ScalerHdcp2RxRsaOaepCalculate(g_pucDpRx1Hdcp2Km) == _TRUE)
+ 139   3                  {
+ 140   4                      ScalerHdcp2DkeyCalculate(_HDCP_2_2_DKEY_0, g_pucDpRx1Hdcp2Rtx, g_pucDpRx1Hdcp2Rrx, g_pucDp
+             -Rx1Hdcp2Km, g_pucDpRx1Hdcp2Rn);
+ 141   4      
+ 142   4                      memcpy(g_pucDpRx1Hdcp2dKey0, (volatile BYTE xdata *)P63_81_HDCP_AES_OUT_15, 16);
+ 143   4      
+ 144   4                      ScalerHdcp2DkeyCalculate(_HDCP_2_2_DKEY_1, g_pucDpRx1Hdcp2Rtx, g_pucDpRx1Hdcp2Rrx, g_pucDp
+             -Rx1Hdcp2Km, g_pucDpRx1Hdcp2Rn);
+ 145   4      
+ 146   4                      memcpy(g_pucDpRx1Hdcp2dKey1, (volatile BYTE xdata *)P63_81_HDCP_AES_OUT_15, 16);
+ 147   4      
+ 148   4      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                              for(pData[0] = 0; pData[0] < 16; pData[0]++)
+                              {
+                                  DebugMessageHDCP2("Dkey0", g_pucDpRx1Hdcp2dKey0[pData[0]]);
+                              }
+              
+                              for(pData[0] = 0; pData[0] < 16; pData[0]++)
+                              {
+                                  DebugMessageHDCP2("Dkey1", g_pucDpRx1Hdcp2dKey1[pData[0]]);
+                              }
+              #endif
+ 159   4      
+ 160   4                      if(ScalerHdcp2HPrimeCalculate(g_pucDpRx1Hdcp2dKey0, g_pucDpRx1Hdcp2dKey1, g_pucDpRx1Hdcp2R
+             -tx, g_pucDpRx1Hdcp2TxCaps, g_pucDPRx1Caps) == _TRUE)
+ 161   4                      {
+ 162   5                          ScalerDpRx1Hdcp2CalculateKmKh();
+ 163   5                      }
+ 164   4                  }
+ 165   3              }
+ 166   2          }
+ 167   1      
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 4   
+
+ 168   1          if(GET_DP_RX1_HDCP2_AKE_STORED_KM_RECEIVED() == _TRUE)
+ 169   1          {
+ 170   2              CLR_DP_RX1_HDCP2_AKE_STORED_KM_RECEIVED();
+ 171   2              CLR_DP_RX1_HDCP2_AUTHENTICATION_ACTIVE();
+ 172   2      
+ 173   2              DebugMessageHDCP2("[D1]AKE_STORED_KM", 0);
+ 174   2          }
+ 175   1      
+ 176   1      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                  SET_DP_RX1_HDCP2_LC_INIT_RECEIVED();
+              #endif
+ 179   1      
+ 180   1          if(GET_DP_RX1_HDCP2_LC_INIT_RECEIVED() == _TRUE)
+ 181   1          {
+ 182   2      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                      BYTE pucSHA256[32];
+                      memset(pucSHA256, 0, sizeof(pucSHA256));
+              
+                      g_pucDpRx1Hdcp2Rn[0] = 0x32;
+                      g_pucDpRx1Hdcp2Rn[1] = 0x75;
+                      g_pucDpRx1Hdcp2Rn[2] = 0x3e;
+                      g_pucDpRx1Hdcp2Rn[3] = 0xa8;
+                      g_pucDpRx1Hdcp2Rn[4] = 0x78;
+                      g_pucDpRx1Hdcp2Rn[5] = 0xa6;
+                      g_pucDpRx1Hdcp2Rn[6] = 0x38;
+                      g_pucDpRx1Hdcp2Rn[7] = 0x1c;
+              
+                      if(ScalerHdcp2LPrimeCalculate(g_pucDpRx1Hdcp2dKey0, g_pucDpRx1Hdcp2dKey1, g_pucDpRx1Hdcp2Rrx, g_pu
+             -cDpRx1Hdcp2Rn) == _TRUE)
+                      {
+                          // Load L prime to pucSHA256
+                          memcpy(pucSHA256, (volatile BYTE xdata *)P63_35_HDCP_SHA_0, 32);
+              
+                          for(pData[0] = 0; pData[0] < 32; pData[0]++)
+                          {
+                              DebugMessageHDCP2("L Prime", pucSHA256[pData[0]]);
+                          }
+                      }
+              #endif
+ 206   2      
+ 207   2              CLR_DP_RX1_HDCP2_LC_INIT_RECEIVED();
+ 208   2      
+ 209   2              DebugMessageHDCP2("[D1]LC_INIT", 0);
+ 210   2          }
+ 211   1      
+ 212   1      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                  SET_DP_RX1_HDCP2_SKE_SEND_EKS_RECEIVED();
+              #endif
+ 215   1      
+ 216   1          if(GET_DP_RX1_HDCP2_SKE_SEND_EKS_RECEIVED() == _TRUE)
+ 217   1          {
+ 218   2      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                      BYTE pucEDkeyKs[16];
+                      BYTE pucInputCipher[16];
+                      BYTE pucRiv[8];
+                      BYTE pucKs[16];
+              
+                      memset(pucInputCipher, 0, sizeof(pucInputCipher));
+                      memset(pucKs, 0, sizeof(pucKs));
+              
+                      // Calculate Dkey 2
+                      ScalerHdcp2DkeyCalculate(_HDCP_2_2_DKEY_2, g_pucDpRx1Hdcp2Rtx, g_pucDpRx1Hdcp2Rrx, g_pucDpRx1Hdcp2
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 5   
+
+             -Km, g_pucDpRx1Hdcp2Rn);
+              
+                      pucEDkeyKs[0] = 0x4c;
+                      pucEDkeyKs[1] = 0x32;
+                      pucEDkeyKs[2] = 0x47;
+                      pucEDkeyKs[3] = 0x12;
+                      pucEDkeyKs[4] = 0xc4;
+                      pucEDkeyKs[5] = 0xbe;
+                      pucEDkeyKs[6] = 0xc6;
+                      pucEDkeyKs[7] = 0x69;
+                      pucEDkeyKs[8] = 0x0a;
+                      pucEDkeyKs[9] = 0xc2;
+                      pucEDkeyKs[10] = 0x19;
+                      pucEDkeyKs[11] = 0x64;
+                      pucEDkeyKs[12] = 0xde;
+                      pucEDkeyKs[13] = 0x91;
+                      pucEDkeyKs[14] = 0xf1;
+                      pucEDkeyKs[15] = 0x83;
+              
+                      pucRiv[0] = 0x40;
+                      pucRiv[1] = 0x2b;
+                      pucRiv[2] = 0x6b;
+                      pucRiv[3] = 0x43;
+                      pucRiv[4] = 0xc5;
+                      pucRiv[5] = 0xe8;
+                      pucRiv[6] = 0x86;
+                      pucRiv[7] = 0xd8;
+              
+                      // Decode Ks
+                      for(pData[0] = 0; pData[0] < 8; ++pData[0])
+                      {
+                          pucKs[pData[0]] = pucEDkeyKs[pData[0]] ^ ScalerGetByte((P63_81_HDCP_AES_OUT_15 + pData[0]));
+                      }
+              
+                      for(pData[0] = 8; pData[0] < 16; ++pData[0])
+                      {
+                          pucKs[pData[0]] = pucEDkeyKs[pData[0]] ^ (ScalerGetByte((P63_81_HDCP_AES_OUT_15 + pData[0])) ^
+             - g_pucDpRx1Hdcp2Rrx[pData[0] - 8]);
+                      }
+              
+                      for(pData[0] = 0; pData[0] < 16; pData[0]++)
+                      {
+                          DebugMessageHDCP2("Ks", pucKs[pData[0]]);
+                      }
+              
+                      SET_DP_RX1_HDCP2_AUTHENTICATION_DONE();
+              
+                      // Enable DP Link Integrity Check
+                      ScalerSetBit(PB0_1B_HDCP_INTGT_VRF, ~_BIT7, _BIT7);
+              
+                      // Enable Decryption
+                      for(pData[0] = 0; pData[0] < 16; ++pData[0])
+                      {
+                          pucInputCipher[pData[0]] = pucKs[pData[0]] ^ g_stRxHdcp2DownLoadKeyType.pucHdcp2Lc[pData[0]];
+                      }
+              
+                      // Enable AES Decryption Cipher
+                      ScalerDpRx1Hdcp2AesOnlineCtrlErrata(pucRiv, pucInputCipher);
+              #endif
+ 286   2      
+ 287   2              CLR_DP_RX1_HDCP2_SKE_SEND_EKS_RECEIVED();
+ 288   2      
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 6   
+
+ 289   2      #if(_DP_TX_SUPPORT == _ON)
+                      if(GET_DP_RX1_HDCP2_REPEATER_CAPABLE() == _TRUE)
+                      {
+                          SET_DP_RX1_HDCP2_REPEATER_AUTH_2_START();
+                      }
+              #endif
+ 295   2      
+ 296   2              DebugMessageHDCP2("[D1]SKE_SEND_EKS", 0);
+ 297   2          }
+ 298   1      
+ 299   1      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                  SET_DP_RX1_HDCP2_STREAM_MANAGE_RECEIVED();
+              #endif
+ 302   1      
+ 303   1          if(GET_DP_RX1_HDCP2_STREAM_MANAGE_RECEIVED() == _TRUE)
+ 304   1          {
+ 305   2      #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+                      // Get M Prime
+                      if(ScalerDpRx1Hdcp2MPrimeCalculate() == _TRUE)
+                      {
+                          for(pData[0] = 0; pData[0] < 32; pData[0]++)
+                          {
+                              g_pucHdcp2Sha256[pData[0]] = ScalerGetByte(P63_35_HDCP_SHA_0 + pData[0]);
+              
+                              DebugMessageHDCP2("M prime", g_pucHdcp2Sha256[pData[0]]);
+                          }
+                      }
+              #endif
+ 317   2      
+ 318   2              CLR_DP_RX1_HDCP2_STREAM_MANAGE_RECEIVED();
+ 319   2      
+ 320   2      #if(_DP_TX_SUPPORT == _ON)
+                      SET_DP_RX1_HDCP2_CONTENT_STREAM_MANAGEMENT();
+              #endif
+ 323   2          }
+ 324   1      }
+ 325          //--------------------------------------------------
+ 326          // Description  : HDCP 2.2 Int Handler Process
+ 327          // Input Value  : None
+ 328          // Output Value : None
+ 329          //--------------------------------------------------
+ 330          void ScalerDpRx1Hdcp2Handler_EXINT0(void) using 1
+ 331          {
+ 332   1          BYTE ucMessageId = 0;
+ 333   1      
+ 334   1          // DP Global IRQ Flag
+ 335   1          if(ScalerGetBit_EXINT(PBA_DC_AUX_IRQ_STATUS, _BIT7) == _BIT7)
+ 336   1          {
+ 337   2              g_pucDpRx1Backup[0] = ScalerGetByte_EXINT(PBA_C1_DPCD_ADDR_PORT_H);
+ 338   2              g_pucDpRx1Backup[1] = ScalerGetByte_EXINT(PBA_C2_DPCD_ADDR_PORT_M);
+ 339   2              g_pucDpRx1Backup[2] = ScalerGetByte_EXINT(PBA_C3_DPCD_ADDR_PORT_L);
+ 340   2      
+ 341   2              // Backup Dpcd Auto Inc
+ 342   2              g_bDpRx1AutoInc = (ScalerGetBit_EXINT(PBA_C0_DPCD_CTRL, _BIT0) == _BIT0);
+ 343   2      
+ 344   2              // Disable Dpcd Auto Inc
+ 345   2              ScalerSetBit_EXINT(PBA_C0_DPCD_CTRL, ~_BIT0, 0x00);
+ 346   2      
+ 347   2              // Get HDCP2.2 Message ID
+ 348   2              ucMessageId = ScalerDpRx1Hdcp2GetMessageID_EXINT0();
+ 349   2      
+ 350   2              if(ucMessageId == _HDCP_2_2_NONE)
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 7   
+
+ 351   2              {
+ 352   3                  ScalerSetByte_EXINT(PBA_C1_DPCD_ADDR_PORT_H, g_pucDpRx1Backup[0]);
+ 353   3                  ScalerSetByte_EXINT(PBA_C2_DPCD_ADDR_PORT_M, g_pucDpRx1Backup[1]);
+ 354   3                  ScalerSetByte_EXINT(PBA_C3_DPCD_ADDR_PORT_L, g_pucDpRx1Backup[2]);
+ 355   3      
+ 356   3                  // Restore Dpcd Auto Inc
+ 357   3                  ScalerSetBit_EXINT(PBA_C0_DPCD_CTRL, ~_BIT0, g_bDpRx1AutoInc);
+ 358   3      
+ 359   3                  return;
+ 360   3              }
+ 361   2              else
+ 362   2              {
+ 363   3                  // Switch HDCP to 2.2 Module from 1.4 Module
+ 364   3                  if(GET_DP_RX1_HDCP_MODE_EXINT() == _HDCP_14)
+ 365   3                  {
+ 366   4                      // Enable HDCP 2.2 Module
+ 367   4                      SET_DP_RX1_HDCP_MODE_EXINT(_HDCP_22);
+ 368   4                  }
+ 369   3              }
+ 370   2      
+ 371   2              switch(ucMessageId)
+ 372   2              {
+ 373   3                  case _HDCP_2_2_AKE_INIT:
+ 374   3      
+ 375   3                      // HDCP2 Reset Proc
+ 376   3                      ScalerDpRx1Hdcp2ResetProc_EXINT0();
+ 377   3      
+ 378   3                      // Save Transmitter Rtx to FW (MSB located at index 0)
+ 379   3                      ScalerDpRx1Hdcp2LoadDpcdValue_EXINT0(0x06, 0x90, 0x00, 8, g_pucDpRx1Hdcp2Rtx);
+ 380   3      
+ 381   3                      // Save TxCaps to FW (MSB located at index 0)
+ 382   3                      ScalerDpRx1Hdcp2LoadDpcdValue_EXINT0(0x06, 0x90, 0x08, 3, g_pucDpRx1Hdcp2TxCaps);
+ 383   3      
+ 384   3                      // Generate the psudo-random key of Rrx
+ 385   3                      ScalerHdcp2RxGenRrx_EXINT0(g_pucDpRx1Hdcp2Rrx);
+ 386   3      
+ 387   3                      // Load Rrx to DPCD Table (MSB located at index 0)
+ 388   3                      ScalerDpRx1Hdcp2SetDpcdReadValue_EXINT0(_HDCP_2_2_RRX, g_pucDpRx1Hdcp2Rrx, 8);
+ 389   3      
+ 390   3      #if(_WD_TIMER_INT_SUPPORT == _ON)
+ 391   3                      ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_SKE);
+ 392   3      
+ 393   3                      ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_H_PRIME);
+ 394   3      
+ 395   3                      ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_AKE_INIT);
+ 396   3      
+ 397   3                      // Execute AKE_INIT Procedure after 3msec
+ 398   3                      ScalerTimerWDActivateTimerEvent_EXINT0(3, _SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_AKE_INIT);
+ 399   3      #endif
+ 400   3      
+ 401   3      #if(_DP_HDCP_ARBITER_SUPPORT == _ON)
+                              // Check if source doing HDCP handshake while HDCP capability disable
+                              if(ScalerDpRx1GetDpcdBitInfo_EXINT0(0x06, 0x92, 0x1F, _BIT1) == 0x00)
+                              {
+                                  SET_DP_RX1_HDCP_HANDSHAKE_WO_CAP();
+                              }
+              #endif
+ 408   3      
+ 409   3                      SET_DP_RX1_HDCP2_AKE_INIT_RECEIVED();
+ 410   3      
+ 411   3                      break;
+ 412   3      
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 8   
+
+ 413   3                  case _HDCP_2_2_AKE_NO_STORED_KM:
+ 414   3      
+ 415   3                      SET_DP_RX1_HDCP2_AKE_NO_STORED_KM_RECEIVED();
+ 416   3      
+ 417   3                      // If not clear (H' & Pairing Info) in WDINT in time, cancel the WD and clear it here;
+ 418   3                      if(GET_DP_RX1_HDCP2_CLEAR_DPCD_READ_VALUE_DONE() == _FALSE)
+ 419   3                      {
+ 420   4                          ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_AKE_INIT);
+ 421   4      
+ 422   4                          ScalerDpRx1Hdcp2ClearDpcdReadValue_EXINT0(_HDCP_2_2_RX_H_PRIME, 32);
+ 423   4                          ScalerDpRx1Hdcp2ClearDpcdReadValue_EXINT0(_HDCP_2_2_RX_PAIRING_INFO, 16);
+ 424   4                      }
+ 425   3      
+ 426   3                      break;
+ 427   3      
+ 428   3                  case _HDCP_2_2_AKE_SEND_PAIRING_INFO:
+ 429   3      
+ 430   3                      // Start Pairing AES Calculate
+ 431   3                      for(pData_EXINT[0] = 0; pData_EXINT[0] < 16; pData_EXINT[0]++)
+ 432   3                      {
+ 433   4                          if(pData_EXINT[0] < 8)
+ 434   4                          {
+ 435   5                              g_pucHdcp2M[pData_EXINT[0]] = g_pucDpRx1Hdcp2Rtx[pData_EXINT[0]];
+ 436   5                          }
+ 437   4                          else
+ 438   4                          {
+ 439   5                              g_pucHdcp2M[pData_EXINT[0]] = g_pucDpRx1Hdcp2Rrx[pData_EXINT[0] - 8];
+ 440   5                          }
+ 441   4                      }
+ 442   3      
+ 443   3                      // AES Cipher Calculate Ekh[km]
+ 444   3                      ScalerHdcp2RxAesOfflineCtrl_EXINT0(g_pucHdcp2M, g_pucHdcp2Kh);
+ 445   3      
+ 446   3                      // Calculate Ekh[km] = kh AES m XOR Km
+ 447   3                      for(pData_EXINT[0] = 0; pData_EXINT[0] < 16; pData_EXINT[0]++)
+ 448   3                      {
+ 449   4                          g_pucHdcp2EkhKm[pData_EXINT[0]] = ScalerGetByte_EXINT(P63_81_HDCP_AES_OUT_15 + pData_E
+             -XINT[0]) ^ g_pucDpRx1Hdcp2Km[pData_EXINT[0]];
+ 450   4                      }
+ 451   3      
+ 452   3                      // Load Ekh_km prime to DPCD Table
+ 453   3                      for(pData_EXINT[0] = 0; pData_EXINT[0] < 16; pData_EXINT[0]++)
+ 454   3                      {
+ 455   4                          ScalerDpRx1SetDpcdValue_EXINT0(0x06, 0x92, (0xE0 + pData_EXINT[0]), g_pucHdcp2EkhKm[pD
+             -ata_EXINT[0]]);
+ 456   4                      }
+ 457   3      
+ 458   3                      // Doesn't Assert Pairing Available CPIRQ Before H Prime CPIRQ
+ 459   3                      if(GET_DP_RX1_HDCP2_WAITING_H_PRIME_CPIRQ_ASSERTED() == _FALSE)
+ 460   3                      {
+ 461   4                          // Set Pairing Available Flag
+ 462   4                          ScalerDpRx1CpIRQ_EXINT0(_DP_HDCP2_PARING_AVAILABLE);
+ 463   4                      }
+ 464   3                      else
+ 465   3                      {
+ 466   4                          // Recoed Pairing Available CPIRQ Asserted Sataus
+ 467   4                          SET_DP_RX1_HDCP2_RECORD_PAIRING_INFO_CPIRQ_NO_ASSERTED();
+ 468   4                      }
+ 469   3      
+ 470   3                      break;
+ 471   3      
+ 472   3                  case _HDCP_2_2_AKE_STORED_KM:
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 9   
+
+ 473   3      
+ 474   3                      // Save Ekh[km] From Transmitter to FW
+ 475   3                      ScalerDpRx1Hdcp2LoadDpcdValue_EXINT0(0x06, 0x92, 0xA0, 16, g_pucDpRx1Hdcp2Km);
+ 476   3      
+ 477   3                      // Save m From Transmitter to FW
+ 478   3                      ScalerDpRx1Hdcp2LoadDpcdValue_EXINT0(0x06, 0x92, 0xB0, 16, g_pucHdcp2M);
+ 479   3      
+ 480   3                      // Calculate Km use AES Cipher, Input Value = m, Input Cipher = Kh
+ 481   3                      ScalerHdcp2RxAesOfflineCtrl_EXINT0(g_pucHdcp2M, g_pucHdcp2Kh);
+ 482   3      
+ 483   3                      for(pData_EXINT[0] = 0; pData_EXINT[0] < 16; pData_EXINT[0]++)
+ 484   3                      {
+ 485   4                          g_pucDpRx1Hdcp2Km[pData_EXINT[0]] = g_pucDpRx1Hdcp2Km[pData_EXINT[0]] ^ ScalerGetByte_
+             -EXINT(P63_81_HDCP_AES_OUT_15 + pData_EXINT[0]);
+ 486   4                      }
+ 487   3      
+ 488   3                      // Calculate DKey0
+ 489   3                      ScalerHdcp2DkeyCalculate_EXINT0(_HDCP_2_2_DKEY_0, g_pucDpRx1Hdcp2Rtx, g_pucDpRx1Hdcp2Rrx, 
+             -g_pucDpRx1Hdcp2Km, g_pucDpRx1Hdcp2Rn);
+ 490   3      
+ 491   3                      for(pData_EXINT[0] = 0; pData_EXINT[0] < 16; pData_EXINT[0]++)
+ 492   3                      {
+ 493   4                          g_pucDpRx1Hdcp2dKey0[pData_EXINT[0]] = ScalerGetByte_EXINT(P63_81_HDCP_AES_OUT_15 + pD
+             -ata_EXINT[0]);
+ 494   4                      }
+ 495   3      
+ 496   3                      // Calculate Dkey1
+ 497   3                      ScalerHdcp2DkeyCalculate_EXINT0(_HDCP_2_2_DKEY_1, g_pucDpRx1Hdcp2Rtx, g_pucDpRx1Hdcp2Rrx, 
+             -g_pucDpRx1Hdcp2Km, g_pucDpRx1Hdcp2Rn);
+ 498   3      
+ 499   3                      for(pData_EXINT[0] = 0; pData_EXINT[0] < 16; pData_EXINT[0]++)
+ 500   3                      {
+ 501   4                          g_pucDpRx1Hdcp2dKey1[pData_EXINT[0]] = ScalerGetByte_EXINT(P63_81_HDCP_AES_OUT_15 + pD
+             -ata_EXINT[0]);
+ 502   4                      }
+ 503   3      
+ 504   3                      // If not clear H' in WDINT in time, cancel the WD and clear it here;
+ 505   3                      if(GET_DP_RX1_HDCP2_CLEAR_DPCD_READ_VALUE_DONE() == _FALSE)
+ 506   3                      {
+ 507   4                          ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_AKE_INIT);
+ 508   4      
+ 509   4                          ScalerDpRx1Hdcp2ClearDpcdReadValue_EXINT0(_HDCP_2_2_RX_H_PRIME, 32);
+ 510   4                      }
+ 511   3      
+ 512   3                      ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_H_PRIME);
+ 513   3      
+ 514   3                      // Execute H' Procedure after 4msec
+ 515   3                      ScalerTimerWDActivateTimerEvent_EXINT0(4, _SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_H_PRIME);
+ 516   3      
+ 517   3                      break;
+ 518   3      
+ 519   3                  case _HDCP_2_2_LC_INIT:
+ 520   3      
+ 521   3                      // Save Transmitter Rn to FW
+ 522   3                      ScalerDpRx1Hdcp2LoadDpcdValue_EXINT0(0x06, 0x92, 0xF0, 8, g_pucDpRx1Hdcp2Rn);
+ 523   3      
+ 524   3                      // If not clear L' in WDINT in time, cancel the WD and clear it here;
+ 525   3                      if(GET_DP_RX1_HDCP2_CLEAR_DPCD_READ_VALUE_DONE() == _FALSE)
+ 526   3                      {
+ 527   4                          ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_AKE_INIT);
+ 528   4      
+ 529   4                          ScalerDpRx1Hdcp2ClearDpcdReadValue_EXINT0(_HDCP_2_2_RX_L_PRIME, 32);
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 10  
+
+ 530   4                      }
+ 531   3      
+ 532   3                      if(ScalerHdcp2LPrimeCalculate_EXINT0(g_pucDpRx1Hdcp2dKey0, g_pucDpRx1Hdcp2dKey1, g_pucDpRx
+             -1Hdcp2Rrx, g_pucDpRx1Hdcp2Rn) == _TRUE)
+ 533   3                      {
+ 534   4                          // Load L prime to g_pucHdcp2Sha256
+ 535   4                          for(pData_EXINT[0] = 0; pData_EXINT[0] < 32; pData_EXINT[0]++)
+ 536   4                          {
+ 537   5                              g_pucHdcp2Sha256[pData_EXINT[0]] = ScalerGetByte_EXINT(P63_35_HDCP_SHA_0 + pData_E
+             -XINT[0]);
+ 538   5                          }
+ 539   4      
+ 540   4                          // Load L prime to DPCD Table
+ 541   4                          ScalerDpRx1Hdcp2SetDpcdReadValue_EXINT0(_HDCP_2_2_RX_L_PRIME, g_pucHdcp2Sha256, 32);
+ 542   4                      }
+ 543   3      
+ 544   3                      SET_DP_RX1_HDCP2_LC_INIT_RECEIVED();
+ 545   3      
+ 546   3                      break;
+ 547   3      
+ 548   3                  case _HDCP_2_2_SKE_SEND_EKS:
+ 549   3      
+ 550   3                      ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_SKE);
+ 551   3      
+ 552   3                      // Execute Ske_Send_Eks Procedure after 4msec
+ 553   3                      ScalerTimerWDActivateTimerEvent_EXINT0(4, _SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_SKE);
+ 554   3      
+ 555   3                      break;
+ 556   3      
+ 557   3                  case _HDCP_2_2_SKE_TYPE_VALUE:
+ 558   3      
+ 559   3                      // Set AES Type
+ 560   3                      if(ScalerDpRx1GetDpcdInfo_EXINT0(0x06, 0x94, 0x94) == 0x00)
+ 561   3                      {
+ 562   4                          // Type = 0x00
+ 563   4                          ScalerSetByte_EXINT(PB0_93_HDCP_TYPE_AES_0, 0x00);
+ 564   4                      }
+ 565   3                      else
+ 566   3                      {
+ 567   4                          if(GET_DP_RX1_HDCP2_AUTHENTICATION_DONE() == _TRUE)
+ 568   4                          {
+ 569   5                              // Disable HDCP2.2 Auth. Done
+ 570   5                              ScalerSetBit_EXINT(PB0_20_HDCP_DEBUG, ~_BIT4, 0x00);
+ 571   5      
+ 572   5                              CLR_DP_RX1_HDCP2_AUTHENTICATION_DONE();
+ 573   5      
+ 574   5                              // Delay Time us [200, x]
+ 575   5                              for(pData_EXINT[0] = 0; pData_EXINT[0] < 40; pData_EXINT[0]++)
+ 576   5                              {
+ 577   6                                  DELAY_5US_EXINT();
+ 578   6                              }
+ 579   5                          }
+ 580   4      
+ 581   4                          // Type = 0x01 or Type = 0x02 - 0xFF
+ 582   4                          ScalerSetByte_EXINT(PB0_93_HDCP_TYPE_AES_0, 0x01);
+ 583   4      
+ 584   4                          // Enable HDCP2.2 Auth. Done
+ 585   4                          ScalerSetBit_EXINT(PB0_20_HDCP_DEBUG, ~_BIT4, _BIT4);
+ 586   4      
+ 587   4                          SET_DP_RX1_HDCP2_AUTHENTICATION_DONE();
+ 588   4                      }
+ 589   3      
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 11  
+
+ 590   3                      break;
+ 591   3      
+ 592   3                  case _HDCP_2_2_REPEATERAUTH_STREAM_MANAGE:
+ 593   3      
+ 594   3                      // If not clear M' in WDINT in time, cancel the WD and clear it here;
+ 595   3                      if(GET_DP_RX1_HDCP2_CLEAR_DPCD_READ_VALUE_DONE() == _FALSE)
+ 596   3                      {
+ 597   4                          ScalerTimerWDCancelTimerEvent_EXINT0(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_AKE_INIT);
+ 598   4      
+ 599   4                          ScalerDpRx1Hdcp2ClearDpcdReadValue_EXINT0(_HDCP_2_2_RX_M_PRIME, 32);
+ 600   4                      }
+ 601   3      
+ 602   3                      // Get M Prime
+ 603   3                      if(ScalerDpRx1Hdcp2MPrimeCalculate_EXINT0() == _TRUE)
+ 604   3                      {
+ 605   4                          for(pData_EXINT[0] = 0; pData_EXINT[0] < 32; pData_EXINT[0]++)
+ 606   4                          {
+ 607   5                              g_pucHdcp2Sha256[pData_EXINT[0]] = ScalerGetByte_EXINT(P63_35_HDCP_SHA_0 + pData_E
+             -XINT[0]);
+ 608   5                          }
+ 609   4      
+ 610   4                          // Load M prime to DPCD Table
+ 611   4                          ScalerDpRx1Hdcp2SetDpcdReadValue_EXINT0(_HDCP_2_2_RX_M_PRIME, g_pucHdcp2Sha256, 32);
+ 612   4      
+ 613   4                          // Set AES Type
+ 614   4                          ScalerDpRx1Hdcp2SetAESType_EXINT0();
+ 615   4      
+ 616   4                          // Enable HDCP2.2 Auth. Done
+ 617   4                          ScalerSetBit_EXINT(PB0_20_HDCP_DEBUG, ~_BIT4, _BIT4);
+ 618   4      
+ 619   4                          SET_DP_RX1_HDCP2_AUTHENTICATION_DONE();
+ 620   4      
+ 621   4                          SET_DP_RX1_HDCP2_STREAM_MANAGE_RECEIVED();
+ 622   4                      }
+ 623   3      
+ 624   3                      break;
+ 625   3      
+ 626   3                  default:
+ 627   3                      break;
+ 628   3              }
+ 629   2      
+ 630   2              ScalerSetByte_EXINT(PBA_C1_DPCD_ADDR_PORT_H, g_pucDpRx1Backup[0]);
+ 631   2              ScalerSetByte_EXINT(PBA_C2_DPCD_ADDR_PORT_M, g_pucDpRx1Backup[1]);
+ 632   2              ScalerSetByte_EXINT(PBA_C3_DPCD_ADDR_PORT_L, g_pucDpRx1Backup[2]);
+ 633   2      
+ 634   2              // Restore Dpcd Auto Inc
+ 635   2              ScalerSetBit_EXINT(PBA_C0_DPCD_CTRL, ~_BIT0, g_bDpRx1AutoInc);
+ 636   2          }
+ 637   1      }
+ 638          //--------------------------------------------------
+ 639          // Description  : HDCP 2.2 Reset Proc
+ 640          // Input Value  : None
+ 641          // Output Value : None
+ 642          //--------------------------------------------------
+ 643          void ScalerDpRx1Hdcp2ResetProc(void)
+ 644          {
+ 645   1      #if(_DP_HDCP_ARBITER_SUPPORT == _ON)
+                  if(GET_REG_DP_RX1_MAC_ASSIGNED() == _TRUE)
+              #endif
+ 648   1          {
+ 649   2              // Disable HDCP2.2 Auth. Done
+ 650   2              ScalerSetBit(PB0_20_HDCP_DEBUG, ~_BIT4, 0x00);
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 12  
+
+ 651   2      
+ 652   2              // Clear Type Value
+ 653   2              ScalerSetByte(PB0_93_HDCP_TYPE_AES_0, 0x00);
+ 654   2      
+ 655   2              // Clear AES STx Type
+ 656   2      #if(_HW_DP_RX_HDCP2_ONLINE_AES_COUNT == _DP_RX_HDCP2_ONLINE_AES_2SET)
+ 657   2              ScalerSetBit(PB0_95_HDCP_ST_TYPE, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT3), 0x00);
+ 658   2      #endif
+ 659   2      
+ 660   2              // Reset HDCP Block
+ 661   2              ScalerSetBit(PB0_01_PHY_DIG_RESET_CTRL, ~_BIT0, _BIT0);
+ 662   2              ScalerSetBit(PB0_01_PHY_DIG_RESET_CTRL, ~_BIT0, 0x00);
+ 663   2      
+ 664   2              // Disable HDCP2.2
+ 665   2              SET_DP_RX1_HDCP_MODE(_HDCP_14);
+ 666   2          }
+ 667   1      
+ 668   1          // Disable Type INT
+ 669   1          ScalerSetBit(_REG_DP_RX1_HDCP2_ADDR_A5, ~(_BIT5 | _BIT2 | _BIT1 | _BIT0), 0x00);
+ 670   1      
+ 671   1          SET_DP_RX1_AUX_MANUAL_MODE();
+ 672   1      
+ 673   1          // Reset 69494h Type Value. Be Careful. If Clear this Address which is Writed by Source, Must Disable 
+             -INT Function First.
+ 674   1          ScalerDpRx1SetDpcdValue(0x06, 0x94, 0x94, 0x00);
+ 675   1      
+ 676   1          SET_DP_RX1_AUX_AUTO_MODE();
+ 677   1      
+ 678   1          // Clear Type INT Flag
+ 679   1          ScalerSetBit(_REG_DP_RX1_HDCP2_ADDR_A5, ~(_BIT2 | _BIT1 | _BIT0), _BIT1);
+ 680   1      
+ 681   1          // Enable Type INT
+ 682   1          ScalerSetBit(_REG_DP_RX1_HDCP2_ADDR_A5, ~(_BIT5 | _BIT2 | _BIT1 | _BIT0), _BIT5);
+ 683   1      
+ 684   1          // Disable Read DPCD 692DFh(HPrime) INT
+ 685   1          ScalerSetBit(_REG_DP_RX1_HDCP2_ADDR_FB, ~(_BIT7 | _BIT5 | _BIT4 | _BIT3 | _BIT1), 0x00);
+ 686   1      
+ 687   1          // Clear Read DPCD 692DF(HPrime) INT Flag
+ 688   1          ScalerSetBit(_REG_DP_RX1_HDCP2_ADDR_FB, ~(_BIT7 | _BIT5 | _BIT3 | _BIT1), _BIT5);
+ 689   1      
+ 690   1          // Clear RxStatus REAUTH_REQ
+ 691   1          ScalerDpRx1SetDpcdValue(0x06, 0x94, 0x93, (ScalerDpRx1GetDpcdInfo(0x06, 0x94, 0x93) & 0xE0));
+ 692   1      
+ 693   1      #if(_WD_TIMER_INT_SUPPORT == _ON)
+ 694   1          ScalerTimerWDCancelTimerEvent(_SCALER_WD_TIMER_EVENT_DP_RX1_HDCP2_AKE_INIT);
+ 695   1      #endif
+ 696   1      
+ 697   1          ScalerDpRx1Hdcp2ClearDpcdReadValue(_HDCP_2_2_RX_H_PRIME, 32);
+ 698   1          ScalerDpRx1Hdcp2ClearDpcdReadValue(_HDCP_2_2_RX_L_PRIME, 32);
+ 699   1          ScalerDpRx1Hdcp2ClearDpcdReadValue(_HDCP_2_2_RX_M_PRIME, 32);
+ 700   1          ScalerDpRx1Hdcp2ClearDpcdReadValue(_HDCP_2_2_RX_PAIRING_INFO, 16);
+ 701   1      
+ 702   1          CLR_DP_RX1_HDCP2_AUTHENTICATION_DONE();
+ 703   1          CLR_DP_RX1_HDCP2_AKE_INIT_RECEIVED();
+ 704   1          CLR_DP_RX1_HDCP2_AKE_NO_STORED_KM_RECEIVED();
+ 705   1          CLR_DP_RX1_HDCP2_AKE_STORED_KM_RECEIVED();
+ 706   1          CLR_DP_RX1_HDCP2_LC_INIT_RECEIVED();
+ 707   1          CLR_DP_RX1_HDCP2_SKE_SEND_EKS_RECEIVED();
+ 708   1          CLR_DP_RX1_HDCP2_AUTHENTICATION_ACTIVE();
+ 709   1      
+ 710   1      #if(_DP_TX_SUPPORT == _ON)
+                  CLR_DP_RX1_HDCP2_REPEATER_AUTH_1_START();
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 13  
+
+                  CLR_DP_RX1_HDCP2_REPEATER_AUTH_2_START();
+              
+                  ScalerDpRx1Hdcp2ChangeAuthState(_DP_RX_HDCP2_REPEATER_STATE_IDLE);
+              
+                  ScalerDpRx1Hdcp2ClearDpcdReadValue(_HDCP_2_2_RX_V_PRIME, 190);
+              #endif
+ 718   1      }
+ 719          //--------------------------------------------------
+ 720          // Description  : HDCP 2.2 Reset Proc in INT
+ 721          // Input Value  : None
+ 722          // Output Value : None
+ 723          //--------------------------------------------------
+ 724          void ScalerDpRx1Hdcp2ResetProc_EXINT0(void) using 1
+ 725          {
+ 726   1      #if(_DP_HDCP_ARBITER_SUPPORT == _ON)
+                  if(GET_REG_DP_RX1_MAC_ASSIGNED_EXINT() == _TRUE)
+              #endif
+ 729   1          {
+ 730   2              // Disable HDCP2.2 Auth. Done
+ 731   2              ScalerSetBit_EXINT(PB0_20_HDCP_DEBUG, ~_BIT4, 0x00);
+ 732   2      
+ 733   2              // Clear Type Value
+ 734   2              ScalerSetByte_EXINT(PB0_93_HDCP_TYPE_AES_0, 0x00);
+ 735   2      
+ 736   2              // Clear AES STx Type
+ 737   2      #if(_HW_DP_RX_HDCP2_ONLINE_AES_COUNT == _DP_RX_HDCP2_ONLINE_AES_2SET)
+ 738   2              ScalerSetBit_EXINT(PB0_95_HDCP_ST_TYPE, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT3), 0x00);
+ 739   2      #endif
+ 740   2          }
+ 741   1      
+ 742   1          // Disable Type INT
+ 743   1          ScalerSetBit_EXINT(_REG_DP_RX1_HDCP2_ADDR_A5, ~(_BIT5 | _BIT2 | _BIT1 | _BIT0), 0x00);
+ 744   1      
+ 745   1          // Reset 69494h Type Value. Be Careful. If Clear this Address which is Writed by Source, Must Disable 
+             -INT Function First.
+ 746   1          ScalerDpRx1SetDpcdValue_EXINT0(0x06, 0x94, 0x94, 0x00);
+ 747   1      
+ 748   1          // Clear Type INT Flag
+ 749   1          ScalerSetBit_EXINT(_REG_DP_RX1_HDCP2_ADDR_A5, ~(_BIT2 | _BIT1 | _BIT0), _BIT1);
+ 750   1      
+ 751   1          // Enable Type INT
+ 752   1          ScalerSetBit_EXINT(_REG_DP_RX1_HDCP2_ADDR_A5, ~(_BIT5 | _BIT2 | _BIT1 | _BIT0), _BIT5);
+ 753   1      
+ 754   1          // Disable Read DPCD 692DFh(HPrime) INT
+ 755   1          ScalerSetBit_EXINT(_REG_DP_RX1_HDCP2_ADDR_FB, ~(_BIT7 | _BIT5 | _BIT4 | _BIT3 | _BIT1), 0x00);
+ 756   1      
+ 757   1          // Clear Read DPCD 692DF(HPrime) INT Flag
+ 758   1          ScalerSetBit_EXINT(_REG_DP_RX1_HDCP2_ADDR_FB, ~(_BIT7 | _BIT5 | _BIT3 | _BIT1), _BIT5);
+ 759   1      
+ 760   1          // Clear RxStatus REAUTH_REQ and Link Intergrity Failure for HDCP 2.2
+ 761   1          ScalerDpRx1SetDpcdValue_EXINT0(0x06, 0x94, 0x93, (ScalerDpRx1GetDpcdInfo_EXINT0(0x06, 0x94, 0x93) & 0x
+             -E0));
+ 762   1      
+ 763   1          // Clear Bstatus REAUTH_REQ and Link Intergrity Failure for HDCP 1.4
+ 764   1          ScalerDpRx1SetDpcdValue_EXINT0(0x06, 0x80, 0x29, (ScalerDpRx1GetDpcdInfo_EXINT0(0x06, 0x80, 0x29) & 0x
+             -F0));
+ 765   1      
+ 766   1          CLR_DP_RX1_HDCP2_AUTHENTICATION_DONE();
+ 767   1          CLR_DP_RX1_HDCP2_AKE_INIT_RECEIVED();
+ 768   1          CLR_DP_RX1_HDCP2_AKE_NO_STORED_KM_RECEIVED();
+ 769   1          CLR_DP_RX1_HDCP2_AKE_STORED_KM_RECEIVED();
+ 770   1          CLR_DP_RX1_HDCP2_LC_INIT_RECEIVED();
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 14  
+
+ 771   1          CLR_DP_RX1_HDCP2_SKE_SEND_EKS_RECEIVED();
+ 772   1          CLR_DP_RX1_HDCP2_AUTHENTICATION_ACTIVE();
+ 773   1          CLR_DP_RX1_HDCP2_CLEAR_DPCD_READ_VALUE_DONE();
+ 774   1      
+ 775   1      #if(_DP_TX_SUPPORT == _ON)
+                  CLR_DP_RX1_HDCP2_REPEATER_AUTH_1_START();
+                  CLR_DP_RX1_HDCP2_REPEATER_AUTH_2_START();
+              #endif
+ 779   1      }
+ 780          
+ 781          #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : HDCP 2.2 On-Line AES Ctrl
+              // Input Value  : *pucInputArray, *pucCipherArray
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerDpRx1Hdcp2AesOnlineCtrlErrata(BYTE *pucInputArray, BYTE *pucCipherArray)
+              {
+                  memcpy((volatile BYTE xdata *)PB0_81_HDCP_AES_CIPHER_KEY_15, pucCipherArray, 16);
+                  memcpy((volatile BYTE xdata *)PB0_55_RIV0, pucInputArray, 8);
+              }
+              #endif // End of #if(_HDCP_2_2_ERRATA_TEST_SUPPORT == _ON)
+ 793          
+ 794          #if(_WD_TIMER_INT_SUPPORT == _ON)
+ 795          //--------------------------------------------------
+ 796          // Description  : WD Timer Event Proc of DP RX1 HDCP2 SKE Proc
+ 797          // Input Value  :
+ 798          // Output Value : None
+ 799          //--------------------------------------------------
+ 800          void ScalerDpRx1Hdcp2SkeProc_WDINT(void) using 3
+ 801          {
+ 802   1          if(GET_DP_RX1_HDCP2_AUTHENTICATION_DONE() == _TRUE)
+ 803   1          {
+ 804   2              // Disable HDCP2.2 Auth. Done
+ 805   2              ScalerSetBit_EXINT(PB0_20_HDCP_DEBUG, ~_BIT4, 0x00);
+ 806   2      
+ 807   2              CLR_DP_RX1_HDCP2_AUTHENTICATION_DONE();
+ 808   2      
+ 809   2              // Delay Time us [200, x]
+ 810   2              for(pData_EXINT[0] = 0; pData_EXINT[0] < 40; pData_EXINT[0]++)
+ 811   2              {
+ 812   3                  DELAY_5US_EXINT();
+ 813   3              }
+ 814   2          }
+ 815   1      
+ 816   1          // Calculate Dkey 2
+ 817   1          ScalerHdcp2DkeyCalculate_WDINT(_HDCP_2_2_DKEY_2, g_pucDpRx1Hdcp2Rtx, g_pucDpRx1Hdcp2Rrx, g_pucDpRx1Hdc
+             -p2Km, g_pucDpRx1Hdcp2Rn);
+ 818   1      
+ 819   1          // Save Edkey_ks to g_pucHdcp2EDkeyKs
+ 820   1          ScalerDpRx1Hdcp2LoadDpcdValue_WDINT(0x06, 0x93, 0x18, 16, g_pucHdcp2EDkeyKs);
+ 821   1      
+ 822   1          // Save Riv to g_pucHdcp2Riv
+ 823   1          ScalerDpRx1Hdcp2LoadDpcdValue_WDINT(0x06, 0x93, 0x28, 8, g_pucHdcp2Riv);
+ 824   1      
+ 825   1          // Decode Ks
+ 826   1          for(pData_EXINT[0] = 0; pData_EXINT[0] < 8; ++pData_EXINT[0])
+ 827   1          {
+ 828   2              g_pucHdcp2Ks[pData_EXINT[0]] = g_pucHdcp2EDkeyKs[pData_EXINT[0]] ^ ScalerGetByte_EXINT((P63_81_HDC
+             -P_AES_OUT_15 + pData_EXINT[0]));
+ 829   2          }
+ 830   1      
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 15  
+
+ 831   1          for(pData_EXINT[0] = 8; pData_EXINT[0] < 16; ++pData_EXINT[0])
+ 832   1          {
+ 833   2              g_pucHdcp2Ks[pData_EXINT[0]] = g_pucHdcp2EDkeyKs[pData_EXINT[0]] ^ (ScalerGetByte_EXINT((P63_81_HD
+             -CP_AES_OUT_15 + pData_EXINT[0])) ^ g_pucDpRx1Hdcp2Rrx[pData_EXINT[0] - 8]);
+ 834   2          }
+ 835   1      
+ 836   1          // Enable DP Link Integrity Check
+ 837   1          ScalerSetBit_EXINT(PB0_1B_HDCP_INTGT_VRF, ~_BIT7, _BIT7);
+ 838   1      
+ 839   1          // Enable Decryption
+ 840   1          for(pData_EXINT[0] = 0; pData_EXINT[0] < 16; pData_EXINT[0]++)
+ 841   1          {
+ 842   2              g_pucHdcp2InputCipher[pData_EXINT[0]] = g_pucHdcp2Ks[pData_EXINT[0]] ^ g_stRxHdcp2DownLoadKeyType.
+             -pucHdcp2Lc[pData_EXINT[0]];
+ 843   2      
+ 844   2              ScalerSetByte_EXINT(PB0_81_HDCP_AES_CIPHER_KEY_15 + pData_EXINT[0], g_pucHdcp2InputCipher[pData_EX
+             -INT[0]]);
+ 845   2          }
+ 846   1      
+ 847   1          for(pData_EXINT[0] = 0; pData_EXINT[0] < 8; pData_EXINT[0]++)
+ 848   1          {
+ 849   2              ScalerSetByte_EXINT(PB0_55_RIV0 + pData_EXINT[0], g_pucHdcp2Riv[pData_EXINT[0]]);
+ 850   2          }
+ 851   1      
+ 852   1          // Solve Mute Issue For S8_TW Which Has Not Sent Type Value After SKE
+ 853   1          if(ScalerDpRx1GetDpcdBitInfo_WDINT(0x06, 0x92, 0x1F, (_BIT1 | _BIT0)) == _BIT1)
+ 854   1          {
+ 855   2              // Enable HDCP2.2 Auth. Done
+ 856   2              ScalerSetBit_EXINT(PB0_20_HDCP_DEBUG, ~_BIT4, _BIT4);
+ 857   2      
+ 858   2              SET_DP_RX1_HDCP2_AUTHENTICATION_DONE();
+ 859   2          }
+ 860   1      
+ 861   1          SET_DP_RX1_HDCP2_SKE_SEND_EKS_RECEIVED();
+ 862   1      }
+ 863          
+ 864          //--------------------------------------------------
+ 865          // Description  : As a part of Stored_km Proc, after Calculate Dkey
+ 866          //                Split here to avoid taking too long time in EXINT
+ 867          // Input Value  : Input Port
+ 868          // Output Value : None
+ 869          //--------------------------------------------------
+ 870          void ScalerDpRx1Hdcp2HPrimeProc_WDINT(void) using 3
+ 871          {
+ 872   1          BYTE ucBackUp = ScalerGetByte_EXINT(PBA_D0_AUX_MODE_SET);
+ 873   1      
+ 874   1          SET_DP_RX1_AUX_MANUAL_MODE_EXINT();
+ 875   1      
+ 876   1          // Calculate H'
+ 877   1          if(ScalerHdcp2HPrimeCalculate_WDINT(g_pucDpRx1Hdcp2dKey0, g_pucDpRx1Hdcp2dKey1, g_pucDpRx1Hdcp2Rtx, g_
+             -pucDpRx1Hdcp2TxCaps, g_pucDPRx1Caps) == _TRUE)
+ 878   1          {
+ 879   2              for(pData_EXINT[0] = 0; pData_EXINT[0] < 32; pData_EXINT[0]++)
+ 880   2              {
+ 881   3                  g_pucHdcp2Sha256[pData_EXINT[0]] = ScalerGetByte_EXINT(P63_35_HDCP_SHA_0 + pData_EXINT[0]);
+ 882   3              }
+ 883   2      
+ 884   2              // Load H prime to DPCD Table
+ 885   2              ScalerDpRx1Hdcp2SetDpcdReadValue_WDINT(_HDCP_2_2_RX_H_PRIME, g_pucHdcp2Sha256, 32);
+ 886   2          }
+ 887   1      
+ 888   1          ScalerDpRx1Hdcp2CpIRQ_WDINT(_DP_HDCP2_H_PRIME_AVAILABLE);
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 16  
+
+ 889   1      
+ 890   1          SET_DP_RX1_HDCP2_AKE_STORED_KM_RECEIVED();
+ 891   1          SET_DP_RX1_HDCP2_AUTHENTICATION_ACTIVE();
+ 892   1      
+ 893   1          if((ucBackUp & _BIT1) == _BIT1)
+ 894   1          {
+ 895   2              SET_DP_RX1_AUX_AUTO_MODE_EXINT();
+ 896   2          }
+ 897   1      }
+ 898          
+ 899          //--------------------------------------------------
+ 900          // Description  : As a part of AKE_INIT Proc, after Gen & Load Rrx
+ 901          //                Split here to avoid taking too long time in EXINT
+ 902          // Input Value  : Input Port
+ 903          // Output Value : None
+ 904          //--------------------------------------------------
+ 905          void ScalerDpRx1Hdcp2AkeInitProc_WDINT(void) using 3
+ 906          {
+ 907   1          ScalerDpRx1Hdcp2ClearDpcdReadValue_WDINT(_HDCP_2_2_RX_H_PRIME, 32);
+ 908   1          ScalerDpRx1Hdcp2ClearDpcdReadValue_WDINT(_HDCP_2_2_RX_L_PRIME, 32);
+ 909   1          ScalerDpRx1Hdcp2ClearDpcdReadValue_WDINT(_HDCP_2_2_RX_M_PRIME, 32);
+ 910   1          ScalerDpRx1Hdcp2ClearDpcdReadValue_WDINT(_HDCP_2_2_RX_PAIRING_INFO, 16);
+ 911   1      
+ 912   1          SET_DP_RX1_HDCP2_CLEAR_DPCD_READ_VALUE_DONE();
+ 913   1      }
+ 914          
+ 915          //--------------------------------------------------
+ 916          // Description  : Clear HDCP Receiver Public Key Certificate
+ 917          // Input Value  : Public Key / Write Length
+ 918          // Output Value : None
+ 919          //--------------------------------------------------
+ 920          void ScalerDpRx1Hdcp2ClearDpcdReadValue_WDINT(BYTE ucRSAType, WORD usLength) using 3
+ 921          {
+ 922   1          switch(ucRSAType)
+ 923   1          {
+ 924   2              case _HDCP_2_2_RRX:
+ 925   2      
+ 926   2                  pData_EXINT[1] = 0x06;
+ 927   2                  pData_EXINT[2] = 0x92;
+ 928   2                  pData_EXINT[3] = 0x15;
+ 929   2      
+ 930   2                  break;
+ 931   2      
+ 932   2              case _HDCP_2_2_RX_H_PRIME:
+ 933   2      
+ 934   2                  pData_EXINT[1] = 0x06;
+ 935   2                  pData_EXINT[2] = 0x92;
+ 936   2                  pData_EXINT[3] = 0xC0;
+ 937   2      
+ 938   2                  break;
+ 939   2      
+ 940   2              case _HDCP_2_2_RX_PAIRING_INFO:
+ 941   2      
+ 942   2                  pData_EXINT[1] = 0x06;
+ 943   2                  pData_EXINT[2] = 0x92;
+ 944   2                  pData_EXINT[3] = 0xE0;
+ 945   2      
+ 946   2                  break;
+ 947   2      
+ 948   2              case _HDCP_2_2_RX_L_PRIME:
+ 949   2      
+ 950   2                  pData_EXINT[1] = 0x06;
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 17  
+
+ 951   2                  pData_EXINT[2] = 0x92;
+ 952   2                  pData_EXINT[3] = 0xF8;
+ 953   2      
+ 954   2                  break;
+ 955   2      
+ 956   2              case _HDCP_2_2_RX_M_PRIME:
+ 957   2      
+ 958   2                  pData_EXINT[1] = 0x06;
+ 959   2                  pData_EXINT[2] = 0x94;
+ 960   2                  pData_EXINT[3] = 0x73;
+ 961   2      
+ 962   2                  break;
+ 963   2      
+ 964   2              case _HDCP_2_2_RX_V_PRIME:
+ 965   2      
+ 966   2                  pData_EXINT[1] = 0x06;
+ 967   2                  pData_EXINT[2] = 0x93;
+ 968   2                  pData_EXINT[3] = 0x32;
+ 969   2      
+ 970   2                  break;
+ 971   2      
+ 972   2              default:
+ 973   2      
+ 974   2                  return;
+ 975   2          }
+ 976   1      
+ 977   1          for(pData_EXINT[0] = 0; pData_EXINT[0] < usLength; pData_EXINT[0]++)
+ 978   1          {
+ 979   2              ScalerDpRx1SetDpcdValue_WDINT(pData_EXINT[1], pData_EXINT[2], pData_EXINT[3], 0x00);
+ 980   2              PDATA_WORD_EXINT(1) = PDATA_WORD_EXINT(1) + 1;
+ 981   2          }
+ 982   1      }
+ 983          
+ 984          //--------------------------------------------------
+ 985          // Description  : HDCP 2.2 Down Load Value in WDINT
+ 986          // Input Value  : ucDpcdAccessPortH --> High Byte of DPCD Address
+ 987          //                ucDpcdAccessPortM --> Middle Byte of DPCD Address
+ 988          //                ucDpcdAccessPortL --> Low Bye of DPCD Adress
+ 989          //                usLength == > Length,
+ 990          //                pReadArray == > Key Array
+ 991          // Output Value : None
+ 992          //--------------------------------------------------
+ 993          void ScalerDpRx1Hdcp2LoadDpcdValue_WDINT(BYTE ucDpcdAccessPortH, BYTE ucDpcdAccessPortM, BYTE ucDpcdAccess
+             -PortL, BYTE ucLength, BYTE *pucReadArray) using 3
+ 994          {
+ 995   1          BYTE ucIndex = 0x00;
+ 996   1          WORD usDpcdAddress = 0;
+ 997   1      
+ 998   1          usDpcdAddress = (((WORD)ucDpcdAccessPortM << 8) | ((WORD)ucDpcdAccessPortL));
+ 999   1      
+1000   1          // Load Value To FW
+1001   1          for(ucIndex = 0; ucIndex < ucLength; ucIndex++)
+1002   1          {
+1003   2              pucReadArray[ucIndex] = ScalerDpRx1GetDpcdInfo_WDINT(ucDpcdAccessPortH, HIBYTE(usDpcdAddress), LOB
+             -YTE(usDpcdAddress));
+1004   2      
+1005   2              usDpcdAddress = usDpcdAddress + 1;
+1006   2          }
+1007   1      }
+1008          
+1009          //--------------------------------------------------
+1010          // Description  : Download HDCP Receiver Public Key Certificate
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 18  
+
+1011          // Input Value  : Public Key / Write Length
+1012          // Output Value : None
+1013          //--------------------------------------------------
+1014          void ScalerDpRx1Hdcp2SetDpcdReadValue_WDINT(BYTE ucRSAType, BYTE *pucReadArray, WORD usLength) using 3
+1015          {
+1016   1          switch(ucRSAType)
+1017   1          {
+1018   2              case _HDCP_2_2_RRX:
+1019   2      
+1020   2                  pData_EXINT[1] = 0x06;
+1021   2                  pData_EXINT[2] = 0x92;
+1022   2                  pData_EXINT[3] = 0x15;
+1023   2      
+1024   2                  break;
+1025   2      
+1026   2              case _HDCP_2_2_RX_H_PRIME:
+1027   2      
+1028   2                  pData_EXINT[1] = 0x06;
+1029   2                  pData_EXINT[2] = 0x92;
+1030   2                  pData_EXINT[3] = 0xC0;
+1031   2      
+1032   2                  break;
+1033   2      
+1034   2              case _HDCP_2_2_RX_L_PRIME:
+1035   2      
+1036   2                  pData_EXINT[1] = 0x06;
+1037   2                  pData_EXINT[2] = 0x92;
+1038   2                  pData_EXINT[3] = 0xF8;
+1039   2      
+1040   2                  break;
+1041   2      
+1042   2              case _HDCP_2_2_RX_M_PRIME:
+1043   2      
+1044   2                  pData_EXINT[1] = 0x06;
+1045   2                  pData_EXINT[2] = 0x94;
+1046   2                  pData_EXINT[3] = 0x73;
+1047   2      
+1048   2                  break;
+1049   2      
+1050   2              default:
+1051   2      
+1052   2                  return;
+1053   2          }
+1054   1      
+1055   1          for(pData_EXINT[0] = 0; pData_EXINT[0] < usLength; pData_EXINT[0]++)
+1056   1          {
+1057   2              ScalerDpRx1SetDpcdValue_WDINT(pData_EXINT[1], pData_EXINT[2], pData_EXINT[3], pucReadArray[pData_E
+             -XINT[0]]);
+1058   2              PDATA_WORD_EXINT(1) = PDATA_WORD_EXINT(1) + 1;
+1059   2          }
+1060   1      }
+1061          
+1062          //--------------------------------------------------
+1063          // Description  : DP Content Protection Interrupt Request
+1064          // Input Value  : None
+1065          // Output Value : None
+1066          //--------------------------------------------------
+1067          void ScalerDpRx1Hdcp2CpIRQ_WDINT(EnumDpRxBStatusType enumBStatusType) using 3
+1068          {
+1069   1          BYTE ucBackUp = 0;
+1070   1      
+1071   1          ucBackUp = ScalerGetByte_EXINT(PBA_D0_AUX_MODE_SET);
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 19  
+
+1072   1      
+1073   1          switch(enumBStatusType)
+1074   1          {
+1075   2              case _DP_HDCP2_H_PRIME_AVAILABLE:
+1076   2              case _DP_HDCP2_PARING_AVAILABLE:
+1077   2      
+1078   2                  ScalerDpRx1SetDpcdValue_WDINT(0x06, 0x94, 0x93, (ScalerDpRx1GetDpcdInfo_WDINT(0x06, 0x94, 0x93
+             -) | (enumBStatusType >> 3)));
+1079   2      
+1080   2                  break;
+1081   2      
+1082   2              default:
+1083   2      
+1084   2                  break;
+1085   2          }
+1086   1      
+1087   1          // Link Status CPIRQ Flag
+1088   1          pData_EXINT[0] = (ScalerDpRx1GetDpcdInfo_WDINT(0x00, 0x02, 0x01) | _BIT2);
+1089   1      
+1090   1          // SET AUX AUTO MODE
+1091   1          SET_DP_RX1_AUX_AUTO_MODE_EXINT();
+1092   1      
+1093   1          ScalerDpRx1SetDpcdValue_WDINT(0x00, 0x02, 0x01, pData_EXINT[0]);
+1094   1      
+1095   1          if((ucBackUp & _BIT1) == 0x00)
+1096   1          {
+1097   2              // SET AUX MANUAL MODE
+1098   2              SET_DP_RX1_AUX_MANUAL_MODE_EXINT();
+1099   2          }
+1100   1      
+1101   1          ScalerDpRx1Hdcp2HpdIrqAssert_WDINT();
+1102   1      }
+1103          
+1104          //--------------------------------------------------
+1105          // Description  : Dp IRQ Assert Proc
+1106          // Input Value  : None
+1107          // Output Value : None
+1108          //--------------------------------------------------
+1109          void ScalerDpRx1Hdcp2HpdIrqAssert_WDINT(void) using 3
+1110          {
+1111   1          if(PCB_D1_HOTPLUG_DETECT() == _D1_HOT_PLUG_HIGH)
+1112   1          {
+1113   2      #if(_DP_IRQ_HPD_MODE == _DP_IRQ_HPD_T2_MODE)
+1114   2              SET_DP_D1_HPD_IRQ_ASSERT_T2_EVENT();
+1115   2      #else
+              
+                      BYTE ucBackUp2 = ScalerGetByte_EXINT(PBA_D0_AUX_MODE_SET);
+              
+              #if(_DP_TX_SUPPORT == _ON)
+                      // Disable IRQs that take too long
+                      BYTE ucBackUp1 = ScalerGetBit_EXINT(PBB_72_HPD_IRQ_EN, _BIT6);
+                      ScalerSetBit_EXINT(PBB_72_HPD_IRQ_EN, ~_BIT6, 0x00);
+              #endif
+              
+                      SET_DP_RX1_AUX_MANUAL_MODE_EXINT();
+              
+                      PCB_D1_HOTPLUG(_D1_HOT_PLUG_LOW);
+              
+                      // Default = 750us
+                      switch(GET_DP_IRQ_TIME_10US())
+                      {
+                          case 55:
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 20  
+
+                              DELAY_XUS_EXINT(500);
+                              break;
+              
+                          case 60:
+                              DELAY_XUS_EXINT(546);
+                              break;
+              
+                          case 65:
+                              DELAY_XUS_EXINT(588);
+                              break;
+              
+                          case 70:
+                              DELAY_XUS_EXINT(634);
+                              break;
+              
+                          case 75:
+                              DELAY_XUS_EXINT(682);
+                              break;
+              
+                          case 80:
+                              DELAY_XUS_EXINT(728);
+                              break;
+              
+                          case 85:
+                              DELAY_XUS_EXINT(768);
+                              break;
+              
+                          case 90:
+                              DELAY_XUS_EXINT(816);
+                              break;
+              
+                          case 95:
+                              DELAY_XUS_EXINT(862);
+                              break;
+              
+                          default:
+                              DELAY_XUS_EXINT(682);
+                              break;
+                      }
+              
+                      PCB_D1_HOTPLUG(_D1_HOT_PLUG_HIGH);
+              
+                      if((ucBackUp2 & _BIT1) == _BIT1)
+                      {
+                          SET_DP_RX1_AUX_AUTO_MODE_EXINT();
+                      }
+              
+              #if(_DP_TX_SUPPORT == _ON)
+                      ScalerSetBit_EXINT(PBB_72_HPD_IRQ_EN, ~_BIT6, ucBackUp1);
+              #endif
+              #endif
+1184   2          }
+1185   1      }
+1186          #endif
+1187          #endif // End of #if(_D1_DP_EXIST == _ON)
+1188          #endif // End of #if(_DP_HDCP_2_2_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2820    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      24
+C51 COMPILER V9.01   SCALERDPRX1HDCP2_SEPTPHY                                              05/24/2025 15:51:24 PAGE 21  
+
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

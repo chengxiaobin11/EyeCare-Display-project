@@ -1,0 +1,295 @@
+C51 COMPILER V8.12   SCALERIR                                                              03/10/2025 13:50:23 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERIR
+OBJECT MODULE PLACED IN .\Output\RL6463\ScalerIR.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerIR.c LARGE OPTIMIZE(9,SPEED)
+                    - INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\K
+                    -ernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header
+                    -;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scaler\RL6463_Seri
+                    -es_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD
+                    -2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User
+                    -\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6
+                    -463\ScalerIR.lst) OBJECT(.\Output\RL6463\ScalerIR.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerIR.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_IR__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+              //****************************************************************************
+              // DEFINITIONS / MACROS
+              //****************************************************************************
+              #define _IR_SAMPLE_CLK                  50 // kHz
+              #define _IR_HW_XTAL_SAMPLE_CLK_DIV      (((WORD)_EXT_XTAL / _IR_SAMPLE_CLK) - 1)
+              #define _IR_HW_IOSC_SAMPLE_CLK_DIV      (((WORD)_INTERNAL_OSC_XTAL / _IR_SAMPLE_CLK) - 1)
+              
+              #define _IR_TABLE_1_LENGTH              10
+              #define _IR_TABLE_2_LENGTH              6
+              #define _IR_TABLE_3_LENGTH              8
+              #define _IR_TABLE_4_LENGTH              2
+              
+              #define _IR_TABLE_1_START               0
+              #define _IR_TABLE_2_START               (_IR_TABLE_1_LENGTH)
+              #define _IR_TABLE_3_START               (_IR_TABLE_1_LENGTH + _IR_TABLE_2_LENGTH)
+              #define _IR_TABLE_4_START               (_IR_TABLE_1_LENGTH + _IR_TABLE_2_LENGTH + _IR_TABLE_3_LENGTH)
+              
+              //****************************************************************************
+              // STRUCT / TYPE / ENUM DEFINITTIONS
+              //****************************************************************************
+              
+              
+              //****************************************************************************
+              // CODE TABLES
+              //****************************************************************************
+              
+              
+C51 COMPILER V8.12   SCALERIR                                                              03/10/2025 13:50:23 PAGE 2   
+
+              //****************************************************************************
+              // VARIABLE DECLARATIONS
+              //****************************************************************************
+              volatile bit g_bIRReceived = 0;
+              volatile BYTE g_pucIRCode[8];
+              EnumNECIRStatus g_enumNECIRStatus = _NEC_IR_NONE;
+              
+              //****************************************************************************
+              // FUNCTION DECLARATIONS
+              //****************************************************************************
+              void ScalerIRHWModeInitial(void);
+              void ScalerIRHWModeDecoder(BYTE code *pucIRTableArray, BYTE ucBankNum);
+              bit ScalerIRHWModeGetData(BYTE *pucBuffer);
+              void ScalerIRHWModeIntHandler_EXINT0(void);
+              void ScalerIRHWModeClockSel(EnumClkSel enumClock);
+              EnumNECIRStatus ScalerIRHWModeGetNECIRStatus(void);
+              void ScalerIRHWModeClrNECStatus(void);
+              
+              //****************************************************************************
+              // FUNCTION DEFINITIONS
+              //****************************************************************************
+              //--------------------------------------------------
+              // Description  : IRDA Initial Settings
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerIRHWModeInitial(void)
+              {
+                  // Sample clock divider
+                  ScalerSetByte(P23_AA_IR_SF2, HIBYTE(_IR_HW_XTAL_SAMPLE_CLK_DIV));
+                  ScalerSetByte(P23_AB_IR_SF3, LOBYTE(_IR_HW_XTAL_SAMPLE_CLK_DIV));
+              
+              
+                  // Clear interrupt flag
+                  ScalerSetBit(P23_BB_IR_SR3, ~(_BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT6 | _BIT5 |
+             - _BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0));
+              
+                  // Enable HW interrupt
+                  ScalerSetBit(P23_B2_IR_CR2, ~_BIT2, _BIT2);
+              
+                  // _BIT0: Enable IR
+                  ScalerSetBit(P23_B2_IR_CR2, ~_BIT0, _BIT0);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Set HW IR Table
+              // Input Value  : User Table
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerIRHWModeDecoder(BYTE code *pucIRTableArray, BYTE ucBankNum)
+              {
+                  // P23_A0_IR_PSR0 ~ P23_A9_IR_SF1
+                  ScalerBurstWrite(pucIRTableArray + _IR_TABLE_1_START, _IR_TABLE_1_LENGTH, ucBankNum, P23_A0_IR_PSR0, _
+             -BURSTWRITE_DATA_COMMON_AUTO_INC, _BURSTWRITE_FROM_FLASH);
+              
+                  // P23_AC_IR_DPIR0 ~ P23_B3_IR_CR3
+                  ScalerBurstWrite(pucIRTableArray + _IR_TABLE_2_START, _IR_TABLE_2_LENGTH, ucBankNum, P23_AE_IR_DPIR2, 
+             -_BURSTWRITE_DATA_COMMON_AUTO_INC, _BURSTWRITE_FROM_FLASH);
+              
+                  // P23_D0_IR_PSR_UP0 ~ P23_D7_IR_PER_UP3
+                  ScalerBurstWrite(pucIRTableArray + _IR_TABLE_3_START, _IR_TABLE_3_LENGTH, ucBankNum, P23_D0_IR_PSR_UP0
+             -, _BURSTWRITE_DATA_COMMON_AUTO_INC, _BURSTWRITE_FROM_FLASH);
+C51 COMPILER V8.12   SCALERIR                                                              03/10/2025 13:50:23 PAGE 3   
+
+              
+                  // P23_DA_IR_CTRL_RC62 ~ P23_DB_IR_CTRL_RC63
+                  ScalerBurstWrite(pucIRTableArray + _IR_TABLE_4_START, _IR_TABLE_3_LENGTH, ucBankNum, P23_DA_IR_CTRL_RC
+             -62, _BURSTWRITE_DATA_COMMON_AUTO_INC, _BURSTWRITE_FROM_FLASH);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Read the IR raw data in fifo
+              // Input Value  : None
+              // Output Value : Data ready or not
+              //--------------------------------------------------
+              bit ScalerIRHWModeGetData(BYTE *pucBuffer)
+              {
+                  // Wait IR Reset
+                  ScalerTimerPollingFlagProc(100, P23_B0_IR_CR0, _BIT7, _FALSE);
+              
+                  if(GET_IR_HW_RECEIVED() == _TRUE)
+                  {
+                      pucBuffer[0] = g_pucIRCode[0];
+                      pucBuffer[1] = g_pucIRCode[1];
+                      pucBuffer[2] = g_pucIRCode[2];
+                      pucBuffer[3] = g_pucIRCode[3];
+                      pucBuffer[4] = g_pucIRCode[4];
+                      pucBuffer[5] = g_pucIRCode[5];
+                      pucBuffer[6] = g_pucIRCode[6];
+                      pucBuffer[7] = g_pucIRCode[7];
+              
+                      CLR_IR_HW_RECEIVED();
+              
+              #if(_DEBUG_MESSAGE_IR == _ON)
+                      DebugMessageIR("IR0", g_pucIRCode[0]);
+                      DebugMessageIR("IR1", g_pucIRCode[1]);
+                      DebugMessageIR("IR2", g_pucIRCode[2]);
+                      DebugMessageIR("IR3", g_pucIRCode[3]);
+              #endif // End of #if(_DEBUG_MESSAGE_IR == _ON)
+              
+                      return _TRUE;
+                  }
+                  else
+                  {
+                      return _FALSE;
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : IR interrupt Handler
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerIRHWModeIntHandler_EXINT0(void) using 1
+              {
+                  BYTE ucTemp = 0;
+              
+                  if((ScalerGetBit_EXINT(P23_B2_IR_CR2, _BIT2) == _BIT2) && (ScalerGetBit_EXINT(P23_BB_IR_SR3, _BIT0) !=
+             - 0x00))
+                  {
+                      // when detect repeat signal, repeat bit and data bit will all be setted
+                      if(ScalerGetBit_EXINT(P23_BB_IR_SR3, _BIT1) == _BIT1)
+                      {
+                          SET_IR_NEC_STATUS(_NEC_IR_REPEAT);
+                      }
+                      else // when detect only data(address + cmd), only data bit will be setted
+C51 COMPILER V8.12   SCALERIR                                                              03/10/2025 13:50:23 PAGE 4   
+
+                      {
+                          SET_IR_NEC_STATUS(_NEC_IR_DATA);
+                      }
+              
+                      ScalerSetBit_EXINT(P23_BB_IR_SR3, ~(_BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1
+             - | _BIT0));
+              
+                      if(ScalerGetBit_EXINT(P23_BB_IR_SR3, (_BIT6 | _BIT4)) != 0x00)
+                      {
+                          // Read out unused code to avoid buffer pointer in disorder
+                          ucTemp = ScalerGetByte_EXINT(P23_B4_IR_RP0);
+                          ucTemp += ScalerGetByte_EXINT(P23_B5_IR_RP1);
+                          ucTemp += ScalerGetByte_EXINT(P23_B6_IR_RP2);
+                          ucTemp += ScalerGetByte_EXINT(P23_B7_IR_RP3);
+                          ucTemp += ScalerGetByte_EXINT(P23_DC_IR_RP2_0);
+                          ucTemp += ScalerGetByte_EXINT(P23_DD_IR_RP2_1);
+                          ucTemp += ScalerGetByte_EXINT(P23_DE_IR_RP2_2);
+                          ucTemp += ScalerGetByte_EXINT(P23_DF_IR_RP2_3);
+              
+                          // Reset IR
+                          ScalerSetBit_EXINT(P23_B0_IR_CR0, ~(_BIT7), _BIT7);
+              
+                          CLR_IR_HW_RECEIVED();
+                      }
+                      else
+                      {
+                          // Get code
+                          g_pucIRCode[0] = ScalerGetByte_EXINT(P23_B4_IR_RP0);
+                          g_pucIRCode[1] = ScalerGetByte_EXINT(P23_B5_IR_RP1);
+                          g_pucIRCode[2] = ScalerGetByte_EXINT(P23_B6_IR_RP2);
+                          g_pucIRCode[3] = ScalerGetByte_EXINT(P23_B7_IR_RP3);
+                          g_pucIRCode[4] = ScalerGetByte_EXINT(P23_DC_IR_RP2_0);
+                          g_pucIRCode[5] = ScalerGetByte_EXINT(P23_DD_IR_RP2_1);
+                          g_pucIRCode[6] = ScalerGetByte_EXINT(P23_DE_IR_RP2_2);
+                          g_pucIRCode[7] = ScalerGetByte_EXINT(P23_DF_IR_RP2_3);
+              
+                          // Clear flag
+                          ScalerSetByte_EXINT(P23_BB_IR_SR3, 0x7F);
+              
+                          SET_IR_HW_RECEIVED();
+                      }
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : IRDA clock divider switch
+              // Input Value  : Clock --> _M2PLL_CLK/_EXT_XTAL_CLK(_IOSC_CLK)
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerIRHWModeClockSel(EnumClkSel enumClock)
+              {
+                  if(enumClock == _EXT_XTAL_CLK)
+                  {
+                      // HW Sample clock divider
+                      ScalerSetByte(P23_AA_IR_SF2, HIBYTE(_IR_HW_XTAL_SAMPLE_CLK_DIV));
+                      ScalerSetByte(P23_AB_IR_SF3, LOBYTE(_IR_HW_XTAL_SAMPLE_CLK_DIV));
+                  }
+                  else if(enumClock == _IOSC_CLK)
+                  {
+                      // HW Sample clock divider
+                      ScalerSetByte(P23_AA_IR_SF2, HIBYTE(_IR_HW_IOSC_SAMPLE_CLK_DIV));
+                      ScalerSetByte(P23_AB_IR_SF3, LOBYTE(_IR_HW_IOSC_SAMPLE_CLK_DIV));
+C51 COMPILER V8.12   SCALERIR                                                              03/10/2025 13:50:23 PAGE 5   
+
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get NEC IR Status
+              // Input Value  : None
+              // Output Value : _NEC_IR_REPEAT or _NEC_IR_DATA
+              //--------------------------------------------------
+              EnumNECIRStatus ScalerIRHWModeGetNECIRStatus(void)
+              {
+                  return GET_IR_NEC_STATUS();
+              }
+              
+              //--------------------------------------------------
+              // Description  : Set NEC IR Initial Status
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerIRHWModeClrNECStatus(void)
+              {
+                  CLR_IR_NEC_STATUS();
+              }
+              #endif // End of #if(_IR_SUPPORT == _IR_HW_SUPPORT)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

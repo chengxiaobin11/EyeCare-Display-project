@@ -1,0 +1,126 @@
+C51 COMPILER V8.12   RL6463_SERIES_COLOR                                                   03/10/2025 13:50:42 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_COLOR
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_Color.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_Color.c LARGE 
+                    -OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\
+                    -System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFu
+                    -nction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\S
+                    -caler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\Us
+                    -er\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\None
+                    -Osd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND P
+                    -RINT(.\Output\RL6463\RL6463_Series_Color.lst) OBJECT(.\Output\RL6463\RL6463_Series_Color.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_Color.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          #if(_D_DITHER_SUPPORT == _ON)
+  23          
+  24          #if((_D_DITHER_MULTI_SEQ_ENABLE == _ENABLE) || (_D_DITHER_SHARE_SEQ_ENABLE == _ENABLE) || (_D_DITHER_SEQ_I
+             -NV_ENABLE == _ENABLE) || (_D_DITHER_V_FRAME_MOD == _ENABLE) || (_D_DITHER_H_FRAME_MOD == _ENABLE))
+              #define _DDITHER_KEEP_NFRAME                    ((_PANEL_DISP_BIT_MODE == _PANEL_DISP_18_BIT) ? _DDITHER_K
+             -EEP_4_FRAME : _DDITHER_KEEP_1_FRAME)
+              #else
+  27          #define _DDITHER_KEEP_NFRAME                    _DDITHER_KEEP_1_FRAME
+  28          #endif
+  29          
+  30          #define _DDITHER_TEMPORAL_ENABLE                ((_PANEL_DISP_BIT_MODE == _PANEL_DISP_18_BIT) ? _ENABLE : 
+             -_D_DITHER_TEMP)
+  31          
+  32          #endif // end of #if(_D_DITHER_SUPPORT == _ON)
+  33          
+  34          //****************************************************************************
+  35          // STRUCT / TYPE / ENUM DEFINITTIONS
+  36          //****************************************************************************
+  37          
+  38          //****************************************************************************
+  39          // CODE TABLES
+  40          //****************************************************************************
+  41          
+  42          //****************************************************************************
+  43          // VARIABLE DECLARATIONS
+  44          //****************************************************************************
+  45          
+C51 COMPILER V8.12   RL6463_SERIES_COLOR                                                   03/10/2025 13:50:42 PAGE 2   
+
+  46          //****************************************************************************
+  47          // FUNCTION DECLARATIONS
+  48          //****************************************************************************
+  49          #if(_D_DITHER_SUPPORT == _ON)
+  50          void ScalerColorDDitherAdjust(BYTE code *pucDitherTable, BYTE code *pucSeqTable, BYTE code *pucTempoTable,
+             - BYTE ucBankAddress);
+  51          #endif
+  52          
+  53          //****************************************************************************
+  54          // FUNCTION DEFINITIONS
+  55          //****************************************************************************
+  56          #if(_D_DITHER_SUPPORT == _ON)
+  57          //--------------------------------------------------
+  58          // Description  : Adjust D Dither Common Setting
+  59          // Input Value  :
+  60          //                pucDitherTable : Dither Table Pointer
+  61          //                pucSeqTable : Seq Table Pointer
+  62          //                pucTempoTable : Temporal Table Pointer
+  63          //                ucBankAddress : Bank Address
+  64          // Output Value : None
+  65          //--------------------------------------------------
+  66          void ScalerColorDDitherAdjust(BYTE code *pucDitherTable, BYTE code *pucSeqTable, BYTE code *pucTempoTable,
+             - BYTE ucBankAddress)
+  67          {
+  68   1          DWORD ulSettingOption = 0x00000000;
+  69   1      
+  70   1          ScalerColorDDitherLoadDitherTable(pucDitherTable, ucBankAddress);
+  71   1      
+  72   1      #if((_D_DITHER_MULTI_SEQ_ENABLE == _ENABLE) || (_D_DITHER_SERIES_SEQ_ENABLE == _ENABLE))
+                  ScalerColorDDitherLoadSeqTable(pucSeqTable, (24 * 4), ucBankAddress);
+              #else
+  75   1          ScalerColorDDitherLoadSeqTable(pucSeqTable, 24, ucBankAddress);
+  76   1      #endif
+  77   1      
+  78   1          ScalerColorDDitherLoadTempoTable(pucTempoTable, ucBankAddress);
+  79   1      
+  80   1          ulSettingOption = (_DDITHER_TEMPORAL_ENABLE << 4) | (_D_DITHER_V_FRAME_MOD << 1) | _D_DITHER_H_FRAME_M
+             -OD;
+  81   1          ulSettingOption = ulSettingOption | (((DWORD)(_DDITHER_KEEP_NFRAME << 4)) << 8);
+  82   1          ulSettingOption = ulSettingOption | (((DWORD)(_D_DITHER_MULTI_SEQ_ENABLE << 2)) << 16);
+  83   1          ulSettingOption = ulSettingOption | (((DWORD)((_D_DITHER_SHARE_SEQ_ENABLE << 3) | (_D_DITHER_SEQ_INV_E
+             -NABLE << 1) | _D_DITHER_SEQ_INV_MODE)) << 24);
+  84   1      
+  85   1          ScalerColorDDitherLoadSetting(ulSettingOption);
+  86   1      }
+  87          #endif // #if(_D_DITHER_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     77    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       7
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

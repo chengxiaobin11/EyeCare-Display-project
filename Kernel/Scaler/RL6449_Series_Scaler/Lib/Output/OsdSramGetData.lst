@@ -1,0 +1,120 @@
+C51 COMPILER V8.12   OSDSRAMGETDATA                                                        03/11/2025 19:55:58 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE OSDSRAMGETDATA
+OBJECT MODULE PLACED IN .\Output\OsdSramGetData.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerFunction\Lib\Code\ScalerOSD\SRAM\OsdSramGetData.c LARGE OPTIMIZ
+                    -E(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\S
+                    -calerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Seri
+                    -es_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\OsdSram
+                    -GetData.lst) OBJECT(.\Output\OsdSramGetData.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : OsdSramGetData.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "ScalerOSDLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerOsdSramGetData(EnumOsdWriteType enumOsdWriteType, WORD usSramAddress, BYTE ucLength, BYTE *pucD
+             -ata);
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Description  : Get SRAM address value
+  49          // Input Value  : enumOsdWriteType -> _OSD_BYTE0 or _OSD_BYTE1 or _OSD_BYTE2
+  50          //                ucLength -> Length
+C51 COMPILER V8.12   OSDSRAMGETDATA                                                        03/11/2025 19:55:58 PAGE 2   
+
+  51          // Output Value : pucData -> Data
+  52          //--------------------------------------------------
+  53          void ScalerOsdSramGetData(EnumOsdWriteType enumOsdWriteType, WORD usSramAddress, BYTE ucLength, BYTE *pucD
+             -ata)
+  54          {
+  55   1          BYTE ucLenIdx = 0;
+  56   1          BYTE ucRdIdx = 0;
+  57   1          BYTE ucByteSel = 0;
+  58   1          bit bOSDEnableBackup = 0;
+  59   1      
+  60   1          bOSDEnableBackup = ScalerGetBit(P3A_02_FRAME_CTRL_02, _BIT0);
+  61   1      
+  62   1          ScalerOsdCircuitActivated(_DISABLE);
+  63   1          ScalerTimerWaitForEvent(_EVENT_DVS);
+  64   1      
+  65   1          ScalerSetBit(P3A_33_FRAME_CTRL_33, ~_BIT4, _BIT4);
+  66   1      
+  67   1          ucByteSel = ((enumOsdWriteType == _OSD_BYTEALL) ? (3) : ((enumOsdWriteType == _OSD_BYTE0_BYTE1) ? 2 : 
+             -((enumOsdWriteType == _OSD_BYTE0_BYTE2) ? 2 : ((enumOsdWriteType == _OSD_BYTE1_BYTE2) ? 2 : 1))));
+  68   1      
+  69   1          for(ucLenIdx = 0; ucLenIdx < ucLength; ucLenIdx++)
+  70   1          {
+  71   2              ScalerOsdSramAddressSet(usSramAddress + ucLenIdx, enumOsdWriteType);
+  72   2      
+  73   2              for(ucRdIdx = 0; ucRdIdx < ucByteSel; ucRdIdx++)
+  74   2              {
+  75   3                  pucData[(ucLenIdx * ucByteSel) + ucRdIdx] = ScalerGetByte(P0_92_OSD_DATA_PORT);
+  76   3              }
+  77   2      
+  78   2              for(ucRdIdx = 0; ucRdIdx < ucByteSel; ucRdIdx++)
+  79   2              {
+  80   3                  pucData[(ucLenIdx * ucByteSel) + ucRdIdx] = ScalerGetByte(P0_92_OSD_DATA_PORT);
+  81   3              }
+  82   2          }
+  83   1      
+  84   1          ScalerSetBit(P3A_33_FRAME_CTRL_33, ~_BIT4, 0x00);
+  85   1          ScalerOsdCircuitActivated(bOSDEnableBackup);
+  86   1      }
+  87          
+  88          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    254    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      10
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

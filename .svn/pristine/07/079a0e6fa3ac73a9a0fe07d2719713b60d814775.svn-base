@@ -1,0 +1,134 @@
+C51 COMPILER V9.60.0.0   SCALERDPRXMST                                                     08/27/2025 11:00:29 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SCALERDPRXMST
+OBJECT MODULE PLACED IN .\Output\RL6432\ScalerDPRxMST.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerDPRxMST.c LARGE OPTIMIZE(9,SPEED
+                    -) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\
+                    -Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Heade
+                    -r;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Ser
+                    -ies_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kern
+                    -el\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD F
+                    -actory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFIN
+                    -E(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\ScalerDPRxMST.lst) TABS
+                    -(2) OBJECT(.\Output\RL6432\ScalerDPRxMST.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerDPRxMST.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_DPRXMST__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          #if((_DP_SUPPORT == _ON) && (_DP_MST_SUPPORT == _ON))
+              
+              //****************************************************************************
+              // DEFINITIONS / MACROS
+              //****************************************************************************
+              
+              //****************************************************************************
+              // STRUCT / TYPE / ENUM DEFINITTIONS
+              //****************************************************************************
+              
+              //****************************************************************************
+              // CODE TABLES
+              //****************************************************************************
+              
+              //****************************************************************************
+              // VARIABLE DECLARATIONS
+              //****************************************************************************
+              
+              //****************************************************************************
+              // FUNCTION DECLARATIONS
+              //****************************************************************************
+              #if(_DP_TX_SUPPORT == _ON)
+              bit ScalerDpRxMstToSstTxMeasureTimingChange(void);
+              #endif
+              
+              //****************************************************************************
+              // FUNCTION DEFINITIONS
+C51 COMPILER V9.60.0.0   SCALERDPRXMST                                                     08/27/2025 11:00:29 PAGE 2   
+
+              //****************************************************************************
+              #if(_DP_TX_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : On-line check for DPTX SST D0
+              // Input Value  : None
+              // Output Value : _TRUE or _FALSE
+              //--------------------------------------------------
+              bit ScalerDpRxMstToSstTxMeasureTimingChange(void)
+              {
+                  bit bTimingChangeStatus = _FALSE;
+                  StructMeasureSyncData stMeasureSyncHV;
+                  memset(&stMeasureSyncHV, 0, sizeof(StructMeasureSyncData));
+              
+                  // Measure timeout or overflow
+                  if(ScalerGetBit(P16_43_DPTX_MEAS_ERROR_FLG0, (_BIT7 | _BIT6 | _BIT5 | _BIT4)) != 0x00)
+                  {
+                      return _TRUE;
+                  }
+              
+                  // Pop up if on-line measure complete
+                  if(ScalerDpTxMeasureGetMeasureResult(&stMeasureSyncHV) == _FALSE)
+                  {
+                      return _TRUE;
+                  }
+              
+              #if(_DP_FREESYNC_SUPPORT == _ON)
+                  if(GET_DP_MST_FREESYNC_ENABLED() == _TRUE)
+                  {
+                      // Check on-line measure result
+                      bTimingChangeStatus = ((stMeasureSyncHV.b1HSP != g_stDPTxInputTimingInfo.b1HSP) ||
+                                             (stMeasureSyncHV.b1VSP != g_stDPTxInputTimingInfo.b1VSP) ||
+                                             (abs(stMeasureSyncHV.usVHeight - g_stDPTxInputTimingInfo.usVHeight) > 2) ||
+                                             (abs(stMeasureSyncHV.usHWidth - g_stDPTxInputTimingInfo.usHWidth) > 2));
+                  }
+                  else
+              #endif
+                  {
+                      // Check on-line measure result
+                      bTimingChangeStatus = ((stMeasureSyncHV.b1HSP != g_stDPTxInputTimingInfo.b1HSP) ||
+                                             (stMeasureSyncHV.b1VSP != g_stDPTxInputTimingInfo.b1VSP) ||
+                                             (abs(stMeasureSyncHV.usVSPeriod - g_stDPTxInputTimingInfo.usVTotal) > 2) ||
+                                             (abs(stMeasureSyncHV.usHTotal - g_stDPTxInputTimingInfo.usHTotal) > 2) ||
+                                             (abs(stMeasureSyncHV.usVHeight - g_stDPTxInputTimingInfo.usVHeight) > 2) ||
+                                             (abs(stMeasureSyncHV.usHWidth - g_stDPTxInputTimingInfo.usHWidth) > 2));
+                  }
+              
+                  return bTimingChangeStatus;
+              }
+              #endif
+              
+              #endif // End of #if((_DP_SUPPORT == _ON) && (_DP_MST_SUPPORT == _ON))
+  99          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.60.0.0   SCALERDPRXMST                                                     08/27/2025 11:00:29 PAGE 3   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

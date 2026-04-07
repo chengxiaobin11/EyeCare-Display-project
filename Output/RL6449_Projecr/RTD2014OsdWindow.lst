@@ -1,0 +1,484 @@
+C51 COMPILER V8.12   RTD2014OSDWINDOW                                                      01/02/2025 16:32:33 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RTD2014OSDWINDOW
+OBJECT MODULE PLACED IN .\Output\RL6449_Projecr\RTD2014OsdWindow.obj
+COMPILER INVOKED BY: D:\ToolSort\KeilC51V812_\C51\BIN\C51.EXE User\RTD Series\RTD2014Osd\Code\RTD2014OsdWindow.c LARGE O
+                    -PTIMIZE(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\S
+                    -ystem\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFun
+                    -ction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kernel\Sc
+                    -aler\RL6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Common\Li
+                    -b\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Head
+                    -er;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factor
+                    -y\Header) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_Projecr\
+                    -RTD2014OsdWindow.lst) OBJECT(.\Output\RL6449_Projecr\RTD2014OsdWindow.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RTD2014OsdWindow.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RTD_OSDWINDOW__
+  18          
+  19          #include "UserCommonInclude.h"
+  20          
+  21          #if(_OSD_TYPE == _REALTEK_2014_OSD)
+  22          
+  23          //****************************************************************************
+  24          // DEFINITIONS / MACROS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // STRUCT / TYPE / ENUM DEFINITTIONS
+  29          //****************************************************************************
+  30          
+  31          //****************************************************************************
+  32          // CODE TABLES
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // VARIABLE DECLARATIONS
+  37          //****************************************************************************
+  38          
+  39          //****************************************************************************
+  40          // FUNCTION DECLARATIONS
+  41          //****************************************************************************
+  42          void OsdWindowDrawing(BYTE ucWindow, WORD usXStart, WORD usYStart, WORD usXEnd, WORD usYEnd, BYTE ucColor)
+             -;
+  43          void OsdWindowDrawingHighlight(BYTE ucWindow, WORD usXStart, WORD usYStart, WORD usXEnd, WORD usYEnd, BYTE
+             - ucColor, BYTE ucForegroundColor, BYTE ucBackgroundColor);
+  44          void OsdWindowDrawingByFont(BYTE ucWindow, BYTE ucRow, BYTE ucCol, BYTE ucWidth, BYTE ucHeight, BYTE ucCol
+             -or);
+C51 COMPILER V8.12   RTD2014OSDWINDOW                                                      01/02/2025 16:32:33 PAGE 2   
+
+  45          void OsdWindowDrawingByFontHighlight(BYTE ucWindow, BYTE ucRow1, BYTE ucCol1, BYTE ucWidth, BYTE ucHeight,
+             - BYTE ucColor, BYTE ucForegroundColor, BYTE ucBackgroundColor);
+  46          void OsdWindowSlider(BYTE ucRow, BYTE ucCol, BYTE ucPercentValue, BYTE ucSliderNumber, bit bSelectState);
+  47          void OsdWindowSliderDisable(void);
+  48          
+  49          //***************************************************************************
+  50          // FUNCTION DEFINITIONS
+  51          //****************************************************************************
+  52          //--------------------------------------------------
+  53          // Description  :
+  54          // Input Value  :
+  55          // Output Value :
+  56          //--------------------------------------------------
+  57          void OsdWindowDrawing(BYTE ucWindow, WORD usXStart, WORD usYStart, WORD usXEnd, WORD usYEnd, BYTE ucColor)
+  58          {
+  59   1      #if(_OSD_ROTATE_FUNCTION == _OSD_ROTATE_SOFTWARE)
+                  WORD xdata usTemp = 0;
+                  WORD xdata usTemp1 = 0;
+                  WORD xdata usTemp2 = 0;
+                  usTemp  = usXEnd - usXStart;
+                  usTemp1 = usYEnd - usYStart;
+                  usTemp2 = usXStart;
+              
+                  if(GET_OSD_ROTATE_STATUS() == _OSD_ROTATE_DEGREE_90)
+                  {
+                      usXEnd = (g_ucOsdWidth * 18 - usYStart);
+                      usXStart = usXEnd - usTemp1;
+                      usYStart = usTemp2;
+                      usYEnd = usYStart + usTemp;
+                  }
+                  else if(GET_OSD_ROTATE_STATUS() == _OSD_ROTATE_DEGREE_270)
+                  {
+                      usXStart = usYStart;
+                      usYStart = (g_ucOsdHeight * 12) - usXEnd;
+                      usXEnd = usXStart + usTemp1;
+                      usYEnd = usYStart + usTemp;
+                  }
+                  else
+                  {
+                  }
+              
+              #elif(_OSD_ROTATE_FUNCTION == _OSD_ROTATE_HARDWARE)
+  86   1          WORD xdata usTemp = 0;
+  87   1          WORD xdata usTemp1 = 0;
+  88   1          WORD xdata usTemp2 = 0;
+  89   1          usTemp  = usXEnd - usXStart;
+  90   1          usTemp1 = usYEnd - usYStart;
+  91   1          usTemp2 = usXStart;
+  92   1      
+  93   1          if(GET_OSD_ROTATE_STATUS() == _OSD_ROTATE_DEGREE_90)
+  94   1          {
+  95   2              usXEnd = (g_ucOsdHeight * 18 - usYStart);
+  96   2              usXStart = usXEnd - usTemp1;
+  97   2              usYStart = usTemp2;
+  98   2              usYEnd = usYStart + usTemp;
+  99   2          }
+ 100   1          else if(GET_OSD_ROTATE_STATUS() == _OSD_ROTATE_DEGREE_270)
+ 101   1          {
+ 102   2              usXStart = usYStart;
+ 103   2              usYStart = (g_ucOsdWidth * 12) - usXEnd;
+ 104   2              usXEnd = usXStart + usTemp1;
+ 105   2              usYEnd = usYStart + usTemp;
+C51 COMPILER V8.12   RTD2014OSDWINDOW                                                      01/02/2025 16:32:33 PAGE 3   
+
+ 106   2          }
+ 107   1          else if(GET_OSD_ROTATE_STATUS() == _OSD_ROTATE_DEGREE_180)
+ 108   1          {
+ 109   2              usXStart = (g_ucOsdWidth * 12) - usTemp - usXStart;
+ 110   2              usXEnd = usXStart + usTemp;
+ 111   2              usYStart = (g_ucOsdHeight * 18) - usTemp1 - usYStart;
+ 112   2              usYEnd = usYStart + usTemp1;
+ 113   2          }
+ 114   1          else
+ 115   1          {
+ 116   2          }
+ 117   1      
+ 118   1      #else // #if(_OSD_ROTATE_FUNCTION == _OSD_ROTATE_SOFTWARE)
+              
+              
+              #endif
+ 122   1      
+ 123   1      #if(_OSD_SHOW_KEY_BORDER)
+ 124   1              if(ucWindow==_OSD_WINDOW_5_1 || ucWindow==_OSD_WINDOW_5_2 || ucWindow==_OSD_WINDOW_5_3 \
+ 125   1                      || ucWindow==_OSD_WINDOW_5_4 || ucWindow==_OSD_WINDOW_5_5)              
+ 126   1              {
+ 127   2                      SET_OSD_WINDOW_REFERENCE_DELAY(1);      // Map B
+ 128   2                      SET_OSD_WINDOW_BUTTON_TYPE(_OSD_WINDOW_BUTTON_TYPE_BORDER);
+ 129   2                      SET_OSD_WINDOW_COLOR_BORDER(_CP_WHITE);
+ 130   2                      SET_OSD_WINDOW_SHADOW_BORDER_PIXEL_WIDTH(0);
+ 131   2                      SET_OSD_WINDOW_SHADOW_BORDER_PIXEL_HEIGHT(0);
+ 132   2                      SET_OSD_WINDOW_BUTTON_ENABLE(_ENABLE);
+ 133   2              }
+ 134   1      #endif
+ 135   1      
+ 136   1      
+ 137   1      
+ 138   1      
+ 139   1          SET_OSD_WINDOW_NUMBER(ucWindow);
+ 140   1          SET_OSD_WINDOW_COLOR(ucColor);
+ 141   1      
+ 142   1          SET_OSD_WINDOW_BLEND_ENABLE(_ENABLE);
+ 143   1          SET_OSD_WINDOW_ENABLE(_ENABLE);
+ 144   1          ScalerTimerWaitForEvent(_EVENT_DVS);
+ 145   1          ScalerOsdDrawWindow(usXStart, usYStart, usXEnd, usYEnd);
+ 146   1      }
+ 147          
+ 148          //--------------------------------------------------
+ 149          // Description  :
+ 150          // Input Value  :
+ 151          // Output Value :
+ 152          //--------------------------------------------------
+ 153          void OsdWindowDrawingHighlight(BYTE ucWindow, WORD usXStart, WORD usYStart, WORD usXEnd, WORD usYEnd, BYTE
+             - ucColor, BYTE ucForegroundColor, BYTE ucBackgroundColor)
+ 154          {
+ 155   1          OsdWindowDrawing(ucWindow, usXStart, usYStart, usXEnd, usYEnd, ucColor);
+ 156   1          ScalerOsdWindowHighlightFunction(_ENABLE, ucWindow, ucForegroundColor, ucBackgroundColor, _CP_BG);
+ 157   1              //DebugMessageOsd("2.ucWindow",ucWindow);
+ 158   1      }
+ 159          
+ 160          //--------------------------------------------------
+ 161          // Description  :
+ 162          // Input Value  :
+ 163          // Output Value :
+ 164          //--------------------------------------------------
+ 165          void OsdWindowDrawingByFont(BYTE ucWindow, BYTE ucRow, BYTE ucCol, BYTE ucWidth, BYTE ucHeight, BYTE ucCol
+             -or)
+C51 COMPILER V8.12   RTD2014OSDWINDOW                                                      01/02/2025 16:32:33 PAGE 4   
+
+ 166          {
+ 167   1          WORD usHstart = 0;
+ 168   1          WORD usHend = 0;
+ 169   1          WORD usVstart = 0;
+ 170   1          WORD usVend = 0;
+ 171   1      
+ 172   1          usHstart = ((WORD)ucCol * 12);
+ 173   1          usHend = usHstart + ((WORD)ucWidth * 12);
+ 174   1      
+ 175   1          if(ucRow > 0)
+ 176   1          {
+ 177   2              usVstart = (ucRow * 18);
+ 178   2          }
+ 179   1          usVend = usVstart + (18 * ucHeight);
+ 180   1      
+ 181   1          OsdWindowDrawing(ucWindow, usHstart, usVstart, usHend, usVend, ucColor);
+ 182   1      }
+ 183          
+ 184          //--------------------------------------------------
+ 185          // Description  :
+ 186          // Input Value  :
+ 187          // Output Value :
+ 188          //--------------------------------------------------
+ 189          void OsdWindowDrawingByFontHighlight(BYTE ucWindow, BYTE ucRow1, BYTE ucCol1, BYTE ucWidth, BYTE ucHeight,
+             - BYTE ucColor, BYTE ucForegroundColor, BYTE ucBackgroundColor)
+ 190          {
+ 191   1          WORD usHstart = 0;
+ 192   1          WORD usHend = 0;
+ 193   1          WORD usVstart = 0;
+ 194   1          WORD usVend = 0;
+ 195   1      
+ 196   1          usHstart = ((WORD)ucCol1 * 12);
+ 197   1          usHend = usHstart + ((WORD)ucWidth * 12);
+ 198   1      
+ 199   1          if(ucRow1 > 0)
+ 200   1          {
+ 201   2              usVstart = (ucRow1 * 18);
+ 202   2          }
+ 203   1          usVend = usVstart + (18 * ucHeight);
+ 204   1      
+ 205   1          OsdWindowDrawing(ucWindow, usHstart, usVstart, usHend, usVend, ucColor);
+ 206   1      
+ 207   1          ScalerOsdWindowHighlightFunction(_ENABLE, ucWindow, ucForegroundColor, ucBackgroundColor, _CP_BG);
+ 208   1      }
+ 209          
+ 210          //--------------------------------------------------
+ 211          // Description  :
+ 212          // Input Value  :
+ 213          // Output Value :
+ 214          //--------------------------------------------------
+ 215          void OsdWindowSlider(BYTE ucRow, BYTE ucCol, BYTE ucPercentValue, BYTE ucSliderNumber, bit bSelectState)
+ 216          {
+ 217   1          WORD usHstart = 0;
+ 218   1          WORD usHend = 0;
+ 219   1          WORD usVstart = 0;
+ 220   1          WORD usVend = 0;
+ 221   1          WORD usSliderPixel = 0;
+ 222   1          BYTE ucSliderBarWindow = 0;
+ 223   1          BYTE ucSliderBoderWindow = 0;
+ 224   1          BYTE ucSliderBackgroundWindow = 0;
+ 225   1          BYTE ucSliderColor = 0;
+ 226   1          BYTE ucSliderBackgroundColor = 0;
+C51 COMPILER V8.12   RTD2014OSDWINDOW                                                      01/02/2025 16:32:33 PAGE 5   
+
+ 227   1          BYTE ucSliderBoderColor = 0;
+ 228   1      
+ 229   1          usSliderPixel = (WORD)(_SLIDER_LENGHT * ucPercentValue) / 100;
+ 230   1      
+ 231   1          usHstart = ((WORD)ucCol * 12) + _SLIDER_OFFSET;
+ 232   1          usHend = usHstart + _SLIDER_LENGHT;
+ 233   1      
+ 234   1          usVstart = (ucRow * 18);
+ 235   1          usVend = usVstart + _SLIDER_HIGH;
+ 236   1      
+ 237   1          if(ucSliderNumber == _SLIDER_0)
+ 238   1          {
+ 239   2              ucSliderBarWindow = _SLIDER_0_BAR_WINDOW;
+ 240   2              ucSliderBoderWindow = _SLIDER_0_BORDER_WINDOW;
+ 241   2              ucSliderBackgroundWindow = _SLIDER_0_BG_WINDOW;
+ 242   2          }
+ 243   1          else
+ 244   1          {
+ 245   2              ucSliderBarWindow = _SLIDER_1_BAR_WINDOW;
+ 246   2              ucSliderBoderWindow = _SLIDER_1_BORDER_WINDOW;
+ 247   2              ucSliderBackgroundWindow = _SLIDER_1_BG_WINDOW;
+ 248   2          }
+ 249   1      
+ 250   1          if(bSelectState == _TRUE)
+ 251   1          {
+ 252   2              ucSliderColor = _SLIDER_SELECT_COLOR;
+ 253   2              ucSliderBackgroundColor = _SLIDER_SELECT_BG_COLOR;
+ 254   2              ucSliderBoderColor = _SLIDER_SELECT_BORDER_COLOR;
+ 255   2          }
+ 256   1          else
+ 257   1          {
+ 258   2              ucSliderColor = _SLIDER_UNSELECT_COLOR;
+ 259   2              ucSliderBackgroundColor = _SLIDER_UNSELECT_BG_COLOR;
+ 260   2              ucSliderBoderColor = _SLIDER_UNSELECT_BORDER_COLOR;
+ 261   2          }
+ 262   1      
+ 263   1          SET_OSD_WINDOW_BUTTON_ENABLE(_DISABLE);
+ 264   1          // Slider Boder Window
+ 265   1          // Slider BG Color
+ 266   1          OsdWindowDrawing(ucSliderBoderWindow, usHstart - _SLIDER_BORDER_PIXEL, usVstart - _SLIDER_BORDER_PIXEL
+             -, usHend + _SLIDER_BORDER_PIXEL, usVend + _SLIDER_BORDER_PIXEL, ucSliderBoderColor);
+ 267   1      
+ 268   1          // Slider BG Window
+ 269   1          OsdWindowDrawing(ucSliderBackgroundWindow, usHstart, usVstart, usHend, usVend, ucSliderBackgroundColor
+             -);
+ 270   1      
+ 271   1          if(usSliderPixel == 0)// Slider Window
+ 272   1          {
+ 273   2              ScalerOsdWindowDisable(ucSliderBarWindow);
+ 274   2          }
+ 275   1          else
+ 276   1          {
+ 277   2              OsdWindowDrawing(ucSliderBarWindow, usHstart, usVstart, usHstart + usSliderPixel, usVend, ucSlider
+             -Color);
+ 278   2          }
+ 279   1      }
+ 280          
+ 281          //--------------------------------------------------
+ 282          // Description  :
+ 283          // Input Value  :
+ 284          // Output Value :
+ 285          //--------------------------------------------------
+C51 COMPILER V8.12   RTD2014OSDWINDOW                                                      01/02/2025 16:32:33 PAGE 6   
+
+ 286          void OsdWindowSliderDisable(void)
+ 287          {
+ 288   1          ScalerOsdWindowDisable(_SLIDER_0_BAR_WINDOW);
+ 289   1          ScalerOsdWindowDisable(_SLIDER_0_BORDER_WINDOW);
+ 290   1          ScalerOsdWindowDisable(_SLIDER_0_BG_WINDOW);
+ 291   1          ScalerOsdWindowDisable(_SLIDER_1_BAR_WINDOW);
+ 292   1          ScalerOsdWindowDisable(_SLIDER_1_BORDER_WINDOW);
+ 293   1          ScalerOsdWindowDisable(_SLIDER_1_BG_WINDOW);
+ 294   1      }
+ 295          
+ 296          extern void ScalerBurstWrite(BYTE *pucAddress, WORD usWriteLength, BYTE ucBankNum, WORD usHostAddr, BYTE u
+             -cTableType, bit bTableLocation);
+ 297          
+ 298          
+ 299          //--------------------------------------------------
+ 300          // Description  : window number mapping to register address
+ 301          // Input Value  : enumOsdWindowsTyp
+ 302          // Output Value :
+ 303          //--------------------------------------------------
+ 304          WORD ScalerOsdWindowRegisterMapping(EnumOsdWindowsType enumOsdWindowsType)
+ 305          {
+ 306   1          WORD usWin = 0;
+ 307   1      
+ 308   1          usWin = enumOsdWindowsType / 10 * 16;
+ 309   1          usWin += (enumOsdWindowsType % 10);
+ 310   1          return (usWin << 8);
+ 311   1      }
+ 312          
+ 313          //--------------------------------------------------
+ 314          // Description  : OSD Window Addr
+ 315          // Input Value  : ucValue
+ 316          // Output Value :
+ 317          //--------------------------------------------------
+ 318          void ScalerOsdSetAddrWindow(WORD usValue)
+ 319          {
+ 320   1          ScalerSetByte(0x0090, ((usValue >> 8) & 0xFF));
+ 321   1          ScalerSetByte(0x0091, (usValue & 0xFF));
+ 322   1      }
+ 323          //--------------------------------------------------
+ 324          // Description  : Osd Burst Write to Window (P3A_F6_FRAME_CTRL_F_OSD_WIN_DATA_PORT)
+ 325          // Input Value  : Burst Write Pointer, Length, Bank, Table Type, Location
+ 326          // Output Value : None
+ 327          //--------------------------------------------------
+ 328          void ScalerOsdBurstWriteDataPortWindow(BYTE *pucAddress, WORD usWriteLength, BYTE ucBankNum, BYTE ucTableT
+             -ype, bit bTableLocation)
+ 329          {
+ 330   1          ScalerBurstWrite(pucAddress, usWriteLength, ucBankNum, 0x0092, ucTableType, bTableLocation);
+ 331   1      }
+ 332          /*
+ 333          
+ 334          //--------------------------------------------------
+ 335          // Description  : Change window color
+ 336          // Input Value  : 
+ 337          // Output Value :
+ 338          //--------------------------------------------------
+ 339          void ScalerOsdChangeWindowColor(void)
+ 340          {
+ 341              BYTE pucpTemp[15] = {0};
+ 342              WORD usWinTemp = 0;
+ 343          
+ 344              usWinTemp = ScalerOsdWindowRegisterMapping(GET_OSD_WINDOW_NUMBER());
+ 345          
+C51 COMPILER V8.12   RTD2014OSDWINDOW                                                      01/02/2025 16:32:33 PAGE 7   
+
+ 346                  pucpTemp[2] = (GET_OSD_WINDOW_COLOR() & 0x3F);
+ 347          
+ 348                  if(GET_OSD_WINDOW_WAIT_DEN_STOP() == _ENABLE)
+ 349              {
+ 350                  ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+ 351              }
+ 352                  
+ 353              ScalerOsdBurstWriteDataPort(pucpTemp, 12, GET_CURRENT_BANK_NUMBER(), _BURSTWRITE_DATA_OSD, _BURSTWRITE
+             -_FROM_XRAM);
+ 354                  usWinTemp = 0x177 + (GET_OSD_WINDOW_NUMBER() * 7);
+ 355          
+ 356          
+ 357              pucpTemp[0] = ScalerOsdFrameControlByteGet(usWinTemp, _OSD_BYTE0);
+ 358              pucpTemp[0] = ((pucpTemp[0] & ~_BIT0) | (BYTE)GET_OSD_WINDOW_ROTATION_FUNCTION_ENABLE());
+ 359              ScalerOsdWriteByte((_OSD_WIN_CONTROL | _OSD_BYTE0), _OSD_WITHOUT_DB, usWinTemp, pucpTemp[0]);
+ 360          
+ 361          
+ 362              //ScalerOsdSetAddrWindow(usWinTemp + 2);
+ 363              //ScalerOsdBurstWriteDataPortWindow(&pucpTemp[2], 1, GET_CURRENT_BANK_NUMBER(), _BURSTWRITE_DATA_OSD, 
+             -_BURSTWRITE_FROM_XRAM);
+ 364                  memset(&g_stOsdWindow, 0x00, sizeof(g_stOsdWindow));
+ 365          }
+ 366          
+ 367          */
+ 368          
+ 369          
+ 370          //--------------------------------------------------
+ 371          // Description  : Change window color
+ 372          // Input Value  : 
+ 373          // Output Value :
+ 374          //--------------------------------------------------
+ 375          void ScalerOsdChangeWindowColor(void)
+ 376          {
+ 377   1          WORD usWinTemp = 0;
+ 378   1      
+ 379   1              EnumOsdWindowsType enumOsdWindowsType = GET_OSD_WINDOW_NUMBER();
+ 380   1      
+ 381   1              {
+ 382   2      #if 0//(_OSD_WINDOW_5_1_5_8_SUPPORT == _ON)
+                              if((enumOsdWindowsType >= _OSD_WINDOW_5_1) && (enumOsdWindowsType <= _OSD_WINDOW_5_8))
+                              {
+                                      usWinTemp = (_P0_92_PT_223_WIN5_1_ADR3_LSB >> 4) + ((enumOsdWindowsType - _OSD_WINDOW_5_1) * 4);
+                              }
+                              else
+              #endif
+ 389   2                      {
+ 390   3                              if((enumOsdWindowsType >= _OSD_WINDOW_4_1) && (enumOsdWindowsType <= _OSD_WINDOW_4_8))
+ 391   3                              {
+ 392   4                                      //usWinTemp = (_P0_92_PT_203_WIN4_1_ADR3_MSB >> 4) + ((enumOsdWindowsType - _OSD_WINDOW_4_1) * 4);
+ 393   4                                      usWinTemp = (0x2031 >> 4) + ((enumOsdWindowsType - _OSD_WINDOW_4_1) * 4);
+ 394   4                              }
+ 395   3                              else if(enumOsdWindowsType <= _OSD_WINDOW_9)
+ 396   3                              {
+ 397   4                                      //usWinTemp = (_P0_92_PT_103_WIN0_ADR3_MSB >> 4) + (enumOsdWindowsType * 4);
+ 398   4                                      usWinTemp = (0x1031 >> 4) + (enumOsdWindowsType * 4);
+ 399   4                              }
+ 400   3                      }
+ 401   2      
+ 402   2                      ScalerOsdWriteByte((_OSD_WIN_CONTROL | _OSD_BYTE1), _OSD_WITHOUT_DB, usWinTemp, GET_OSD_WINDOW_COLOR() &
+             - 0x0F);
+ 403   2              }
+ 404   1      
+C51 COMPILER V8.12   RTD2014OSDWINDOW                                                      01/02/2025 16:32:33 PAGE 8   
+
+ 405   1      
+ 406   1              memset(&g_stOsdWindow, 0x00, sizeof(g_stOsdWindow));
+ 407   1      }
+ 408          
+ 409          
+ 410          //--------------------------------------------------
+ 411          // Description  : Change window Color
+ 412          // Input Value  : 
+ 413          // Output Value :
+ 414          //--------------------------------------------------
+ 415          void UserCommonOsdChangeWindowColor(EnumOsdWindowsType enumOsdWindowsType, BYTE ucColor)
+ 416          {
+ 417   1              SET_OSD_WINDOW_NUMBER(enumOsdWindowsType);
+ 418   1              SET_OSD_WINDOW_COLOR(ucColor);
+ 419   1              ScalerOsdChangeWindowColor();
+ 420   1      }
+ 421          
+ 422          
+ 423          #endif//#if(_OSD_TYPE == _REALTEK_2014_OSD)
+ 424          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1443    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      78
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

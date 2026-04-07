@@ -1,0 +1,2490 @@
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERCOMMONMCU
+OBJECT MODULE PLACED IN .\Output\RL6463\ScalerCommonMcu.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\ScalerCommonFunction\Code\ScalerCommonMcu.c LARGE OPTI
+                    -MIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Syst
+                    -em\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFuncti
+                    -on\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Scale
+                    -r\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\R
+                    -TD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\
+                    -Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRINT
+                    -(.\Output\RL6463\ScalerCommonMcu.lst) OBJECT(.\Output\RL6463\ScalerCommonMcu.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerCommonMcu.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_COMMON_MCU__
+  18          
+  19          #include "ScalerCommonFunctionInclude.h"
+  20          
+  21          
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          //--------------------------------------------------
+  26          // Definitions DDCCI Protocol Items
+  27          //--------------------------------------------------
+  28          #define _DDCCI_LENGTH                       1
+  29          
+  30          //--------------------------------------------------
+  31          // Definitions of Hardware IIC
+  32          //--------------------------------------------------
+  33          #define _HW_IIC_BUFFER_SIZE                 24
+  34          #define _HW_IIC_DELAY_TIME                  5
+  35          
+  36          //--------------------------------------------------
+  37          // Definitions of Software IIC
+  38          //--------------------------------------------------
+  39          #define _IIC_POLLING_TIME                   240
+  40          
+  41          #if((_INSTANT_TIMER_EVENT_1 == _ON) && (_UART_SUPPORT == _ON))
+              #error "Instant Timer1 cannot be used when UART is supported"
+              #endif
+  44          
+  45          //--------------------------------------------------
+  46          // Definitions DDCCI Protocol Items
+  47          //--------------------------------------------------
+  48          #define _DDCCI_BUFFER_SIZE                  32
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 2   
+
+  49          
+  50          // If User Don't Want to Save Tx Buf Size, Reduce the Available DDCCI Buf Size
+  51          #if(_DDCCI_TXBUF_LENGTH < _DDCCI_BUFFER_SIZE)
+              #undef _DDCCI_BUFFER_SIZE
+              #define _DDCCI_BUFFER_SIZE                  _DDCCI_TXBUF_LENGTH
+              #endif
+  55          
+  56          //****************************************************************************
+  57          // STRUCT / TYPE / ENUM DEFINITTIONS
+  58          //****************************************************************************
+  59          
+  60          
+  61          //****************************************************************************
+  62          // CODE TABLES
+  63          //****************************************************************************
+  64          #if(_HW_IIC_SUPPORT == _ON)
+              StructHwI2cSettingData code tHwI2cSetting[] =
+              {
+                  // KERNAL _HW_IIC_LOW_SPEED_100K PARAMETWRS
+                  {0x26, 0x22, 0x2F, 0x2F, 0x36, 0x47, 0x03, 0x01, 0x02,},
+                  // KERNAL _HW_IIC_HIGH_SPEED_400K PARAMETWRS
+                  {0x0C, 0x04, 0x0E, 0x06, 0x09, 0x23, 0x03, 0x01, 0x02,},
+              
+              #if(_HW_IIC_PAR_BY_USER_SUPPORT == _ON)
+              // Incldue User Paramters Setting
+              #include _USER_HW_IIC_PAR_INCLUDE
+              #endif
+              };
+              #endif
+  78          
+  79          //****************************************************************************
+  80          // VARIABLE DECLARATIONS
+  81          //****************************************************************************
+  82          
+  83          //sfr CKCON = 0x8E;
+  84          
+  85          BYTE idata g_ucDdcciCountEXINT;
+  86          
+  87          BYTE data g_ucDelay5usN_Base = 1;
+  88          BYTE data g_ucDelayXusN_Base = 1;
+  89          BYTE data g_ucDelay5usI = 1;
+  90          BYTE data g_ucDelay5usI_EXINT = 1;
+  91          BYTE data g_ucDelayXus_Counter = 1;
+  92          BYTE data g_ucDelayXus_Counter_EXINT = 1;
+  93          
+  94          bit g_bRunDdcciCommand = _FAIL;
+  95          bit g_bSrcReadDdcciAlready = _FAIL;
+  96          #if(_DDCCI_AUTO_SWITCH_SUPPORT == _ON)
+  97          bit g_bReceiveDdcciCmdNotFinish = _FAIL;
+  98          #endif
+  99          EnumDdcciCmdSrc g_enumDdcciCommandSrc = _DDCCI_CMD_SRC_I2C;
+ 100          
+ 101          BYTE g_pucDdcciRxBuf[_DDCCI_RXBUF_LENGTH];
+ 102          BYTE g_pucDdcciTxBuf[_DDCCI_TXBUF_LENGTH];
+ 103          
+ 104          BYTE g_pucDdcciRxBackBuf[16];
+ 105          
+ 106          BYTE g_ucDdcciCmdLengthBack;
+ 107          
+ 108          BYTE g_ucMcuDdcciRetry;
+ 109          
+ 110          #if(_SW_IIC_SUPPORT == _ON)
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 3   
+
+ 111          BYTE idata g_ucSwIICStatus;
+ 112          #endif
+ 113          
+ 114          #if(_DUAL_BANK_SUPPORT == _ON)
+              BYTE data g_ucMcuBankOffset                               _at_     0x30;
+              #endif
+ 117          
+ 118          #if(_HW_IIC_SUPPORT == _ON)
+              BYTE g_ucHwI2cSettingIndex = _HW_IIC_SPEED;
+              #endif
+ 121          
+ 122          //****************************************************************************
+ 123          // FUNCTION DECLARATIONS
+ 124          //****************************************************************************
+ 125          void ScalerMcuCacheControl(bit bControl);
+ 126          void ScalerMcuDdcciSendData(BYTE *pucWriteArray);
+ 127          
+ 128          #if((_DP_MST_SUPPORT == _ON) && (_DP_TX_SUPPORT == _ON))
+              void ScalerMcuDdcciSetData(BYTE *pucReadArray, BYTE ucLength, EnumDdcciCmdSrc enumDdcciCmdSrc);
+              #endif
+ 131          
+ 132          #if(_DDCCI_CODE_REDUCTION == _OFF)
+ 133          BYTE ScalerMcuDdcciGetBufferSize(void);
+ 134          
+ 135          #if(_DEBUG_MESSAGE_SUPPORT == _OFF)
+ 136          #if((_HDMI_FREESYNC_SUPPORT == _ON) && (_HDMI_FREESYNC_CAPABILITY_SWITCH_METHOD == _MCCS_SWITCH_MODE))
+ 137          BYTE ScalerMcuDdcciGetInputPort_EXINT1(void);
+ 138          #endif
+ 139          #endif
+ 140          #endif
+ 141          
+ 142          #if(_DEBUG_MESSAGE_SUPPORT == _OFF)
+ 143          BYTE ScalerMcuDdcciIntGetData_EXINT1(BYTE *pucReadArray);
+ 144          #endif
+ 145          
+ 146          #if(_FLASH_CLK_SPEED == _FLASH_LOW_SPEED)
+              void ScalerMcuFlashClockDiv(EnumFlashClkDiv enumClkDiv);
+              void ScalerMcuSwitchFlashMcuFastSpeed(bit bEnable);
+              #endif
+ 150          
+ 151          #if(_SYSTEM_LOW_POWER_IDLE_SUPPORT == _ON)
+ 152          void ScalerMcuIntoIdle(void);
+ 153          #endif
+ 154          
+ 155          #if(_LOW_SPEED_ADC_SUPPORT == _ON)
+ 156          void ScalerMcuSarAdcClkSel(EnumClkSel enumClock);
+ 157          #endif
+ 158          
+ 159          #if(_PWM_FUNCTION_SUPPORT == _ON)
+ 160          void ScalerMcuPwmClockSel(EnumClkSel enumClock);
+ 161          void ScalerMcuPwmAdjustResetByDvs(BYTE ucPwmType, bit bStatus);
+ 162          bit ScalerMcuPwmAdjustFrequency(BYTE ucPwmType, WORD usFrequency);
+ 163          #endif
+ 164          
+ 165          void ScalerMcu5usDelayCalc(EnumClkSel enumClock);
+ 166          
+ 167          #if(_SW_IIC_SUPPORT == _ON)
+ 168          BYTE ScalerMcuIICStart(BYTE ucSlaveAddr);
+ 169          void ScalerMcuIICStop(void);
+ 170          BYTE ScalerMcuIICGetAck(void);
+ 171          void ScalerMcuIICSendAck(void);
+ 172          void ScalerMcuIICSendNoAck(void);
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 4   
+
+ 173          BYTE ScalerMcuIICGetByte(void);
+ 174          BYTE ScalerMcuIICSendByte(BYTE ucValue);
+ 175          bit ScalerMcuIICWriteStart(BYTE ucSlaveAddr, BYTE ucSubAddrLength, DWORD ulSubAddr);
+ 176          #if(_EEPROM_ACCESS_FUNCTION_SUPPORT == _ON || _HDMI_24C02_SUPPORT)
+ 177          bit ScalerMcuIICWritePolling(BYTE ucSlaveAddr);
+ 178          #endif
+ 179          bit ScalerMcuIICRead(BYTE ucSlaveAddr, BYTE ucSubAddrLength, DWORD ulSubAddr, WORD usLength, BYTE *pucRead
+             -Array);
+ 180          bit ScalerMcuIICWrite(BYTE ucSlaveAddr, BYTE ucSubAddrLength, DWORD ulSubAddr, WORD usLength, BYTE *pucWri
+             -teArray);
+ 181          #endif
+ 182          
+ 183          #if(_HW_IIC_SUPPORT == _ON)
+              void ScalerMcuHwIICConfigSetting(EnumHWIICParType enumParType);
+              void ScalerMcuHwIICInitial(void);
+              void ScalerMcuHwIICSetFreqDiv(EnumClkSel enumClock);
+              #if(_EEPROM_ACCESS_FUNCTION_SUPPORT == _ON || _HDMI_24C02_SUPPORT)
+              bit ScalerMcuHwIICWritePolling(BYTE ucSlaveAddr, BYTE ucSubAddrLength, BYTE ucHwIICPinNum);
+              #endif
+              bit ScalerMcuHwIICRead(BYTE ucSlaveAddr, BYTE ucSubAddrLength, WORD usSubAddr, BYTE ucDataLength, BYTE *pu
+             -cReadArray, BYTE ucHwIICPinNum);
+              bit ScalerMcuHwIICWrite(BYTE ucSlaveAddr, BYTE ucSubAddrLength, WORD usSubAddr, BYTE ucDataLength, BYTE *p
+             -ucWriteArray, BYTE ucHwIICPinNum);
+              #endif
+ 193          
+ 194          #if(_UART_SUPPORT == _ON)
+              bit ScalerMcuUartWrite(BYTE ucValue);
+              #endif
+ 197          
+ 198          void ScalerMcuIspInitial(void);
+ 199          
+ 200          //****************************************************************************
+ 201          // FUNCTION DEFINITIONS
+ 202          //****************************************************************************
+ 203          //--------------------------------------------------
+ 204          // Description  : Cache Control
+ 205          // Input Value  : bControl
+ 206          // Output Value : None
+ 207          //--------------------------------------------------
+ 208          void ScalerMcuCacheControl(bit bControl)
+ 209          {
+ 210   1          if(bControl == _ENABLE)
+ 211   1          {
+ 212   2              // Enable Cache
+ 213   2              MCU_FDA0_CACHE_FUNCTION |= _BIT0;
+ 214   2          }
+ 215   1          else
+ 216   1          {
+ 217   2              // Disable Cache
+ 218   2              MCU_FDA0_CACHE_FUNCTION &= ~_BIT0;
+ 219   2          }
+ 220   1      }
+ 221          
+ 222          //--------------------------------------------------
+ 223          // Description  : Send DDC Data
+ 224          // Input Value  : pWriteArray --> Data to be sent
+ 225          //                usTimeOutCnt --> Timeout
+ 226          // Output Value : None
+ 227          //--------------------------------------------------
+ 228          void ScalerMcuDdcciSendData(BYTE *pucWriteArray)
+ 229          {
+ 230   1          WORD usTimeOutCnt = _DDCCI_TIMEOUT_LIMIT;
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 5   
+
+ 231   1          BYTE ucDdcciCount = 0;
+ 232   1      
+ 233   1          if((MCU_FF27_IIC_STATUS & _BIT0) == _BIT0)
+ 234   1          {
+ 235   2              g_bSrcReadDdcciAlready = _TRUE;
+ 236   2      
+ 237   2              // Clear Flag
+ 238   2              MCU_FF27_IIC_STATUS &= ~_BIT0;
+ 239   2          }
+ 240   1      
+ 241   1          // Enable mcu write
+ 242   1          MCU_FF2A_IIC_IRQ_CONTROL2 |= (_BIT6 | _BIT5);
+ 243   1      
+ 244   1      #if(_SMBUS_BLOCK_READ_WRITE_COMMAND_SUPPORT == _ON)
+                  if(GET_SMBUS_BLOCK_RW_STATUS() == _TRUE)
+                  {
+                      MCU_FF26_IIC_DATA_OUT = g_stSmbusBlockRWCmd.ucDataLen;
+                  }
+              #endif
+ 250   1      
+ 251   1          while(ucDdcciCount < ((pucWriteArray[_DDCCI_LENGTH] & 0x7F) + 3))
+ 252   1          {
+ 253   2              // Load data to DDC-CI buffer until buffer full
+ 254   2              if((MCU_FF29_IIC_STATUS2 & _BIT2) == 0)
+ 255   2              {
+ 256   3                  MCU_FF26_IIC_DATA_OUT = pucWriteArray[ucDdcciCount++];
+ 257   3      
+ 258   3                  usTimeOutCnt = _DDCCI_TIMEOUT_LIMIT;
+ 259   3              }
+ 260   2              else
+ 261   2              {
+ 262   3                  ScalerTimerDelayXms(2);
+ 263   3      
+ 264   3                  usTimeOutCnt--;
+ 265   3              }
+ 266   2      
+ 267   2              if(usTimeOutCnt == 0)
+ 268   2              {
+ 269   3                  break;
+ 270   3              }
+ 271   2          }
+ 272   1      
+ 273   1          // Disable mcu write
+ 274   1          MCU_FF2A_IIC_IRQ_CONTROL2 &= ~_BIT5;
+ 275   1      }
+ 276          
+ 277          #if((_DP_MST_SUPPORT == _ON) && (_DP_TX_SUPPORT == _ON))
+              //--------------------------------------------------
+              // Description  : Set DDC Data
+              // Input Value  : *pucReadArray, ucLength, enumDdcciCmdSrc
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerMcuDdcciSetData(BYTE *pucReadArray, BYTE ucLength, EnumDdcciCmdSrc enumDdcciCmdSrc)
+              {
+                  memcpy(g_pucDdcciRxBuf, pucReadArray, ucLength);
+              
+                  SET_RUN_DDCCI_COMMAND(_SUCCESS);
+                  SET_RUN_DDCCI_COMMAND_SRC(enumDdcciCmdSrc);
+              }
+              #endif
+ 291          
+ 292          #if(_DDCCI_CODE_REDUCTION == _OFF)
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 6   
+
+ 293          //--------------------------------------------------
+ 294          // Description  : Get DDC Buffer Size
+ 295          // Input Value  : None
+ 296          // Output Value : DDCCI Buffer Size
+ 297          //--------------------------------------------------
+ 298          BYTE ScalerMcuDdcciGetBufferSize(void)
+ 299          {
+ 300   1          return _DDCCI_BUFFER_SIZE;
+ 301   1      }
+ 302          
+ 303          #if(_DEBUG_MESSAGE_SUPPORT == _OFF)
+ 304          #if((_HDMI_FREESYNC_SUPPORT == _ON) && (_HDMI_FREESYNC_CAPABILITY_SWITCH_METHOD == _MCCS_SWITCH_MODE))
+ 305          //--------------------------------------------------
+ 306          // Description  : Get InputPort by checking Active DDC Channel for Ddccci
+ 307          // Input Value  : None
+ 308          // Output Value : InputPort
+ 309          //--------------------------------------------------
+ 310          BYTE ScalerMcuDdcciGetInputPort_EXINT1(void) using 2
+ 311          {
+ 312   1          BYTE ucInput = _NO_INPUT_PORT;
+ 313   1      
+ 314   1          switch(GET_DDC_CHANNEL())
+ 315   1          {
+ 316   2              case _VGA_DDC2:
+ 317   2              case _VGA_DDC:
+ 318   2                  ucInput = _A0_INPUT_PORT;
+ 319   2                  break;
+ 320   2      
+ 321   2              case _DDC0:
+ 322   2      #if((_D0_INPUT_PORT_TYPE != _D0_NO_PORT) && (_D0_DDC_CHANNEL_SEL == _DDC0))
+                          ucInput = _D0_INPUT_PORT;
+              #elif((_D1_INPUT_PORT_TYPE != _D1_NO_PORT) && (_D1_DDC_CHANNEL_SEL == _DDC0))
+                          ucInput = _D1_INPUT_PORT;
+              #elif(((_D2_INPUT_PORT_TYPE != _D2_NO_PORT) && (_D2_DDC_CHANNEL_SEL == _DDC0)) ||\
+                    ((_D2_INPUT_PORT_TYPE == _D2_DUAL_DVI_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC0)))
+                          ucInput = _D2_INPUT_PORT;
+              #elif(((_D3_INPUT_PORT_TYPE != _D3_NO_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC0)) ||\
+                    ((_D3_INPUT_PORT_TYPE == _D3_DUAL_DVI_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC0)))
+                          ucInput = _D3_INPUT_PORT;
+              #elif(((_D4_INPUT_PORT_TYPE != _D4_NO_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC0)) ||\
+                    ((_D4_INPUT_PORT_TYPE == _D4_DUAL_DVI_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC0)))
+                          ucInput = _D4_INPUT_PORT;
+              #elif((_D5_INPUT_PORT_TYPE != _D5_NO_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC0))
+                          ucInput = _D5_INPUT_PORT;
+              #endif
+ 338   2                  break;
+ 339   2      
+ 340   2              case _DDC1:
+ 341   2      #if((_D0_INPUT_PORT_TYPE != _D0_NO_PORT) && (_D0_DDC_CHANNEL_SEL == _DDC1))
+                          ucInput = _D0_INPUT_PORT;
+              #elif((_D1_INPUT_PORT_TYPE != _D1_NO_PORT) && (_D1_DDC_CHANNEL_SEL == _DDC1))
+ 344   2                  ucInput = _D1_INPUT_PORT;
+ 345   2      #elif(((_D2_INPUT_PORT_TYPE != _D2_NO_PORT) && (_D2_DDC_CHANNEL_SEL == _DDC1)) ||\
+ 346   2            ((_D2_INPUT_PORT_TYPE == _D2_DUAL_DVI_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC1)))
+                          ucInput = _D2_INPUT_PORT;
+              #elif(((_D3_INPUT_PORT_TYPE != _D3_NO_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC1)) ||\
+                    ((_D3_INPUT_PORT_TYPE == _D3_DUAL_DVI_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC1)))
+                          ucInput = _D3_INPUT_PORT;
+              #elif(((_D4_INPUT_PORT_TYPE != _D4_NO_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC1)) ||\
+                    ((_D4_INPUT_PORT_TYPE == _D4_DUAL_DVI_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC1)))
+                          ucInput = _D4_INPUT_PORT;
+              #elif((_D5_INPUT_PORT_TYPE != _D5_NO_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC1))
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 7   
+
+                          ucInput = _D5_INPUT_PORT;
+              #endif
+ 357   2                  break;
+ 358   2      
+ 359   2              case _DDC2:
+ 360   2      #if((_D0_INPUT_PORT_TYPE != _D0_NO_PORT) && (_D0_DDC_CHANNEL_SEL == _DDC2))
+                          ucInput = _D0_INPUT_PORT;
+              #elif((_D1_INPUT_PORT_TYPE != _D1_NO_PORT) && (_D1_DDC_CHANNEL_SEL == _DDC2))
+                          ucInput = _D1_INPUT_PORT;
+              #elif(((_D2_INPUT_PORT_TYPE != _D2_NO_PORT) && (_D2_DDC_CHANNEL_SEL == _DDC2)) ||\
+                    ((_D2_INPUT_PORT_TYPE == _D2_DUAL_DVI_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC2)))
+                          ucInput = _D2_INPUT_PORT;
+              #elif(((_D3_INPUT_PORT_TYPE != _D3_NO_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC2)) ||\
+                    ((_D3_INPUT_PORT_TYPE == _D3_DUAL_DVI_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC2)))
+                          ucInput = _D3_INPUT_PORT;
+              #elif(((_D4_INPUT_PORT_TYPE != _D4_NO_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC2)) ||\
+                    ((_D4_INPUT_PORT_TYPE == _D4_DUAL_DVI_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC2)))
+                          ucInput = _D4_INPUT_PORT;
+              #elif((_D5_INPUT_PORT_TYPE != _D5_NO_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC2))
+                          ucInput = _D5_INPUT_PORT;
+              #endif
+ 376   2                  break;
+ 377   2      
+ 378   2              case _DDC3:
+ 379   2      #if((_D0_INPUT_PORT_TYPE != _D0_NO_PORT) && (_D0_DDC_CHANNEL_SEL == _DDC3))
+                          ucInput = _D0_INPUT_PORT;
+              #elif((_D1_INPUT_PORT_TYPE != _D1_NO_PORT) && (_D1_DDC_CHANNEL_SEL == _DDC3))
+                          ucInput = _D1_INPUT_PORT;
+              #elif(((_D2_INPUT_PORT_TYPE != _D2_NO_PORT) && (_D2_DDC_CHANNEL_SEL == _DDC3)) ||\
+                    ((_D2_INPUT_PORT_TYPE == _D2_DUAL_DVI_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC3)))
+                          ucInput = _D2_INPUT_PORT;
+              #elif(((_D3_INPUT_PORT_TYPE != _D3_NO_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC3)) ||\
+                    ((_D3_INPUT_PORT_TYPE == _D3_DUAL_DVI_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC3)))
+                          ucInput = _D3_INPUT_PORT;
+              #elif(((_D4_INPUT_PORT_TYPE != _D4_NO_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC3)) ||\
+                    ((_D4_INPUT_PORT_TYPE == _D4_DUAL_DVI_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC3)))
+                          ucInput = _D4_INPUT_PORT;
+              #elif((_D5_INPUT_PORT_TYPE != _D5_NO_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC3))
+                          ucInput = _D5_INPUT_PORT;
+              #endif
+ 395   2                  break;
+ 396   2      
+ 397   2              case _DDC4:
+ 398   2      #if((_D0_INPUT_PORT_TYPE != _D0_NO_PORT) && (_D0_DDC_CHANNEL_SEL == _DDC4))
+                          ucInput = _D0_INPUT_PORT;
+              #elif((_D1_INPUT_PORT_TYPE != _D1_NO_PORT) && (_D1_DDC_CHANNEL_SEL == _DDC4))
+                          ucInput = _D1_INPUT_PORT;
+              #elif(((_D2_INPUT_PORT_TYPE != _D2_NO_PORT) && (_D2_DDC_CHANNEL_SEL == _DDC4)) ||\
+                    ((_D2_INPUT_PORT_TYPE == _D2_DUAL_DVI_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC4)))
+                          ucInput = _D2_INPUT_PORT;
+              #elif(((_D3_INPUT_PORT_TYPE != _D3_NO_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC4)) ||\
+                    ((_D3_INPUT_PORT_TYPE == _D3_DUAL_DVI_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC4)))
+                          ucInput = _D3_INPUT_PORT;
+              #elif(((_D4_INPUT_PORT_TYPE != _D4_NO_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC4)) ||\
+                    ((_D4_INPUT_PORT_TYPE == _D4_DUAL_DVI_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC4)))
+                          ucInput = _D4_INPUT_PORT;
+              #elif((_D5_INPUT_PORT_TYPE != _D5_NO_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC4))
+                          ucInput = _D5_INPUT_PORT;
+              #endif
+ 414   2                  break;
+ 415   2      
+ 416   2              case _DDC5:
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 8   
+
+ 417   2      #if((_D0_INPUT_PORT_TYPE != _D0_NO_PORT) && (_D0_DDC_CHANNEL_SEL == _DDC5))
+                          ucInput = _D0_INPUT_PORT;
+              #elif((_D1_INPUT_PORT_TYPE != _D1_NO_PORT) && (_D1_DDC_CHANNEL_SEL == _DDC5))
+                          ucInput = _D1_INPUT_PORT;
+              #elif(((_D2_INPUT_PORT_TYPE != _D2_NO_PORT) && (_D2_DDC_CHANNEL_SEL == _DDC5)) ||\
+                    ((_D2_INPUT_PORT_TYPE == _D2_DUAL_DVI_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC5)))
+                          ucInput = _D2_INPUT_PORT;
+              #elif(((_D3_INPUT_PORT_TYPE != _D3_NO_PORT) && (_D3_DDC_CHANNEL_SEL == _DDC5)) ||\
+                    ((_D3_INPUT_PORT_TYPE == _D3_DUAL_DVI_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC5)))
+                          ucInput = _D3_INPUT_PORT;
+              #elif(((_D4_INPUT_PORT_TYPE != _D4_NO_PORT) && (_D4_DDC_CHANNEL_SEL == _DDC5)) ||\
+                    ((_D4_INPUT_PORT_TYPE == _D4_DUAL_DVI_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC5)))
+                          ucInput = _D4_INPUT_PORT;
+              #elif((_D5_INPUT_PORT_TYPE != _D5_NO_PORT) && (_D5_DDC_CHANNEL_SEL == _DDC5))
+                          ucInput = _D5_INPUT_PORT;
+              #endif
+ 433   2                  break;
+ 434   2      
+ 435   2              default:
+ 436   2                  ucInput = _NO_INPUT_PORT;
+ 437   2                  break;
+ 438   2          }
+ 439   1      
+ 440   1          return ucInput;
+ 441   1      }
+ 442          #endif
+ 443          #endif
+ 444          #endif
+ 445          
+ 446          #if(_DEBUG_MESSAGE_SUPPORT == _OFF)
+ 447          //--------------------------------------------------
+ 448          // Description  : Get DDC-CI Data in Interrupt Process
+ 449          // Input Value  : pReadArray --> Data received
+ 450          // Output Value : _SUCCESS or _FAIL
+ 451          //--------------------------------------------------
+ 452          BYTE ScalerMcuDdcciIntGetData_EXINT1(BYTE *pucReadArray) using 2
+ 453          {
+ 454   1          BYTE ucDdcciCmdLength = 0;
+ 455   1      #if(_DEF_DDCCI_WB_TOOL)
+ 456   1                      BYTE checksum = 0XC1;
+ 457   1                      BYTE i = 0;
+ 458   1      #endif  
+ 459   1      
+ 460   1          // Get DDC-CI Source Address
+ 461   1          if((MCU_FF27_IIC_STATUS & _BIT1) == _BIT1)
+ 462   1          {
+ 463   2              g_ucDdcciCountEXINT = 0;
+ 464   2      
+ 465   2              // Save Address
+ 466   2              pucReadArray[g_ucDdcciCountEXINT++] = MCU_FF24_IIC_SUB_IN;
+ 467   2      
+ 468   2              // Clear Flag
+ 469   2              MCU_FF27_IIC_STATUS &= ~_BIT1;
+ 470   2          }
+ 471   1      
+ 472   1          if((MCU_FF27_IIC_STATUS & _BIT2) == _BIT2)
+ 473   1          {
+ 474   2              // Save received data until buffer empty
+ 475   2              while((MCU_FF29_IIC_STATUS2 & _BIT1) == 0)
+ 476   2              {
+ 477   3                  if(g_ucDdcciCountEXINT >= _DDCCI_RXBUF_LENGTH)
+ 478   3                  {
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 9   
+
+ 479   4                      // Reset data buffer
+ 480   4                      MCU_FF2A_IIC_IRQ_CONTROL2 |= _BIT6;
+ 481   4      
+ 482   4                      g_ucDdcciCountEXINT = 0;
+ 483   4      
+ 484   4                      break;
+ 485   4                  }
+ 486   3      
+ 487   3                  pucReadArray[g_ucDdcciCountEXINT++] = MCU_FF25_IIC_DATA_IN;
+ 488   3      
+ 489   3      #if(_SMBUS_BLOCK_READ_WRITE_COMMAND_SUPPORT == _ON)
+                          // smbus
+                          // For Fixed SMBUS has byte count issue. Smbus Max Len 32
+                          if((g_ucDdcciCountEXINT == 2) && ((pucReadArray[_DDCCI_LENGTH] & (_BIT7 | _BIT6 | _BIT5)) == 0
+             -x00))
+                          {
+                              // Ignore SMBUS byte count.
+                              g_ucDdcciCountEXINT--;
+                          }
+              #endif
+ 498   3      
+ 499   3                  ucDdcciCmdLength = (pucReadArray[_DDCCI_LENGTH] & 0x7F) + 3;
+ 500   3      
+ 501   3                  // All data are received
+ 502   3                  if(ucDdcciCmdLength == g_ucDdcciCountEXINT)
+ 503   3                  {
+ 504   4                      // Reset data buffer and Enable mcu write
+ 505   4                      MCU_FF2A_IIC_IRQ_CONTROL2 |= (_BIT6 | _BIT5);
+ 506   4      
+ 507   4                      g_ucDdcciCountEXINT = 0;
+ 508   4      
+ 509   4                      if((g_bSrcReadDdcciAlready == _TRUE) && (ucDdcciCmdLength <= sizeof(g_pucDdcciRxBackBuf)) 
+             -&& (ucDdcciCmdLength == g_ucDdcciCmdLengthBack) && (memcmp(g_pucDdcciRxBackBuf, pucReadArray, ucDdcciCmdLength) == 0))
+ 510   4                      {
+ 511   5                          BYTE ucPreTxLength = (g_pucDdcciTxBuf[_DDCCI_LENGTH] & 0x7F) + 3;
+ 512   5      
+ 513   5                          if(ucPreTxLength <= _DDCCI_TXBUF_LENGTH)
+ 514   5                          {
+ 515   6                              pData_EXINT[0] = 0;
+ 516   6                              while(pData_EXINT[0] < ucPreTxLength)
+ 517   6                              {
+ 518   7                                  // Load data to DDC-CI buffer until buffer full
+ 519   7                                  if((MCU_FF29_IIC_STATUS2 & _BIT2) == 0)
+ 520   7                                  {
+ 521   8                                      MCU_FF26_IIC_DATA_OUT = g_pucDdcciTxBuf[pData_EXINT[0]++];
+ 522   8                                  }
+ 523   7                              }
+ 524   6                          }
+ 525   5      
+ 526   5                          // Retry case flag
+ 527   5                          g_ucMcuDdcciRetry = _TRUE;
+ 528   5                      }
+ 529   4                      else
+ 530   4                      {
+ 531   5                          for(pData_EXINT[0] = 32; pData_EXINT[0] > 0; pData_EXINT[0] --)
+ 532   5                          {
+ 533   6                              MCU_FF26_IIC_DATA_OUT = 0;
+ 534   6                          }
+ 535   5      
+ 536   5                          if(ucDdcciCmdLength <= sizeof(g_pucDdcciRxBackBuf))
+ 537   5                          {
+ 538   6                              memcpy(g_pucDdcciRxBackBuf, pucReadArray, ucDdcciCmdLength);
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 10  
+
+ 539   6      
+ 540   6                              g_ucDdcciCmdLengthBack = ucDdcciCmdLength;
+ 541   6                          }
+ 542   5                          else
+ 543   5                          {
+ 544   6                              g_ucDdcciCmdLengthBack = 0;
+ 545   6                          }
+ 546   5      
+ 547   5                          // Reset data buffer
+ 548   5                          MCU_FF2A_IIC_IRQ_CONTROL2 |= _BIT6;
+ 549   5                      }
+ 550   4      
+ 551   4                      // Clear Flag
+ 552   4                      MCU_FF27_IIC_STATUS &= ~_BIT0;
+ 553   4      
+ 554   4                      // Disable mcu write
+ 555   4                      MCU_FF2A_IIC_IRQ_CONTROL2 &= ~_BIT5;
+ 556   4      
+ 557   4                      g_bSrcReadDdcciAlready = _FALSE;
+ 558   4      
+ 559   4      #if((_OGC_SUPPORT == _ON) || (_OCC_SUPPORT == _ON) || (_OGC_DICOM_SUPPORT == _ON))
+                              if((pucReadArray[3] == _DDCCI_OPCODE_VCP_DISP_CALIBRATION) && (pucReadArray[2] == 0x03))
+                              {
+                                  // Hold Scl for Display Calibration Process
+                                  ScalerMcuDdcciHoldScl_EXINT1();
+                              }
+              #endif
+ 566   4      
+ 567   4      
+ 568   4      #if(_DEF_DDCCI_WB_TOOL)
+ 569   4                                      if((pucReadArray[3] == 0x7B)&& (pucReadArray[2] == 0x03))
+ 570   4                                      {
+ 571   5                                          ScalerMcuDdcciHoldScl_EXINT1();
+ 572   5                                      }
+ 573   4      
+ 574   4      
+ 575   4                                      // 因为工具没有检测checksum，所以要加一个检测
+ 576   4                                      if((pucReadArray[3] == 0xfe))
+ 577   4                                      {
+ 578   5                                              checksum = checksum^pucReadArray[1];
+ 579   5                                              checksum = checksum^pucReadArray[2];
+ 580   5      
+ 581   5                                              for(i = 0;i<(ucDdcciCmdLength-1);i++)
+ 582   5                                              {
+ 583   6                                                      checksum = checksum ^ pucReadArray[4+i];
+ 584   6                                              }
+ 585   5      
+ 586   5                                              if(checksum ==0)
+ 587   5                                              // Hold Scl for Display Calibration Process
+ 588   5                                                      ScalerMcuDdcciHoldScl_EXINT1();
+ 589   5                                              else                                            
+ 590   5                                                      return _FAIL;
+ 591   5      
+ 592   5                                      }
+ 593   4      
+ 594   4      #endif
+ 595   4      
+ 596   4      
+ 597   4      #if(_SMBUS_BLOCK_READ_WRITE_COMMAND_SUPPORT == _ON)
+                              if(g_stSmbusBlockRWCmd.b1SmbusEnable == _TRUE)
+                              {
+                                  ScalerTimerCancelTimerEvent_EXINT1(_SCALER_TIMER_EVENT_SMBUS_BLOCK_READ_WRITE);
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 11  
+
+                              }
+              #endif
+ 603   4      
+ 604   4                      if(g_ucMcuDdcciRetry == _TRUE)
+ 605   4                      {
+ 606   5                          return _FAIL;
+ 607   5                      }
+ 608   4                      else
+ 609   4                      {
+ 610   5                          return _SUCCESS;
+ 611   5                      }
+ 612   4                  }
+ 613   3              }
+ 614   2          }
+ 615   1      
+ 616   1          return _FAIL;
+ 617   1      }
+ 618          
+ 619          #endif // End of #if(_DEBUG_MESSAGE_SUPPORT == _OFF)
+ 620          
+ 621          #if(_FLASH_CLK_SPEED == _FLASH_LOW_SPEED)
+              //--------------------------------------------------
+              // Description  : Set Flash Clock Divider.
+              // Input Value  : ClkDiv --> Flash Clock Divider
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerMcuFlashClockDiv(EnumFlashClkDiv enumClkDiv)
+              {
+                  enumClkDiv &= 0x0F;
+                  enumClkDiv = (enumClkDiv << 2);
+                  enumClkDiv |= (MCU_FFED_MCU_CONTROL & 0xC3);
+                  MCU_FFED_MCU_CONTROL = enumClkDiv;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Set Flash & Mcu Divider when OSD is running.
+              // Input Value  : Fast or Low Speed
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerMcuSwitchFlashMcuFastSpeed(bit bEnable)
+              {
+                  // Only Take Effect when Flash Clk is From M2PLL
+                  if((MCU_FFED_MCU_CONTROL & _BIT1) == _BIT1)
+                  {
+                      if(bEnable == _ENABLE)
+                      {
+                          // Don't Switch Again If It's Already Using Fast Div
+                          if(((MCU_FFED_MCU_CONTROL & 0x3C) >> 2) != _FLASH_CLK_FAST_DIV)
+                          {
+                              // Switch Flash and MCU Clock to high speed
+                              ScalerMcuFlashClockDiv(_FLASH_CLK_FAST_DIV);
+              
+                              // Reload Timer Count
+                              ScalerTimerSetTimerCount(_TIMER_OPERATION_OSD_MODE);
+                          }
+                      }
+                      else if(bEnable == _DISABLE)
+                      {
+                          // Don't Switch Again If It's Already Using Normal Div
+                          if(((MCU_FFED_MCU_CONTROL & 0x3C) >> 2) != _FLASH_CLK_DIV)
+                          {
+                              // Switch Flash and MCU Clock to low speed
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 12  
+
+                              ScalerMcuFlashClockDiv(_FLASH_CLK_DIV);
+              
+                              // Reload Timer Count
+                              ScalerTimerSetTimerCount(_TIMER_OPERATION_POWER_NORMAL_MODE);
+                          }
+                      }
+                  }
+              }
+              #endif
+ 672          
+ 673          #if(_SYSTEM_LOW_POWER_IDLE_SUPPORT == _ON)
+ 674          //--------------------------------------------------
+ 675          // Description  : Enable MCU Into Idle Mode
+ 676          // Input Value  : None.
+ 677          // Output Value : None
+ 678          //--------------------------------------------------
+ 679          void ScalerMcuIntoIdle(void)
+ 680          {
+ 681   1          // Enable MCU into idle mode.
+ 682   1          PCON |= _BIT0;
+ 683   1      }
+ 684          #endif
+ 685          
+ 686          #if(_LOW_SPEED_ADC_SUPPORT == _ON)
+ 687          //--------------------------------------------------
+ 688          // Description  : SARADC Clock Select.
+ 689          // Input Value  : enumClock --> _M2PLL_CLK/_IOSC_CLK
+ 690          // Output Value : None
+ 691          //--------------------------------------------------
+ 692          void ScalerMcuSarAdcClkSel(EnumClkSel enumClock)
+ 693          {
+ 694   1          if(enumClock == _EXT_XTAL_CLK)
+ 695   1          {
+ 696   2              // ADC clk from external Xtal and div by 4 to obtain clk target 3MHz
+ 697   2              MCU_FF0D_ADC_CLK_DIV = 0x04;
+ 698   2          }
+ 699   1          else
+ 700   1          {
+ 701   2              // ADC clk from IOSC(27M) and div by 9 to obtain clk target 3MHz
+ 702   2              MCU_FF0D_ADC_CLK_DIV = 0x09;
+ 703   2          }
+ 704   1      }
+ 705          
+ 706          #endif  // End of #if(_LOW_SPEED_ADC_SUPPORT == _ON)
+ 707          
+ 708          #if(_PWM_FUNCTION_SUPPORT == _ON)
+ 709          //--------------------------------------------------
+ 710          // Description  : PWM Clock Switch.
+ 711          // Input Value  : Clock --> _M2PLL_CLK/_EXT_XTAL_CLK(_IOSC_CLK)
+ 712          // Output Value : None
+ 713          //--------------------------------------------------
+ 714          void ScalerMcuPwmClockSel(EnumClkSel enumClock)
+ 715          {
+ 716   1          WORD usCLKDiv = 0;
+ 717   1          WORD usFrequency = 0;
+ 718   1      
+ 719   1          ////////////////////////////////
+ 720   1          // Adjust PWMx divider: M & N //
+ 721   1          ////////////////////////////////
+ 722   1      
+ 723   1      #if((_PWM0_EN == _ON) || (_PWM0_PSAV_EN == _ON) || (_PWM0_PDOW_EN == _ON))
+ 724   1      
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 13  
+
+ 725   1          // Get PWM0 M and N Value
+ 726   1          // PWM CLK divider = 2^M * (N + 1)
+ 727   1          // M = (0x01 <<(MCU_FF3B_PWM03_M & (_BIT1 | _BIT0)))
+ 728   1          // N = (((WORD)((MCU_FF3D_PWM01_N_MSB & (_BIT3 | _BIT2 | _BIT1 | _BIT0)) << 8) | MCU_FF3E_PWM0_N_LSB) 
+             -+ 1)
+ 729   1          usCLKDiv = (0x01 << (MCU_FF3B_PWM03_M & (_BIT1 | _BIT0))) * (((WORD)((MCU_FF3D_PWM01_N_MSB & (_BIT3 | 
+             -_BIT2 | _BIT1 | _BIT0)) << 8) | MCU_FF3E_PWM0_N_LSB) + 1);
+ 730   1      
+ 731   1          if((MCU_FF3A_PWM_CK_SEL & _BIT0) == _BIT0)
+ 732   1          {
+ 733   2      #if(_HW_MCU_PWM_HW_REF_HALF_OF_M2PLL == _ON)
+ 734   2              // Calculate N Divider for M2PLL / 2
+ 735   2              // HW Using M2Pll / 2 as PWM Reference Clock Source
+ 736   2              usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION / _DIV_2;
+ 737   2      #else
+                      // Calculate N Divider for M2PLL
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION;
+              #endif
+ 741   2          }
+ 742   1          else
+ 743   1          {
+ 744   2              usFrequency = (((DWORD)_INTERNAL_OSC_XTAL * 1000) / (0x01 << _IOSC_DIV)) / usCLKDiv / _PWM_DUT_RES
+             -OLUTION;
+ 745   2          }
+ 746   1      
+ 747   1          if(enumClock == _M2PLL_CLK)
+ 748   1          {
+ 749   2              // Switch Clock To M2PLL
+ 750   2              MCU_FF3A_PWM_CK_SEL |= _BIT0;
+ 751   2          }
+ 752   1          else
+ 753   1          {
+ 754   2              // Switch Clock To IOSC
+ 755   2              MCU_FF3A_PWM_CK_SEL &= ~_BIT0;
+ 756   2          }
+ 757   1      
+ 758   1          ScalerMcuPwmAdjustFrequency(_PWM0, usFrequency);
+ 759   1      
+ 760   1      #endif // End of #if((_PWM0_EN == _ON) || (_PWM0_PSAV_EN == _ON) || (_PWM0_PDOW_EN == _ON))
+ 761   1      
+ 762   1      #if((_PWM1_EN == _ON) || (_PWM1_PSAV_EN == _ON) || (_PWM1_PDOW_EN == _ON))
+              
+                  // Get PWM1 M and N Value
+                  // PWM CLK divider = 2^M * (N + 1)
+                  // M = (0x01 <<(MCU_FF3B_PWM03_M & (_BIT3 | _BIT2)))
+                  // N = (((WORD)((MCU_FF3D_PWM01_N_MSB & (_BIT7 | _BIT6 | _BIT5 | _BIT4)) << 8) | MCU_FF3F_PWM1_N_LSB) 
+             -+ 1)
+                  usCLKDiv = (0x01 << ((MCU_FF3B_PWM03_M & (_BIT3 | _BIT2)) >> 2)) * (((WORD)((MCU_FF3D_PWM01_N_MSB & (_
+             -BIT7 | _BIT6 | _BIT5 | _BIT4)) << 4) | MCU_FF3F_PWM1_N_LSB) + 1);
+              
+                  if((MCU_FF3A_PWM_CK_SEL & _BIT1) == _BIT1)
+                  {
+              #if(_HW_MCU_PWM_HW_REF_HALF_OF_M2PLL == _ON)
+                      // Calculate N Divider for M2PLL / 2
+                      // HW Using M2Pll / 2 as PWM Reference Clock Source
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION / _DIV_2;
+              #else
+                      // Calculate N Divider for M2PLL
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION;
+              #endif
+                  }
+                  else
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 14  
+
+                  {
+                      usFrequency = (((DWORD)_INTERNAL_OSC_XTAL * 1000) / (0x01 << _IOSC_DIV)) / usCLKDiv / _PWM_DUT_RES
+             -OLUTION;
+                  }
+              
+                  if(enumClock == _M2PLL_CLK)
+                  {
+                      // Switch Clock To M2PLL
+                      MCU_FF3A_PWM_CK_SEL |= _BIT1;
+                  }
+                  else
+                  {
+                      // Switch Clock To IOSC
+                      MCU_FF3A_PWM_CK_SEL &= ~_BIT1;
+                  }
+              
+                  ScalerMcuPwmAdjustFrequency(_PWM1, usFrequency);
+              
+              #endif // End of #if((_PWM1_EN == _ON) || (_PWM1_PSAV_EN == _ON) || (_PWM1_PDOW_EN == _ON))
+ 800   1      
+ 801   1      #if((_PWM2_EN == _ON) || (_PWM2_PSAV_EN == _ON) || (_PWM2_PDOW_EN == _ON))
+              
+                  // Get PWM2 M and N Value
+                  // PWM CLK divider = 2^M * (N + 1)
+                  // M = (0x01 <<(MCU_FF3B_PWM03_M & (_BIT5 | _BIT4)))
+                  // N = (((WORD)((MCU_FF40_PWM23_N_MSB & (_BIT3 | _BIT2 | _BIT1 | _BIT0)) << 8) | MCU_FF41_PWM2_N_LSB) 
+             -+ 1)
+                  usCLKDiv = (0x01 << ((MCU_FF3B_PWM03_M & (_BIT5 | _BIT4)) >> 4)) * (((WORD)((MCU_FF40_PWM23_N_MSB & (_
+             -BIT3 | _BIT2 | _BIT1 | _BIT0)) << 8) | MCU_FF41_PWM2_N_LSB) + 1);
+              
+                  if((MCU_FF3A_PWM_CK_SEL & _BIT2) == _BIT2)
+                  {
+              #if(_HW_MCU_PWM_HW_REF_HALF_OF_M2PLL == _ON)
+                      // Calculate N Divider for M2PLL / 2
+                      // HW Using M2Pll / 2 as PWM Reference Clock Source
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION / _DIV_2;
+              #else
+                      // Calculate N Divider for M2PLL
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION;
+              #endif
+                  }
+                  else
+                  {
+                      usFrequency = (((DWORD)_INTERNAL_OSC_XTAL * 1000) / (0x01 << _IOSC_DIV)) / usCLKDiv / _PWM_DUT_RES
+             -OLUTION;
+                  }
+              
+                  if(enumClock == _M2PLL_CLK)
+                  {
+                      // Switch Clock To M2PLL
+                      MCU_FF3A_PWM_CK_SEL |= _BIT2;
+                  }
+                  else
+                  {
+                      // Switch Clock To IOSC
+                      MCU_FF3A_PWM_CK_SEL &= ~_BIT2;
+                  }
+              
+                  ScalerMcuPwmAdjustFrequency(_PWM2, usFrequency);
+              
+              #endif // End of #if((_PWM2_EN == _ON) || (_PWM2_PSAV_EN == _ON) || (_PWM2_PDOW_EN == _ON))
+ 839   1      
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 15  
+
+ 840   1      #if((_PWM3_EN == _ON) || (_PWM3_PSAV_EN == _ON) || (_PWM3_PDOW_EN == _ON))
+              
+                  // Get PWM3 M and N Value
+                  // PWM CLK divider = 2^M * (N + 1)
+                  // M = (0x01 <<(MCU_FF3B_PWM03_M & (_BIT7 | _BIT6)))
+                  // N = (((WORD)((MCU_FF40_PWM23_N_MSB & (_BIT7 | _BIT6 | _BIT5 | _BIT4)) << 4) | MCU_FF42_PWM3_N_LSB) 
+             -+ 1)
+                  usCLKDiv = (0x01 << ((MCU_FF3B_PWM03_M & (_BIT7 | _BIT6)) >> 6)) * (((WORD)((MCU_FF40_PWM23_N_MSB & (_
+             -BIT7 | _BIT6 | _BIT5 | _BIT4)) << 4) | MCU_FF42_PWM3_N_LSB) + 1);
+              
+                  if((MCU_FF3A_PWM_CK_SEL & _BIT3) == _BIT3)
+                  {
+              #if(_HW_MCU_PWM_HW_REF_HALF_OF_M2PLL == _ON)
+                      // Calculate N Divider for M2PLL / 2
+                      // HW Using M2Pll / 2 as PWM Reference Clock Source
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION / _DIV_2;
+              #else
+                      // Calculate N Divider for M2PLL
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION;
+              #endif
+                  }
+                  else
+                  {
+                      usFrequency = (((DWORD)_INTERNAL_OSC_XTAL * 1000) / (0x01 << _IOSC_DIV)) / usCLKDiv / _PWM_DUT_RES
+             -OLUTION;
+                  }
+              
+                  if(enumClock == _M2PLL_CLK)
+                  {
+                      // Switch Clock To M2PLL
+                      MCU_FF3A_PWM_CK_SEL |= _BIT3;
+                  }
+                  else
+                  {
+                      // Switch Clock To IOSC
+                      MCU_FF3A_PWM_CK_SEL &= ~_BIT3;
+                  }
+              
+                  ScalerMcuPwmAdjustFrequency(_PWM3, usFrequency);
+              
+              #endif // End of #if((_PWM3_EN == _ON) || (_PWM3_PSAV_EN == _ON) || (_PWM3_PDOW_EN == _ON))
+ 878   1      
+ 879   1      #if((_PWM4_EN == _ON) || (_PWM4_PSAV_EN == _ON) || (_PWM4_PDOW_EN == _ON))
+              
+                  // Get PWM4 M and N Value
+                  // PWM CLK divider = 2^M * (N + 1)
+                  // M = (0x01 <<(MCU_FF3C_PWM45_M & (_BIT1 | _BIT0)))
+                  // N = (((WORD)((MCU_FF43_PWM45_N_MSB & (_BIT7 | _BIT6 | _BIT5 | _BIT4)) << 8) | MCU_FF44_PWM4_N_LSB) 
+             -+ 1)
+                  usCLKDiv = (0x01 << (MCU_FF3C_PWM45_M & (_BIT1 | _BIT0))) * (((WORD)((MCU_FF43_PWM45_N_MSB & (_BIT7 | 
+             -_BIT6 | _BIT5 | _BIT4)) << 4) | MCU_FF44_PWM4_N_LSB) + 1);
+              
+                  if((MCU_FF3A_PWM_CK_SEL & _BIT4) == _BIT4)
+                  {
+              #if(_HW_MCU_PWM_HW_REF_HALF_OF_M2PLL == _ON)
+                      // Calculate N Divider for M2PLL / 2
+                      // HW Using M2Pll / 2 as PWM Reference Clock Source
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION / _DIV_2;
+              #else
+                      // Calculate N Divider for M2PLL
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION;
+              #endif
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 16  
+
+                  }
+                  else
+                  {
+                      usFrequency = (((DWORD)_INTERNAL_OSC_XTAL * 1000) / (0x01 << _IOSC_DIV)) / usCLKDiv / _PWM_DUT_RES
+             -OLUTION;
+                  }
+              
+                  if(enumClock == _M2PLL_CLK)
+                  {
+                      // Switch Clock To M2PLL
+                      MCU_FF3A_PWM_CK_SEL |= _BIT4;
+                  }
+                  else
+                  {
+                      // Switch Clock To IOSC
+                      MCU_FF3A_PWM_CK_SEL &= ~_BIT4;
+                  }
+              
+                  ScalerMcuPwmAdjustFrequency(_PWM4, usFrequency);
+              
+              #endif // End of #if((_PWM4_EN == _ON) || (_PWM4_PSAV_EN == _ON) || (_PWM4_PDOW_EN == _ON))
+ 917   1      
+ 918   1      #if((_PWM5_EN == _ON) || (_PWM5_PSAV_EN == _ON) || (_PWM5_PDOW_EN == _ON))
+              
+                  // Get PWM5 M and N Value
+                  // PWM CLK divider = 2^M * (N + 1)
+                  // M = (0x01 <<(MCU_FF3C_PWM45_M & (_BIT1 | _BIT0)))
+                  // N = (((WORD)((MCU_FF43_PWM45_N_MSB & (_BIT3 | _BIT2 | _BIT1 | _BIT0)) << 8) | MCU_FF44_PWM4_N_LSB) 
+             -+ 1)
+                  usCLKDiv = (0x01 << ((MCU_FF3C_PWM45_M & (_BIT3 | _BIT2)) >> 2)) * (((WORD)((MCU_FF43_PWM45_N_MSB & (_
+             -BIT3 | _BIT2 | _BIT1 | _BIT0)) << 8) | MCU_FF45_PWM5_N_LSB) + 1);
+              
+                  if((MCU_FF3A_PWM_CK_SEL & _BIT5) == _BIT5)
+                  {
+              #if(_HW_MCU_PWM_HW_REF_HALF_OF_M2PLL == _ON)
+                      // Calculate N Divider for M2PLL / 2
+                      // HW Using M2Pll / 2 as PWM Reference Clock Source
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION / _DIV_2;
+              #else
+                      // Calculate N Divider for M2PLL
+                      usFrequency = ((DWORD)_M2PLL_CLK_KHZ * 1000) / usCLKDiv / _PWM_DUT_RESOLUTION;
+              #endif
+                  }
+                  else
+                  {
+                      usFrequency = (((DWORD)_INTERNAL_OSC_XTAL * 1000) / (0x01 << _IOSC_DIV)) / usCLKDiv / _PWM_DUT_RES
+             -OLUTION;
+                  }
+              
+                  if(enumClock == _M2PLL_CLK)
+                  {
+                      // Switch Clock To M2PLL
+                      MCU_FF3A_PWM_CK_SEL |= _BIT5;
+                  }
+                  else
+                  {
+                      // Switch Clock To IOSC
+                      MCU_FF3A_PWM_CK_SEL &= ~_BIT5;
+                  }
+              
+                  ScalerMcuPwmAdjustFrequency(_PWM5, usFrequency);
+              
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 17  
+
+              #endif // End of #if((_PWM5_EN == _ON) || (_PWM5_PSAV_EN == _ON) || (_PWM5_PDOW_EN == _ON))
+ 956   1      }
+ 957          
+ 958          //--------------------------------------------------
+ 959          // Description  : Adjust PWM reset by DVS
+ 960          // Input Value  : ucPwmType --> _BACKLIGHT_PWM/_AUDIO_VOLUME...
+ 961          //                bStatus --> _ENABLE or _DISABLE
+ 962          // Output Value : None
+ 963          //--------------------------------------------------
+ 964          void ScalerMcuPwmAdjustResetByDvs(BYTE ucPwmType, bit bStatus)
+ 965          {
+ 966   1          BYTE ucMask = 0;
+ 967   1      
+ 968   1          switch(ucPwmType)
+ 969   1          {
+ 970   2              case _PWM0:
+ 971   2                  ucMask = _BIT0;
+ 972   2                  break;
+ 973   2              case _PWM1:
+ 974   2                  ucMask = _BIT1;
+ 975   2                  break;
+ 976   2              case _PWM2:
+ 977   2                  ucMask = _BIT2;
+ 978   2                  break;
+ 979   2              case _PWM3:
+ 980   2                  ucMask = _BIT3;
+ 981   2                  break;
+ 982   2              case _PWM4:
+ 983   2                  ucMask = _BIT4;
+ 984   2                  break;
+ 985   2              case _PWM5:
+ 986   2                  ucMask = _BIT5;
+ 987   2                  break;
+ 988   2              default:
+ 989   2                  break;
+ 990   2          }
+ 991   1      
+ 992   1          if(ucMask != 0)
+ 993   1          {
+ 994   2              if(bStatus == _ENABLE)
+ 995   2              {
+ 996   3                  MCU_FF47_PWM_VS_CTRL |= ucMask;
+ 997   3              }
+ 998   2              else
+ 999   2              {
+1000   3                  MCU_FF47_PWM_VS_CTRL &= ~ucMask;
+1001   3              }
+1002   2          }
+1003   1      }
+1004          
+1005          //--------------------------------------------------
+1006          // Description  : PWM Clock Switch.
+1007          // Input Value  : ucPwmType --> _BACKLIGHT_PWM/_AUDIO_VOLUME...
+1008          //                ucFrequency --> Frequency
+1009          // Output Value : None
+1010          //--------------------------------------------------
+1011          bit ScalerMcuPwmAdjustFrequency(BYTE ucPwmType, WORD usFrequency)
+1012          {
+1013   1          BYTE ucPWM_M = 0;
+1014   1          WORD usPWM_N = 0;
+1015   1          bit bCheckResult = _FALSE;
+1016   1      
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 18  
+
+1017   1          // Set limit for Pwm frequency
+1018   1          if((MCU_FF3A_PWM_CK_SEL & ucPwmType) == ucPwmType)
+1019   1          {
+1020   2              // Set limit for Pwm frequency
+1021   2              if(usFrequency < _PWM_ACT_MODE_FREQ_LOW_BOUND)
+1022   2              {
+1023   3                  usFrequency = _PWM_ACT_MODE_FREQ_LOW_BOUND;
+1024   3                  bCheckResult = _FALSE;
+1025   3              }
+1026   2              else if(usFrequency > _PWM_ACT_MODE_FREQ_UPPER_BOUND)
+1027   2              {
+1028   3                  usFrequency = _PWM_ACT_MODE_FREQ_UPPER_BOUND;
+1029   3                  bCheckResult = _FALSE;
+1030   3              }
+1031   2              else
+1032   2              {
+1033   3                  bCheckResult = _TRUE;
+1034   3              }
+1035   2          }
+1036   1          else
+1037   1          {
+1038   2              // Set limit for Pwm frequency
+1039   2              if(usFrequency < _PWM_PSPD_MODE_FREQ_LOW_BOUND)
+1040   2              {
+1041   3                  usFrequency = _PWM_PSPD_MODE_FREQ_LOW_BOUND;
+1042   3                  bCheckResult = _FALSE;
+1043   3              }
+1044   2              else if(usFrequency > _PWM_PSPD_MODE_FREQ_UPPER_BOUND)
+1045   2              {
+1046   3                  usFrequency = _PWM_PSPD_MODE_FREQ_UPPER_BOUND;
+1047   3                  bCheckResult = _FALSE;
+1048   3              }
+1049   2              else
+1050   2              {
+1051   3                  bCheckResult = _TRUE;
+1052   3              }
+1053   2          }
+1054   1      
+1055   1      #if(_PWM_FREQ_DVSRST_CHECK == _ON)
+1056   1          if(usFrequency >= _PWM_FREQ_DVSRST_BOUND)
+1057   1          {
+1058   2              // Disable PWM reset by DVS
+1059   2      #if(_BACKLIGHT_PWM == _PWM0)
+1060   2              MCU_FF47_PWM_VS_CTRL &= ~_BIT0;
+1061   2      
+1062   2      #elif(_BACKLIGHT_PWM == _PWM1)
+                      MCU_FF47_PWM_VS_CTRL &= ~_BIT1;
+              
+              #elif(_BACKLIGHT_PWM == _PWM2)
+                      MCU_FF47_PWM_VS_CTRL &= ~_BIT2;
+              
+              #elif(_BACKLIGHT_PWM == _PWM3)
+                      MCU_FF47_PWM_VS_CTRL &= ~_BIT3;
+              
+              #elif(_BACKLIGHT_PWM == _PWM4)
+                      MCU_FF47_PWM_VS_CTRL &= ~_BIT4;
+              
+              #elif(_BACKLIGHT_PWM == _PWM5)
+                      MCU_FF47_PWM_VS_CTRL &= ~_BIT5;
+              #endif
+1077   2          }
+1078   1          else
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 19  
+
+1079   1          {
+1080   2              // Enable PWM reset by DVS
+1081   2      #if(_BACKLIGHT_PWM == _PWM0)
+1082   2              MCU_FF47_PWM_VS_CTRL |= ((BYTE)_PWM0_RST_EN);
+1083   2      
+1084   2      #elif(_BACKLIGHT_PWM == _PWM1)
+                      MCU_FF47_PWM_VS_CTRL |= ((BYTE)_PWM1_RST_EN << 1);
+              
+              #elif(_BACKLIGHT_PWM == _PWM2)
+                      MCU_FF47_PWM_VS_CTRL |= ((BYTE)_PWM2_RST_EN << 2);
+              
+              #elif(_BACKLIGHT_PWM == _PWM3)
+                      MCU_FF47_PWM_VS_CTRL |= ((BYTE)_PWM3_RST_EN << 3);
+              
+              #elif(_BACKLIGHT_PWM == _PWM4)
+                      MCU_FF47_PWM_VS_CTRL |= ((BYTE)_PWM4_RST_EN << 4);
+              
+              #elif(_BACKLIGHT_PWM == _PWM5)
+                      MCU_FF47_PWM_VS_CTRL |= ((BYTE)_PWM5_RST_EN << 5);
+              #endif
+1099   2          }
+1100   1      #endif
+1101   1      
+1102   1          // Check if PWM clk is M2PLL or IOSC
+1103   1          if((MCU_FF3A_PWM_CK_SEL & ucPwmType) == ucPwmType)
+1104   1          {
+1105   2              for(ucPWM_M = 0; ucPWM_M < 4; ucPWM_M++)
+1106   2              {
+1107   3      #if(_HW_MCU_PWM_HW_REF_HALF_OF_M2PLL == _ON)
+1108   3                  // Calculate N Divider for M2PLL / 2
+1109   3                  // HW Using M2Pll / 2 as PWM Reference Clock Source
+1110   3                  usPWM_N = ((DWORD)(((((DWORD)_M2PLL_CLK_KHZ * 1000) / ((DWORD)usFrequency * (0x01 << ucPWM_M) 
+             -* _PWM_DUT_RESOLUTION)) + 1) / 2) - 1);
+1111   3      #else
+                          // Calculate N Divider for Define [_M2PLL_CLK_KHZ]
+                          usPWM_N = ((DWORD)(((((DWORD)_M2PLL_CLK_KHZ * 1000 * 2) / ((DWORD)usFrequency * (0x01 << ucPWM
+             -_M) * _PWM_DUT_RESOLUTION)) + 1) / 2) - 1);
+              #endif
+1115   3      
+1116   3                  if(usPWM_N < 4096)
+1117   3                  {
+1118   4                      break;
+1119   4                  }
+1120   3              }
+1121   2          }
+1122   1          else
+1123   1          {
+1124   2              for(ucPWM_M = 0; ucPWM_M < 4; ucPWM_M++)
+1125   2              {
+1126   3                  // Calculate N Divider for IOSC clock
+1127   3                  usPWM_N = ((DWORD)(((((DWORD)_INTERNAL_OSC_XTAL * 1000 * 2) / ((DWORD)usFrequency * (0x01 << u
+             -cPWM_M) * _PWM_DUT_RESOLUTION)) + 1) / 2) - 1);
+1128   3      
+1129   3                  if(usPWM_N < 4096)
+1130   3                  {
+1131   4                      break;
+1132   4                  }
+1133   3              }
+1134   2          }
+1135   1      
+1136   1          // Load M/N divider to corresponding register
+1137   1          switch(ucPwmType)
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 20  
+
+1138   1          {
+1139   2      #if((_PWM0_EN == _ON) || (_PWM0_PSAV_EN == _ON) || (_PWM0_PDOW_EN == _ON))
+1140   2              case _PWM0:
+1141   2      
+1142   2                  MCU_FF3B_PWM03_M = (MCU_FF3B_PWM03_M & ~(_BIT1 | _BIT0)) | (ucPWM_M);
+1143   2                  MCU_FF3D_PWM01_N_MSB &= ~(_BIT3 | _BIT2 | _BIT1 | _BIT0);
+1144   2                  MCU_FF3D_PWM01_N_MSB |= (BYTE)((usPWM_N >> 8) & (_BIT3 | _BIT2 | _BIT1 | _BIT0));
+1145   2                  MCU_FF3E_PWM0_N_LSB = (BYTE)usPWM_N;
+1146   2                  MCU_FF49_PWM_CK |= _BIT0;
+1147   2      
+1148   2                  break;
+1149   2      #endif
+1150   2      
+1151   2      #if((_PWM1_EN == _ON) || (_PWM1_PSAV_EN == _ON) || (_PWM1_PDOW_EN == _ON))
+                      case _PWM1:
+              
+                          MCU_FF3B_PWM03_M = (MCU_FF3B_PWM03_M & ~(_BIT3 | _BIT2)) | (ucPWM_M << 2);
+                          MCU_FF3D_PWM01_N_MSB &= ~(_BIT7 | _BIT6 | _BIT5 | _BIT4);
+                          MCU_FF3D_PWM01_N_MSB |= (BYTE)((usPWM_N >> 4) & (_BIT7 | _BIT6 | _BIT5 | _BIT4));
+                          MCU_FF3F_PWM1_N_LSB = (BYTE)usPWM_N;
+                          MCU_FF49_PWM_CK |= _BIT1;
+              
+                          break;
+              #endif
+1162   2      
+1163   2      #if((_PWM2_EN == _ON) || (_PWM2_PSAV_EN == _ON) || (_PWM2_PDOW_EN == _ON))
+                      case _PWM2:
+              
+                          MCU_FF3B_PWM03_M = (MCU_FF3B_PWM03_M & ~(_BIT5 | _BIT4)) | (ucPWM_M << 4);
+                          MCU_FF40_PWM23_N_MSB &= ~(_BIT3 | _BIT2 | _BIT1 | _BIT0);
+                          MCU_FF40_PWM23_N_MSB |= (BYTE)((usPWM_N >> 8) & (_BIT3 | _BIT2 | _BIT1 | _BIT0));
+                          MCU_FF41_PWM2_N_LSB = (BYTE)usPWM_N;
+                          MCU_FF49_PWM_CK |= _BIT2;
+              
+                          break;
+              #endif
+1174   2      
+1175   2      #if((_PWM3_EN == _ON) || (_PWM3_PSAV_EN == _ON) || (_PWM3_PDOW_EN == _ON))
+                      case _PWM3:
+              
+                          MCU_FF3B_PWM03_M = (MCU_FF3B_PWM03_M & ~(_BIT7 | _BIT6)) | (ucPWM_M << 6);
+                          MCU_FF40_PWM23_N_MSB &= ~(_BIT7 | _BIT6 | _BIT5 | _BIT4);
+                          MCU_FF40_PWM23_N_MSB |= (BYTE)((usPWM_N >> 4) & (_BIT7 | _BIT6 | _BIT5 | _BIT4));
+                          MCU_FF42_PWM3_N_LSB = (BYTE)usPWM_N;
+                          MCU_FF49_PWM_CK |= _BIT3;
+              
+                          break;
+              #endif
+1186   2      
+1187   2      #if((_PWM4_EN == _ON) || (_PWM4_PSAV_EN == _ON) || (_PWM4_PDOW_EN == _ON))
+                      case _PWM4:
+              
+                          MCU_FF3C_PWM45_M = (MCU_FF3C_PWM45_M & ~(_BIT1 | _BIT0)) | (ucPWM_M);
+                          MCU_FF43_PWM45_N_MSB &= ~(_BIT7 | _BIT6 | _BIT5 | _BIT4);
+                          MCU_FF43_PWM45_N_MSB |= (BYTE)((usPWM_N >> 4) & (_BIT7 | _BIT6 | _BIT5 | _BIT4));
+                          MCU_FF44_PWM4_N_LSB = (BYTE)usPWM_N;
+                          MCU_FF49_PWM_CK |= _BIT4;
+              
+                          break;
+              #endif
+1198   2      
+1199   2      #if((_PWM5_EN == _ON) || (_PWM5_PSAV_EN == _ON) || (_PWM5_PDOW_EN == _ON))
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 21  
+
+                      case _PWM5:
+              
+                          MCU_FF3C_PWM45_M = (MCU_FF3C_PWM45_M & ~(_BIT3 | _BIT2)) | (ucPWM_M << 2);
+                          MCU_FF43_PWM45_N_MSB &= ~(_BIT3 | _BIT2 | _BIT1 | _BIT0);
+                          MCU_FF43_PWM45_N_MSB |= (BYTE)((usPWM_N >> 8) & (_BIT3 | _BIT2 | _BIT1 | _BIT0));
+                          MCU_FF45_PWM5_N_LSB = (BYTE)usPWM_N;
+                          MCU_FF49_PWM_CK |= _BIT5;
+              
+                          break;
+              #endif
+1210   2              default:
+1211   2      
+1212   2                  break;
+1213   2          }
+1214   1          return bCheckResult;
+1215   1      }
+1216          #endif // End of #if(_PWM_FUNCTION_SUPPORT == _ON)
+1217          
+1218          //--------------------------------------------------
+1219          // Description  : 5us Delay Calculation
+1220          // Input Value  : Clock --> _M2PLL_CLK/_IOSC_CLK
+1221          // Output Value : ucValue --> N
+1222          //--------------------------------------------------
+1223          void ScalerMcu5usDelayCalc(EnumClkSel enumClock)
+1224          {
+1225   1          BYTE ucMcuDiv = 0;
+1226   1      
+1227   1          ucMcuDiv = ((MCU_FFED_MCU_CONTROL & 0x3C) >> 2) * ((MCU_FFEE_MCU_CLOCK_CONTROL & 0x3C) >> 2);
+1228   1      
+1229   1          //////////////////////////////////////////////////////////////////////////////////////////////////////
+             -////////////
+1230   1          // Chart :                                                                                            
+             -          //
+1231   1          //                                                                                                    
+             -          //
+1232   1          //  INOSC                                                                                             
+             -          //
+1233   1          //    14.318MHz ---|   |      |IOSC|            |   |                                                 
+             -          //
+1234   1          //                 |Mux|------|DIV | -----------|   |                                                 
+             -          //
+1235   1          //    27MHz     ---|   |      |    |            |   |  EMCU Crystal |   |                             
+             -          //
+1236   1          //                CR0B[0]   Page6 CRA0[1:0]     |Mux|---------------|   |                             
+             -          //
+1237   1          //                                              |   |               |   |                             
+             -          //
+1238   1          //                   external-crystal-----------|   |               |   |       |Flash|      |MCU|    
+             -          //
+1239   1          //                                              |   |               |Mux|-------|DIV  |------|DIV|----
+             ---8051    //
+1240   1          //                                             CR09[3]              |   |       |     |   |  |   |    
+             -          //
+1241   1          //                                                                  |   |     0xFFED[5:2] | 0xFFEE[5:2
+             -]         //
+1242   1          //                                                M2PLL-------------|   |                 |           
+             -          //
+1243   1          //                                                                  |   |                 |--|Flash|  
+             -          //
+1244   1          //                                                                0xFFED[1]                  |DIV2 |--
+             ----Flash  //
+1245   1          //                                                                                          0xFFE9[3:0
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 22  
+
+             -]         //
+1246   1          //////////////////////////////////////////////////////////////////////////////////////////////////////
+             -////////////
+1247   1      
+1248   1          if(enumClock == _M2PLL_CLK)
+1249   1          {
+1250   2              g_ucDelay5usN_Base = _M2PLL_DELAY6US_CNT;
+1251   2              g_ucDelayXusN_Base = _M2PLL_DELAY4US_CNT;
+1252   2          }
+1253   1          else if(enumClock == _IOSC_CLK)
+1254   1          {
+1255   2              g_ucDelay5usN_Base = _IOSC_DELAY6US_CNT;
+1256   2              g_ucDelayXusN_Base = _IOSC_DELAY4US_CNT;
+1257   2          }
+1258   1          else // For Xtal
+1259   1          {
+1260   2              g_ucDelay5usN_Base = _XTAL_DELAY6US_CNT;
+1261   2              g_ucDelayXusN_Base = _XTAL_DELAY4US_CNT;
+1262   2          }
+1263   1      }
+1264          
+1265          #if(_SW_IIC_SUPPORT == _ON)
+1266          //--------------------------------------------------
+1267          // Description  : Software IIC Start
+1268          // Input Value  : ucSlaveAddr --> Slave Address
+1269          // Output Value : None
+1270          //--------------------------------------------------
+1271          BYTE ScalerMcuIICStart(BYTE ucSlaveAddr)
+1272          {
+1273   1          BYTE ucTemp = 0;
+1274   1          WORD usTimeOut = 6;
+1275   1      
+1276   1          PCB_SW_IIC_SCL_SET();
+1277   1          PCB_SW_IIC_SDA_SET();
+1278   1      
+1279   1          SW_IIC_DELAY_TIME();
+1280   1      
+1281   1          PCB_SW_IIC_SCL_CHK(ucTemp);
+1282   1      
+1283   1          while(ucTemp == _LOW)
+1284   1          {
+1285   2              if(usTimeOut > 0)
+1286   2              {
+1287   3                  usTimeOut--;
+1288   3                  SW_IIC_DELAY_TIME();
+1289   3              }
+1290   2              else
+1291   2              {
+1292   3                  return _FAIL;
+1293   3              }
+1294   2      
+1295   2              PCB_SW_IIC_SCL_CHK(ucTemp);
+1296   2          }
+1297   1      
+1298   1          PCB_SW_IIC_SDA_CLR();
+1299   1      
+1300   1          SW_IIC_START_INTERVAL_DELAY();
+1301   1      
+1302   1          PCB_SW_IIC_SCL_CLR();
+1303   1      
+1304   1          SW_IIC_DELAY_TIME();
+1305   1      
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 23  
+
+1306   1          return ScalerMcuIICSendByte(ucSlaveAddr);
+1307   1      }
+1308          
+1309          //--------------------------------------------------
+1310          // Description  : Software IIC Stop
+1311          // Input Value  : None
+1312          // Output Value : None
+1313          //--------------------------------------------------
+1314          void ScalerMcuIICStop(void)
+1315          {
+1316   1          PCB_SW_IIC_SDA_CLR();
+1317   1          PCB_SW_IIC_SCL_SET();
+1318   1      
+1319   1          SW_IIC_DELAY_TIME();
+1320   1      
+1321   1          PCB_SW_IIC_SDA_SET();
+1322   1      }
+1323          
+1324          //--------------------------------------------------
+1325          // Description  : Software IIC Get Acknowledge
+1326          // Input Value  : None
+1327          // Output Value : ucAck --> 0: Ack / 1: Nack
+1328          //--------------------------------------------------
+1329          BYTE ScalerMcuIICGetAck(void)
+1330          {
+1331   1          BYTE ucAck = 0;
+1332   1      
+1333   1          PCB_SW_IIC_SDA_SET();
+1334   1          PCB_SW_IIC_SCL_SET();
+1335   1      
+1336   1          SW_IIC_DELAY_TIME();
+1337   1      
+1338   1          PCB_SW_IIC_SDA_CHK(ucAck);
+1339   1      
+1340   1          PCB_SW_IIC_SCL_CLR();
+1341   1      
+1342   1          SW_IIC_DELAY_TIME();
+1343   1      
+1344   1          PCB_SW_IIC_SDA_SET();
+1345   1      
+1346   1          return ucAck;
+1347   1      }
+1348          
+1349          //--------------------------------------------------
+1350          // Description  : Software IIC Send Acknowledge
+1351          // Input Value  : None
+1352          // Output Value : None
+1353          //--------------------------------------------------
+1354          void ScalerMcuIICSendAck(void)
+1355          {
+1356   1          PCB_SW_IIC_SDA_CLR();
+1357   1          PCB_SW_IIC_SCL_SET();
+1358   1      
+1359   1          SW_IIC_DELAY_TIME();
+1360   1      
+1361   1          PCB_SW_IIC_SCL_CLR();
+1362   1      
+1363   1          SW_IIC_DELAY_TIME();
+1364   1      }
+1365          
+1366          //--------------------------------------------------
+1367          // Description  : Software IIC Send No-Acknowledge
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 24  
+
+1368          // Input Value  : None
+1369          // Output Value : None
+1370          //--------------------------------------------------
+1371          void ScalerMcuIICSendNoAck(void)
+1372          {
+1373   1          PCB_SW_IIC_SDA_SET();
+1374   1          PCB_SW_IIC_SCL_SET();
+1375   1      
+1376   1          SW_IIC_DELAY_TIME();
+1377   1      
+1378   1          PCB_SW_IIC_SCL_CLR();
+1379   1      
+1380   1          SW_IIC_DELAY_TIME();
+1381   1      }
+1382          
+1383          //--------------------------------------------------
+1384          // Description  : Software IIC Read 1 Byte
+1385          // Input Value  : None
+1386          // Output Value : ucValue --> Received Byte
+1387          //--------------------------------------------------
+1388          #pragma save
+1389          #pragma OT(8)
+1390          BYTE ScalerMcuIICGetByte(void)
+1391          {
+1392   1          BYTE ucTemp = 0;
+1393   1          BYTE ucCnt = 0;
+1394   1          BYTE ucValue = 0;
+1395   1      
+1396   1          PCB_SW_IIC_SDA_SET();
+1397   1      
+1398   1          for(ucCnt = 0; ucCnt < 8; ucCnt++)
+1399   1          {
+1400   2              PCB_SW_IIC_SCL_SET();
+1401   2      
+1402   2              SW_IIC_DELAY_TIME();
+1403   2      
+1404   2              PCB_SW_IIC_SDA_CHK(ucTemp);
+1405   2      
+1406   2              ucValue = (ucValue << 1) | ucTemp;
+1407   2      
+1408   2              PCB_SW_IIC_SCL_CLR();
+1409   2      
+1410   2              SW_IIC_DELAY_TIME();
+1411   2          }
+1412   1      
+1413   1          return ucValue;
+1414   1      }
+1415          #pragma restore
+1416          
+1417          //--------------------------------------------------
+1418          // Description  : SoftWare IIC Write 1 Byte
+1419          // Input Value  : ucValue --> Data to be transmitted
+1420          // Output Value : None
+1421          //--------------------------------------------------
+1422          #pragma save
+1423          #pragma OT(8)
+1424          BYTE ScalerMcuIICSendByte(BYTE ucValue)
+1425          {
+1426   1          BYTE ucCnt = 0;
+1427   1      
+1428   1          for(ucCnt = 0; ucCnt < 8; ucCnt++)
+1429   1          {
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 25  
+
+1430   2              if((bit)(ucValue & _BIT7) == _HIGH)
+1431   2              {
+1432   3                  PCB_SW_IIC_SDA_SET();
+1433   3              }
+1434   2              else
+1435   2              {
+1436   3                  PCB_SW_IIC_SDA_CLR();
+1437   3              }
+1438   2      
+1439   2              PCB_SW_IIC_SCL_SET();
+1440   2      
+1441   2              SW_IIC_DELAY_TIME();
+1442   2      
+1443   2              PCB_SW_IIC_SCL_CLR();
+1444   2      
+1445   2              if((MCU_FFED_MCU_CONTROL & _BIT1) == _BIT1)
+1446   2              {
+1447   3                  SW_IIC_DELAY_TIME();
+1448   3              }
+1449   2      
+1450   2              ucValue = ucValue << 1;
+1451   2          }
+1452   1      
+1453   1          if(ScalerMcuIICGetAck() == _HIGH)
+1454   1          {
+1455   2              ScalerMcuIICStop();
+1456   2      
+1457   2              return _FAIL;
+1458   2          }
+1459   1      
+1460   1          return _SUCCESS;
+1461   1      }
+1462          #pragma restore
+1463          
+1464          //--------------------------------------------------
+1465          // Description  : Polling internal write cycle finish
+1466          // Input Value  : ucSlaveAddr  --> Slave address
+1467          // Output Value : Polling result (Fail/Success)
+1468          //--------------------------------------------------
+1469          bit ScalerMcuIICWriteStart(BYTE ucSlaveAddr, BYTE ucSubAddrLength, DWORD ulSubAddr)
+1470          {
+1471   1          if(ScalerMcuIICStart(ucSlaveAddr | _WRITE) == _FAIL)
+1472   1          {
+1473   2              return _FAIL;
+1474   2          }
+1475   1      
+1476   1          switch(ucSubAddrLength)
+1477   1          {
+1478   2              case 1:
+1479   2      
+1480   2                  if(ScalerMcuIICSendByte((BYTE)(ulSubAddr)) == _FAIL)
+1481   2                  {
+1482   3                      return _FAIL;
+1483   3                  }
+1484   2      
+1485   2                  break;
+1486   2      
+1487   2              case 2:
+1488   2      
+1489   2                  if(ScalerMcuIICSendByte((BYTE)((ulSubAddr & 0xFF00) >> 8)) == _FAIL)
+1490   2                  {
+1491   3                      return _FAIL;
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 26  
+
+1492   3                  }
+1493   2                  else
+1494   2                  {
+1495   3                      if(ScalerMcuIICSendByte((BYTE)(ulSubAddr)) == _FAIL)
+1496   3                      {
+1497   4                          return _FAIL;
+1498   4                      }
+1499   3                  }
+1500   2      
+1501   2                  break;
+1502   2      
+1503   2              case 4:
+1504   2      
+1505   2                  if((ScalerMcuIICSendByte((BYTE)((ulSubAddr & 0xFF000000) >> 24)) == _FAIL) ||
+1506   2                     (ScalerMcuIICSendByte((BYTE)((ulSubAddr & 0xFF0000) >> 16)) == _FAIL) ||
+1507   2                     (ScalerMcuIICSendByte((BYTE)((ulSubAddr & 0xFF00) >> 8)) == _FAIL) ||
+1508   2                     (ScalerMcuIICSendByte((BYTE)(ulSubAddr)) == _FAIL))
+1509   2                  {
+1510   3                      return _FAIL;
+1511   3                  }
+1512   2      
+1513   2                  break;
+1514   2      
+1515   2              default:
+1516   2      
+1517   2                  break;
+1518   2          }
+1519   1          return _SUCCESS;
+1520   1      }
+1521          
+1522          #if(_EEPROM_ACCESS_FUNCTION_SUPPORT == _ON || _HDMI_24C02_SUPPORT)
+1523          //--------------------------------------------------
+1524          // Description  : Polling internal write cycle finish
+1525          // Input Value  : ucSlaveAddr  --> Slave address
+1526          // Output Value : Polling result (Fail/Success)
+1527          //--------------------------------------------------
+1528          bit ScalerMcuIICWritePolling(BYTE ucSlaveAddr)
+1529          {
+1530   1          if(ScalerMcuIICStart(ucSlaveAddr | _WRITE) == _FAIL)
+1531   1          {
+1532   2              return _FAIL;
+1533   2          }
+1534   1      
+1535   1          ScalerMcuIICStop();
+1536   1      
+1537   1          return _SUCCESS;
+1538   1      }
+1539          #endif
+1540          
+1541          //--------------------------------------------------
+1542          // Description  : Read data from the selected device by Software IIC
+1543          // Input Value  : ucSlaveAddr  --> Slave address
+1544          //                ucSubAddr    --> Start address of selected device
+1545          //                usLength     --> Numbers of data we want to read
+1546          //                pReadArray   --> Result array
+1547          // Output Value : Reading result (Fail/Success)
+1548          //--------------------------------------------------
+1549          bit ScalerMcuIICRead(BYTE ucSlaveAddr, BYTE ucSubAddrLength, DWORD ulSubAddr, WORD usLength, BYTE *pucRead
+             -Array)
+1550          {
+1551   1          if(usLength == 0)
+1552   1          {
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 27  
+
+1553   2              return _FAIL;
+1554   2          }
+1555   1      
+1556   1          if(ucSubAddrLength != 0)
+1557   1          {
+1558   2              // Write Slave address and Sub-address
+1559   2              if(ScalerMcuIICWriteStart(ucSlaveAddr, ucSubAddrLength, ulSubAddr) == _FAIL)
+1560   2              {
+1561   3                  return _FAIL;
+1562   3              }
+1563   2          }
+1564   1      
+1565   1          // Write Slave address to read
+1566   1          if(ScalerMcuIICStart(ucSlaveAddr | _READ) == _FAIL)
+1567   1          {
+1568   2              return _FAIL;
+1569   2          }
+1570   1      
+1571   1          // Save received data
+1572   1          while(--usLength)
+1573   1          {
+1574   2              *pucReadArray++ = ScalerMcuIICGetByte();
+1575   2      
+1576   2              ScalerMcuIICSendAck();
+1577   2          }
+1578   1      
+1579   1          *pucReadArray++ = ScalerMcuIICGetByte();
+1580   1      
+1581   1          ScalerMcuIICSendNoAck();
+1582   1      
+1583   1          ScalerMcuIICStop();
+1584   1      
+1585   1          return _SUCCESS;
+1586   1      }
+1587          
+1588          //--------------------------------------------------
+1589          // Description  : Write data to the selected device by Software IIC
+1590          // Input Value  : ucSlaveAddr  --> Slave address
+1591          //                usSubAddr    --> Start address of selected device
+1592          //                usLength     --> Numbers of data we want to read
+1593          //                pReadArray   --> Result array
+1594          // Output Value : Reading result (Fail/Success)
+1595          //--------------------------------------------------
+1596          #pragma save
+1597          #pragma OT(8)
+1598          bit ScalerMcuIICWrite(BYTE ucSlaveAddr, BYTE ucSubAddrLength, DWORD ulSubAddr, WORD usLength, BYTE *pucWri
+             -teArray)
+1599          {
+1600   1          if(usLength == 0)
+1601   1          {
+1602   2              return _FAIL;
+1603   2          }
+1604   1      
+1605   1          // Write Slave address and Sub-address
+1606   1          if(ScalerMcuIICWriteStart(ucSlaveAddr, ucSubAddrLength, ulSubAddr) == _FAIL)
+1607   1          {
+1608   2              return _FAIL;
+1609   2          }
+1610   1      
+1611   1          // Send data
+1612   1          while(usLength--)
+1613   1          {
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 28  
+
+1614   2              if(ScalerMcuIICSendByte(*pucWriteArray++) == _FAIL)
+1615   2              {
+1616   3                  return _FAIL;
+1617   3              }
+1618   2          }
+1619   1      
+1620   1          ScalerMcuIICStop();
+1621   1      
+1622   1          return _SUCCESS;
+1623   1      }
+1624          #pragma restore
+1625          
+1626          #endif    // End of #if(_SW_IIC_SUPPORT == _ON)
+1627          
+1628          #if(_HW_IIC_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Hardware IIC Parameters Alter Setting By Use Case
+              // Input Value  : enumParType --> HW IIC Parameter Type
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerMcuHwIICConfigSetting(EnumHWIICParType enumParType)
+              {
+                  g_ucHwI2cSettingIndex = enumParType;
+              
+                  ScalerMcuHwIICInitial();
+              
+                  if(GET_REG_XTAL_CLK_SEL() == _EXT_XTAL_CLK)
+                  {
+                      // Select at external Xtal.
+                      ScalerMcuHwIICSetFreqDiv(_EXT_XTAL_CLK);
+                  }
+                  else
+                  {
+                      // Select at internal Xtal.
+                      ScalerMcuHwIICSetFreqDiv(_IOSC_CLK);
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Hardware IIC Initial Settings
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerMcuHwIICInitial(void)
+              {
+                  // Reset IIC module
+                  MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                  // Enable IIC module and disable TOR
+                  MCU_FF55_I2CM_CR0 |= _BIT7;
+                  MCU_FF55_I2CM_CR0 &= ~_BIT0;
+              
+                  // Set TOR: time-out = TOR x 2 x ((FD10+1)/input clk)
+                  MCU_FF56_I2CM_CR1 = _HW_IIC_TOR;
+              
+                  // Disable burst mode
+                  MCU_FF57_I2CM_CR2 = 0x00;
+              
+                  // Clear interrupts
+                  MCU_FF58_I2CM_CR3 = 0x00;
+              
+                  // Set fall time period count
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 29  
+
+                  MCU_FF59_I2CM_STR0 = _HW_IIC_FTPC;
+              
+                  // Set STA setup time period count
+                  MCU_FF5A_I2CM_STR1 = _HW_IIC_STA_SUGPIO_C;
+              
+                  // Set SCL high period count
+                  MCU_FF5B_I2CM_STR2 = _HW_IIC_SHPC_14318K;
+              
+                  // Set SCL low period count
+                  MCU_FF5C_I2CM_STR3 = _HW_IIC_SLPC_14318K;
+              
+                  // Set frequency divisor: ref = xtal/(FD10+1)
+                  MCU_FF5F_I2CM_CCR = _HW_IIC_FD10_14318K;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Hardware IIC Clock Select
+              // Input Value  : Clock --> _EXT_XTAL_CLK/_IOSC_CLK
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerMcuHwIICSetFreqDiv(EnumClkSel enumClock)
+              {
+                  if(enumClock == _EXT_XTAL_CLK)
+                  {
+                      // Set freq. divisor: ref = XTAL/(FD10+1) = 7.16M(ref should be approx 10MHz)
+                      MCU_FF5F_I2CM_CCR = _HW_IIC_FD10_14318K;
+              
+                      // Set STA setup time period count
+                      MCU_FF5A_I2CM_STR1 = _HW_IIC_STA_SUGPIO_C;
+              
+                      // Set SCL high period count
+                      MCU_FF5B_I2CM_STR2 = _HW_IIC_SHPC_14318K;
+              
+                      // Set SCL low period count
+                      MCU_FF5C_I2CM_STR3 = _HW_IIC_SLPC_14318K;
+                  }
+                  else
+                  {
+                      // Set freq. divisor: ref = IOSC/(FD10+1) = 9.3M(ref should be approx 10MHz)
+                      MCU_FF5F_I2CM_CCR = _HW_IIC_FD10_28000K;
+              
+                      // Set STA setup time period count
+                      MCU_FF5A_I2CM_STR1 = _HW_IIC_STA_SUGPIO_C;
+              
+                      // Set SCL high period count
+                      MCU_FF5B_I2CM_STR2 = _HW_IIC_SHPC_28000K;
+              
+                      // Set SCL low period count
+                      MCU_FF5C_I2CM_STR3 = _HW_IIC_SLPC_28000K;
+                  }
+              }
+              
+              #if(_EEPROM_ACCESS_FUNCTION_SUPPORT == _ON || _HDMI_24C02_SUPPORT)
+              //--------------------------------------------------
+              // Description  : Polling internal write cycle finish
+              // Input Value  : ucSlaveAddr  --> Slave address
+              // Output Value : Polling result (Fail/Success)
+              //--------------------------------------------------
+              bit ScalerMcuHwIICWritePolling(BYTE ucSlaveAddr, BYTE ucSubAddrLength, BYTE ucHwIICPinNum)
+              {
+                  BYTE ucSubAddress = 0x00;
+                  BYTE ucLength = 0;
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 30  
+
+                  BYTE ucTimeOutCnt = _IIC_POLLING_TIME;
+              
+                  ScalerPinshareHwIICPin(ucHwIICPinNum);
+              
+                  // Reset(Block) IIC module
+                  MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                  // Enable IIC module
+                  MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                  // Set 1 byte for FRSIB
+                  MCU_FF57_I2CM_CR2 &= ~(_BIT1 | _BIT0);
+              
+                  // Set no repeat start
+                  MCU_FF58_I2CM_CR3 &= ~(_BIT4 | _BIT3);
+              
+                  // Wait I2C Fifo Clk Switch to Mcu Clk
+                  while((MCU_FF5D_I2CM_SR & _BIT5) != _BIT5)
+                  {
+                      if(ucTimeOutCnt == 0)
+                      {
+                          // Reset(Block) IIC module
+                          MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                          // Enable IIC module
+                          MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                          return _FAIL;
+                      }
+                      else
+                      {
+                          ucTimeOutCnt--;
+              
+                          DELAY_5US();
+                      }
+                  }
+              
+                  // Load Slave Address to IIC Buffer
+                  MCU_FF5E_I2CM_TD = ucSlaveAddr | _WRITE;
+              
+                  MCU_FF55_I2CM_CR0 &= ~(_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1);
+              
+                  switch(ucSubAddrLength)
+                  {
+                      case 0:
+              
+                          break;
+              
+                      case 1:
+              
+                          // Set data length
+                          MCU_FF55_I2CM_CR0 |= ucLength << 1;
+              
+                          // Load Sub-Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = (BYTE)(ucSubAddress);
+              
+                          break;
+              
+                      case 2:
+              
+                          // Set data length
+                          MCU_FF55_I2CM_CR0 |= (ucLength + 1) << 1;
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 31  
+
+              
+                          // Load First Sub-Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = ucSubAddress;
+              
+                          // Load Sub-Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = ucSubAddress;
+              
+                          break;
+              
+                      default:
+              
+                          break;
+                  }
+              
+                  // IIC command Start
+                  MCU_FF55_I2CM_CR0 |= _BIT6;
+              
+                  // Wait until Master Transmit Complete
+                  ucTimeOutCnt = _IIC_POLLING_TIME;
+              
+                  while((MCU_FF5D_I2CM_SR & 0x01) != 0x01)
+                  {
+                      ucTimeOutCnt--;
+              
+                      DELAY_5US();
+              
+                      if(ucTimeOutCnt == 0x00)
+                      {
+                          // Reset(Block) IIC module
+                          MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                          // Enable IIC module
+                          MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                          return _FAIL;
+                      }
+                  }
+              
+                  // Clear all flags
+                  MCU_FF5D_I2CM_SR |= 0x07;
+              
+                  return _SUCCESS;
+              }
+              #endif // End of #if(_EEPROM_ACCESS_FUNCTION_SUPPORT == _ON)
+              
+              //--------------------------------------------------
+              // Description  : Read data from the selected device by IIC
+              // Input Value  : ucSlaveAddr  --> Slave address
+              //                ucSubAddr    --> Start address of selected device
+              //                usLength     --> Numbers of data we want to read
+              //                pReadArray   --> Result array
+              // Output Value : Reading result (Fail/Success)
+              //--------------------------------------------------
+              bit ScalerMcuHwIICRead(BYTE ucSlaveAddr, BYTE ucSubAddrLength, WORD usSubAddr, BYTE ucDataLength, BYTE *pu
+             -cReadArray, BYTE ucHwIICPinNum)
+              {
+                  BYTE ucI = 0;
+                  WORD usTimeOutCnt = 600;
+              
+                  // Return fail if Data to be received is greater than IIC buffer size
+                  if(ucDataLength > _HW_IIC_BUFFER_SIZE)
+                  {
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 32  
+
+                      return _FAIL;
+                  }
+              
+                  ScalerPinshareHwIICPin(ucHwIICPinNum);
+              
+                  // Reset(Block) IIC module
+                  MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                  // Enable IIC module
+                  MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                  // Wait I2C Fifo Clk Switch to Mcu Clk
+                  while((MCU_FF5D_I2CM_SR & _BIT5) != _BIT5)
+                  {
+                      if(usTimeOutCnt == 0)
+                      {
+                          // Reset(Block) IIC module
+                          MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                          // Enable IIC module
+                          MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                          return _FAIL;
+                      }
+                      else
+                      {
+                          usTimeOutCnt--;
+              
+                          DELAY_5US();
+                      }
+                  }
+              
+                  // Load Slave Address to IIC Buffer
+                  switch(ucSubAddrLength)
+                  {
+                      case 0:
+              
+                          // Set 1 byte for FRSIB
+                          MCU_FF57_I2CM_CR2 &= ~(_BIT1 | _BIT0);
+              
+                          // Set no repeat start
+                          MCU_FF58_I2CM_CR3 &= ~(_BIT4 | _BIT3);
+              
+                          // Load Slave Address to receive data
+                          MCU_FF5E_I2CM_TD = ucSlaveAddr | _READ;
+              
+                          break;
+              
+                      case 1:
+              
+                          // Set 2 bytes for FRSIB
+                          MCU_FF57_I2CM_CR2 &= ~(_BIT1 | _BIT0);
+                          MCU_FF57_I2CM_CR2 |= _BIT0;
+              
+                          // Set one repeat start
+                          MCU_FF58_I2CM_CR3 &= ~_BIT4;
+                          MCU_FF58_I2CM_CR3 |= _BIT3;
+              
+                          // Load Slave Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = ucSlaveAddr | _WRITE;
+              
+                          // Load Sub-Address to IIC Buffer
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 33  
+
+                          MCU_FF5E_I2CM_TD = (BYTE)(usSubAddr);
+              
+                          // Load Slave Address to receive data
+                          MCU_FF5E_I2CM_TD = ucSlaveAddr | _READ;
+              
+                          break;
+              
+                      case 2:
+              
+                          // Set 3 bytes for FRSIB
+                          MCU_FF57_I2CM_CR2 &= ~(_BIT1 | _BIT0);
+                          MCU_FF57_I2CM_CR2 |= _BIT1;
+              
+                          // Set one repeat start
+                          MCU_FF58_I2CM_CR3 &= ~_BIT4;
+                          MCU_FF58_I2CM_CR3 |= _BIT3;
+              
+                          // Load Slave Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = ucSlaveAddr | _WRITE;
+              
+                          // Load First Sub-Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = (BYTE)((usSubAddr & 0xFF00) >> 8);
+              
+                          // Load Second Sub-Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = (BYTE)(usSubAddr);
+              
+                          // Load Slave Address to receive data
+                          MCU_FF5E_I2CM_TD = ucSlaveAddr | _READ;
+              
+                          break;
+              
+                      default:
+              
+                          break;
+                  }
+              
+                  // Set data length
+                  MCU_FF55_I2CM_CR0 &= ~(_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1);
+                  MCU_FF55_I2CM_CR0 |= (ucDataLength - 1) << 1;
+              
+                  // IIC command Start
+                  MCU_FF55_I2CM_CR0 |= _BIT6;
+              
+                  // Wait until Master Receive Complete
+                  usTimeOutCnt = 600;
+              
+                  while((MCU_FF5D_I2CM_SR & 0x02) != 0x02)
+                  {
+                      if(usTimeOutCnt == 0)
+                      {
+                          // Reset(Block) IIC module
+                          MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                          // Enable IIC module
+                          MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                          return _FAIL;
+                      }
+                      else
+                      {
+                          usTimeOutCnt--;
+              
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 34  
+
+                          DELAY_5US();
+                      }
+                  }
+              
+                  // Wait I2C Fifo Clk Switch to Mcu Clk
+                  usTimeOutCnt = 600;
+              
+                  while((MCU_FF5D_I2CM_SR & _BIT5) != _BIT5)
+                  {
+                      if(usTimeOutCnt == 0)
+                      {
+                          // Reset(Block) IIC module
+                          MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                          // Enable IIC module
+                          MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                          return _FAIL;
+                      }
+                      else
+                      {
+                          usTimeOutCnt--;
+              
+                          DELAY_5US();
+                      }
+                  }
+              
+                  // Save received data
+                  for(ucI = 0; ucI < ucDataLength; ucI++)
+                  {
+                      *pucReadArray = MCU_FF5E_I2CM_TD;
+                      pucReadArray++;
+                  }
+              
+                  // Clear all flags
+                  MCU_FF5D_I2CM_SR |= 0x07;
+              
+                  return _SUCCESS;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Write data to the selected device by IIC
+              // Input Value  : ucSlaveAddr  --> Slave address
+              //                usSubAddr    --> Start address of selected device
+              //                usLength     --> Numbers of data we want to read
+              //                pReadArray   --> Result array
+              // Output Value : Write result (Fail/Success)
+              //--------------------------------------------------
+              #pragma save
+              #pragma OT(8)
+              bit ScalerMcuHwIICWrite(BYTE ucSlaveAddr, BYTE ucSubAddrLength, WORD usSubAddr, BYTE ucDataLength, BYTE *p
+             -ucWriteArray, BYTE ucHwIICPinNum)
+              {
+                  BYTE ucI = 0;
+                  WORD usTimeOutCnt = 600;
+                  BYTE ucTempLength = 0;
+              
+                  ScalerPinshareHwIICPin(ucHwIICPinNum);
+              
+                  // Reset(Block) IIC module
+                  MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 35  
+
+                  // Enable IIC module
+                  MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                  // Set 1 byte for FRSIB
+                  MCU_FF57_I2CM_CR2 &= ~(_BIT1 | _BIT0);
+              
+                  // Set no repeat start
+                  MCU_FF58_I2CM_CR3 &= ~(_BIT4 | _BIT3);
+              
+                  // Wait I2C Fifo Clk Switch to Mcu Clk
+                  while((MCU_FF5D_I2CM_SR & _BIT5) != _BIT5)
+                  {
+                      if(usTimeOutCnt == 0)
+                      {
+                          DebugMessageScaler("- IIC Write Time Out: FIFO Clock", 0xA1);
+              
+                          // Reset(Block) IIC module
+                          MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                          // Enable IIC module
+                          MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                          return _FAIL;
+                      }
+                      else
+                      {
+                          usTimeOutCnt--;
+              
+                          DELAY_5US();
+                      }
+                  }
+              
+                  // Load Slave Address to IIC Buffer
+                  MCU_FF5E_I2CM_TD = ucSlaveAddr | _WRITE;
+              
+                  MCU_FF55_I2CM_CR0 &= ~(_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1);
+              
+                  if(ucDataLength > 16)
+                  {
+                      pData[0] = 16;
+                  }
+                  else
+                  {
+                      pData[0] = ucDataLength;
+                  }
+              
+                  switch(ucSubAddrLength)
+                  {
+                      case 0:
+              
+                          // Set data length
+                          ucTempLength = ((pData[0] - 1) << 1);
+              
+                          break;
+              
+                      case 1:
+              
+                          // Load Sub-Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = (BYTE)(usSubAddr);
+              
+                          // Set data length
+                          ucTempLength = (pData[0] << 1);
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 36  
+
+              
+                          break;
+              
+                      case 2:
+              
+                          // Load First Sub-Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = (BYTE)((usSubAddr & 0xFF00) >> 8);
+              
+                          // Load Second Sub-Address to IIC Buffer
+                          MCU_FF5E_I2CM_TD = (BYTE)(usSubAddr);
+              
+                          // Set data length
+                          ucTempLength = ((pData[0] + 1) << 1);
+              
+                          break;
+              
+                      default:
+              
+                          break;
+                  }
+              
+                  if(ucDataLength <= 16)
+                  {
+                      // Load data to IIC buffer for transmission
+                      for(ucI = 0; ucI < pData[0]; ucI++)
+                      {
+                          MCU_FF5E_I2CM_TD = *pucWriteArray;
+                          pucWriteArray++;
+                      }
+              
+                      // Send IIC command Start
+                      MCU_FF55_I2CM_CR0 = 0xC0 + ucTempLength;
+                  }
+                  else
+                  {
+                      // Disable HW TOR
+                      MCU_FF55_I2CM_CR0 &= ~_BIT0;
+              
+                      // Enable Burst Mode
+                      MCU_FF57_I2CM_CR2 |= _BIT6;
+              
+                      // Calcualte Burst Command
+                      pData[1] = (ucDataLength / 16) + ((ucDataLength % 16) ? 1 : 0);
+              
+                      for(pData[2] = 0; pData[2] < pData[1]; pData[2]++)
+                      {
+                          usTimeOutCnt = 600;
+              
+                          // Wait I2C Fifo Clk Switch to Mcu Clk
+                          while((MCU_FF5D_I2CM_SR & _BIT5) != _BIT5)
+                          {
+                              if(usTimeOutCnt == 0)
+                              {
+                                  DebugMessageScaler("- IIC Write Time Out: FIFO Clock", 0xA2);
+              
+                                  // Reset(Block) IIC module
+                                  MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                                  // Enable IIC module
+                                  MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                                  // Disable Burst Mode
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 37  
+
+                                  MCU_FF57_I2CM_CR2 &= ~_BIT6;
+              
+                                  return _FAIL;
+                              }
+                              else
+                              {
+                                  usTimeOutCnt--;
+              
+                                  DELAY_5US();
+                              }
+                          }
+              
+                          // Load data to IIC buffer for transmission
+                          for(ucI = 0; ucI < pData[0]; ucI++)
+                          {
+                              MCU_FF5E_I2CM_TD = *pucWriteArray;
+                              pucWriteArray++;
+                          }
+              
+                          if(pData[2] != 0)
+                          {
+                              // Set data length
+                              ucTempLength = ((pData[0] - 1) << 1) & (_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1);
+                          }
+              
+                          // Set Length and First Burst Command Start, Must Keep FF55[6] = 1 until Burst Mode end
+                          MCU_FF55_I2CM_CR0 = 0xC0 + ucTempLength;
+              
+                          // Update Remaider Data Length
+                          ucDataLength = ucDataLength - pData[0];
+              
+                          if(ucDataLength > 16)
+                          {
+                              pData[0] = 16;
+                          }
+                          else
+                          {
+                              pData[0] = ucDataLength;
+                          }
+              
+                          if(pData[2] == (pData[1] - 1))
+                          {
+                              // Disable Burst Write
+                              MCU_FF57_I2CM_CR2 &= ~_BIT6;
+              
+                              // Burst write again
+                              MCU_FF5D_I2CM_SR |= (_BIT4 | _BIT3);
+              
+                              break;
+                          }
+                          else if(pData[2] != 0)
+                          {
+                              // Burst write again
+                              MCU_FF5D_I2CM_SR |= (_BIT4 | _BIT3);
+                          }
+              
+                          usTimeOutCnt = 600;
+              
+                          // Wait into Burst Wait State
+                          while((MCU_FF5D_I2CM_SR & _BIT3) != _BIT3)
+                          {
+                              if(usTimeOutCnt == 0)
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 38  
+
+                              {
+                                  DebugMessageScaler("- IIC Write Time Out: Burst Mode", 0xA3);
+              
+                                  // Reset(Block) IIC module
+                                  MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                                  // Enable IIC module
+                                  MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                                  // Disable Burst Mode
+                                  MCU_FF57_I2CM_CR2 &= ~_BIT6;
+              
+                                  return _FAIL;
+                              }
+                              else
+                              {
+                                  usTimeOutCnt--;
+              
+                                  DELAY_5US();
+                              }
+                          }
+                      }
+                  }
+              
+                  usTimeOutCnt = 600;
+              
+                  // Wait until Master Transmit Complete
+                  while((MCU_FF5D_I2CM_SR & 0x01) != 0x01)
+                  {
+                      if(usTimeOutCnt == 0)
+                      {
+                          DebugMessageScaler("- IIC Write Time Out: Transmit", 0xA4);
+              
+                          // Reset(Block) IIC module
+                          MCU_FF55_I2CM_CR0 &= ~_BIT7;
+              
+                          // Enable IIC module
+                          MCU_FF55_I2CM_CR0 |= _BIT7;
+              
+                          // Disable Burst Mode
+                          MCU_FF57_I2CM_CR2 &= ~_BIT6;
+              
+                          return _FAIL;
+                      }
+                      else
+                      {
+                          usTimeOutCnt--;
+              
+                          DELAY_5US();
+                      }
+                  }
+              
+                  // Clear all flags
+                  MCU_FF5D_I2CM_SR |= 0x07;
+              
+                  return _SUCCESS;
+              }
+              #pragma restore
+              
+              #endif  // End of #if(_HW_IIC_SUPPORT == _ON)
+2292          
+2293          #if(_UART_SUPPORT == _ON)
+C51 COMPILER V8.12   SCALERCOMMONMCU                                                       03/10/2025 13:50:34 PAGE 39  
+
+              //--------------------------------------------------
+              // Description  : Write data to the selected device by UART
+              // Input Value  : ucValue --> Data to be send
+              // Output Value : Write result (Fail/Success)
+              //--------------------------------------------------
+              bit ScalerMcuUartWrite(BYTE ucValue)
+              {
+                  // at most 40ms delay when baudrate 300 bps
+                  WORD usTimeOut = 8000;
+              
+                  // Disable Serial Port IRQ
+                  ES = _DISABLE;
+              
+                  // Clear Flag
+                  TI = 0;
+              
+                  // Load Data to Serial Port Buffer
+                  SBUF = ucValue;
+              
+                  do
+                  {
+                      DELAY_5US();
+                  }
+                  while((TI == 0) && (--usTimeOut != 0));
+              
+                  // Enable Serial Port IRQ
+                  ES = _ENABLE;
+              
+                  return ((TI != 0) && (usTimeOut != 0)) ? _TRUE : _FALSE;
+              }
+              #endif
+2325          
+2326          //--------------------------------------------------
+2327          // Description  : ISP Initial Settings
+2328          // Input Value  : None
+2329          // Output Value : None
+2330          //--------------------------------------------------
+2331          void ScalerMcuIspInitial(void)
+2332          {
+2333   1          // Keep mcu peripheral(timer) running while mcu stopped by spi flash access
+2334   1          MCU_FFEE_MCU_CLOCK_CONTROL |= _BIT6;
+2335   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2968    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =    101      52
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      6    ----
+   IDATA SIZE       =      2    ----
+   BIT SIZE         =      3       3
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

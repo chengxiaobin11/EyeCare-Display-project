@@ -1,0 +1,383 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6851_Series_DP.c No.0000
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+
+#include "ScalerFunctionInclude.h"
+
+#if(_DP_SUPPORT == _ON)
+
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+//****************************************************************************
+// CODE TABLES
+//****************************************************************************
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+void ScalerDpSecDataReset(BYTE ucInputPort);
+void ScalerDpTimerEventProc(EnumScalerTimerEventID enumEventID);
+void ScalerDpPowerSwitch(EnumPowerAction enumPowerAction);
+
+#if(_DP_LINK_INTERVAL_CHECK_SUPPORT == _ON)
+bit ScalerDpRxLinkStatusLoss(void);
+#endif
+void ScalerDpAuxChPowerStatusCheck(BYTE ucInputPort, bit bCableStatus);
+#if(_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+void ScalerDpEmbeddedSwitchSetting(BYTE ucInputPort);
+#endif
+
+
+//****************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+//--------------------------------------------------
+// Description  : DP Sec Data Reset
+// Input Value  : ucInputPort
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpSecDataReset(BYTE ucInputPort)
+{
+#if(_LINE_IN_SUPPORT == _ON)
+    if(ScalerAudioGetInputSource() == _DIGITAL_AUDIO)
+#endif
+    {
+        switch(ucInputPort)
+        {
+            case _D0_INPUT_PORT:
+            case _D1_INPUT_PORT:
+
+                ScalerDpRx0SecDataBlockReset();
+                break;
+
+            default:
+                break;
+        }
+    }
+}
+
+//--------------------------------------------------
+// Description  : Handle DP Related Timer Event
+// Input Value  : ucEventID
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpTimerEventProc(EnumScalerTimerEventID enumEventID)
+{
+    switch(enumEventID)
+    {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+        case _SCALER_TIMER_EVENT_DP_RX0_HOTPLUG_ASSERTED:
+#endif
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+        case _SCALER_TIMER_EVENT_DP_RX1_HOTPLUG_ASSERTED:
+#endif
+        ScalerDpRx0SetHotPlugEvent(_DP_HPD_ASSERTED);
+        break;
+
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+        case _SCALER_TIMER_EVENT_DP_RX0_HDCP_LONG_HOTPLUG_EVENT:
+#endif
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+        case _SCALER_TIMER_EVENT_DP_RX1_HDCP_LONG_HOTPLUG_EVENT:
+#endif
+        if(ScalerDpRx0HdcpReAuthStatusCheck() == _FALSE)
+        {
+            DebugMessageRx0("7. DP HDCP Long HPD", 0);
+            ScalerDpRx0SetHotPlugEvent(_DP_HDCP_LONG_HPD_EVENT);
+        }
+
+        CLR_DP_RX0_HDCP_CPIRQ();
+
+        break;
+
+#if(_DP_RX_MI_DONGLE_SUPPORT == _ON)
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+        case _SCALER_TIMER_EVENT_DP_RX0_LONG_HOTPLUG_EVENT:
+#endif
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+        case _SCALER_TIMER_EVENT_DP_RX1_LONG_HOTPLUG_EVENT:
+#endif
+        DebugMessageRx0("7. DP Long HPD", 0);
+        ScalerDpRx0SetHotPlugEvent(_DP_LONG_HPD_EVENT);
+
+        break;
+#endif
+
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+        case _SCALER_TIMER_EVENT_DP_RX0_LINK_STATUS_IRQ:
+#endif
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+        case _SCALER_TIMER_EVENT_DP_RX1_LINK_STATUS_IRQ:
+#endif
+        ScalerDpRx0LinkStatusIRQ();
+        break;
+
+        default:
+            break;
+    }
+}
+
+//--------------------------------------------------
+// Description  : Check DP Into Power Saving
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpPowerSwitch(EnumPowerAction enumPowerAction)
+{
+    switch(enumPowerAction)
+    {
+        case _POWER_ACTION_NORMAL_TO_OFF:
+        case _POWER_ACTION_AC_ON_TO_OFF:
+        case _POWER_ACTION_PS_TO_OFF:
+
+            SET_DP_DC_OFF_HPD_TOGGLE_FLAG();
+
+#if(_DP_POWER_OFF_HDCP_SUPPORT == _OFF)
+
+            // Disable HDCP support
+            ScalerDpRx0ChangeHdcpDpcdCapability(_DISABLE);
+
+            // Power Down HDCP Reset
+            ScalerDpRx0HDCPBlockReset();
+#endif
+
+            ScalerDpLowPowerProc();
+
+            break;
+
+        case _POWER_ACTION_NORMAL_TO_PS:
+
+            ScalerDpLowPowerProc();
+
+            break;
+
+        case _POWER_ACTION_AC_ON_TO_NORMAL:
+        case _POWER_ACTION_OFF_TO_NORMAL:
+        case _POWER_ACTION_PS_TO_NORMAL:
+
+            // Disable Aux Power Saving Mode
+            ScalerSetBit(PB7_62_AUX_2, ~_BIT1, 0x00);
+
+            // Switch Aux PHY to GDI BandGap
+            ScalerSetBit(PB7_63_AUX_3, ~_BIT7, 0x00);
+
+            // Disable Aux INT
+            ScalerSetBit(PB7_7A_AUX_DIG_PHYA, ~_BIT4, 0x00);
+
+            IP = 0xA0;
+
+            if(enumPowerAction == _POWER_ACTION_OFF_TO_NORMAL)
+            {
+                // Enable HDCP support
+                ScalerDpRx0ChangeHdcpDpcdCapability(_ENABLE);
+            }
+
+            break;
+
+        case _POWER_ACTION_NORMAL_TO_FAKE_OFF:
+
+#if(_DP_SUPPORT == _ON)
+            SET_DP_DC_OFF_HPD_TOGGLE_FLAG();
+#endif
+            break;
+
+        default:
+
+            break;
+    }
+}
+
+#if(_DP_LINK_INTERVAL_CHECK_SUPPORT == _ON)
+//--------------------------------------------------
+// Description  : Check CDR, Signal, Align Link, DFE, Margin Link, Decode
+// Input Value  : _D0_INPUT_PORT or _D1_INPUT_PORT
+// Output Value : True --> DP Link Loss
+//                False --> DP Stable
+//--------------------------------------------------
+bit ScalerDpRxLinkStatusLoss(void)
+{
+    bit bLinkStatusLoss = _FALSE;
+
+#if(_D0_DP_EXIST == _ON)
+    if(GET_DP_RX0_LINK_TRAINING_STATUS() == _DP_NORMAL_LINK_TRAINING_PASS)
+    {
+        bLinkStatusLoss |= ScalerDpRx0LinkStatusLoss();
+    }
+#endif
+
+#if(_D1_DP_EXIST == _ON)
+    if(GET_DP_RX1_LINK_TRAINING_STATUS() == _DP_NORMAL_LINK_TRAINING_PASS)
+    {
+        bLinkStatusLoss |= ScalerDpRx1LinkStatusLoss();
+    }
+#endif
+
+    return bLinkStatusLoss;
+}
+#endif
+
+//--------------------------------------------------
+// Description  : Dp Rx Aux Ch Power Status Check
+// Input Value  : None
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpAuxChPowerStatusCheck(BYTE ucInputPort, bit bCableStatus)
+{
+    switch(ucInputPort)
+    {
+#if(_D0_DP_EXIST == _ON)
+
+        case _D0_INPUT_PORT:
+        case _D1_INPUT_PORT:
+
+            ScalerDpRx0AuxChPowerStatusCheck(bCableStatus);
+
+            break;
+#endif
+
+        default:
+
+            break;
+    }
+}
+
+#if(_DP_EMBEDDED_SWITCH_SUPPORT_TYPE == _DP_EMBEDDED_SWITCH_2_DP)
+//--------------------------------------------------
+// Description  : Dp Embedded Switch Setting
+// Input Value  : _D0_INPUT_PORT or _D1_INPUT_PORT
+// Output Value : None
+//--------------------------------------------------
+void ScalerDpEmbeddedSwitchSetting(BYTE ucInputPort)
+{
+    switch(ucInputPort)
+    {
+#if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+
+        case _D0_INPUT_PORT:
+
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x01, _D0_DP_LINK_CLK_RATE);
+
+            if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D1_INPUT_PORT)
+            {
+#if(_D1_DDC_CHANNEL_SEL == _DDC0)
+                // Set DDC0 Pinshare to GPI
+                ScalerSetBit(P10_35_PIN_SHARE_CTRL35__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+                ScalerSetBit(P10_36_PIN_SHARE_CTRL36__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+#elif(_D1_DDC_CHANNEL_SEL == _DDC1)
+                // Set DDC1 Pinshare to GPI
+                ScalerSetBit(P10_37_PIN_SHARE_CTRL37__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+                ScalerSetBit(P10_38_PIN_SHARE_CTRL38__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+#endif
+            }
+
+#if(_D0_DDC_CHANNEL_SEL == _DDC0)
+#if(_D0_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+            if(SysTypeCGetAltModeReady(_D0_INPUT_PORT) == _TRUE)
+            {
+                // Set DDC0 Pinshare to Aux
+                ScalerSetBit(P10_35_PIN_SHARE_CTRL35__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+                ScalerSetBit(P10_36_PIN_SHARE_CTRL36__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+            }
+#else
+            // Set DDC0 Pinshare to Aux
+            ScalerSetBit(P10_35_PIN_SHARE_CTRL35__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+            ScalerSetBit(P10_36_PIN_SHARE_CTRL36__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+#endif
+            // Enable Aux Channel 0, Disable Channel 1/2
+            ScalerSetBit(PB7_60_DIG_TX_04, ~(_BIT7 | _BIT6), _BIT7);
+            // Aux Mapping to DDC0
+            ScalerSetBit(P6F_09_AUX_MAP_DDC, ~(_BIT1 | _BIT0), 0x00);
+
+#elif(_D0_DDC_CHANNEL_SEL == _DDC1)
+#if(_D0_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+            if(SysTypeCGetAltModeReady(_D0_INPUT_PORT) == _TRUE)
+            {
+                // Set DDC1 Pinshare to Aux
+                ScalerSetBit(P10_37_PIN_SHARE_CTRL37__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+                ScalerSetBit(P10_38_PIN_SHARE_CTRL38__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+            }
+#else
+            // Set DDC1 Pinshare to Aux
+            ScalerSetBit(P10_37_PIN_SHARE_CTRL37__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+            ScalerSetBit(P10_38_PIN_SHARE_CTRL38__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+#endif
+            // Enable Aux Channel 1, Disable Channel 0/2
+            ScalerSetBit(PB7_60_DIG_TX_04, ~(_BIT7 | _BIT6), _BIT6);
+            // Aux Mapping to DDC1
+            ScalerSetBit(P6F_09_AUX_MAP_DDC, ~(_BIT1 | _BIT0), _BIT0);
+#endif
+            break;
+#endif
+
+#if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+
+        case _D1_INPUT_PORT:
+
+            ScalerDpRx0SetDpcdValue(0x00, 0x00, 0x01, _D1_DP_LINK_CLK_RATE);
+
+            if(GET_DP_EMBEDDED_SWITCH_SELECT() == _D0_INPUT_PORT)
+            {
+#if(_D0_DDC_CHANNEL_SEL == _DDC0)
+                // Set DDC0 Pinshare to GPI
+                ScalerSetBit(P10_35_PIN_SHARE_CTRL35__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+                ScalerSetBit(P10_36_PIN_SHARE_CTRL36__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+#elif(_D0_DDC_CHANNEL_SEL == _DDC1)
+                // Set DDC1 Pinshare to GPI
+                ScalerSetBit(P10_37_PIN_SHARE_CTRL37__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+                ScalerSetBit(P10_38_PIN_SHARE_CTRL38__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+#endif
+            }
+
+#if(_D1_DDC_CHANNEL_SEL == _DDC0)
+            // Set DDC0 Pinshare to Aux
+            ScalerSetBit(P10_35_PIN_SHARE_CTRL35__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+            ScalerSetBit(P10_36_PIN_SHARE_CTRL36__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+            // Enable Aux Channel 0, Disable Channel 1/2
+            ScalerSetBit(PB7_60_DIG_TX_04, ~(_BIT7 | _BIT6), _BIT7);
+            // Aux Mapping to DDC0
+            ScalerSetBit(P6F_09_AUX_MAP_DDC, ~(_BIT1 | _BIT0), 0x00);
+#elif(_D1_DDC_CHANNEL_SEL == _DDC1)
+            // Set DDC1 Pinshare to Aux
+            ScalerSetBit(P10_37_PIN_SHARE_CTRL37__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+            ScalerSetBit(P10_38_PIN_SHARE_CTRL38__ON1, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+            // Enable Aux Channel 1, Disable Channel 0/2
+            ScalerSetBit(PB7_60_DIG_TX_04, ~(_BIT7 | _BIT6), _BIT6);
+            // Aux Mapping to DDC1
+            ScalerSetBit(P6F_09_AUX_MAP_DDC, ~(_BIT1 | _BIT0), _BIT0);
+#endif
+            break;
+#endif
+
+        default:
+            break;
+    }
+
+    SET_DP_EMBEDDED_SWITCH_SELECT(ucInputPort);
+    SET_DP_EMBEDDED_SWITCH_EVENT(_TRUE);
+}
+#endif
+
+#endif // End of #if(_DP_SUPPORT == _ON)
+

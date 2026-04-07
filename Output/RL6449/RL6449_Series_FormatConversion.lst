@@ -1,0 +1,511 @@
+C51 COMPILER V9.01   RL6449_SERIES_FORMATCONVERSION                                        05/24/2025 15:51:57 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE RL6449_SERIES_FORMATCONVERSION
+OBJECT MODULE PLACED IN .\Output\RL6449\RL6449_Series_FormatConversion.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\Scaler\RL6449_Series_Scaler\Code\RL6449_Series_FormatConversion.c LA
+                    -RGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Ker
+                    -nel\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\Scal
+                    -erFunction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kern
+                    -el\Scaler\RL6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Comm
+                    -on\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd
+                    -\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None F
+                    -actory\Header) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449\RL6
+                    -449_Series_FormatConversion.lst) OBJECT(.\Output\RL6449\RL6449_Series_FormatConversion.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_FormatConversion.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerFmtCnvInitialSetting(EnumSourceSearchPort enumSourceSearchPort);
+  42          
+  43          #if(_HDMI_2_0_SUPPORT == _ON)
+  44          void ScalerFmtCnv420To422FinalSetting(EnumSourceSearchPort enumSourceSearchPort);
+  45          void ScalerFmtCnv420To422D2D3Setting(WORD usHStart, WORD usHWidth);
+  46          #endif
+  47          
+C51 COMPILER V9.01   RL6449_SERIES_FORMATCONVERSION                                        05/24/2025 15:51:57 PAGE 2   
+
+  48          void ScalerFmtCnvFinalSetting(void);
+  49          EnumFormatConversionSourceType ScalerFmtCnvGetSourceType(void);
+  50          
+  51          void ScalerFmtCnvFtoPControl(bit bEnable);
+  52          bit ScalerFmtCnvGetHalfDataPathEvenOddModeStatus(void);
+  53          
+  54          #if(_DIGITAL_PORT_SUPPORT == _ON)
+  55          void ScalerFmtCnvSetBackgroundColor(void);
+  56          #endif
+  57          
+  58          void ScalerFmtCnvFtoPSetFifo(WORD usHwidth, WORD usVstart);
+  59          
+  60          #if(_TMDS_YUV420_DUPLICATE_MODE_SUPPORT == _ON)
+              #warning "NOTE: To Activate This Feature Please Confirm with PMs !!!"
+              #endif
+  63          
+  64          //****************************************************************************
+  65          // FUNCTION DEFINITIONS
+  66          //****************************************************************************
+  67          //--------------------------------------------------
+  68          // Description  : Initialize for format conversion
+  69          // Input Value  : enumSourceSearchPort --> input port
+  70          // Output Value : None
+  71          //--------------------------------------------------
+  72          void ScalerFmtCnvInitialSetting(EnumSourceSearchPort enumSourceSearchPort)
+  73          {
+  74   1          switch(enumSourceSearchPort)
+  75   1          {
+  76   2              case _A0_INPUT_PORT:
+  77   2      
+  78   2                  // Set source index to A0
+  79   2                  ScalerSetBit(P31_00_FC_INPUT_SEL_P01, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), (_FC_SOURCE_ADC << 4))
+             -;
+  80   2                  break;
+  81   2      
+  82   2              case _D0_INPUT_PORT:
+  83   2      
+  84   2                  // Set source index to D0
+  85   2                  ScalerSetBit(P31_00_FC_INPUT_SEL_P01, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), (_FC_SOURCE_D0 << 4));
+  86   2                  break;
+  87   2      
+  88   2              case _D1_INPUT_PORT:
+  89   2      
+  90   2                  // Set source index to D1
+  91   2                  ScalerSetBit(P31_00_FC_INPUT_SEL_P01, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), (_FC_SOURCE_D1 << 4));
+  92   2                  break;
+  93   2      
+  94   2              case _D2_INPUT_PORT:
+  95   2      
+  96   2                  // Set source index to D2
+  97   2                  ScalerSetBit(P31_00_FC_INPUT_SEL_P01, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), (_FC_SOURCE_D2 << 4));
+  98   2      
+  99   2      #if(_D2_HDMI_2_0_SUPPORT == _ON)
+ 100   2                  // Disble 420-to-422
+ 101   2                  ScalerColor420To422D2D3Enable(enumSourceSearchPort, _FUNCTION_OFF);
+ 102   2      #endif
+ 103   2                  break;
+ 104   2      
+ 105   2              case _D3_INPUT_PORT:
+ 106   2      
+ 107   2                  // Set source index to D3
+ 108   2                  ScalerSetBit(P31_00_FC_INPUT_SEL_P01, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), (_FC_SOURCE_D3 << 4));
+C51 COMPILER V9.01   RL6449_SERIES_FORMATCONVERSION                                        05/24/2025 15:51:57 PAGE 3   
+
+ 109   2      
+ 110   2      #if(_D3_HDMI_2_0_SUPPORT == _ON)
+ 111   2                  // Disble 420-to-422
+ 112   2                  ScalerColor420To422D2D3Enable(enumSourceSearchPort, _FUNCTION_OFF);
+ 113   2      #endif
+ 114   2                  break;
+ 115   2      
+ 116   2              default:
+ 117   2                  break;
+ 118   2          }
+ 119   1      
+ 120   1      #if(_VGA_SUPPORT == _ON)
+                  // Disable VS edge align for VGA
+                  if(enumSourceSearchPort == _A0_INPUT_PORT)
+                  {
+                      ScalerSetBit(P31_0E_FC_SYNC_CTRL, ~_BIT0, 0x00);
+              
+                      // Disable delay 2T for HS after CTS FIFO
+                      ScalerSetBit(P31_0F_VS_DELAY_CTRL, ~_BIT6, 0x00);
+                  }
+                  else
+              #endif
+ 131   1          {
+ 132   2              ScalerSetBit(P31_0E_FC_SYNC_CTRL, ~_BIT0, _BIT0);
+ 133   2      
+ 134   2              // Enable delay 2T for HS after CTS FIFO
+ 135   2              ScalerSetBit(P31_0F_VS_DELAY_CTRL, ~_BIT6, _BIT6);
+ 136   2          }
+ 137   1      
+ 138   1          // Check input pixel rate
+ 139   1          if(ScalerSyncGetInputPixelClk() > _DATA_PATH_SPEED_LIMIT)
+ 140   1          {
+ 141   2              ScalerFmtCnvHalfSDSetFirstPixel(0);
+ 142   2      
+ 143   2              // Enable 1/2 scaling down
+ 144   2              ScalerFmtCnvHalfSDControl(_ENABLE);
+ 145   2          }
+ 146   1          else
+ 147   1          {
+ 148   2              // Disable 1/2 scaling down
+ 149   2              ScalerFmtCnvHalfSDControl(_DISABLE);
+ 150   2          }
+ 151   1      
+ 152   1          // Disable F-to-P
+ 153   1          ScalerFmtCnvFtoPControl(_DISABLE);
+ 154   1      }
+ 155          
+ 156          #if(_HDMI_2_0_SUPPORT == _ON)
+ 157          //--------------------------------------------------
+ 158          // Description  : Final YCBCR 420 setting
+ 159          // Input Value  : None
+ 160          // Output Value : None
+ 161          //--------------------------------------------------
+ 162          void ScalerFmtCnv420To422FinalSetting(EnumSourceSearchPort enumSourceSearchPort)
+ 163          {
+ 164   1          enumSourceSearchPort = enumSourceSearchPort;
+ 165   1      
+ 166   1          if(GET_COLOR_SPACE() == _COLOR_SPACE_YCBCR420)
+ 167   1          {
+ 168   2              // Update actual 420-422 state
+ 169   2              if(ScalerFmtCnvHalfSDGetStatus() == _TRUE)
+ 170   2              {
+C51 COMPILER V9.01   RL6449_SERIES_FORMATCONVERSION                                        05/24/2025 15:51:57 PAGE 4   
+
+ 171   3                  ScalerFmtCnv420To422D2D3Setting(GET_ACTIVE_H_START() << 1, GET_ACTIVE_H_WIDTH() << 1);
+ 172   3              }
+ 173   2              else
+ 174   2              {
+ 175   3                  ScalerFmtCnv420To422D2D3Setting(GET_ACTIVE_H_START(), GET_ACTIVE_H_WIDTH());
+ 176   3              }
+ 177   2              ScalerTimerWaitForEvent(_EVENT_IVS);
+ 178   2              ScalerColor420To422D2D3Enable(enumSourceSearchPort, _FUNCTION_ON);
+ 179   2          }
+ 180   1      }
+ 181          
+ 182          //--------------------------------------------------
+ 183          // Description  : 420To422 parameter setting for D2 source
+ 184          // Input Value  : usHStart, usHWidth
+ 185          // Output Value : None
+ 186          //--------------------------------------------------
+ 187          void ScalerFmtCnv420To422D2D3Setting(WORD usHStart, WORD usHWidth)
+ 188          {
+ 189   1          if(ScalerGetBit(P31_00_FC_INPUT_SEL_P01, (_BIT7 | _BIT6 | _BIT5 | _BIT4)) == (_BIT6 | _BIT4)) // D2
+ 190   1          {
+ 191   2              ScalerSetBit(P31_31_YUV420_TO_422_CTL, ~_BIT1, 0x00);
+ 192   2          }
+ 193   1          else if(ScalerGetBit(P31_00_FC_INPUT_SEL_P01, (_BIT7 | _BIT6 | _BIT5 | _BIT4)) == (_BIT6 | _BIT5)) // 
+             -D3
+ 194   1          {
+ 195   2              ScalerSetBit(P31_31_YUV420_TO_422_CTL, ~_BIT1, _BIT1);
+ 196   2          }
+ 197   1      
+ 198   1          if(GET_COLOR_DEPTH() > _COLOR_DEPTH_8_BITS)
+ 199   1          {
+ 200   2              ScalerSetBit(P31_31_YUV420_TO_422_CTL, ~_BIT7, _BIT7);
+ 201   2          }
+ 202   1          else
+ 203   1          {
+ 204   2              ScalerSetBit(P31_31_YUV420_TO_422_CTL, ~_BIT7, 0x00);
+ 205   2          }
+ 206   1      
+ 207   1          // Hstart should be modify when FC delay 2T enable
+ 208   1          if(ScalerGetBit(P31_0F_VS_DELAY_CTRL, _BIT6) == _BIT6)
+ 209   1          {
+ 210   2              usHStart += 2;
+ 211   2          }
+ 212   1      
+ 213   1          ScalerSetByte(P31_34_YUV420_TO_YUV422_HSTM0, (HIBYTE(usHStart) & 0x07) << 3);
+ 214   1          ScalerSetByte(P31_35_YUV420_TO_YUV422_HSTL0, LOBYTE(usHStart));
+ 215   1          ScalerSetByte(P31_37_YUV420_TO_YUV422_HWIDM0, (HIBYTE(usHWidth) & 0x0F) << 4);
+ 216   1          ScalerSetByte(P31_38_YUV420_TO_YUV422_HWIDL0, LOBYTE(usHWidth));
+ 217   1      
+ 218   1      #if(_HW_TMDS_YUV420_DUPLICATE_MODE_SUPPORT == _ON)
+                  if(ScalerGlobalGetIDCode() >= _RL6449_VER_E_ID_CODE)
+                  {
+                      if(GET_COLOR_DEPTH() > _COLOR_DEPTH_8_BITS)
+                      {
+                          ScalerSetBit(P31_34_YUV420_TO_YUV422_HSTM0, ~_BIT7, _BIT7);
+                      }
+                      else
+                      {
+                          ScalerSetBit(P31_34_YUV420_TO_YUV422_HSTM0, ~_BIT7, 0x00);
+                      }
+                  }
+              #endif
+ 231   1      }
+C51 COMPILER V9.01   RL6449_SERIES_FORMATCONVERSION                                        05/24/2025 15:51:57 PAGE 5   
+
+ 232          
+ 233          #endif
+ 234          
+ 235          //--------------------------------------------------
+ 236          // Description  : Final format conversion setting
+ 237          // Input Value  : None
+ 238          // Output Value : None
+ 239          //--------------------------------------------------
+ 240          void ScalerFmtCnvFinalSetting(void)
+ 241          {
+ 242   1      #if(_VGA_SUPPORT == _ON)
+                  if(ScalerFmtCnvGetSourceType() == _FC_SOURCE_ADC)
+                  {
+                      // Enable VS edge align
+                      ScalerSetBit(P31_0E_FC_SYNC_CTRL, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT3 | _BIT2 | _BIT1 | _BIT0
+             -));
+                  }
+              #endif
+ 249   1      
+ 250   1      #if(_HDMI_2_0_SUPPORT == _ON)
+ 251   1          if(GET_COLOR_SPACE() == _COLOR_SPACE_YCBCR420)
+ 252   1          {
+ 253   2              // Set main F-to-P FIFO
+ 254   2              ScalerFmtCnvFtoPSetFifo((GET_INPUT_TIMING_HWIDTH() << 1), GET_INPUT_TIMING_VSTART());
+ 255   2          }
+ 256   1          else
+ 257   1      #endif
+ 258   1          {
+ 259   2              // Set main F-to-P FIFO
+ 260   2              ScalerFmtCnvFtoPSetFifo(GET_INPUT_TIMING_HWIDTH(), GET_INPUT_TIMING_VSTART());
+ 261   2          }
+ 262   1      
+ 263   1          if(ScalerFmtCnvHalfSDGetStatus() == _TRUE)
+ 264   1          {
+ 265   2              // Disable 1/2 scaling down
+ 266   2              ScalerFmtCnvHalfSDControl(_DISABLE);
+ 267   2          }
+ 268   1      
+ 269   1          // Enable main F-to-P
+ 270   1          ScalerFmtCnvFtoPControl(_ENABLE);
+ 271   1      
+ 272   1      #if(_AIO_MODERN_STANDBY_SUPPORT == _ON)
+                  if(GET_AIO_MODERN_STANDBY_MODE() != _TRUE)
+              #endif
+ 275   1          {
+ 276   2              if(ScalerFmtCnvGetSourceType() != _FC_SOURCE_ADC)
+ 277   2              {
+ 278   3                  // Wait 4 IVS after format conversion setting
+ 279   3                  ScalerTimerWaitForEvent(_EVENT_IVS);
+ 280   3                  ScalerTimerWaitForEvent(_EVENT_IVS);
+ 281   3                  ScalerTimerWaitForEvent(_EVENT_IVS);
+ 282   3                  ScalerTimerWaitForEvent(_EVENT_IVS);
+ 283   3      
+ 284   3                  // Clear VGIP Interlace Toggle Flag
+ 285   3                  ScalerSetBit(P0_1A_M1_IPV_ACT_LEN_H, ~_BIT5, _BIT5);
+ 286   3              }
+ 287   2          }
+ 288   1      
+ 289   1          // Enable clock gating for M2
+ 290   1          ScalerSetBit(P31_0D_FC_INPUT_CLK_GATING, ~_BIT1, 0x00);
+ 291   1      }
+ 292          
+C51 COMPILER V9.01   RL6449_SERIES_FORMATCONVERSION                                        05/24/2025 15:51:57 PAGE 6   
+
+ 293          //--------------------------------------------------
+ 294          // Description  : Show format conversion input source
+ 295          // Input Value  : NONE
+ 296          // Output Value : Current format conversino source
+ 297          //--------------------------------------------------
+ 298          EnumFormatConversionSourceType ScalerFmtCnvGetSourceType(void)
+ 299          {
+ 300   1          return (EnumFormatConversionSourceType)(ScalerGetBit(P31_00_FC_INPUT_SEL_P01, (_BIT7 | _BIT6 | _BIT5 |
+             - _BIT4)) >> 4);
+ 301   1      }
+ 302          
+ 303          
+ 304          //--------------------------------------------------
+ 305          // Description  : Control for even/odd
+ 306          // Input Value  : _ENABLE or _DISABLE
+ 307          // Output Value : None
+ 308          //--------------------------------------------------
+ 309          void ScalerFmtCnvFtoPControl(bit bEnable)
+ 310          {
+ 311   1          if(bEnable == _ENABLE)
+ 312   1          {
+ 313   2      #if(_VGA_SUPPORT == _ON)
+                      if(ScalerFmtCnvGetSourceType() != _FC_SOURCE_ADC)
+              #endif
+ 316   2              {
+ 317   3      #if(_HDMI_FREESYNC_ENLARGE_FRONT_PORCH == _ON)
+                          if(GET_HDMI_FREESYNC_ENABLED() == _TRUE)
+                          {
+                              // Enable VS delay 4 line to enlarge front porch, 2 is margin
+                              if(GET_ACTIVE_V_START() >= (2 + 2 * (_HDMI_FREESYNC_ENLARGE_FRONT_PORCH_LINE + 1)))
+                              {
+                                  ScalerSetBit(P31_0B_FC_FPRMAT_PRO_OUTPUT, ~_BIT1, _BIT1);
+              
+                                  // Vsync delay 4 line
+                                  ScalerSetBit(P31_0F_VS_DELAY_CTRL, ~(_BIT5 | _BIT4), (_HDMI_FREESYNC_ENLARGE_FRONT_POR
+             -CH_LINE << 4));
+                              }
+                          }
+                          else
+              #endif
+ 331   3                  {
+ 332   4                      // Enable VS delay 8 line to enlarge front porch
+ 333   4                      if(GET_ACTIVE_V_START() >= (_VGIP_IV_CAPTURE_MIN_VALUE * 2 + 0x08))
+ 334   4                      {
+ 335   5                          ScalerSetBit(P31_0B_FC_FPRMAT_PRO_OUTPUT, ~_BIT1, _BIT1);
+ 336   5      
+ 337   5                          // Vsync delay 8 line
+ 338   5                          ScalerSetBit(P31_0F_VS_DELAY_CTRL, ~(_BIT5 | _BIT4), (_BIT5 | _BIT4));
+ 339   5                      }
+ 340   4                  }
+ 341   3              }
+ 342   2      
+ 343   2              // Enable F-to-P
+ 344   2              ScalerSetBit(P31_06_FC_EO_LINE_CTRL, ~_BIT7, _BIT7);
+ 345   2      
+ 346   2              if(GET_INPUT_TIMING_INTERLACE_FLG() == _TRUE)
+ 347   2              {
+ 348   3                  // Set interlace for E/O mode
+ 349   3                  ScalerFmtCnvFtoPInterlaceSetting();
+ 350   3              }
+ 351   2          }
+ 352   1          else
+C51 COMPILER V9.01   RL6449_SERIES_FORMATCONVERSION                                        05/24/2025 15:51:57 PAGE 7   
+
+ 353   1          {
+ 354   2              // Disable VS delay 8 line
+ 355   2              ScalerSetBit(P31_0B_FC_FPRMAT_PRO_OUTPUT, ~(_BIT7 | _BIT6 | _BIT1), 0x00);
+ 356   2      
+ 357   2              // Vsync delay 8 line
+ 358   2              ScalerSetBit(P31_0F_VS_DELAY_CTRL, ~(_BIT5 | _BIT4), (_BIT5 | _BIT4));
+ 359   2      
+ 360   2              // Set E/O H width to 0
+ 361   2              ScalerSetBit(P31_07_FC_FORMAT_PRO_MAIN_0, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+ 362   2              ScalerSetByte(P31_08_FC_FORMAT_PRO_MAIN_1, 0x00);
+ 363   2      
+ 364   2              // Disable F-to-P
+ 365   2              ScalerSetBit(P31_06_FC_EO_LINE_CTRL, ~_BIT7, 0x00);
+ 366   2          }
+ 367   1      }
+ 368          
+ 369          //--------------------------------------------------
+ 370          // Description  : Set format conversion Single Mode & D-domain E/O Mode
+ 371          // Input Value  : NA
+ 372          // Output Value : _TRUE or _FALSE
+ 373          //--------------------------------------------------
+ 374          bit ScalerFmtCnvGetHalfDataPathEvenOddModeStatus(void)
+ 375          {
+ 376   1          return _FALSE;
+ 377   1      }
+ 378          
+ 379          #if(_DIGITAL_PORT_SUPPORT == _ON)
+ 380          //--------------------------------------------------
+ 381          // Description  : Set background color for format conversion
+ 382          // Input Value  : None
+ 383          // Output Value : None
+ 384          //--------------------------------------------------
+ 385          void ScalerFmtCnvSetBackgroundColor(void)
+ 386          {
+ 387   1          // M1 M2 porch color enable
+ 388   1          ScalerSetBit(P31_50_PORCH_COLOR_CTRL, ~(_BIT3 | _BIT2), (_BIT3 | _BIT2));
+ 389   1      
+ 390   1          if(GET_COLOR_SPACE_RGB(GET_COLOR_SPACE()) == _TRUE)
+ 391   1          {
+ 392   2              ScalerSetByte(P31_51_PORCH_COLOR_R_M1, 0x00);
+ 393   2              ScalerSetByte(P31_52_PORCH_COLOR_G_M1, 0x00);
+ 394   2              ScalerSetByte(P31_53_PORCH_COLOR_B_M1, 0x00);
+ 395   2      
+ 396   2              ScalerSetByte(P31_54_PORCH_COLOR_R_M2, 0x00);
+ 397   2              ScalerSetByte(P31_55_PORCH_COLOR_G_M2, 0x00);
+ 398   2              ScalerSetByte(P31_56_PORCH_COLOR_B_M2, 0x00);
+ 399   2          }
+ 400   1          else
+ 401   1          {
+ 402   2              ScalerSetByte(P31_51_PORCH_COLOR_R_M1, 0x80);
+ 403   2              ScalerSetByte(P31_52_PORCH_COLOR_G_M1, 0x00);
+ 404   2              ScalerSetByte(P31_53_PORCH_COLOR_B_M1, 0x80);
+ 405   2      
+ 406   2              ScalerSetByte(P31_54_PORCH_COLOR_R_M2, 0x80);
+ 407   2              ScalerSetByte(P31_55_PORCH_COLOR_G_M2, 0x00);
+ 408   2              ScalerSetByte(P31_56_PORCH_COLOR_B_M2, 0x80);
+ 409   2          }
+ 410   1      }
+ 411          #endif
+ 412          
+ 413          //--------------------------------------------------
+ 414          // Description  : Set even/odd resolution
+C51 COMPILER V9.01   RL6449_SERIES_FORMATCONVERSION                                        05/24/2025 15:51:57 PAGE 8   
+
+ 415          // Input Value  : usHwidth, usVstart  --> resolution for even/odd
+ 416          // Output Value : None
+ 417          //--------------------------------------------------
+ 418          void ScalerFmtCnvFtoPSetFifo(WORD usHwidth, WORD usVstart)
+ 419          {
+ 420   1          if((LOBYTE(usVstart) & _BIT0) == _BIT0)
+ 421   1          {
+ 422   2              // Set vertical start field = even
+ 423   2              ScalerSetBit(P31_06_FC_EO_LINE_CTRL, ~_BIT4, _BIT4);
+ 424   2          }
+ 425   1          else
+ 426   1          {
+ 427   2              // Set vertical start field = odd
+ 428   2              ScalerSetBit(P31_06_FC_EO_LINE_CTRL, ~_BIT4, 0x00);
+ 429   2          }
+ 430   1      
+ 431   1          // Toggle vertical start field for VS bypass
+ 432   1          if(ScalerGetBit(P0_11_M1_VGIP_SIGINV, _BIT6) == _BIT6)
+ 433   1          {
+ 434   2              ScalerSetByte(P31_06_FC_EO_LINE_CTRL, (ScalerGetByte(P31_06_FC_EO_LINE_CTRL) ^ _BIT4));
+ 435   2          }
+ 436   1      
+ 437   1      #if(_HW_TMDS_YUV420_DUPLICATE_MODE_SUPPORT == _ON)
+                  if(ScalerGlobalGetIDCode() >= _RL6449_VER_E_ID_CODE)
+                  {
+                      // Toggle vertical start field for 420 duplicate mode
+                      if(((ScalerFmtCnvGetSourceType() == _FC_SOURCE_D2) &&
+                          (ScalerGetBit(P31_32_YUV420_TO_YUV422, _BIT7) == _BIT7) &&
+                          (ScalerGetBit(P31_31_YUV420_TO_422_CTL, _BIT1) == 0x00) &&
+                          (ScalerGetBit(P31_34_YUV420_TO_YUV422_HSTM0, _BIT7) == _BIT7)) ||
+                         ((ScalerFmtCnvGetSourceType() == _FC_SOURCE_D3) &&
+                          (ScalerGetBit(P31_32_YUV420_TO_YUV422, _BIT7) == _BIT7) &&
+                          (ScalerGetBit(P31_31_YUV420_TO_422_CTL, _BIT1) == _BIT1) &&
+                          (ScalerGetBit(P31_34_YUV420_TO_YUV422_HSTM0, _BIT7) == _BIT7)))
+                      {
+                          ScalerSetByte(P31_06_FC_EO_LINE_CTRL, (ScalerGetByte(P31_06_FC_EO_LINE_CTRL) ^ _BIT4));
+                      }
+                  }
+              #endif
+ 454   1      
+ 455   1          // Set horizontal width
+ 456   1          ScalerSetBit(P31_07_FC_FORMAT_PRO_MAIN_0, ~(_BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), (HIBYTE(usHwidth) 
+             -& 0x1F));
+ 457   1          ScalerSetByte(P31_08_FC_FORMAT_PRO_MAIN_1, LOBYTE(usHwidth));
+ 458   1      }
+ 459          
+ 460          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    756    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

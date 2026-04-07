@@ -1,0 +1,2793 @@
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERCOMMONFREESYNC
+OBJECT MODULE PLACED IN .\Output\RL6463\ScalerCommonFreeSync.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\ScalerCommonFunction\Code\ScalerCommonFreeSync.c LARGE
+                    - OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel
+                    -\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerF
+                    -unction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\
+                    -Scaler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\U
+                    -ser\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\Non
+                    -eOsd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND 
+                    -PRINT(.\Output\RL6463\ScalerCommonFreeSync.lst) OBJECT(.\Output\RL6463\ScalerCommonFreeSync.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerCommonFreeSync.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_COMMON_FREESYNC__
+  18          
+  19          #include "ScalerCommonFunctionInclude.h"
+  20          
+  21          #if(_FREESYNC_SUPPORT == _ON)
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          
+  26          //****************************************************************************
+  27          // STRUCT / TYPE / ENUM DEFINITTIONS
+  28          //****************************************************************************
+  29          
+  30          //****************************************************************************
+  31          // CODE TABLES
+  32          //****************************************************************************
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          #if(_HDMI_FREESYNC_SUPPORT == _ON)
+  38          StructDrrAmdAupiInfo g_stDrrHdmiAmdAupiInfo;
+  39          #endif
+  40          
+  41          #if((_HDMI_FREESYNC_SUPPORT == _ON) || (_HDMI_FREESYNC_II_SUPPORT == _ON))
+  42          StructDrrFreeSyncHdmiEnableInfo g_stDrrFreeSyncHdmiInfo;
+  43          #endif
+  44          
+  45          //****************************************************************************
+  46          // FUNCTION DECLARATIONS
+  47          //****************************************************************************
+  48          DWORD ScalerFreeSyncGetFreeSyncInfo(EnumSourceSearchPort enumSearchPort, EnumAmdSpdInfoContent enumContent
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 2   
+
+             -);
+  49          void ScalerFreeSyncSPDInfoReceive(EnumSourceSearchPort enumSearchPort);
+  50          bit ScalerFreeSyncVfreqMaxInfoEnable(EnumSourceSearchPort enumInputPort, BYTE ucPortType);
+  51          void ScalerFreeSyncGetSourceInfo(EnumSourceSearchPort enumSearchPort, BYTE ucPortType, StructFreeSyncSourc
+             -eInfo *pstSourceInfo);
+  52          bit ScalerFreeSyncEdidAnalysisCheckBoundry(const StructFreeSyncEdidInfo *pstEdidInfo, const StructFreeSync
+             -EdidRefInfo *pstEdidRefInfo);
+  53          void ScalerFreeSyncEdidAnalysisGetRefInfo(StructFreeSyncEdidRefInfo *pstEdidRefInfo, WORD usPixelClk, cons
+             -t StructFreeSyncSourceInfo *pstSourceInfo);
+  54          EnumGetIVFFromTableSearch ScalerFreeSyncEdidAnalysisGetVfreqMax(BYTE *pucReadArray, WORD usPixelClk, const
+             - StructFreeSyncSourceInfo *pstSourceInfo, WORD *pusVfreqMax);
+  55          EnumGetIVFFromTableSearch ScalerFreeSyncCalculateIVFmaxFromCVT(WORD *pusVfreqMax, const StructFreeSyncSour
+             -ceInfo *pstSourceInfo, BYTE ucPortType);
+  56          
+  57          #if(_TRANSLATOR_SUPPORT == _OFF)
+  58          void ScalerFreeSyncSupportSwitch(EnumSourceSearchPort enumSourcePort, EnumFreeSyncSupport enumSupport, Enu
+             -mSourceSearchPort enumFreesyncTargetPort);
+  59          #endif
+  60          
+  61          #if(_DP_SUPPORT == _ON)
+              #if(_DP_FREESYNC_SUPPORT == _ON)
+              WORD ScalerFreeSyncDpGetHSPeriod(EnumSourceSearchPort enumSourceSearchPort);
+              WORD ScalerFreeSyncDpGetHSW(EnumSourceSearchPort enumSourceSearchPort);
+              WORD ScalerFreeSyncDpGetVFreq(EnumSourceSearchPort enumSourceSearchPort);
+              WORD ScalerFreeSyncDpGetVSPeriod(EnumSourceSearchPort enumSourceSearchPort);
+              
+              #if(_D0_DP_EXIST == _ON)
+              DWORD ScalerFreeSyncDpRx0GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent);
+              WORD ScalerFreeSyncDpRx0GetHPeriod(void);
+              WORD ScalerFreeSyncDpRx0GetHSW(void);
+              WORD ScalerFreeSyncDpRx0GetVFreq(void);
+              WORD ScalerFreeSyncDpRx0GetVPeriod(void);
+              void ScalerFreeSyncDpRx0GetSPDVfreqMaxMin(void);
+              #endif
+              
+              #if(_D1_DP_EXIST == _ON)
+              DWORD ScalerFreeSyncDpRx1GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent);
+              WORD ScalerFreeSyncDpRx1GetHPeriod(void);
+              WORD ScalerFreeSyncDpRx1GetHSW(void);
+              WORD ScalerFreeSyncDpRx1GetVFreq(void);
+              WORD ScalerFreeSyncDpRx1GetVPeriod(void);
+              void ScalerFreeSyncDpRx1GetSPDVfreqMaxMin(void);
+              #endif
+              
+              #if(_TRANSLATOR_SUPPORT == _OFF)
+              void ScalerFreeSyncDpSupportSwitch(EnumSourceSearchPort enumSourcePort, EnumFreeSyncSupport enumSupport);
+              #endif
+              #endif // End of #if(_DP_FREESYNC_SUPPORT == _ON)
+              #endif // End of #if(_DP_SUPPORT == _ON)
+  91          
+  92          #if(_HDMI_SUPPORT == _ON)
+  93          #if(_HDMI_FREESYNC_SUPPORT == _ON)
+  94          #if((_DEBUG_MESSAGE_SUPPORT == _OFF) &&\
+  95              (_HDMI_FREESYNC_CAPABILITY_SWITCH_METHOD == _MCCS_SWITCH_MODE))
+  96          EnumFreeSyncSupport ScalerFreeSyncHDMIGetFreeSyncSupport_EXINT1(EnumSourceSearchPort enumSourcePort);
+  97          #endif
+  98          
+  99          #if(_HDMI_MAC_PAGE2_USE == _ON)
+ 100          bit ScalerFreeSyncHDMIRx0CheckAmdVsdbVer(void);
+ 101          DWORD ScalerFreeSyncHDMIRx0GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent);
+ 102          #endif
+ 103          
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 3   
+
+ 104          #if(_HDMI_MAC_PAGE71_USE == _ON)
+              DWORD ScalerFreeSyncHDMIRx2GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent, bit bD1Combo);
+              #endif
+ 107          
+ 108          #if(_HDMI_MAC_PAGE72_USE == _ON)
+              DWORD ScalerFreeSyncHDMIRx3GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent);
+              #endif
+ 111          
+ 112          #if(_HDMI_MAC_PAGE73_USE == _ON)
+              DWORD ScalerFreeSyncHDMIRx4GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent);
+              #endif
+ 115          
+ 116          #if(_HDMI_MAC_PAGE74_USE == _ON)
+              DWORD ScalerFreeSyncHDMIRx5GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent);
+              #endif
+ 119          
+ 120          #if(_TRANSLATOR_SUPPORT == _OFF)
+ 121          void ScalerFreeSyncHDMISupportSwitch(EnumSourceSearchPort enumSourcePort, EnumFreeSyncSupport enumSupport,
+             - EnumSourceSearchPort enumFreesyncTargetPort);
+ 122          #endif
+ 123          #endif // End of #if(_HDMI_FREESYNC_SUPPORT == _ON)
+ 124          #endif // End of #if(_HDMI_SUPPORT == _ON)
+ 125          
+ 126          
+ 127          //****************************************************************************
+ 128          // FUNCTION DEFINITIONS
+ 129          //****************************************************************************
+ 130          //--------------------------------------------------
+ 131          // Description  : Get AMD SPD info
+ 132          // Input Value  : enumContent -> enumSearchPort -> Port Type, AMD Info Type
+ 133          // Output Value : None
+ 134          //--------------------------------------------------
+ 135          DWORD ScalerFreeSyncGetFreeSyncInfo(EnumSourceSearchPort enumSearchPort, EnumAmdSpdInfoContent enumContent
+             -)
+ 136          {
+ 137   1          WORD usFreeSyncInfo = 0;
+ 138   1      
+ 139   1          switch(enumSearchPort)
+ 140   1          {
+ 141   2              case _D0_INPUT_PORT:
+ 142   2      #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_DP_FREESYNC_SUPPORT == _ON))
+                          usFreeSyncInfo = GET_DPRX0_AMD_SPD_INFO(enumContent);
+              #elif((_D0_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          usFreeSyncInfo = GET_HDMIRX0_AMD_SPD_INFO(enumContent);
+              #endif
+ 147   2                  break;
+ 148   2      
+ 149   2      
+ 150   2              case _D1_INPUT_PORT:
+ 151   2      #if((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_DP_FREESYNC_SUPPORT == _ON))
+                          usFreeSyncInfo = GET_DPRX1_AMD_SPD_INFO(enumContent);
+              #elif((_D1_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+ 154   2                  usFreeSyncInfo = GET_HDMIRX1_AMD_SPD_INFO(enumContent);
+ 155   2      #endif
+ 156   2                  break;
+ 157   2      
+ 158   2      
+ 159   2              case _D2_INPUT_PORT:
+ 160   2      #if((_D2_INPUT_PORT_TYPE == _D2_DP_PORT) && (_DP_FREESYNC_SUPPORT == _ON))
+                          usFreeSyncInfo = GET_DPRX2_AMD_SPD_INFO(enumContent);
+              #elif((_D2_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          usFreeSyncInfo = GET_HDMIRX2_AMD_SPD_INFO(enumContent);
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 4   
+
+              #endif
+ 165   2                  break;
+ 166   2      
+ 167   2      
+ 168   2              case _D3_INPUT_PORT:
+ 169   2      #if((_D3_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          usFreeSyncInfo = GET_HDMIRX3_AMD_SPD_INFO(enumContent);
+              #endif
+ 172   2                  break;
+ 173   2      
+ 174   2      
+ 175   2              case _D4_INPUT_PORT:
+ 176   2      #if((_D4_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          usFreeSyncInfo = GET_HDMIRX4_AMD_SPD_INFO(enumContent);
+              #endif
+ 179   2                  break;
+ 180   2      
+ 181   2      
+ 182   2              case _D5_INPUT_PORT:
+ 183   2      #if((_D5_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          usFreeSyncInfo = GET_HDMIRX5_AMD_SPD_INFO(enumContent);
+              #endif
+ 186   2                  break;
+ 187   2      
+ 188   2      
+ 189   2              default:
+ 190   2                  usFreeSyncInfo = 0;
+ 191   2                  break;
+ 192   2          }
+ 193   1      
+ 194   1          switch(enumContent)
+ 195   1          {
+ 196   2      #if(_SPD_INFO_FREESYNC_ENABLE_REF == _REF_DRR_GET_TYPE)
+ 197   2              case _SPD_INFO_FREESYNC_ENABLE:
+ 198   2                  usFreeSyncInfo = ScalerSyncGetFREESYNCEnable();
+ 199   2                  break;
+ 200   2      #endif
+ 201   2      
+ 202   2              case _SPD_INFO_FREESYNC_MIN_VFREQ:
+ 203   2                  break;
+ 204   2      
+ 205   2      
+ 206   2              case _SPD_INFO_FREESYNC_MAX_VFREQ:
+ 207   2                  break;
+ 208   2      
+ 209   2              default:
+ 210   2                  break;
+ 211   2          }
+ 212   1      
+ 213   1          return usFreeSyncInfo;
+ 214   1      }
+ 215          
+ 216          //--------------------------------------------------
+ 217          // Description  : Get AMD SPD info
+ 218          // Input Value  : enumSearchPort -> Port Type
+ 219          // Output Value : None
+ 220          //--------------------------------------------------
+ 221          void ScalerFreeSyncSPDInfoReceive(EnumSourceSearchPort enumSearchPort)
+ 222          {
+ 223   1          switch(enumSearchPort)
+ 224   1          {
+ 225   2      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 5   
+
+                      case _D0_INPUT_PORT:
+              
+              #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH
+             -_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+              
+              #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_DP_FREESYNC_SUPPORT == _ON))
+                          SET_FREESYNC_SPD_INFO_FRAME_RECEIVED(GET_DP_RX0_SPD_INFO_FRAME_RECEIVED());
+              #elif((_D0_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          SET_FREESYNC_SPD_INFO_FRAME_RECEIVED(GET_HDMI_FREESYNC_ENABLED());
+              #endif
+              
+                          break;
+              #endif
+ 240   2      
+ 241   2      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+ 242   2              case _D1_INPUT_PORT:
+ 243   2      
+ 244   2      #if((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_DP_FREESYNC_SUPPORT == _ON))
+                          SET_FREESYNC_SPD_INFO_FRAME_RECEIVED(GET_DP_RX1_SPD_INFO_FRAME_RECEIVED());
+              #elif((_D1_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+ 247   2                  SET_FREESYNC_SPD_INFO_FRAME_RECEIVED(GET_HDMI_FREESYNC_ENABLED());
+ 248   2      #endif
+ 249   2      
+ 250   2                  break;
+ 251   2      #endif
+ 252   2      
+ 253   2      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+                      case _D2_INPUT_PORT:
+              
+              #if((_D2_INPUT_PORT_TYPE == _D2_DP_PORT) && (_DP_FREESYNC_SUPPORT == _ON))
+                          SET_FREESYNC_SPD_INFO_FRAME_RECEIVED(GET_DP_RX1_SPD_INFO_FRAME_RECEIVED());
+              #elif((_D2_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          SET_FREESYNC_SPD_INFO_FRAME_RECEIVED(GET_HDMI_FREESYNC_ENABLED());
+              #endif
+              
+                          break;
+              #endif
+ 264   2      
+ 265   2      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+                      case _D3_INPUT_PORT:
+              
+              #if((_D3_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          SET_FREESYNC_SPD_INFO_FRAME_RECEIVED(GET_HDMI_FREESYNC_ENABLED());
+              #endif
+              
+                          break;
+              #endif
+ 274   2      
+ 275   2      #if(_D4_INPUT_PORT_TYPE != _D4_NO_PORT)
+                      case _D4_INPUT_PORT:
+              
+              #if((_D4_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          SET_FREESYNC_SPD_INFO_FRAME_RECEIVED(GET_HDMI_FREESYNC_ENABLED());
+              #endif
+              
+                          break;
+              #endif
+ 284   2      
+ 285   2      #if(_D5_INPUT_PORT_TYPE != _D5_NO_PORT)
+                      case _D5_INPUT_PORT:
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 6   
+
+              
+              #if((_D5_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          SET_FREESYNC_SPD_INFO_FRAME_RECEIVED(GET_HDMI_FREESYNC_ENABLED());
+              #endif
+              
+                          break;
+              #endif
+ 294   2      
+ 295   2              default:
+ 296   2                  break;
+ 297   2          }
+ 298   1      }
+ 299          
+ 300          //--------------------------------------------------
+ 301          // Description  : Drr Vfreq Max Info Enable
+ 302          // Input Value  : None
+ 303          // Output Value : _TRUE, _FAIL
+ 304          //--------------------------------------------------
+ 305          bit ScalerFreeSyncVfreqMaxInfoEnable(EnumSourceSearchPort enumInputPort, BYTE ucPortType)
+ 306          {
+ 307   1          // AMD ver 1 & 2
+ 308   1          if((ScalerSyncGetAmdVsdbVer(enumInputPort) == _AMD_VER1) ||
+ 309   1             (ScalerSyncGetAmdVsdbVer(enumInputPort) == _AMD_VER2))
+ 310   1          {
+ 311   2              if(GET_FREESYNC_SPD_INFO_FRAME_RECEIVED() == _TRUE)
+ 312   2              {
+ 313   3      #if(_HDMI_FREESYNC_SUPPORT == _ON)
+ 314   3                  if((ucPortType == _PORT_HDMI) || (ucPortType == _PORT_DVI))
+ 315   3                  {
+ 316   4                      return GET_HDMI_FREESYNC_ENABLED();
+ 317   4                  }
+ 318   3                  else
+ 319   3      #endif
+ 320   3                  {
+ 321   4      #if(_DP_FREESYNC_SUPPORT == _ON)
+              #if(_DP_DRR_GET_IVF_TYPE == _DP_DRR_SPD_INFO)
+                              if(ucPortType == _PORT_DP)
+                              {
+                                  return GET_DP_FREESYNC_ENABLED();
+                              }
+              #endif
+              #endif
+ 329   4                  }
+ 330   3              }
+ 331   2              else
+ 332   2              {
+ 333   3                  // Gsync
+ 334   3              }
+ 335   2          }
+ 336   1          else
+ 337   1          {
+ 338   2              // Version 3 or _AMD_VER_NONE
+ 339   2          }
+ 340   1      
+ 341   1          return _FALSE;
+ 342   1      }
+ 343          
+ 344          //--------------------------------------------------
+ 345          // Description  : Get Freesync Htotal Margin
+ 346          // Input Value  : enumInputPort --> Source Search Port
+ 347          // Output Value : Htotal Margin & Htotal
+ 348          //--------------------------------------------------
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 7   
+
+ 349          void ScalerFreeSyncGetSourceInfo(EnumSourceSearchPort enumSearchPort, BYTE ucPortType, StructFreeSyncSourc
+             -eInfo *pstSourceInfo)
+ 350          {
+ 351   1          pstSourceInfo->ucColorSapce = GET_COLOR_SPACE();
+ 352   1          enumSearchPort = enumSearchPort;
+ 353   1          ucPortType = ucPortType;
+ 354   1      
+ 355   1      #if(_DP_FREESYNC_SUPPORT == _ON)
+                  if(ucPortType == _PORT_DP)
+                  {
+                      switch(enumSearchPort)
+                      {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                          case _D0_INPUT_PORT:
+              
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                          case _D6_INPUT_PORT:
+              #endif
+                              pstSourceInfo->usHtotal = GET_DP_RX0_HTOTAL();
+                              pstSourceInfo->usHtotalMargin = GET_DP_RX0_HTOTAL_MARGIN();
+                              break;
+              #endif
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                          case _D1_INPUT_PORT:
+              
+                              pstSourceInfo->usHtotal = GET_DP_RX1_HTOTAL();
+                              pstSourceInfo->usHtotalMargin = GET_DP_RX1_HTOTAL_MARGIN();
+                              break;
+              #endif
+                          default:
+                              pstSourceInfo->usHtotal = GET_MDOMAIN_INPUT_HTOTAL();
+                              pstSourceInfo->usHtotalMargin = ((DWORD)GET_MDOMAIN_INPUT_HTOTAL() * _EDID_ANALYSIS_HTOTAL
+             -_MARGIN / 100);
+                              break;
+                      }
+                  }
+                  else
+              #endif
+ 386   1          {
+ 387   2              pstSourceInfo->usHtotal = GET_MDOMAIN_INPUT_HTOTAL();
+ 388   2              pstSourceInfo->usHtotalMargin = ((DWORD)GET_MDOMAIN_INPUT_HTOTAL() * _EDID_ANALYSIS_HTOTAL_MARGIN 
+             -/ 100);
+ 389   2          }
+ 390   1      }
+ 391          
+ 392          //--------------------------------------------------
+ 393          // Description  : EDID Analysis Check Hwidth/ Vheight/ Hblanking/ Pixel
+ 394          // Input Value  : Hwidth/ Vheight/ Hblanking/ Pixel
+ 395          // Output Value : _TRUE: Find
+ 396          //--------------------------------------------------
+ 397          bit ScalerFreeSyncEdidAnalysisCheckBoundry(const StructFreeSyncEdidInfo *pstEdidInfo, const StructFreeSync
+             -EdidRefInfo *pstEdidRefInfo)
+ 398          {
+ 399   1          // Check Interlace Timing/ Hactive/ Vactive/ Hblank match & PixelRate inside the Boundary
+ 400   1          if((pstEdidInfo->b1Interlace == pstEdidRefInfo->b1RefInterlace) &&
+ 401   1             (pstEdidInfo->usHwidth == pstEdidRefInfo->usRefHwidth) &&
+ 402   1             (pstEdidInfo->usVheight == pstEdidRefInfo->usRefVheight) &&
+ 403   1             ((pstEdidInfo->usHblank <= pstEdidRefInfo->usRefHblankHBound) && (pstEdidInfo->usHblank >= pstEdidR
+             -efInfo->usRefHblankLBound)) &&
+ 404   1             ((pstEdidInfo->usPixelClk <= pstEdidRefInfo->usPixelClkHBound) && (pstEdidInfo->usPixelClk >= pstEd
+             -idRefInfo->usPixelClkLBound)))
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 8   
+
+ 405   1          {
+ 406   2              return _TRUE;
+ 407   2          }
+ 408   1          else
+ 409   1          {
+ 410   2              return _FALSE;
+ 411   2          }
+ 412   1      }
+ 413          
+ 414          //--------------------------------------------------
+ 415          // Description  : EDID Analysis Get Ref Timing Info
+ 416          // Input Value  : usPixelClk/ pstHtotalInfo(Htotal & Htotal margin)
+ 417          // Output Value : pstEdidRefInfo
+ 418          //--------------------------------------------------
+ 419          void ScalerFreeSyncEdidAnalysisGetRefInfo(StructFreeSyncEdidRefInfo *pstEdidRefInfo, WORD usPixelClk, cons
+             -t StructFreeSyncSourceInfo *pstSourceInfo)
+ 420          {
+ 421   1          WORD usClkMargin = ((DWORD)usPixelClk * _EDID_ANALYSIS_CLK_MARGIN / 100);
+ 422   1      
+ 423   1          pstEdidRefInfo->b1RefInterlace = GET_INPUT_TIMING_INTERLACE_FLG();
+ 424   1          pstEdidRefInfo->usRefHwidth = GET_INPUT_TIMING_HWIDTH();
+ 425   1          pstEdidRefInfo->usRefVheight = GET_INPUT_TIMING_VHEIGHT();
+ 426   1          pstEdidRefInfo->usRefHblankHBound = (pstSourceInfo->usHtotal - GET_INPUT_TIMING_HWIDTH() + pstSourceIn
+             -fo->usHtotalMargin);
+ 427   1          pstEdidRefInfo->usRefHblankLBound = (pstSourceInfo->usHtotal - GET_INPUT_TIMING_HWIDTH() - pstSourceIn
+             -fo->usHtotalMargin);
+ 428   1          pstEdidRefInfo->usPixelClkHBound = (usPixelClk + usClkMargin);
+ 429   1          pstEdidRefInfo->usPixelClkLBound = (usPixelClk - usClkMargin);
+ 430   1      }
+ 431          
+ 432          //--------------------------------------------------
+ 433          // Description  : Get Freesync Vfreq from EDID Analysis
+ 434          // Input Value  : pucReadArray: EDID address, usPixelClk: Input pixel clk(0.1M)
+ 435          // Output Value : _TRUE: Get IVF, unit: 0.1Hz
+ 436          //--------------------------------------------------
+ 437          EnumGetIVFFromTableSearch ScalerFreeSyncEdidAnalysisGetVfreqMax(BYTE *pucReadArray, WORD usPixelClk, const
+             - StructFreeSyncSourceInfo *pstSourceInfo, WORD *pusVfreqMax)
+ 438          {
+ 439   1          EnumGetIVFFromTableSearch enumGetIVFFromTableSearch = _TABLE_SEARCHING_WITHOUT_IVF_MAX;
+ 440   1      
+ 441   1          // === Misc ===
+ 442   1          DWORD ulCandidatedPixelRate = 0; // 0.1 MHz
+ 443   1          WORD usCandidatedVfreq = 0; // 0.1 Hz
+ 444   1      
+ 445   1          WORD usStartAddr = 0;
+ 446   1          WORD usIndex = 0;
+ 447   1          BYTE ucCnt = 0;
+ 448   1      
+ 449   1          // === Edid Info ===
+ 450   1          StructFreeSyncEdidInfo stEdidInfo;
+ 451   1          StructFreeSyncEdidRefInfo stEdidRefInfo;
+ 452   1          memset(&stEdidInfo, 0, sizeof(stEdidInfo));
+ 453   1          memset(&stEdidRefInfo, 0, sizeof(stEdidRefInfo));
+ 454   1      
+ 455   1          ScalerFreeSyncEdidAnalysisGetRefInfo(&stEdidRefInfo, usPixelClk, pstSourceInfo);
+ 456   1      
+ 457   1          // -----------------------------------------------------------
+ 458   1          // EDID: DTD Capture
+ 459   1          // -----------------------------------------------------------
+ 460   1          // Base DTD
+ 461   1          for(ucCnt = 0; ucCnt < 4; ucCnt++)
+ 462   1          {
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 9   
+
+ 463   2              // Set Start addr to DTD start location
+ 464   2              usStartAddr = (0x36 + (ucCnt * 18));
+ 465   2      
+ 466   2              // Check DTD or not
+ 467   2              if((pucReadArray[usStartAddr] != 0x00) && (pucReadArray[usStartAddr + 1] != 0x00))
+ 468   2              {
+ 469   3                  // Catch DTD's Hblank/ Hactive/ Vactive
+ 470   3                  stEdidInfo.usHwidth = (((WORD)(pucReadArray[usStartAddr + 4] & 0xF0) << 4) | pucReadArray[usSt
+             -artAddr + 2]);
+ 471   3                  stEdidInfo.usHblank = (((WORD)(pucReadArray[usStartAddr + 4] & 0x0F) << 8) | pucReadArray[usSt
+             -artAddr + 3]);
+ 472   3                  stEdidInfo.usVheight = (((WORD)(pucReadArray[usStartAddr + 7] & 0xF0) << 4) | pucReadArray[usS
+             -tartAddr + 5]);
+ 473   3                  stEdidInfo.usPixelClk = ((((DWORD)pucReadArray[usStartAddr + 1] << 8) | pucReadArray[usStartAd
+             -dr]) / 10); // 0.1 MHz
+ 474   3                  stEdidInfo.b1Interlace = ((pucReadArray[usStartAddr + 17] & _BIT7) >> 7);
+ 475   3      
+ 476   3                  // Check Hactive/ Vactive/ Hblank match & PixelRate inside the Boundary
+ 477   3                  if(ScalerFreeSyncEdidAnalysisCheckBoundry(&stEdidInfo, &stEdidRefInfo) == _TRUE)
+ 478   3                  {
+ 479   4                      // Check & take the large Pixel
+ 480   4                      if(stEdidInfo.usPixelClk > ulCandidatedPixelRate)
+ 481   4                      {
+ 482   5                          stEdidInfo.usVtotal = stEdidInfo.usVheight + (((WORD)(pucReadArray[usStartAddr + 7] & 
+             -0x0F) << 8) | pucReadArray[usStartAddr + 6]);
+ 483   5                          stEdidInfo.usHtotal = stEdidInfo.usHwidth + stEdidInfo.usHblank;
+ 484   5      
+ 485   5                          ulCandidatedPixelRate = stEdidInfo.usPixelClk;
+ 486   5                          usCandidatedVfreq = ((GET_DWORD_MUL_DIV(stEdidInfo.usPixelClk, 1000000, stEdidInfo.usV
+             -total) + (stEdidInfo.usHtotal / 2)) / stEdidInfo.usHtotal);
+ 487   5      
+ 488   5                          DebugMessageScaler("Get Candidated Vfreq from EDID Base DTD", 0);
+ 489   5                      }
+ 490   4                  }
+ 491   3              }
+ 492   2          }
+ 493   1      
+ 494   1          // Extension DTD
+ 495   1          if(pucReadArray[0x7E] != 0x00)
+ 496   1          {
+ 497   2              for(usIndex = 0; usIndex < pucReadArray[0x7E]; usIndex++)
+ 498   2              {
+ 499   3                  // Stop Extension Analysis if Not CEA Type, Check tag = 0x02
+ 500   3                  if(pucReadArray[(usIndex + 1) * 0x80] == 0x02)
+ 501   3                  {
+ 502   4                      // Set Start addr to DTD start location
+ 503   4                      usStartAddr = (0x80 * (usIndex + 1)) + pucReadArray[(0x80 * (usIndex + 1)) + 0x02];
+ 504   4      
+ 505   4                      for(ucCnt = 0; ucCnt < 6; ucCnt++)
+ 506   4                      {
+ 507   5                          if(usStartAddr > ((0x80 * (usIndex + 1)) + 0x7E))
+ 508   5                          {
+ 509   6                              break;
+ 510   6                          }
+ 511   5      
+ 512   5                          // Check DTD or not
+ 513   5                          if((pucReadArray[usStartAddr] != 0x00) && (pucReadArray[usStartAddr + 1] != 0x00))
+ 514   5                          {
+ 515   6                              // Catch DTD's Hblank/ Hactive/ Vactive
+ 516   6                              stEdidInfo.usHwidth = (((WORD)(pucReadArray[usStartAddr + 4] & 0xF0) << 4) | pucRe
+             -adArray[usStartAddr + 2]);
+ 517   6                              stEdidInfo.usHblank = (((WORD)(pucReadArray[usStartAddr + 4] & 0x0F) << 8) | pucRe
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 10  
+
+             -adArray[usStartAddr + 3]);
+ 518   6                              stEdidInfo.usVheight = (((WORD)(pucReadArray[usStartAddr + 7] & 0xF0) << 4) | pucR
+             -eadArray[usStartAddr + 5]);
+ 519   6                              stEdidInfo.usPixelClk = ((((WORD)pucReadArray[usStartAddr + 1] << 8) | pucReadArra
+             -y[usStartAddr]) / 10); // 0.1 MHz
+ 520   6                              stEdidInfo.b1Interlace = ((pucReadArray[usStartAddr + 17] & _BIT7) >> 7);
+ 521   6      
+ 522   6                              // Check Hactive/ Vactive/ Hblank match & PixelRate inside the Boundary
+ 523   6                              if(ScalerFreeSyncEdidAnalysisCheckBoundry(&stEdidInfo, &stEdidRefInfo) == _TRUE)
+ 524   6                              {
+ 525   7                                  // Check & take the large Pixel
+ 526   7                                  if(stEdidInfo.usPixelClk > ulCandidatedPixelRate)
+ 527   7                                  {
+ 528   8                                      stEdidInfo.usVtotal = stEdidInfo.usVheight + (((WORD)(pucReadArray[usStart
+             -Addr + 7] & 0x0F) << 8) | pucReadArray[usStartAddr + 6]);
+ 529   8                                      stEdidInfo.usHtotal = stEdidInfo.usHwidth + stEdidInfo.usHblank;
+ 530   8      
+ 531   8                                      ulCandidatedPixelRate = stEdidInfo.usPixelClk;
+ 532   8                                      usCandidatedVfreq = ((GET_DWORD_MUL_DIV(stEdidInfo.usPixelClk, 1000000, st
+             -EdidInfo.usVtotal) + (stEdidInfo.usHtotal / 2)) / stEdidInfo.usHtotal);
+ 533   8      
+ 534   8                                      DebugMessageScaler("Get Candidated Vfreq from EDID EXT DTD", 0);
+ 535   8                                  }
+ 536   7                              }
+ 537   6                          }
+ 538   5      
+ 539   5                          usStartAddr += 0x12;
+ 540   5                      }
+ 541   4                  }
+ 542   3              } // End of Extension Block Analysis For Loop
+ 543   2          }
+ 544   1      
+ 545   1          // -----------------------------------------------------------
+ 546   1          // EDID: DB Capature
+ 547   1          // -----------------------------------------------------------
+ 548   1          {
+ 549   2              // Get DB start addr from Edid Data
+ 550   2              WORD pusCtaDataBlockAddr[_CTA_TOTAL_DB] = {0};
+ 551   2              ScalerSyncGetCtaExtDbAddress(pusCtaDataBlockAddr, pucReadArray);
+ 552   2      
+ 553   2              // VDB
+ 554   2              if(pusCtaDataBlockAddr[_CTA_VDB] != 0x00)
+ 555   2              {
+ 556   3                  BYTE ucVicIndex = 0;
+ 557   3                  BYTE ucDblength = 0;
+ 558   3      
+ 559   3                  // Set Start addr to VDB start location
+ 560   3                  usStartAddr = pusCtaDataBlockAddr[_CTA_VDB];
+ 561   3                  ucDblength = (pucReadArray[usStartAddr] & 0x1F);
+ 562   3      
+ 563   3                  for(usIndex = 0; usIndex < ucDblength; usIndex++)
+ 564   3                  {
+ 565   4                      ucVicIndex = pucReadArray[usStartAddr + 1 + usIndex];
+ 566   4      
+ 567   4                      // depart native / non-native factor & fit index to Code table below
+ 568   4                      if(((1 <= ucVicIndex) && (ucVicIndex <= 64)) ||
+ 569   4                         ((129 <= ucVicIndex) && (ucVicIndex <= 192)))
+ 570   4                      {
+ 571   5                          ucVicIndex = (ucVicIndex & 0x7F) - 1;
+ 572   5                      }
+ 573   4                      else if(ucVicIndex == 0)
+ 574   4                      {
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 11  
+
+ 575   5                          continue;
+ 576   5                      }
+ 577   4                      else
+ 578   4                      {
+ 579   5                          ucVicIndex -= 1;
+ 580   5                      }
+ 581   4      
+ 582   4                      stEdidInfo.usHwidth = tVIC_HACTIVE_TABLE[ucVicIndex];
+ 583   4                      stEdidInfo.usHblank = tVIC_HBLANK_TABLE[ucVicIndex];
+ 584   4                      stEdidInfo.usVheight = tVIC_VACTIVE_TABLE[ucVicIndex];
+ 585   4                      stEdidInfo.usPixelClk = tVIC_PIXEL_RATE_TABLE[ucVicIndex]; // 0.1 MHz
+ 586   4                      stEdidInfo.b1Interlace = _FALSE;
+ 587   4      
+ 588   4                      for(pData[0] = 0; pData[0] < 21; pData[0]++)
+ 589   4                      {
+ 590   5                          if(tInterlaceVic[pData[0]] == (ucVicIndex + 1))
+ 591   5                          {
+ 592   6                              stEdidInfo.b1Interlace = _TRUE;
+ 593   6      
+ 594   6                              // VIC Info's V info is frame V info (not field V info)
+ 595   6                              stEdidInfo.usVheight = stEdidInfo.usVheight / 2;
+ 596   6                              break;
+ 597   6                          }
+ 598   5                      }
+ 599   4      
+ 600   4                      // Check Hactive/ Vactive/ Hblank match & PixelRate inside the Boundary
+ 601   4                      if(ScalerFreeSyncEdidAnalysisCheckBoundry(&stEdidInfo, &stEdidRefInfo) == _TRUE)
+ 602   4                      {
+ 603   5                          // Check & take the large Pixel
+ 604   5                          if(stEdidInfo.usPixelClk > ulCandidatedPixelRate)
+ 605   5                          {
+ 606   6                              ulCandidatedPixelRate = stEdidInfo.usPixelClk;
+ 607   6                              usCandidatedVfreq = (WORD)tVIC_VFREQ_TABLE[ucVicIndex] * 10;
+ 608   6      
+ 609   6                              DebugMessageScaler("Get Candidated Vfreq from EDID VDB", 0);
+ 610   6                          }
+ 611   5                      }
+ 612   4                  }
+ 613   3              }
+ 614   2      
+ 615   2              // 420 VDB
+ 616   2              if((pusCtaDataBlockAddr[_CTA_420VDB] != 0x00) && (pstSourceInfo->ucColorSapce == _COLOR_SPACE_YCBC
+             -R420))
+ 617   2              {
+ 618   3                  BYTE ucVicIndex = 0;
+ 619   3                  BYTE ucDblength = 0;
+ 620   3      
+ 621   3                  // Set Start addr to 420VDB start location
+ 622   3                  usStartAddr = pusCtaDataBlockAddr[_CTA_420VDB];
+ 623   3                  ucDblength = (pucReadArray[usStartAddr] & 0x1F);
+ 624   3      
+ 625   3                  for(usIndex = 0; usIndex < ucDblength; usIndex++)
+ 626   3                  {
+ 627   4                      ucVicIndex = pucReadArray[usStartAddr + 2 + usIndex];
+ 628   4      
+ 629   4                      // depart native / non-native factor & fit index to Code table below
+ 630   4                      if(((1 <= ucVicIndex) && (ucVicIndex <= 64)) ||
+ 631   4                         ((129 <= ucVicIndex) && (ucVicIndex <= 192)))
+ 632   4                      {
+ 633   5                          ucVicIndex = (ucVicIndex & 0x7F) - 1;
+ 634   5                      }
+ 635   4                      else if(ucVicIndex == 0)
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 12  
+
+ 636   4                      {
+ 637   5                          continue;
+ 638   5                      }
+ 639   4                      else
+ 640   4                      {
+ 641   5                          ucVicIndex -= 1;
+ 642   5                      }
+ 643   4      
+ 644   4                      stEdidInfo.usHwidth = tVIC_HACTIVE_TABLE[ucVicIndex];
+ 645   4                      stEdidInfo.usHblank = tVIC_HBLANK_TABLE[ucVicIndex];
+ 646   4                      stEdidInfo.usVheight = tVIC_VACTIVE_TABLE[ucVicIndex];
+ 647   4                      stEdidInfo.usPixelClk = tVIC_PIXEL_RATE_TABLE[ucVicIndex]; // 0.1 MHz
+ 648   4                      stEdidInfo.b1Interlace = _FALSE;
+ 649   4      
+ 650   4                      for(pData[0] = 0; pData[0] < 21; pData[0]++)
+ 651   4                      {
+ 652   5                          if(tInterlaceVic[pData[0]] == (ucVicIndex + 1))
+ 653   5                          {
+ 654   6                              stEdidInfo.b1Interlace = _TRUE;
+ 655   6      
+ 656   6                              // VIC Info's V info is frame V info (not field V info)
+ 657   6                              stEdidInfo.usVheight = stEdidInfo.usVheight / 2;
+ 658   6                              break;
+ 659   6                          }
+ 660   5                      }
+ 661   4      
+ 662   4                      // Check Hactive/ Vactive/ Hblank match & PixelRate inside the Boundary
+ 663   4                      if(ScalerFreeSyncEdidAnalysisCheckBoundry(&stEdidInfo, &stEdidRefInfo) == _TRUE)
+ 664   4                      {
+ 665   5                          // Check & take the large Pixel
+ 666   5                          if(stEdidInfo.usPixelClk > ulCandidatedPixelRate)
+ 667   5                          {
+ 668   6                              ulCandidatedPixelRate = stEdidInfo.usPixelClk;
+ 669   6                              usCandidatedVfreq = (WORD)tVIC_VFREQ_TABLE[ucVicIndex] * 10;
+ 670   6      
+ 671   6                              DebugMessageScaler("Get Candidated Vfreq from EDID 420VDB", 0);
+ 672   6                          }
+ 673   5                      }
+ 674   4                  }
+ 675   3              }
+ 676   2          }
+ 677   1      
+ 678   1          // -----------------------------------------------------------
+ 679   1          // DID: Timing I DB
+ 680   1          // -----------------------------------------------------------
+ 681   1          {
+ 682   2              WORD pusDidDataBlockAddr[_DID_TOTAL_DB] = {0};
+ 683   2              ScalerSyncGetDidExtDbAddress(pusDidDataBlockAddr, pucReadArray);
+ 684   2      
+ 685   2              if(pusDidDataBlockAddr[_DID_T1_DB] != 0x00)
+ 686   2              {
+ 687   3                  BYTE ucTimingNum = (pucReadArray[pusDidDataBlockAddr[_DID_T1_DB] + 2] / 20);
+ 688   3      
+ 689   3                  // Catch each Timing from Timing1 DB
+ 690   3                  for(usIndex = 0; usIndex < ucTimingNum; usIndex++)
+ 691   3                  {
+ 692   4                      // Set start addr to Timing 1 's Descriptor unit
+ 693   4                      usStartAddr = (pusDidDataBlockAddr[_DID_T1_DB] + 3 + (20 * usIndex));
+ 694   4      
+ 695   4                      // Catch Timing1's Hblank/ Hactive/ Vactive  (Timing 1's range is 1~xxx)
+ 696   4                      stEdidInfo.usHwidth = (((WORD)pucReadArray[usStartAddr + 5] << 8) | pucReadArray[usStartAd
+             -dr + 4]) + 1;
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 13  
+
+ 697   4                      stEdidInfo.usHblank = (((WORD)pucReadArray[usStartAddr + 7] << 8) | pucReadArray[usStartAd
+             -dr + 6]) + 1;
+ 698   4                      stEdidInfo.usVheight = (((WORD)pucReadArray[usStartAddr + 13] << 8) | pucReadArray[usStart
+             -Addr + 12]) + 1;
+ 699   4                      stEdidInfo.usPixelClk = (((((DWORD)pucReadArray[usStartAddr + 2] << 16) | ((DWORD)pucReadA
+             -rray[usStartAddr + 1] << 8) | pucReadArray[usStartAddr]) + 1) / 10); // 0.1 MHz
+ 700   4                      stEdidInfo.usVtotal = stEdidInfo.usVheight + ((((WORD)pucReadArray[usStartAddr + 15] << 8)
+             - | pucReadArray[usStartAddr + 14]) + 1);
+ 701   4                      stEdidInfo.b1Interlace = ((pucReadArray[usStartAddr + 3] & _BIT4) >> 4);
+ 702   4      
+ 703   4                      if(stEdidInfo.b1Interlace == _TRUE)
+ 704   4                      {
+ 705   5                          // VIC Info's V info is frame V info (not field V info)
+ 706   5                          stEdidInfo.usVheight = stEdidInfo.usVheight / 2;
+ 707   5                      }
+ 708   4      
+ 709   4                      // Check Hactive/ Vactive/ Hblank match & PixelRate inside the Boundary
+ 710   4                      if(ScalerFreeSyncEdidAnalysisCheckBoundry(&stEdidInfo, &stEdidRefInfo) == _TRUE)
+ 711   4                      {
+ 712   5                          // Check & take the large Pixel
+ 713   5                          if(stEdidInfo.usPixelClk > ulCandidatedPixelRate)
+ 714   5                          {
+ 715   6                              stEdidInfo.usHtotal = stEdidInfo.usHwidth + stEdidInfo.usHblank;
+ 716   6      
+ 717   6                              if(stEdidInfo.b1Interlace == _TRUE)
+ 718   6                              {
+ 719   7                                  stEdidInfo.usVtotal = (stEdidInfo.usVtotal / 2);
+ 720   7                              }
+ 721   6      
+ 722   6                              ulCandidatedPixelRate = stEdidInfo.usPixelClk;
+ 723   6                              usCandidatedVfreq = ((GET_DWORD_MUL_DIV(stEdidInfo.usPixelClk, 1000000, stEdidInfo
+             -.usVtotal) + (stEdidInfo.usHtotal / 2)) / stEdidInfo.usHtotal);
+ 724   6      
+ 725   6                              DebugMessageScaler("Get Candidated Vfreq from DID T1", 0);
+ 726   6                          }
+ 727   5                      }
+ 728   4                  }
+ 729   3              }
+ 730   2      
+ 731   2              // -----------------------------------------------------------
+ 732   2              // DID: Timing 7 DB
+ 733   2              // -----------------------------------------------------------
+ 734   2              if(pusDidDataBlockAddr[_DID_T7_DB] != 0x00)
+ 735   2              {
+ 736   3                  BYTE ucEachTimingSize = 20 + ((pucReadArray[pusDidDataBlockAddr[_DID_T7_DB] + 1] & (_BIT6 | _B
+             -IT5 | _BIT4)) >> 4);
+ 737   3                  BYTE ucTimingNum = (pucReadArray[pusDidDataBlockAddr[_DID_T7_DB] + 2] / ucEachTimingSize);
+ 738   3      
+ 739   3                  // Catch each Timing from Timing1 DB
+ 740   3                  for(usIndex = 0; usIndex < ucTimingNum; usIndex++)
+ 741   3                  {
+ 742   4                      // Set start addr to Timing 1 's Descriptor unit
+ 743   4                      usStartAddr = (pusDidDataBlockAddr[_DID_T7_DB] + 3 + (ucEachTimingSize * usIndex));
+ 744   4      
+ 745   4                      // Catch Timing1's Hblank/ Hactive/ Vactive  (Timing 1's range is 1~xxx)
+ 746   4                      stEdidInfo.usHwidth = (((WORD)pucReadArray[usStartAddr + 5] << 8) | pucReadArray[usStartAd
+             -dr + 4]) + 1;
+ 747   4                      stEdidInfo.usHblank = (((WORD)pucReadArray[usStartAddr + 7] << 8) | pucReadArray[usStartAd
+             -dr + 6]) + 1;
+ 748   4                      stEdidInfo.usVheight = (((WORD)pucReadArray[usStartAddr + 13] << 8) | pucReadArray[usStart
+             -Addr + 12]) + 1;
+ 749   4                      stEdidInfo.usPixelClk = (((((DWORD)pucReadArray[usStartAddr + 2] << 16) | ((DWORD)pucReadA
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 14  
+
+             -rray[usStartAddr + 1] << 8) | pucReadArray[usStartAddr]) + 1) / 100); // 0.1 MHz
+ 750   4                      stEdidInfo.usVtotal = stEdidInfo.usVheight + ((((WORD)pucReadArray[usStartAddr + 15] << 8)
+             - | pucReadArray[usStartAddr + 14]) + 1);
+ 751   4                      stEdidInfo.b1Interlace = ((pucReadArray[usStartAddr + 3] & _BIT4) >> 4);
+ 752   4      
+ 753   4                      if(stEdidInfo.b1Interlace == _TRUE)
+ 754   4                      {
+ 755   5                          // VIC Info's V info is frame V info (not field V info)
+ 756   5                          stEdidInfo.usVheight = stEdidInfo.usVheight / 2;
+ 757   5                      }
+ 758   4      
+ 759   4                      // Check Hactive/ Vactive/ Hblank match & PixelRate inside the Boundary
+ 760   4                      if(ScalerFreeSyncEdidAnalysisCheckBoundry(&stEdidInfo, &stEdidRefInfo) == _TRUE)
+ 761   4                      {
+ 762   5                          // Check & take the large Pixel
+ 763   5                          if(stEdidInfo.usPixelClk > ulCandidatedPixelRate)
+ 764   5                          {
+ 765   6                              stEdidInfo.usHtotal = stEdidInfo.usHwidth + stEdidInfo.usHblank;
+ 766   6      
+ 767   6                              if(stEdidInfo.b1Interlace == _TRUE)
+ 768   6                              {
+ 769   7                                  stEdidInfo.usVtotal = (stEdidInfo.usVtotal / 2);
+ 770   7                              }
+ 771   6      
+ 772   6                              ulCandidatedPixelRate = stEdidInfo.usPixelClk;
+ 773   6                              usCandidatedVfreq = ((GET_DWORD_MUL_DIV(stEdidInfo.usPixelClk, 1000000, stEdidInfo
+             -.usVtotal) + (stEdidInfo.usHtotal / 2)) / stEdidInfo.usHtotal);
+ 774   6      
+ 775   6                              DebugMessageScaler("Get Candidated Vfreq from DID T7", 0);
+ 776   6                          }
+ 777   5                      }
+ 778   4                  }
+ 779   3              }
+ 780   2          }
+ 781   1      
+ 782   1          if(usCandidatedVfreq != 0x00)
+ 783   1          {
+ 784   2              enumGetIVFFromTableSearch = _TABLE_SEARCHING_WITH_IVF_MAX;
+ 785   2      
+ 786   2              *pusVfreqMax = usCandidatedVfreq;
+ 787   2          }
+ 788   1      
+ 789   1          return enumGetIVFFromTableSearch;
+ 790   1      }
+ 791          
+ 792          //--------------------------------------------------
+ 793          // Description  : Drr mode Get IVFmax Calculated by CVT
+ 794          // Input Value  : enumInputPort
+ 795          // Output Value : _TABLE_SEARCHING_WITH_IVF_MAX: Calculate IVF by CVT, unit: 0.1Hz
+ 796          //--------------------------------------------------
+ 797          EnumGetIVFFromTableSearch ScalerFreeSyncCalculateIVFmaxFromCVT(WORD *pusVfreqMax, const StructFreeSyncSour
+             -ceInfo *pstSourceInfo, BYTE ucPortType)
+ 798          {
+ 799   1          ucPortType = ucPortType;
+ 800   1          pstSourceInfo = pstSourceInfo;
+ 801   1      
+ 802   1          *pusVfreqMax = 0;
+ 803   1          return _TABLE_SEARCHING_WITHOUT_IVF_MAX;
+ 804   1      }
+ 805          
+ 806          #if(_TRANSLATOR_SUPPORT == _OFF)
+ 807          //--------------------------------------------------
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 15  
+
+ 808          // Description  : HDMI freesync initial
+ 809          // Input Value  : support or not
+ 810          // Output Value :
+ 811          //--------------------------------------------------
+ 812          void ScalerFreeSyncSupportSwitch(EnumSourceSearchPort enumSourcePort, EnumFreeSyncSupport enumSupport, Enu
+             -mSourceSearchPort enumFreesyncTargetPort)
+ 813          {
+ 814   1          enumSupport = enumSupport;
+ 815   1          enumFreesyncTargetPort = enumFreesyncTargetPort;
+ 816   1      
+ 817   1          switch(enumSourcePort)
+ 818   1          {
+ 819   2      #if(_D0_INPUT_PORT_TYPE != _D0_NO_PORT)
+                      case _D0_INPUT_PORT:
+              
+              #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH
+             -_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+              
+              #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_DP_FREESYNC_SUPPORT == _ON))
+                          ScalerFreeSyncDpSupportSwitch(enumSourcePort, enumSupport);
+              #elif((_D0_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          ScalerFreeSyncHDMISupportSwitch(enumSourcePort, enumSupport, enumFreesyncTargetPort);
+              #endif
+              
+                          break;
+              #endif
+ 834   2      
+ 835   2      #if(_D1_INPUT_PORT_TYPE != _D1_NO_PORT)
+ 836   2              case _D1_INPUT_PORT:
+ 837   2      
+ 838   2      #if((_D1_INPUT_PORT_TYPE == _D1_DP_PORT) && (_DP_FREESYNC_SUPPORT == _ON))
+                          ScalerFreeSyncDpSupportSwitch(enumSourcePort, enumSupport);
+              #elif((_D1_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+ 841   2                  ScalerFreeSyncHDMISupportSwitch(enumSourcePort, enumSupport, enumFreesyncTargetPort);
+ 842   2      #endif
+ 843   2      
+ 844   2                  break;
+ 845   2      #endif
+ 846   2      
+ 847   2      #if(_D2_INPUT_PORT_TYPE != _D2_NO_PORT)
+                      case _D2_INPUT_PORT:
+              
+              #if((_D2_INPUT_PORT_TYPE == _D2_DP_PORT) && (_DP_FREESYNC_SUPPORT == _ON))
+                          ScalerFreeSyncDpSupportSwitch(enumSourcePort, enumSupport);
+              #elif((_D2_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          ScalerFreeSyncHDMISupportSwitch(enumSourcePort, enumSupport, enumFreesyncTargetPort);
+              #endif
+              
+                          break;
+              #endif
+ 858   2      
+ 859   2      #if(_D3_INPUT_PORT_TYPE != _D3_NO_PORT)
+                      case _D3_INPUT_PORT:
+              
+              #if((_D3_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          ScalerFreeSyncHDMISupportSwitch(enumSourcePort, enumSupport, enumFreesyncTargetPort);
+              #endif
+              
+                          break;
+              #endif
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 16  
+
+ 868   2      
+ 869   2      #if(_D4_INPUT_PORT_TYPE != _D4_NO_PORT)
+                      case _D4_INPUT_PORT:
+              
+              #if((_D4_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          ScalerFreeSyncHDMISupportSwitch(enumSourcePort, enumSupport, enumFreesyncTargetPort);
+              #endif
+              
+                          break;
+              #endif
+ 878   2      
+ 879   2      #if(_D5_INPUT_PORT_TYPE != _D5_NO_PORT)
+                      case _D5_INPUT_PORT:
+              
+              #if((_D5_HDMI_SUPPORT == _ON) && (_HDMI_FREESYNC_SUPPORT == _ON))
+                          ScalerFreeSyncHDMISupportSwitch(enumSourcePort, enumSupport, enumFreesyncTargetPort);
+              #endif
+              
+                          break;
+              #endif
+ 888   2      
+ 889   2              default:
+ 890   2                  break;
+ 891   2          }
+ 892   1      }
+ 893          #endif
+ 894          
+ 895          #if(_DP_SUPPORT == _ON)
+              #if(_DP_FREESYNC_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Get Current DP H Period
+              // Input Value  : enumSourceSearchPort --> Source Search Port
+              // Output Value : H period in nano sec
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpGetHSPeriod(EnumSourceSearchPort enumSourceSearchPort)
+              {
+                  switch(enumSourceSearchPort)
+                  {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                      case _D0_INPUT_PORT:
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+                          return GET_DPRX0_H_PERIOD();
+              #endif
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                      case _D1_INPUT_PORT:
+              
+                          return GET_DPRX1_H_PERIOD();
+              #endif
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                      case _D2_INPUT_PORT:
+              
+                          return GET_DPRX2_H_PERIOD();
+              #endif
+              
+                      default:
+                          break;
+                  }
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 17  
+
+                  return 0;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP H Sync Width
+              // Input Value  : enumSourceSearchPort --> Source Search Port
+              // Output Value : H Sync Width in pixel clk
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpGetHSW(EnumSourceSearchPort enumSourceSearchPort)
+              {
+                  switch(enumSourceSearchPort)
+                  {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                      case _D0_INPUT_PORT:
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+                          return ((DWORD)GET_DPRX0_HSW() * _MEASURE_CLK / GET_INPUT_PIXEL_CLK() / 100);
+              #endif
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                      case _D1_INPUT_PORT:
+              
+                          return ((DWORD)GET_DPRX1_HSW() * _MEASURE_CLK / GET_INPUT_PIXEL_CLK() / 100);
+              #endif
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                      case _D2_INPUT_PORT:
+              
+                          return ((DWORD)GET_DPRX2_HSW() * _MEASURE_CLK / GET_INPUT_PIXEL_CLK() / 100);
+              #endif
+              
+                      default:
+                          break;
+                  }
+              
+                  return 0;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Dp Get Vfreq
+              // Input Value  : enumSourceSearchPort --> Source Search Port
+              // Output Value : VFreq in 0.1Hz
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpGetVFreq(EnumSourceSearchPort enumSourceSearchPort)
+              {
+                  switch(enumSourceSearchPort)
+                  {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                      case _D0_INPUT_PORT:
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+                          return GET_DPRX0_V_FREQ();
+              #endif
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                      case _D1_INPUT_PORT:
+              
+                          return GET_DPRX1_V_FREQ();
+              #endif
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 18  
+
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                      case _D2_INPUT_PORT:
+              
+                          return GET_DPRX2_V_FREQ();
+              #endif
+              
+                      default:
+                          break;
+                  }
+              
+                  return 0;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP V Period
+              // Input Value  : enumSourceSearchPort --> Source Search Port
+              // Output Value : V period in line
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpGetVSPeriod(EnumSourceSearchPort enumSourceSearchPort)
+              {
+                  switch(enumSourceSearchPort)
+                  {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                      case _D0_INPUT_PORT:
+              #if((_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              #endif
+                          return GET_DPRX0_V_PERIOD();
+              #endif
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                      case _D1_INPUT_PORT:
+              
+                          return GET_DPRX1_V_PERIOD();
+              #endif
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                      case _D2_INPUT_PORT:
+              
+                          return GET_DPRX2_V_PERIOD();
+              #endif
+              
+                      default:
+                          break;
+                  }
+              
+                  return 0;
+              }
+              
+              #if(_D0_DP_EXIST == _ON)
+              //--------------------------------------------------
+              // Description  : Get AMD SPD Info Contents
+              // Input Value  : Content of Interest
+              // Output Value : Content Value
+              //--------------------------------------------------
+              DWORD ScalerFreeSyncDpRx0GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent)
+              {
+                  BYTE pucDPRSV0Data[_HW_DP_INFOFRAME_RSV0_LENGTH];
+                  bit bCheckFreeSync = _FALSE;
+                  WORD usFreesyncVfreqmax = 0;
+                  WORD usFreesyncVfreqmin = 0;
+                  WORD usAmdVfreqEffectiveBit = 0;
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 19  
+
+              
+              #if(_HW_DIGITAL_PORT_COMBO_PHY_TYPE == _DIGITAL_PORT_COMBO_PHY_ALL)
+                  if(ScalerSyncGetAmdVsdbVer(GET_DP_EMBEDDED_SWITCH_SELECT()) < _AMD_VER3)
+              #else
+                  if(ScalerSyncGetAmdVsdbVer(_D0_INPUT_PORT) < _AMD_VER3)
+              #endif
+                  {
+                      usAmdVfreqEffectiveBit = _8_BIT;
+                  }
+                  else
+                  {
+                      usAmdVfreqEffectiveBit = _10_BIT;
+                  }
+              
+              #if(_DP_HDR10_SUPPORT == _ON)
+                  memcpy(pucDPRSV0Data, g_pucDPRx0RSV0Backup, _HW_DP_INFOFRAME_RSV0_LENGTH);
+              
+                  if(GET_FREESYNC_ENABLED() == _TRUE)
+                  {
+                      bCheckFreeSync = _TRUE;
+                  }
+              #else
+                  memset(pucDPRSV0Data, 0, sizeof(pucDPRSV0Data));
+              
+                  ScalerDpRx0GetInfoFrameRSV0(pucDPRSV0Data);
+              
+                  if(ScalerGetByte(PB6_2C_DP_INFO_FM_RSV0) == _SPD_INFO_TYPE)
+                  {
+                      bCheckFreeSync = _TRUE;
+                  }
+              #endif
+              
+                  if(bCheckFreeSync == _TRUE)
+                  {
+                      if(enumContent == _SPD_INFO_OUI)
+                      {
+                          return (TO_DWORD(0, pucDPRSV0Data[3], pucDPRSV0Data[2], pucDPRSV0Data[1]));
+                      }
+              
+                      // Check AMD OUI
+                      if((pucDPRSV0Data[1] == 0x1A) && (pucDPRSV0Data[2] == 0x00) && (pucDPRSV0Data[3] == 0x00))
+                      {
+                          switch(enumContent)
+                          {
+                              case _SPD_INFO_FREESYNC_SUPPORT:
+                                  return (((pucDPRSV0Data[6] & _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_ENABLE:
+                                  return (((pucDPRSV0Data[6] & _BIT1) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_ACTIVE:
+                                  return (((pucDPRSV0Data[6] & _BIT2) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_PQ_EOTF_ACTIVE:
+                                  return (((pucDPRSV0Data[9] & _BIT5) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MIN_VFREQ:
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 20  
+
+                                  usFreesyncVfreqmin = (((WORD)pucDPRSV0Data[11] << 8) | pucDPRSV0Data[7]);
+              
+                                  usFreesyncVfreqmin &= usAmdVfreqEffectiveBit;
+              
+                                  if((usFreesyncVfreqmin * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx0("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmin * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx0("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmin;
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MAX_VFREQ:
+              
+                                  usFreesyncVfreqmax = (((WORD)pucDPRSV0Data[12] << 8) | pucDPRSV0Data[8]);
+              
+                                  usFreesyncVfreqmax &= usAmdVfreqEffectiveBit;
+              
+                                  if((usFreesyncVfreqmax * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx0("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmax * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx0("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmax;
+                                  break;
+              
+                              default:
+                                  return 0x00;
+                                  break;
+                          }
+                      }
+              
+                      return 0x00;
+                  }
+              
+                  return 0x00;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP H Period
+              // Input Value  : None
+              // Output Value : H period in nano sec
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpRx0GetHPeriod(void)
+              {
+                  WORD usHBs2BsCount = 0;
+              
+                  // Pop up The result
+                  SET_DP_RX0_MEASURE_POP_UP();
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 21  
+
+                  // HBs2Bs count in Link Clk / 2
+                  usHBs2BsCount = (((WORD)ScalerGetByte(PB5_5B_MN_MEAS_HLN_M)) << 8) | (ScalerGetByte(PB5_5C_MN_MEAS_HLN
+             -_L));
+              
+                  return (((DWORD)usHBs2BsCount * 1000) / (ScalerDpRx0GetDpcdInfo(0x00, 0x01, 0x00) * 27 / 2));
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP H Sync Width
+              // Input Value  : None
+              // Output Value : H Sync Width in pixel clk
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpRx0GetHSW(void)
+              {
+                  WORD usHSWidth = 0;
+              
+                  usHSWidth = ((((WORD)ScalerGetByte(PB5_47_MN_DPF_HSW_M) << 8) | (ScalerGetByte(PB5_48_MN_DPF_HSW_L))) 
+             -& 0x7FFF);
+              
+                  return usHSWidth;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP V Freq
+              // Input Value  : None
+              // Output Value : VFreq in 0.1Hz
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpRx0GetVFreq(void)
+              {
+                  DWORD ulVBs2BsCount = 0;
+              
+                  // Pop up The result
+                  SET_DP_RX0_MEASURE_POP_UP();
+              
+                  ulVBs2BsCount = ((((DWORD)(ScalerGetByte(PB5_58_MN_MEAS_CTRL) & 0x1F)) << 16) | (((DWORD)ScalerGetByte
+             -(PB5_59_MN_MEAS_VLN_M)) << 8) | ((DWORD)ScalerGetByte(PB5_5A_MN_MEAS_VLN_L)));
+              
+                  return (DWORD)_GDI_CLK_KHZ * 1000 / (ulVBs2BsCount / 10);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP V Period
+              // Input Value  : None
+              // Output Value : V period in line
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpRx0GetVPeriod(void)
+              {
+                  DWORD ulVBs2BsCount = 0;
+                  WORD usHBs2BsCount = 0;
+              
+                  // Pop up The result
+                  SET_DP_RX0_MEASURE_POP_UP();
+              
+                  // VBs2BS count in GDI clk
+                  ulVBs2BsCount = ((((DWORD)(ScalerGetByte(PB5_58_MN_MEAS_CTRL) & 0x1F)) << 16) | (((DWORD)ScalerGetByte
+             -(PB5_59_MN_MEAS_VLN_M)) << 8) | ((DWORD)ScalerGetByte(PB5_5A_MN_MEAS_VLN_L)));
+              
+                  // HBs2Bs count in Link Clk / 2
+                  usHBs2BsCount = (((DWORD)ScalerGetByte(PB5_5B_MN_MEAS_HLN_M)) << 8) | ((DWORD)ScalerGetByte(PB5_5C_MN_
+             -MEAS_HLN_L));
+              
+                  // VTotal in line, Link Clk / 2 : (Link Rate * 27 / 2)
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 22  
+
+                  return (ulVBs2BsCount * (ScalerDpRx0GetDpcdInfo(0x00, 0x01, 0x00) * 27 / 2) / usHBs2BsCount * 1000 / _
+             -GDI_CLK_KHZ);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Set Freesync AMD SPD info Vfreq max and min
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFreeSyncDpRx0GetSPDVfreqMaxMin(void)
+              {
+                  BYTE pucDPRSV0Data[_HW_DP_INFOFRAME_RSV0_LENGTH];
+              
+              #if(_DP_HDR10_SUPPORT == _ON)
+                  memcpy(pucDPRSV0Data, g_pucDPRx0RSV0Backup, _HW_DP_INFOFRAME_RSV0_LENGTH);
+              #else
+                  memset(pucDPRSV0Data, 0, sizeof(pucDPRSV0Data));
+              
+                  ScalerDpRx0GetInfoFrameRSV0(pucDPRSV0Data);
+              #endif
+              
+                  if(GET_FREESYNC_ENABLED() == _TRUE)
+                  {
+                      if(GET_DPRX0_AMD_SPD_INFO(_SPD_INFO_FREESYNC_SUPPORT) == _ENABLE)
+                      {
+                          // For IMD calculate DVtotal and BW when Freesync mode
+                          SET_DP_RX0_SPD_INFO_FRAME_RECEIVED();
+              
+                          // Get DP DRR SPD Vmax
+                          g_usFREESYNCVFreq_max = (WORD)GET_DPRX0_AMD_SPD_INFO(_SPD_INFO_FREESYNC_MAX_VFREQ) * 10;
+                          g_usFREESYNCVFreq_min = (WORD)GET_DPRX0_AMD_SPD_INFO(_SPD_INFO_FREESYNC_MIN_VFREQ) * 10;
+                      }
+                      else
+                      {
+                          CLR_DP_RX0_SPD_INFO_FRAME_RECEIVED();
+              
+                          g_usFREESYNCVFreq_max = _PANEL_FREESYNC_MAX_FRAME_RATE;
+                          g_usFREESYNCVFreq_min = _PANEL_FREESYNC_MIN_FRAME_RATE;
+                          DebugMessageRx0("DP DRR without SPD info", 0x00);
+                      }
+                  }
+                  else
+                  {
+                      CLR_DP_RX0_SPD_INFO_FRAME_RECEIVED();
+                  }
+              
+              #if(_DP_ULTRA_HDR_SUPPORT == _ON)
+                  // Check AMD OUI
+                  if((pucDPRSV0Data[1] == 0x1A) && (pucDPRSV0Data[2] == 0x00) && (pucDPRSV0Data[3] == 0x00))
+                  {
+                      // For Freesync2 or HDR10 check receive, only check OUI
+                      SET_DP_RX0_AMD_SPD_INFO_FRAME_RECEIVED();
+                  }
+                  else
+                  {
+                      CLR_DP_RX0_AMD_SPD_INFO_FRAME_RECEIVED();
+                  }
+              #endif
+              }
+              #endif // End of #if(_D0_DP_EXIST == _ON)
+              #if(_D1_DP_EXIST == _ON)
+              //--------------------------------------------------
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 23  
+
+              // Description  : Get AMD SPD Info Contents
+              // Input Value  : Content of Interest
+              // Output Value : Content Value
+              //--------------------------------------------------
+              DWORD ScalerFreeSyncDpRx1GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent)
+              {
+                  BYTE pucDPRSV0Data[_HW_DP_INFOFRAME_RSV0_LENGTH];
+                  bit bCheckFreeSync = _FALSE;
+                  WORD usFreesyncVfreqmax = 0;
+                  WORD usFreesyncVfreqmin = 0;
+                  WORD usAmdVfreqEffectiveBit = 0;
+              
+              #if(_HW_DIGITAL_PORT_COMBO_PHY_TYPE == _DIGITAL_PORT_COMBO_PHY_D1_D2)
+                  if(ScalerSyncGetAmdVsdbVer(GET_DP_EMBEDDED_SWITCH_SELECT()) < _AMD_VER3)
+              #else
+                  if(ScalerSyncGetAmdVsdbVer(_D1_INPUT_PORT) < _AMD_VER3)
+              #endif
+                  {
+                      usAmdVfreqEffectiveBit = _8_BIT;
+                  }
+                  else
+                  {
+                      usAmdVfreqEffectiveBit = _10_BIT;
+                  }
+              
+              #if(_DP_HDR10_SUPPORT == _ON)
+                  memcpy(pucDPRSV0Data, g_pucDPRx1RSV0Backup, _HW_DP_INFOFRAME_RSV0_LENGTH);
+              
+                  if(GET_FREESYNC_ENABLED() == _TRUE)
+                  {
+                      bCheckFreeSync = _TRUE;
+                  }
+              #else
+                  memset(pucDPRSV0Data, 0, sizeof(pucDPRSV0Data));
+              
+                  ScalerDpRx1GetInfoFrameRSV0(pucDPRSV0Data);
+              
+              #if(_D1_DP_MAC_USE == _PAGEB8)
+                  if(ScalerGetByte(PB9_2C_DP_INFO_FM_RSV0) == _SPD_INFO_TYPE)
+              #elif(_D1_DP_MAC_USE == _PAGEB5)
+                  if(ScalerGetByte(PB6_2C_DP_INFO_FM_RSV0) == _SPD_INFO_TYPE)
+              #endif
+                  {
+                      bCheckFreeSync = _TRUE;
+                  }
+              #endif
+              
+                  if(bCheckFreeSync == _TRUE)
+                  {
+                      if(enumContent == _SPD_INFO_OUI)
+                      {
+                          return (TO_DWORD(0, pucDPRSV0Data[3], pucDPRSV0Data[2], pucDPRSV0Data[1]));
+                      }
+              
+                      // Check AMD OUI
+                      if((pucDPRSV0Data[1] == 0x1A) && (pucDPRSV0Data[2] == 0x00) && (pucDPRSV0Data[3] == 0x00))
+                      {
+                          switch(enumContent)
+                          {
+                              case _SPD_INFO_FREESYNC_SUPPORT:
+                                  return (((pucDPRSV0Data[6] & _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 24  
+
+              
+                              case _SPD_INFO_FREESYNC_ENABLE:
+                                  return (((pucDPRSV0Data[6] & _BIT1) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_ACTIVE:
+                                  return (((pucDPRSV0Data[6] & _BIT2) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_PQ_EOTF_ACTIVE:
+                                  return (((pucDPRSV0Data[9] & _BIT5) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MIN_VFREQ:
+              
+                                  usFreesyncVfreqmin = (((WORD)pucDPRSV0Data[11] << 8) | pucDPRSV0Data[7]);
+              
+                                  usFreesyncVfreqmin &= usAmdVfreqEffectiveBit;
+              
+                                  if((usFreesyncVfreqmin * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx1("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmin * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx1("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmin;
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MAX_VFREQ:
+              
+                                  usFreesyncVfreqmax = (((WORD)pucDPRSV0Data[12] << 8) | pucDPRSV0Data[8]);
+              
+                                  usFreesyncVfreqmax &= usAmdVfreqEffectiveBit;
+              
+                                  if((usFreesyncVfreqmax * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx1("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmax * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx1("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmax;
+                                  break;
+              
+                              default:
+                                  return 0x00;
+                                  break;
+                          }
+                      }
+              
+                      return 0x00;
+                  }
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 25  
+
+                  return 0x00;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP H Period
+              // Input Value  : None
+              // Output Value : H period in nano sec
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpRx1GetHPeriod(void)
+              {
+                  WORD usHBs2BsCount = 0;
+              
+                  // Pop up The result
+                  SET_DP_RX1_MEASURE_POP_UP();
+              
+                  // HBs2Bs count in Link Clk / 2
+              #if(_D1_DP_MAC_USE == _PAGEB8)
+                  usHBs2BsCount = (((WORD)ScalerGetByte(PB8_5B_MN_MEAS_HLN_M)) << 8) | (ScalerGetByte(PB8_5C_MN_MEAS_HLN
+             -_L));
+              #elif(_D1_DP_MAC_USE == _PAGEB5)
+                  usHBs2BsCount = (((WORD)ScalerGetByte(PB5_5B_MN_MEAS_HLN_M)) << 8) | (ScalerGetByte(PB5_5C_MN_MEAS_HLN
+             -_L));
+              #endif
+              
+                  return (((DWORD)usHBs2BsCount * 1000) / (ScalerDpRx1GetDpcdInfo(0x00, 0x01, 0x00) * 27 / 2));
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP H Sync Width
+              // Input Value  : None
+              // Output Value : H Sync Width in pixel clk
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpRx1GetHSW(void)
+              {
+                  WORD usHSWidth = 0;
+              
+              #if(_D1_DP_MAC_USE == _PAGEB8)
+                  usHSWidth = ((((WORD)ScalerGetByte(PB8_47_MN_DPF_HSW_M) << 8) | (ScalerGetByte(PB8_48_MN_DPF_HSW_L))) 
+             -& 0x7FFF);
+              #elif(_D1_DP_MAC_USE == _PAGEB5)
+                  usHSWidth = ((((WORD)ScalerGetByte(PB5_47_MN_DPF_HSW_M) << 8) | (ScalerGetByte(PB5_48_MN_DPF_HSW_L))) 
+             -& 0x7FFF);
+              #endif
+              
+                  return usHSWidth;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP V Freq
+              // Input Value  : None
+              // Output Value : VFreq in 0.1Hz
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpRx1GetVFreq(void)
+              {
+                  DWORD ulVBs2BsCount = 0;
+              
+                  // Pop up The result
+                  SET_DP_RX1_MEASURE_POP_UP();
+              
+              #if(_D1_DP_MAC_USE == _PAGEB8)
+                  ulVBs2BsCount = ((((DWORD)(ScalerGetByte(PB8_58_MN_MEAS_CTRL) & 0x1F)) << 16) | (((DWORD)ScalerGetByte
+             -(PB8_59_MN_MEAS_VLN_M)) << 8) | ((DWORD)ScalerGetByte(PB8_5A_MN_MEAS_VLN_L)));
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 26  
+
+              #elif(_D1_DP_MAC_USE == _PAGEB5)
+                  ulVBs2BsCount = ((((DWORD)(ScalerGetByte(PB5_58_MN_MEAS_CTRL) & 0x1F)) << 16) | (((DWORD)ScalerGetByte
+             -(PB5_59_MN_MEAS_VLN_M)) << 8) | ((DWORD)ScalerGetByte(PB5_5A_MN_MEAS_VLN_L)));
+              #endif
+              
+                  return (DWORD)_GDI_CLK_KHZ * 1000 / (ulVBs2BsCount / 10);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Current DP V Period
+              // Input Value  : None
+              // Output Value : V period in line
+              //--------------------------------------------------
+              WORD ScalerFreeSyncDpRx1GetVPeriod(void)
+              {
+                  DWORD ulVBs2BsCount = 0;
+                  WORD usHBs2BsCount = 0;
+              
+                  // Pop up The result
+                  SET_DP_RX1_MEASURE_POP_UP();
+              
+              #if(_D1_DP_MAC_USE == _PAGEB8)
+              
+                  // VBs2BS count in GDI clk
+                  ulVBs2BsCount = ((((DWORD)(ScalerGetByte(PB8_58_MN_MEAS_CTRL) & 0x1F)) << 16) | (((DWORD)ScalerGetByte
+             -(PB8_59_MN_MEAS_VLN_M)) << 8) | ((DWORD)ScalerGetByte(PB8_5A_MN_MEAS_VLN_L)));
+              
+                  // HBs2Bs count in Link Clk / 2
+                  usHBs2BsCount = (((DWORD)ScalerGetByte(PB8_5B_MN_MEAS_HLN_M)) << 8) | ((DWORD)ScalerGetByte(PB8_5C_MN_
+             -MEAS_HLN_L));
+              
+              #elif(_D1_DP_MAC_USE == _PAGEB5)
+              
+                  // VBs2BS count in GDI clk
+                  ulVBs2BsCount = ((((DWORD)(ScalerGetByte(PB5_58_MN_MEAS_CTRL) & 0x1F)) << 16) | (((DWORD)ScalerGetByte
+             -(PB5_59_MN_MEAS_VLN_M)) << 8) | ((DWORD)ScalerGetByte(PB5_5A_MN_MEAS_VLN_L)));
+              
+                  // HBs2Bs count in Link Clk / 2
+                  usHBs2BsCount = (((DWORD)ScalerGetByte(PB5_5B_MN_MEAS_HLN_M)) << 8) | ((DWORD)ScalerGetByte(PB5_5C_MN_
+             -MEAS_HLN_L));
+              #endif
+              
+                  // VTotal in line, Link Clk / 2 : (Link Rate * 27 / 2)
+                  return (ulVBs2BsCount * (ScalerDpRx1GetDpcdInfo(0x00, 0x01, 0x00) * 27 / 2) / usHBs2BsCount * 1000 / _
+             -GDI_CLK_KHZ);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Set Freesync AMD SPD info Vfreq max and min
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFreeSyncDpRx1GetSPDVfreqMaxMin(void)
+              {
+                  BYTE pucDPRSV0Data[_HW_DP_INFOFRAME_RSV0_LENGTH];
+              
+              #if(_DP_HDR10_SUPPORT == _ON)
+                  memcpy(pucDPRSV0Data, g_pucDPRx1RSV0Backup, _HW_DP_INFOFRAME_RSV0_LENGTH);
+              #else
+                  memset(pucDPRSV0Data, 0, sizeof(pucDPRSV0Data));
+              
+                  ScalerDpRx1GetInfoFrameRSV0(pucDPRSV0Data);
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 27  
+
+              #endif
+              
+                  if(GET_FREESYNC_ENABLED() == _TRUE)
+                  {
+                      if(GET_DPRX1_AMD_SPD_INFO(_SPD_INFO_FREESYNC_SUPPORT) == _ENABLE)
+                      {
+                          // For IMD calculate DVtotal and BW when Freesync mode
+                          SET_DP_RX1_SPD_INFO_FRAME_RECEIVED();
+              
+                          // Get DP DRR SPD Vmax
+                          g_usFREESYNCVFreq_max = (WORD)GET_DPRX1_AMD_SPD_INFO(_SPD_INFO_FREESYNC_MAX_VFREQ) * 10;
+                          g_usFREESYNCVFreq_min = (WORD)GET_DPRX1_AMD_SPD_INFO(_SPD_INFO_FREESYNC_MIN_VFREQ) * 10;
+                      }
+                      else
+                      {
+                          CLR_DP_RX1_SPD_INFO_FRAME_RECEIVED();
+              
+                          g_usFREESYNCVFreq_max = _PANEL_FREESYNC_MAX_FRAME_RATE;
+                          g_usFREESYNCVFreq_min = _PANEL_FREESYNC_MIN_FRAME_RATE;
+                          DebugMessageRx1("DP DRR without SPD info", 0x00);
+                      }
+                  }
+                  else
+                  {
+                      CLR_DP_RX1_SPD_INFO_FRAME_RECEIVED();
+                  }
+              
+              #if(_DP_ULTRA_HDR_SUPPORT == _ON)
+                  // Check AMD OUI
+                  if((pucDPRSV0Data[1] == 0x1A) && (pucDPRSV0Data[2] == 0x00) && (pucDPRSV0Data[3] == 0x00))
+                  {
+                      // For Freesync2 or HDR10 check receive, only check OUI
+                      SET_DP_RX1_AMD_SPD_INFO_FRAME_RECEIVED();
+                  }
+                  else
+                  {
+                      CLR_DP_RX1_AMD_SPD_INFO_FRAME_RECEIVED();
+                  }
+              #endif
+              }
+              #endif // End of #if(_D1_DP_EXIST == _ON)
+              
+              #if(_TRANSLATOR_SUPPORT == _OFF)
+              //--------------------------------------------------
+              // Description  : Switch DP FREESYNC Support
+              // Input Value  : Hotplug Type and FREESYNC Enable or Not
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFreeSyncDpSupportSwitch(EnumSourceSearchPort enumSourcePort, EnumFreeSyncSupport enumSupport)
+              {
+                  switch(enumSourcePort)
+                  {
+              #if(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+                      case _D0_INPUT_PORT:
+              
+                          if(GET_DP_RX0_FREESYNC_SUPPORT() != enumSupport)
+                          {
+                              SET_DP_RX_CAPABILITY_SWITCHED();
+                              SET_DP_RX0_FREESYNC_CAPABILITY_SWITCH();
+                              SET_DP_RX0_FREESYNC_SUPPORT(enumSupport);
+                          }
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 28  
+
+                          break;
+              #endif
+              
+              #if(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)
+                      case _D1_INPUT_PORT:
+              
+                          if(GET_DP_RX1_FREESYNC_SUPPORT() != enumSupport)
+                          {
+                              SET_DP_RX_CAPABILITY_SWITCHED();
+                              SET_DP_RX1_FREESYNC_CAPABILITY_SWITCH();
+                              SET_DP_RX1_FREESYNC_SUPPORT(enumSupport);
+                          }
+              
+                          break;
+              #endif
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+                      case _D2_INPUT_PORT:
+              
+                          if(GET_DP_RX2_FREESYNC_SUPPORT() != enumSupport)
+                          {
+                              SET_DP_RX_CAPABILITY_SWITCHED();
+                              SET_DP_RX2_FREESYNC_CAPABILITY_SWITCH();
+                              SET_DP_RX2_FREESYNC_SUPPORT(enumSupport);
+                          }
+              
+                          break;
+              #endif
+              
+              #if((_D0_INPUT_PORT_TYPE == _D0_DP_PORT) && (_D6_INPUT_PORT_TYPE == _D6_DP_PORT) && (_D6_INPUT_PORT_SWITCH
+             -_FROM == _SWITCH_FROM_D0))
+                      case _D6_INPUT_PORT:
+              
+                          if(GET_DP_RX6_FREESYNC_SUPPORT() != enumSupport)
+                          {
+                              SET_DP_RX_CAPABILITY_SWITCHED();
+                              SET_DP_RX6_FREESYNC_CAPABILITY_SWITCH();
+                              SET_DP_RX6_FREESYNC_SUPPORT(enumSupport);
+                          }
+              
+                          break;
+              #endif
+              
+                      default:
+                          break;
+                  }
+              }
+              #endif
+              
+              #endif // End of #if(_DP_FREESYNC_SUPPORT == _ON)
+              #endif // End of #if(_DP_SUPPORT == _ON)
+1645          
+1646          #if(_HDMI_SUPPORT == _ON)
+1647          #if(_HDMI_FREESYNC_SUPPORT == _ON)
+1648          #if((_DEBUG_MESSAGE_SUPPORT == _OFF) &&\
+1649              (_HDMI_FREESYNC_CAPABILITY_SWITCH_METHOD == _MCCS_SWITCH_MODE))
+1650          //--------------------------------------------------
+1651          // Description  : Get HDMI FreeSync Support
+1652          // Input Value  : enumSourcePort
+1653          // Output Value : _FREESYNC_SUPPORT_ON/ _FREESYNC_SUPPORT_OFF
+1654          //--------------------------------------------------
+1655          EnumFreeSyncSupport ScalerFreeSyncHDMIGetFreeSyncSupport_EXINT1(EnumSourceSearchPort enumSourcePort) using
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 29  
+
+             - 2
+1656          {
+1657   1          EnumFreeSyncSupport enumFreeSyncSupport = _FREESYNC_SUPPORT_OFF;
+1658   1      
+1659   1          switch(enumSourcePort)
+1660   1          {
+1661   2              case _D0_INPUT_PORT:
+1662   2                  enumFreeSyncSupport = GET_TMDS_RX0_FREESYNC_SUPPORT();
+1663   2                  break;
+1664   2      
+1665   2              case _D1_INPUT_PORT:
+1666   2                  enumFreeSyncSupport = GET_TMDS_RX1_FREESYNC_SUPPORT();
+1667   2                  break;
+1668   2      
+1669   2              case _D2_INPUT_PORT:
+1670   2                  enumFreeSyncSupport = GET_TMDS_RX2_FREESYNC_SUPPORT();
+1671   2                  break;
+1672   2      
+1673   2              case _D3_INPUT_PORT:
+1674   2                  enumFreeSyncSupport = GET_TMDS_RX3_FREESYNC_SUPPORT();
+1675   2                  break;
+1676   2      
+1677   2              case _D4_INPUT_PORT:
+1678   2                  enumFreeSyncSupport = GET_TMDS_RX4_FREESYNC_SUPPORT();
+1679   2                  break;
+1680   2      
+1681   2              case _D5_INPUT_PORT:
+1682   2                  enumFreeSyncSupport = GET_TMDS_RX5_FREESYNC_SUPPORT();
+1683   2                  break;
+1684   2      
+1685   2              default:
+1686   2                  break;
+1687   2          }
+1688   1      
+1689   1          return enumFreeSyncSupport;
+1690   1      }
+1691          #endif
+1692          
+1693          #if(_HDMI_MAC_PAGE2_USE == _ON)
+1694          //--------------------------------------------------
+1695          // Description  : Get AMD Vsdb Version
+1696          // Input Value  : None
+1697          // Output Value : True/False
+1698          //--------------------------------------------------
+1699          bit ScalerFreeSyncHDMIRx0CheckAmdVsdbVer(void)
+1700          {
+1701   1          BYTE ucHdmiPort = ((_D2_HDMI_SUPPORT << 2) | (_D1_HDMI_SUPPORT << 1) | (_D0_HDMI_SUPPORT << 0));
+1702   1          BYTE ucHmdiPortNum = 0x00;
+1703   1      
+1704   1          for(ucHmdiPortNum; ucHmdiPortNum < 3; ucHmdiPortNum++)
+1705   1          {
+1706   2              if(((ucHdmiPort >> ucHmdiPortNum) & 0x01) == 0x01)
+1707   2              {
+1708   3                  if((CHECK_TMDS_DPHY_SWITCH(_D0_INPUT_PORT + ucHmdiPortNum) == _TRUE) && (ScalerSyncGetAmdVsdbV
+             -er(_D0_INPUT_PORT + ucHmdiPortNum) < _AMD_VER3))
+1709   3                  {
+1710   4                      return _TRUE;
+1711   4                      break;
+1712   4                  }
+1713   3              }
+1714   2          }
+1715   1          return _FALSE;
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 30  
+
+1716   1      }
+1717          
+1718          //--------------------------------------------------
+1719          // Description  : Get AMD SPD Info Contents
+1720          // Input Value  : Content of Interest
+1721          // Output Value : Content Value
+1722          //--------------------------------------------------
+1723          DWORD ScalerFreeSyncHDMIRx0GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent)
+1724          {
+1725   1          WORD usFreesyncVfreqmax = 0;
+1726   1          WORD usFreesyncVfreqmin = 0;
+1727   1          WORD usAmdVfreqMaxBit = 0;
+1728   1      
+1729   1          if(ScalerFreeSyncHDMIRx0CheckAmdVsdbVer() == _TRUE)
+1730   1          {
+1731   2              usAmdVfreqMaxBit = _8_BIT;
+1732   2          }
+1733   1          else
+1734   1          {
+1735   2              usAmdVfreqMaxBit = _10_BIT;
+1736   2          }
+1737   1      
+1738   1          if(GET_TMDS_RX0_SPD_INFO_FRAME_RECEIVED() == _TRUE)
+1739   1          {
+1740   2              // Get AMD OUI
+1741   2              ScalerGetDataPortByte(P2_CD_HDMI_PSAP, 0x90, 3, pData, _AUTOINC);
+1742   2      
+1743   2              if(enumContent == _SPD_INFO_OUI)
+1744   2              {
+1745   3                  return (TO_DWORD(0, pData[2], pData[1], pData[0]));
+1746   3              }
+1747   2      
+1748   2              if((pData[0] == 0x1A) && (pData[1] == 0x00) && (pData[2] == 0x00))
+1749   2              {
+1750   3                  switch(enumContent)
+1751   3                  {
+1752   4                      case _SPD_INFO_FREESYNC_SUPPORT:
+1753   4                          return ((ScalerGetDataPortBit(P2_CD_HDMI_PSAP, 0x95, _BIT0) != 0x00) ? _ON : _OFF);
+1754   4                          break;
+1755   4      
+1756   4                      case _SPD_INFO_FREESYNC_ENABLE:
+1757   4                          return ((ScalerGetDataPortBit(P2_CD_HDMI_PSAP, 0x95, _BIT1) != 0x00) ? _ON : _OFF);
+1758   4                          break;
+1759   4      
+1760   4                      case _SPD_INFO_FREESYNC_ACTIVE:
+1761   4                          return ((ScalerGetDataPortBit(P2_CD_HDMI_PSAP, 0x95, _BIT2) != 0x00) ? _ON : _OFF);
+1762   4                          break;
+1763   4      
+1764   4                      case _SPD_INFO_PQ_EOTF_ACTIVE:
+1765   4                          return ((ScalerGetDataPortBit(P2_CD_HDMI_PSAP, 0x98, _BIT5) != 0x00) ? _ON : _OFF);
+1766   4                          break;
+1767   4      
+1768   4                      case _SPD_INFO_GAMMA_2_2_EOTF_ACTIVE:
+1769   4                          return ((ScalerGetDataPortBit(P2_CD_HDMI_PSAP, 0x98, _BIT2) != 0x00) ? _ON : _OFF);
+1770   4                          break;
+1771   4      
+1772   4                      case _SPD_INFO_FIXED_RATE_CONTENT_ACTIVE:
+1773   4                          return ((ScalerGetDataPortBit(P2_CD_HDMI_PSAP, 0x9F, _BIT0) != 0x00) ? _ON : _OFF);
+1774   4                          break;
+1775   4      
+1776   4                      case _SPD_INFO_FREESYNC_MIN_VFREQ:
+1777   4                          if(ScalerFreeSyncHDMIRx0CheckAmdVsdbVer() == _TRUE)
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 31  
+
+1778   4                          {
+1779   5                              pData[1] = 0x00;
+1780   5                          }
+1781   4                          else
+1782   4                          {
+1783   5                              pData[1] = ScalerGetDataPortSingleByte(P2_CD_HDMI_PSAP, 0x9A);
+1784   5                          }
+1785   4      
+1786   4                          pData[0] = ScalerGetDataPortSingleByte(P2_CD_HDMI_PSAP, 0x96);
+1787   4      
+1788   4                          usFreesyncVfreqmin = (((WORD)pData[1] << 8) | pData[0]);
+1789   4                          usFreesyncVfreqmin &= usAmdVfreqMaxBit;
+1790   4      
+1791   4                          if((usFreesyncVfreqmin * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+1792   4                          {
+1793   5                              usFreesyncVfreqmin = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+1794   5                              DebugMessageRx0("Freesync SPD info abnormal", 0);
+1795   5                          }
+1796   4                          else if((usFreesyncVfreqmin * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+1797   4                          {
+1798   5                              usFreesyncVfreqmin = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+1799   5                              DebugMessageRx0("Freesync SPD info abnormal", 1);
+1800   5                          }
+1801   4      
+1802   4                          return usFreesyncVfreqmin;
+1803   4                          break;
+1804   4      
+1805   4                      case _SPD_INFO_FREESYNC_MAX_VFREQ:
+1806   4                          if(ScalerFreeSyncHDMIRx0CheckAmdVsdbVer() == _TRUE)
+1807   4                          {
+1808   5                              pData[1] = 0x00;
+1809   5                          }
+1810   4                          else
+1811   4                          {
+1812   5                              pData[1] = ScalerGetDataPortSingleByte(P2_CD_HDMI_PSAP, 0x9B);
+1813   5                          }
+1814   4      
+1815   4                          pData[0] = ScalerGetDataPortSingleByte(P2_CD_HDMI_PSAP, 0x97);
+1816   4      
+1817   4                          usFreesyncVfreqmax = (((WORD)pData[1] << 8) | pData[0]);
+1818   4                          usFreesyncVfreqmax &= usAmdVfreqMaxBit;
+1819   4      
+1820   4                          if((usFreesyncVfreqmax * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+1821   4                          {
+1822   5                              usFreesyncVfreqmax = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+1823   5                              DebugMessageRx4("Freesync SPD info abnormal", 0);
+1824   5                          }
+1825   4                          else if((usFreesyncVfreqmax * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+1826   4                          {
+1827   5                              usFreesyncVfreqmax = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+1828   5                              DebugMessageRx4("Freesync SPD info abnormal", 1);
+1829   5                          }
+1830   4      
+1831   4                          return usFreesyncVfreqmax;
+1832   4                          break;
+1833   4      
+1834   4                      default:
+1835   4                          return 0x00;
+1836   4                          break;
+1837   4                  }
+1838   3              }
+1839   2          }
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 32  
+
+1840   1      
+1841   1          return 0x00;
+1842   1      }
+1843          #endif
+1844          
+1845          #if(_HDMI_MAC_PAGE71_USE == _ON)
+              //--------------------------------------------------
+              // Description  : Get AMD SPD Info Contents
+              // Input Value  : Content of Interest
+              // Output Value : Content Value
+              //--------------------------------------------------
+              DWORD ScalerFreeSyncHDMIRx2GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent, bit bD1Combo)
+              {
+                  WORD usFreesyncVfreqmax = 0;
+                  WORD usFreesyncVfreqmin = 0;
+                  WORD usAmdVfreqMaxBit = 0;
+              
+                  if(((ScalerSyncGetAmdVsdbVer(_D1_INPUT_PORT) < _AMD_VER3) && (bD1Combo == _ON)) || ((ScalerSyncGetAmdV
+             -sdbVer(_D2_INPUT_PORT) < _AMD_VER3) && (bD1Combo == _OFF)))
+                  {
+                      usAmdVfreqMaxBit = _8_BIT;
+                  }
+                  else
+                  {
+                      usAmdVfreqMaxBit = _10_BIT;
+                  }
+              
+              #if(_ERROR_PRONE_CODE == _TRUE)
+                  if(((GET_TMDS_RX1_SPD_INFO_FRAME_RECEIVED() == _TRUE) && (bD1Combo == _ON)) ||
+                     ((GET_TMDS_RX2_SPD_INFO_FRAME_RECEIVED() == _TRUE) && (bD1Combo == _OFF)))
+              #endif
+                  {
+                      // Get AMD OUI
+                      ScalerGetDataPortByte(P71_CD_HDMI_PSAP, 0x90, 3, pData, _AUTOINC);
+              
+                      if(enumContent == _SPD_INFO_OUI)
+                      {
+                          return (TO_DWORD(0, pData[2], pData[1], pData[0]));
+                      }
+              
+                      if((pData[0] == 0x1A) && (pData[1] == 0x00) && (pData[2] == 0x00))
+                      {
+                          switch(enumContent)
+                          {
+                              case _SPD_INFO_FREESYNC_SUPPORT:
+                                  return ((ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x95, _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_ENABLE:
+                                  return ((ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x95, _BIT1) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x95, _BIT2) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_PQ_EOTF_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x98, _BIT5) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_GAMMA_2_2_EOTF_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x98, _BIT2) != 0x00) ? _ON : _OFF);
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 33  
+
+                                  break;
+              
+                              case _SPD_INFO_FIXED_RATE_CONTENT_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P71_CD_HDMI_PSAP, 0x9F, _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MIN_VFREQ:
+                                  if(((ScalerSyncGetAmdVsdbVer(_D1_INPUT_PORT) < _AMD_VER3) && (bD1Combo == _ON)) || ((S
+             -calerSyncGetAmdVsdbVer(_D2_INPUT_PORT) < _AMD_VER3) && (bD1Combo == _OFF)))
+                                  {
+                                      pData[1] = 0x00;
+                                  }
+                                  else
+                                  {
+                                      pData[1] = ScalerGetDataPortSingleByte(P71_CD_HDMI_PSAP, 0x9A);
+                                  }
+              
+                                  pData[0] = ScalerGetDataPortSingleByte(P71_CD_HDMI_PSAP, 0x96);
+              
+                                  usFreesyncVfreqmin = (((WORD)pData[1] << 8) | pData[0]);
+                                  usFreesyncVfreqmin &= usAmdVfreqMaxBit;
+              
+                                  if((usFreesyncVfreqmin * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx2("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmin * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx2("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmin;
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MAX_VFREQ:
+                                  if(((ScalerSyncGetAmdVsdbVer(_D1_INPUT_PORT) < _AMD_VER3) && (bD1Combo == _ON)) || ((S
+             -calerSyncGetAmdVsdbVer(_D2_INPUT_PORT) < _AMD_VER3) && (bD1Combo == _OFF)))
+                                  {
+                                      pData[1] = 0x00;
+                                  }
+                                  else
+                                  {
+                                      pData[1] = ScalerGetDataPortSingleByte(P71_CD_HDMI_PSAP, 0x9B);
+                                  }
+              
+                                  pData[0] = ScalerGetDataPortSingleByte(P71_CD_HDMI_PSAP, 0x97);
+              
+                                  usFreesyncVfreqmax = (((WORD)pData[1] << 8) | pData[0]);
+                                  usFreesyncVfreqmax &= usAmdVfreqMaxBit;
+              
+                                  if((usFreesyncVfreqmax * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx4("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmax * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx4("Freesync SPD info abnormal", 1);
+                                  }
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 34  
+
+              
+                                  return usFreesyncVfreqmax;
+                                  break;
+              
+                              default:
+                                  return 0x00;
+                                  break;
+                          }
+                      }
+                  }
+              
+                  return 0x00;
+              }
+              #endif
+1975          
+1976          #if(_HDMI_MAC_PAGE72_USE == _ON)
+              //--------------------------------------------------
+              // Description  : Get AMD SPD Info Contents
+              // Input Value  : Content of Interest
+              // Output Value : Content Value
+              //--------------------------------------------------
+              DWORD ScalerFreeSyncHDMIRx3GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent)
+              {
+                  WORD usFreesyncVfreqmax = 0;
+                  WORD usFreesyncVfreqmin = 0;
+                  WORD usAmdVfreqMaxBit = 0;
+              
+                  if(ScalerSyncGetAmdVsdbVer(_D3_INPUT_PORT) < _AMD_VER3)
+                  {
+                      usAmdVfreqMaxBit = _8_BIT;
+                  }
+                  else
+                  {
+                      usAmdVfreqMaxBit = _10_BIT;
+                  }
+              
+                  if(GET_TMDS_RX3_SPD_INFO_FRAME_RECEIVED() == _TRUE)
+                  {
+                      // Get AMD OUI
+                      ScalerGetDataPortByte(P72_CD_HDMI_PSAP, 0x90, 3, pData, _AUTOINC);
+              
+                      if(enumContent == _SPD_INFO_OUI)
+                      {
+                          return (TO_DWORD(0, pData[2], pData[1], pData[0]));
+                      }
+              
+                      if((pData[0] == 0x1A) && (pData[1] == 0x00) && (pData[2] == 0x00))
+                      {
+                          switch(enumContent)
+                          {
+                              case _SPD_INFO_FREESYNC_SUPPORT:
+                                  return ((ScalerGetDataPortBit(P72_CD_HDMI_PSAP, 0x95, _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_ENABLE:
+                                  return ((ScalerGetDataPortBit(P72_CD_HDMI_PSAP, 0x95, _BIT1) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P72_CD_HDMI_PSAP, 0x95, _BIT2) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 35  
+
+                              case _SPD_INFO_PQ_EOTF_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P72_CD_HDMI_PSAP, 0x98, _BIT5) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_GAMMA_2_2_EOTF_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P72_CD_HDMI_PSAP, 0x98, _BIT2) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FIXED_RATE_CONTENT_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P72_CD_HDMI_PSAP, 0x9F, _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MIN_VFREQ:
+                                  if(ScalerSyncGetAmdVsdbVer(_D3_INPUT_PORT) < _AMD_VER3)
+                                  {
+                                      pData[1] = 0x00;
+                                  }
+                                  else
+                                  {
+                                      pData[1] = ScalerGetDataPortSingleByte(P72_CD_HDMI_PSAP, 0x9A);
+                                  }
+              
+                                  pData[0] = ScalerGetDataPortSingleByte(P72_CD_HDMI_PSAP, 0x96);
+              
+                                  usFreesyncVfreqmin = (((WORD)pData[1] << 8) | pData[0]);
+                                  usFreesyncVfreqmin &= usAmdVfreqMaxBit;
+              
+                                  if((usFreesyncVfreqmin * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx3("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmin * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx3("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmin;
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MAX_VFREQ:
+                                  if(ScalerSyncGetAmdVsdbVer(_D3_INPUT_PORT) < _AMD_VER3)
+                                  {
+                                      pData[1] = 0x00;
+                                  }
+                                  else
+                                  {
+                                      pData[1] = ScalerGetDataPortSingleByte(P72_CD_HDMI_PSAP, 0x9B);
+                                  }
+              
+                                  pData[0] = ScalerGetDataPortSingleByte(P72_CD_HDMI_PSAP, 0x97);
+              
+                                  usFreesyncVfreqmax = (((WORD)pData[1] << 8) | pData[0]);
+                                  usFreesyncVfreqmax &= usAmdVfreqMaxBit;
+              
+                                  if((usFreesyncVfreqmax * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx3("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmax * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 36  
+
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx3("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmax;
+                                  break;
+              
+                              default:
+                                  return 0x00;
+                                  break;
+                          }
+                      }
+                  }
+              
+                  return 0x00;
+              }
+              #endif
+2103          
+2104          #if(_HDMI_MAC_PAGE73_USE == _ON)
+              //--------------------------------------------------
+              // Description  : Get AMD SPD Info Contents
+              // Input Value  : Content of Interest
+              // Output Value : Content Value
+              //--------------------------------------------------
+              DWORD ScalerFreeSyncHDMIRx4GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent)
+              {
+                  WORD usFreesyncVfreqmax = 0;
+                  WORD usFreesyncVfreqmin = 0;
+                  WORD usAmdVfreqMaxBit = 0;
+              
+                  if(ScalerSyncGetAmdVsdbVer(_D4_INPUT_PORT) < _AMD_VER3)
+                  {
+                      usAmdVfreqMaxBit = _8_BIT;
+                  }
+                  else
+                  {
+                      usAmdVfreqMaxBit = _10_BIT;
+                  }
+              
+                  if(GET_TMDS_RX4_SPD_INFO_FRAME_RECEIVED() == _TRUE)
+                  {
+                      // Get AMD OUI
+                      ScalerGetDataPortByte(P73_CD_HDMI_PSAP, 0x90, 3, pData, _AUTOINC);
+              
+                      if(enumContent == _SPD_INFO_OUI)
+                      {
+                          return (TO_DWORD(0, pData[2], pData[1], pData[0]));
+                      }
+              
+                      if((pData[0] == 0x1A) && (pData[1] == 0x00) && (pData[2] == 0x00))
+                      {
+                          switch(enumContent)
+                          {
+                              case _SPD_INFO_FREESYNC_SUPPORT:
+                                  return ((ScalerGetDataPortBit(P73_CD_HDMI_PSAP, 0x95, _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_ENABLE:
+                                  return ((ScalerGetDataPortBit(P73_CD_HDMI_PSAP, 0x95, _BIT1) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 37  
+
+                              case _SPD_INFO_FREESYNC_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P73_CD_HDMI_PSAP, 0x95, _BIT2) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_PQ_EOTF_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P73_CD_HDMI_PSAP, 0x98, _BIT5) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_GAMMA_2_2_EOTF_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P73_CD_HDMI_PSAP, 0x98, _BIT2) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FIXED_RATE_CONTENT_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P73_CD_HDMI_PSAP, 0x9F, _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MIN_VFREQ:
+                                  if(ScalerSyncGetAmdVsdbVer(_D4_INPUT_PORT) < _AMD_VER3)
+                                  {
+                                      pData[1] = 0x00;
+                                  }
+                                  else
+                                  {
+                                      pData[1] = ScalerGetDataPortSingleByte(P73_CD_HDMI_PSAP, 0x9A);
+                                  }
+              
+                                  pData[0] = ScalerGetDataPortSingleByte(P73_CD_HDMI_PSAP, 0x96);
+              
+                                  usFreesyncVfreqmin = (((WORD)pData[1] << 8) | pData[0]);
+                                  usFreesyncVfreqmin &= usAmdVfreqMaxBit;
+              
+                                  if((usFreesyncVfreqmin * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx4("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmin * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx4("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmin;
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MAX_VFREQ:
+                                  if(ScalerSyncGetAmdVsdbVer(_D4_INPUT_PORT) < _AMD_VER3)
+                                  {
+                                      pData[1] = 0x00;
+                                  }
+                                  else
+                                  {
+                                      pData[1] = ScalerGetDataPortSingleByte(P73_CD_HDMI_PSAP, 0x9B);
+                                  }
+              
+                                  pData[0] = ScalerGetDataPortSingleByte(P73_CD_HDMI_PSAP, 0x97);
+              
+                                  usFreesyncVfreqmax = (((WORD)pData[1] << 8) | pData[0]);
+                                  usFreesyncVfreqmax &= usAmdVfreqMaxBit;
+              
+                                  if((usFreesyncVfreqmax * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 38  
+
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx4("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmax * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx4("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmax;
+                                  break;
+              
+                              default:
+                                  return 0x00;
+                                  break;
+                          }
+                      }
+                  }
+              
+                  return 0x00;
+              }
+              #endif
+2231          
+2232          #if(_HDMI_MAC_PAGE74_USE == _ON)
+              //--------------------------------------------------
+              // Description  : Get AMD SPD Info Contents
+              // Input Value  : Content of Interest
+              // Output Value : Content Value
+              //--------------------------------------------------
+              DWORD ScalerFreeSyncHDMIRx5GetAmdSpdInfo(EnumAmdSpdInfoContent enumContent)
+              {
+                  WORD usFreesyncVfreqmax = 0;
+                  WORD usFreesyncVfreqmin = 0;
+                  WORD usAmdVfreqMaxBit = 0;
+              
+                  if(ScalerSyncGetAmdVsdbVer(_D5_INPUT_PORT) < _AMD_VER3)
+                  {
+                      usAmdVfreqMaxBit = _8_BIT;
+                  }
+                  else
+                  {
+                      usAmdVfreqMaxBit = _10_BIT;
+                  }
+              
+                  if(GET_TMDS_RX5_SPD_INFO_FRAME_RECEIVED() == _TRUE)
+                  {
+                      // Get AMD OUI
+                      ScalerGetDataPortByte(P74_CD_HDMI_PSAP, 0x90, 3, pData, _AUTOINC);
+              
+                      if(enumContent == _SPD_INFO_OUI)
+                      {
+                          return (TO_DWORD(0, pData[2], pData[1], pData[0]));
+                      }
+              
+                      if((pData[0] == 0x1A) && (pData[1] == 0x00) && (pData[2] == 0x00))
+                      {
+                          switch(enumContent)
+                          {
+                              case _SPD_INFO_FREESYNC_SUPPORT:
+                                  return ((ScalerGetDataPortBit(P74_CD_HDMI_PSAP, 0x95, _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 39  
+
+                              case _SPD_INFO_FREESYNC_ENABLE:
+                                  return ((ScalerGetDataPortBit(P74_CD_HDMI_PSAP, 0x95, _BIT1) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P74_CD_HDMI_PSAP, 0x95, _BIT2) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_PQ_EOTF_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P74_CD_HDMI_PSAP, 0x98, _BIT5) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_GAMMA_2_2_EOTF_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P74_CD_HDMI_PSAP, 0x98, _BIT2) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FIXED_RATE_CONTENT_ACTIVE:
+                                  return ((ScalerGetDataPortBit(P74_CD_HDMI_PSAP, 0x9F, _BIT0) != 0x00) ? _ON : _OFF);
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MIN_VFREQ:
+                                  if(ScalerSyncGetAmdVsdbVer(_D5_INPUT_PORT) < _AMD_VER3)
+                                  {
+                                      pData[1] = 0x00;
+                                  }
+                                  else
+                                  {
+                                      pData[1] = ScalerGetDataPortSingleByte(P74_CD_HDMI_PSAP, 0x9A);
+                                  }
+              
+                                  pData[0] = ScalerGetDataPortSingleByte(P74_CD_HDMI_PSAP, 0x96);
+              
+                                  usFreesyncVfreqmin = (((WORD)pData[1] << 8) | pData[0]);
+                                  usFreesyncVfreqmin &= usAmdVfreqMaxBit;
+              
+                                  if((usFreesyncVfreqmin * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx5("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmin * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmin = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx5("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmin;
+                                  break;
+              
+                              case _SPD_INFO_FREESYNC_MAX_VFREQ:
+                                  if(ScalerSyncGetAmdVsdbVer(_D5_INPUT_PORT) < _AMD_VER3)
+                                  {
+                                      pData[1] = 0x00;
+                                  }
+                                  else
+                                  {
+                                      pData[1] = ScalerGetDataPortSingleByte(P74_CD_HDMI_PSAP, 0x9B);
+                                  }
+              
+                                  pData[0] = ScalerGetDataPortSingleByte(P74_CD_HDMI_PSAP, 0x97);
+              
+                                  usFreesyncVfreqmax = (((WORD)pData[1] << 8) | pData[0]);
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 40  
+
+                                  usFreesyncVfreqmax &= usAmdVfreqMaxBit;
+              
+                                  if((usFreesyncVfreqmax * 10) < _PANEL_FREESYNC_MIN_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MIN_FRAME_RATE / 10;
+                                      DebugMessageRx5("Freesync SPD info abnormal", 0);
+                                  }
+                                  else if((usFreesyncVfreqmax * 10) > _PANEL_FREESYNC_MAX_FRAME_RATE)
+                                  {
+                                      usFreesyncVfreqmax = _PANEL_FREESYNC_MAX_FRAME_RATE / 10;
+                                      DebugMessageRx5("Freesync SPD info abnormal", 1);
+                                  }
+              
+                                  return usFreesyncVfreqmax;
+                                  break;
+              
+                              default:
+                                  return 0x00;
+                                  break;
+                          }
+                      }
+                  }
+              
+                  return 0x00;
+              }
+              #endif
+2359          
+2360          #if(_TRANSLATOR_SUPPORT == _OFF)
+2361          //--------------------------------------------------
+2362          // Description  : Switch DP FREESYNC Support
+2363          // Input Value  : Hotplug Type and FREESYNC Enable or Not
+2364          // Output Value : None
+2365          //--------------------------------------------------
+2366          void ScalerFreeSyncHDMISupportSwitch(EnumSourceSearchPort enumSourcePort, EnumFreeSyncSupport enumSupport,
+             - EnumSourceSearchPort enumFreesyncTargetPort)
+2367          {
+2368   1          enumFreesyncTargetPort = enumFreesyncTargetPort;
+2369   1      
+2370   1          switch(enumSourcePort)
+2371   1          {
+2372   2      #if(_D0_HDMI_SUPPORT == _ON)
+                      case _D0_INPUT_PORT:
+              
+              #if(_D0_INPUT_PORT_TYPE == _D0_MHL_PORT)
+                          if(GET_D0_TMDS_MODE() == _TMDS_MHL_MODE)
+                          {
+                              break;
+                          }
+              #endif
+              
+                          if(GET_TMDS_RX0_FREESYNC_SUPPORT() != enumSupport)
+                          {
+                              if(GET_D0_CABLE_STATUS() == _TRUE)
+                              {
+              #if(_TMDS_FS_ON_ONLY_TARGETPORT_HPD_SUPPORT == _ON)
+                                  if(enumFreesyncTargetPort == _D0_INPUT_PORT)
+              #endif
+                                  {
+                                      SET_TMDS_RX0_HPD_TRIGGER_EVENT(_TMDS_HPD_NORMAL);
+                                  }
+                              }
+              
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 41  
+
+                              SET_TMDS_RX0_FREESYNC_SUPPORT(enumSupport);
+                          }
+              
+                          break;
+              #endif
+2399   2      
+2400   2      #if(_D1_HDMI_SUPPORT == _ON)
+2401   2              case _D1_INPUT_PORT:
+2402   2      
+2403   2      #if(_D1_INPUT_PORT_TYPE == _D1_MHL_PORT)
+                          if(GET_D1_TMDS_MODE() == _TMDS_MHL_MODE)
+                          {
+                              break;
+                          }
+              #endif
+2409   2      
+2410   2                  if(GET_TMDS_RX1_FREESYNC_SUPPORT() != enumSupport)
+2411   2                  {
+2412   3                      if(GET_D1_CABLE_STATUS() == _TRUE)
+2413   3                      {
+2414   4      #if(_TMDS_FS_ON_ONLY_TARGETPORT_HPD_SUPPORT == _ON)
+                                  if(enumFreesyncTargetPort == _D1_INPUT_PORT)
+              #endif
+2417   4                          {
+2418   5                              SET_TMDS_RX1_HPD_TRIGGER_EVENT(_TMDS_HPD_NORMAL);
+2419   5                          }
+2420   4                      }
+2421   3      
+2422   3                      SET_TMDS_RX1_FREESYNC_SUPPORT(enumSupport);
+2423   3      
+2424   3      #if(_HDMI_2_0_SUPPORT == _ON)
+                              if(enumSupport == _FREESYNC_SUPPORT_ON)
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D1_INPUT_PORT, _ENABLE);
+                              }
+                              else
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D1_INPUT_PORT, _DISABLE);
+                              }
+              #endif
+2434   3                  }
+2435   2                  break;
+2436   2      #endif
+2437   2      
+2438   2      #if(_D2_HDMI_SUPPORT == _ON)
+                      case _D2_INPUT_PORT:
+              
+              #if(_D2_INPUT_PORT_TYPE == _D2_MHL_PORT)
+                          if(GET_D2_TMDS_MODE() == _TMDS_MHL_MODE)
+                          {
+                              break;
+                          }
+              #endif
+              
+                          if(GET_TMDS_RX2_FREESYNC_SUPPORT() != enumSupport)
+                          {
+                              if(GET_D2_CABLE_STATUS() == _TRUE)
+                              {
+              #if(_TMDS_FS_ON_ONLY_TARGETPORT_HPD_SUPPORT == _ON)
+                                  if(enumFreesyncTargetPort == _D2_INPUT_PORT)
+              #endif
+                                  {
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 42  
+
+                                      SET_TMDS_RX2_HPD_TRIGGER_EVENT(_TMDS_HPD_NORMAL);
+                                  }
+                              }
+              
+                              SET_TMDS_RX2_FREESYNC_SUPPORT(enumSupport);
+              
+              #if(_HDMI_2_0_SUPPORT == _ON)
+                              if(enumSupport == _FREESYNC_SUPPORT_ON)
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D2_INPUT_PORT, _ENABLE);
+                              }
+                              else
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D2_INPUT_PORT, _DISABLE);
+                              }
+              #endif
+                          }
+                          break;
+              #endif
+2475   2      
+2476   2      #if(_D3_HDMI_SUPPORT == _ON)
+                      case _D3_INPUT_PORT:
+              
+              #if(_D3_INPUT_PORT_TYPE == _D3_MHL_PORT)
+                          if(GET_D3_TMDS_MODE() == _TMDS_MHL_MODE)
+                          {
+                              break;
+                          }
+              #endif
+              
+                          if(GET_TMDS_RX3_FREESYNC_SUPPORT() != enumSupport)
+                          {
+              #if((_D12_INPUT_PORT_TYPE == _D12_HDMI_PORT) && (_D12_INPUT_PORT_SWITCH_FROM == _SWITCH_FROM_D3))
+                              if(((GET_D3_CABLE_STATUS() == _TRUE) && (PCB_GET_HDMI_SW_SELECT() == _SW_SEL_HDMI3)) ||
+                                 ((GET_D12_CABLE_STATUS() == _TRUE) && (PCB_GET_HDMI_SW_SELECT() == _SW_SEL_HDMI3_1)))
+              #else
+                              if(GET_D3_CABLE_STATUS() == _TRUE)
+              #endif
+                              {
+              #if(_TMDS_FS_ON_ONLY_TARGETPORT_HPD_SUPPORT == _ON)
+                                  if(enumFreesyncTargetPort == _D3_INPUT_PORT)
+              #endif
+                                  {
+                                      SET_TMDS_RX3_HPD_TRIGGER_EVENT(_TMDS_HPD_NORMAL);
+                                  }
+                              }
+              
+                              SET_TMDS_RX3_FREESYNC_SUPPORT(enumSupport);
+              
+              #if(_HDMI_2_0_SUPPORT == _ON)
+                              if(enumSupport == _FREESYNC_SUPPORT_ON)
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D3_INPUT_PORT, _ENABLE);
+                              }
+                              else
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D3_INPUT_PORT, _DISABLE);
+                              }
+              #endif
+                          }
+                          break;
+              #endif
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 43  
+
+2518   2      
+2519   2      #if(_D4_HDMI_SUPPORT == _ON)
+                      case _D4_INPUT_PORT:
+              
+              #if(_D4_INPUT_PORT_TYPE == _D4_MHL_PORT)
+                          if(GET_D4_TMDS_MODE() == _TMDS_MHL_MODE)
+                          {
+                              break;
+                          }
+              #endif
+              
+                          if(GET_TMDS_RX4_FREESYNC_SUPPORT() != enumSupport)
+                          {
+                              if(GET_D4_CABLE_STATUS() == _TRUE)
+                              {
+              #if(_TMDS_FS_ON_ONLY_TARGETPORT_HPD_SUPPORT == _ON)
+                                  if(enumFreesyncTargetPort == _D4_INPUT_PORT)
+              #endif
+                                  {
+                                      SET_TMDS_RX4_HPD_TRIGGER_EVENT(_TMDS_HPD_NORMAL);
+                                  }
+                              }
+              
+                              SET_TMDS_RX4_FREESYNC_SUPPORT(enumSupport);
+              
+              #if(_HDMI_2_0_SUPPORT == _ON)
+                              if(enumSupport == _FREESYNC_SUPPORT_ON)
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D4_INPUT_PORT, _ENABLE);
+                              }
+                              else
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D4_INPUT_PORT, _DISABLE);
+                              }
+              #endif
+                          }
+                          break;
+              #endif
+2556   2      
+2557   2      #if(_D5_HDMI_SUPPORT == _ON)
+                      case _D5_INPUT_PORT:
+              
+              #if(_D5_INPUT_PORT_TYPE == _D5_MHL_PORT)
+                          if(GET_D5_TMDS_MODE() == _TMDS_MHL_MODE)
+                          {
+                              break;
+                          }
+              #endif
+              
+                          if(GET_TMDS_RX5_FREESYNC_SUPPORT() != enumSupport)
+                          {
+                              if(GET_D5_CABLE_STATUS() == _TRUE)
+                              {
+              #if(_TMDS_FS_ON_ONLY_TARGETPORT_HPD_SUPPORT == _ON)
+                                  if(enumFreesyncTargetPort == _D5_INPUT_PORT)
+              #endif
+                                  {
+                                      SET_TMDS_RX5_HPD_TRIGGER_EVENT(_TMDS_HPD_NORMAL);
+                                  }
+                              }
+              
+                              SET_TMDS_RX5_FREESYNC_SUPPORT(enumSupport);
+C51 COMPILER V8.12   SCALERCOMMONFREESYNC                                                  03/10/2025 13:50:33 PAGE 44  
+
+              
+              #if(_HDMI_2_0_SUPPORT == _ON)
+                              if(enumSupport == _FREESYNC_SUPPORT_ON)
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D5_INPUT_PORT, _ENABLE);
+                              }
+                              else
+                              {
+                                  ScalerTMDSHdmiSetAmdAupiScdcInfo(_D5_INPUT_PORT, _DISABLE);
+                              }
+              #endif
+                          }
+                          break;
+              #endif
+2594   2      
+2595   2              default:
+2596   2                  break;
+2597   2          }
+2598   1      }
+2599          #endif
+2600          
+2601          #endif // End of #if(_HDMI_FREESYNC_SUPPORT == _ON)
+2602          #endif // End of #if(_HDMI_SUPPORT == _ON)
+2603          #endif // End of #if(_FREESYNC_SUPPORT == _ON)
+2604          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   4278    ----
+   CONSTANT SIZE    =     42    ----
+   XDATA SIZE       =      9     117
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,109 @@
+C51 COMPILER V8.12   SCALERCOMMONFLASHREAD                                                 03/11/2025 19:55:38 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERCOMMONFLASHREAD
+OBJECT MODULE PLACED IN .\Output\ScalerCommonFlashRead.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerCommonFunction\Lib\Code\ScalerCommonNVRam\ScalerCommonFlashRead
+                    -.c LARGE OPTIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunctio
+                    -n\Header;..\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;.
+                    -.\..\RL6449_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(
+                    -.\Output\ScalerCommonFlashRead.lst) OBJECT(.\Output\ScalerCommonFlashRead.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerCommonFlashRead.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCLAER_COMMON_FLASH_READ__
+  18          
+  19          #include "ScalerCommonNVRamLibInternalInclude.h"
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          
+  25          //****************************************************************************
+  26          // STRUCT / TYPE / ENUM DEFINITTIONS
+  27          //****************************************************************************
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          //****************************************************************************
+  38          // FUNCTION DECLARATIONS
+  39          //****************************************************************************
+  40          bit ScalerFlashRead(BYTE ucBank, WORD usAddr, WORD usLength, BYTE *pucData);
+  41          
+  42          //****************************************************************************
+  43          // FUNCTION DEFINITIONS
+  44          //****************************************************************************
+  45          //--------------------------------------------------
+  46          // Description  : Load data from flash
+  47          // Input Value  : ucBank: bank index
+  48          //                usAddr: address in ucBank
+  49          //                ucLength: the data length to load
+  50          //                pucData: data buffer to save the load data
+  51          // Output Value : _TRUE for load success and _FALSE for load fail
+C51 COMPILER V8.12   SCALERCOMMONFLASHREAD                                                 03/11/2025 19:55:38 PAGE 2   
+
+  52          //--------------------------------------------------
+  53          bit ScalerFlashRead(BYTE ucBank, WORD usAddr, WORD usLength, BYTE *pucData)
+  54          {
+  55   1          WORD usIndex = 0;
+  56   1      
+  57   1          // The access bank is smaller than than the start bank
+  58   1          if(ucBank < MCU_FFFD_XDATA_BANK_START)
+  59   1          {
+  60   2              return _FALSE;
+  61   2          }
+  62   1      
+  63   1          // Enable flash access and address auto increase
+  64   1          MCU_FF7C_ACCESS_FLASH_DATA_CTRL |= (_BIT1 | _BIT0);
+  65   1      
+  66   1          MCU_FF78_ACCESS_FLASH_ADDR_0 = ucBank;
+  67   1          MCU_FF79_ACCESS_FLASH_ADDR_1 = (BYTE)(usAddr >> 8);
+  68   1          MCU_FF7A_ACCESS_FLASH_ADDR_2 = (BYTE)(usAddr);
+  69   1      
+  70   1          for(usIndex = 0; usIndex < usLength; usIndex++)
+  71   1          {
+  72   2              pucData[usIndex] = MCU_FF7B_ACCESS_FLASH_DATA_PORT;
+  73   2          }
+  74   1      
+  75   1          // Disable flash access
+  76   1          MCU_FF7C_ACCESS_FLASH_DATA_CTRL &= ~_BIT0;
+  77   1      
+  78   1          return _TRUE;
+  79   1      }
+  80          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    114    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

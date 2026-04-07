@@ -1,0 +1,809 @@
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SCALERFRC
+OBJECT MODULE PLACED IN .\Output\RL6432\ScalerFRC.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerFRC.c LARGE OPTIMIZE(9,SPEED) IN
+                    -CDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kern
+                    -el\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\
+                    -Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Series_
+                    -Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kernel\U
+                    -ser Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Facto
+                    -ry\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_P
+                    -ROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\ScalerFRC.lst) TABS(2) OBJE
+                    -CT(.\Output\RL6432\ScalerFRC.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerFRC.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #define __SCALER_FRC__
+  17          
+  18          #include "ScalerFunctionInclude.h"
+  19          
+  20          #if(_FRC_SUPPORT == _ON)
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          
+  25          //****************************************************************************
+  26          // STRUCT / TYPE / ENUM DEFINITTIONS
+  27          //****************************************************************************
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          #if(_DISP_LATENCY_ADJUST_SUPPORT == _ON)
+              BYTE g_ucDispLatecnyRatio;
+              #endif
+  39          #if(_ASPECT_RATIO_WITHOUT_MUTE == _ON)
+              WORD g_usAspectRatioMinDVHeight;
+              #endif
+  42          
+  43          //****************************************************************************
+  44          // FUNCTION DECLARATIONS
+  45          //****************************************************************************
+  46          #if(_DISP_LATENCY_ADJUST_SUPPORT == _ON)
+              WORD ScalerFRCGetIVS2DVSDelayMax(WORD usFRCVerSize);
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 2   
+
+              #endif
+  49          
+  50          WORD ScalerFRCCalculatePreReadLine(WORD usFRCVerSize);
+  51          void ScalerFRCAdjustIVS2DVSDelay(WORD usFRCVerSize);
+  52          #if((_FRC_MEMORY_2_FRAME_SUPPORT == _ON) && (_ONE_FRAME_FRC_SUPPORT == _ON))
+  53          bit ScalerFRCCheckDoubleFrameBuffer(WORD usInputHWidth, WORD usInputVHeight);
+  54          #endif
+  55          BYTE ScalerFRCIVS2DVSDelayMargin(void);
+  56          
+  57          #if(_FRC_HW_AUTO_3BLOCK_TOGGLE_SUPPORT == _ON)
+  58          void ScalerFRCSetDisplayAutoBlkToggle(void);
+  59          void ScalerFRCSetDisplayAutoBlkToggleEnable(bit bEn);
+  60          void ScalerFRCSetHWAutoBlockToggle(void);
+  61          void ScalerFRCSetInputAutoBlkToggle(void);
+  62          #endif
+  63          #if(_ASPECT_RATIO_WITHOUT_MUTE == _ON)
+              void ScalerFRCSetAspectRatioDDomain(void);
+              #endif
+  66          
+  67          //****************************************************************************
+  68          // FUNCTION DEFINITIONS
+  69          //****************************************************************************
+  70          #if(_DISP_LATENCY_ADJUST_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Get IVS2DVSDelay Max Value in Frame Sync Mode
+              // Input Value  : usFRCVerSize : Input VHeight
+              // Output Value : IVS2DVSDelay Max Value
+              //--------------------------------------------------
+              WORD ScalerFRCGetIVS2DVSDelayMax(WORD usFRCVerSize)
+              {
+                  WORD usDHF = 0x00;
+                  WORD usIPeriod = 0x00;
+                  WORD usDStartPeriod = 0x00;
+              
+                  if(GET_MEMORY_SELECT() == _FRAME_SYNC_MEMORY)
+                  {
+                      // DHFreq
+                      usDHF = ((DWORD)GET_D_CLK_FREQ() * 10 / g_stMDomainOutputData.usHTotal);
+              
+                      // (IVStart + IDEN) Period
+                      usIPeriod = (g_stMDomainInputData.usVStart + g_stMDomainInputData.usVHeight);
+              
+                      // Pre-read Period
+                      usDStartPeriod = ((DWORD)ScalerFRCCalculatePreReadLine(usFRCVerSize) * g_stMDomainInputData.usHFre
+             -q / usDHF);
+              
+                      return (usIPeriod - (usDStartPeriod + _FRC_IVS2DVSDELAY_MARGIN));
+                  }
+              
+                  return 0;
+              }
+              #endif // End of #if(_DISP_LATENCY_ADJUST_SUPPORT == _ON)
+  99          
+ 100          //--------------------------------------------------
+ 101          // Description  : Calculate FRC Pre-read Line
+ 102          // Input Value  : usFRCVerSize --> FRC Output Vertical Size
+ 103          // Output Value : The line after DVS that FRC display start to access
+ 104          //--------------------------------------------------
+ 105          WORD ScalerFRCCalculatePreReadLine(WORD usFRCVerSize)
+ 106          {
+ 107   1          // preread = den_start - _PRE_READ_MEMORY x VSU factor - 1
+ 108   1          // VSU >= 1
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 3   
+
+ 109   1          usFRCVerSize = (((DWORD)g_stMDomainOutputData.usVHeight * 10) / usFRCVerSize) * _PRE_READ_MEMORY + 1;
+ 110   1          usFRCVerSize = ((usFRCVerSize % 10) ? (usFRCVerSize / 10 + 1) : (usFRCVerSize / 10));
+ 111   1      
+ 112   1          return ((g_stMDomainOutputData.usVStart > usFRCVerSize) ? ((g_stMDomainOutputData.usVStart - usFRCVerS
+             -ize)) : (0));
+ 113   1      }
+ 114          
+ 115          //--------------------------------------------------
+ 116          // Description  : Adjust IVS2DVS Delay for Aspect Ratio Function
+ 117          // Input Value  : usFRCVerSize : FRC Veritcal Size
+ 118          // Output Value : None
+ 119          //--------------------------------------------------
+ 120          void ScalerFRCAdjustIVS2DVSDelay(WORD usFRCVerSize)
+ 121          {
+ 122   1          WORD usPreReadLine = 0;
+ 123   1          WORD usIHFreq = 0;
+ 124   1          WORD usDHFreq = 0;
+ 125   1      
+ 126   1      #if(_DISP_LATENCY_ADJUST_SUPPORT == _ON)
+                  WORD usDelayMax = 0;
+              #endif
+ 129   1      #if(_ASPECT_RATIO_WITHOUT_MUTE == _ON)
+                  WORD usVstbk = GET_MDOMAIN_OUTPUT_VSTART();
+                  WORD usVHeightbk = GET_MDOMAIN_OUTPUT_VHEIGHT();
+                  WORD usVBHeightbk = GET_MDOMAIN_OUTPUT_VBHEIGHT();
+              #endif
+ 134   1      
+ 135   1      #if((_DISPLAY_ROTATION_SUPPORT == _ON) && (_DISPLAY_ROTATION_TYPE == _DISPLAY_ROTATION_GEN_II))
+ 136   1          WORD usInputVHeight = 0;
+ 137   1      #endif
+ 138   1      
+ 139   1          BYTE ucMargin = ScalerFRCIVS2DVSDelayMargin();
+ 140   1          DWORD ulIVStoDVSPixels = 0;
+ 141   1      
+ 142   1          // IHFreq, unit: 0.01kHz
+ 143   1          // IHF = Measure_clk * (IHtotal * IVheight' + IHwidth') / (IHtotal * Active_count)
+ 144   1          // IHF = (Measure_clk * IHtotal * IVheight'/ (IHtotal * Active_count)) + (Measure_clk * (IHtotal - IHp
+             -orch) * (E/O or single) / (IHtotal * Active_count))
+ 145   1          // IHF = (Measure_clk * IVheight'/ Active_count) + (Measure_clk * (E/O or single) / Active_count) - (M
+             -easure_clk * (E/O or single) * (IHtotal - IHwidth) / (IHtotal * Active_count))
+ 146   1      
+ 147   1          // input region cnt calculation:
+ 148   1          // vsd disable single   = IHtotal * (IVheight - 1) + IHwidth
+ 149   1          // vsd enable single    = IHtotal * (IVheight - 1 + 1(SD)) + IHwidth
+ 150   1          // vsd disable even/odd = (IHtotal * (IVheight / 2 - 1) + IHwidth) * 2
+ 151   1          ///                     = IHtotal * (IVheight - 2) + IHwidth * 2
+ 152   1          // vsd enable even/odd  = (IHtotal * (IVheight / 2 - 1 + 1(SD)) + IHwidth) * 2
+ 153   1          ///                     = IHtotal * IVheight + IHwidth * 2
+ 154   1      
+ 155   1      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                  if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                  {
+                      pData[0] = 2;
+                      if(GET_V_SCALE_DOWN() == _TRUE)
+                      {
+                          PDATA_WORD(2) = (g_stMDomainInputData.usVHeight);
+                      }
+                      else
+                      {
+                          PDATA_WORD(2) = g_stMDomainInputData.usVHeight - 2;
+                      }
+                  }
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 4   
+
+                  else
+              #endif
+ 170   1          {
+ 171   2              pData[0] = 1;
+ 172   2              if(GET_V_SCALE_DOWN() == _TRUE)
+ 173   2              {
+ 174   3                  PDATA_WORD(2) = (g_stMDomainInputData.usVHeight);
+ 175   3              }
+ 176   2              else
+ 177   2              {
+ 178   3                  PDATA_WORD(2) = (g_stMDomainInputData.usVHeight - 1);
+ 179   3              }
+ 180   2          }
+ 181   1      
+ 182   1          usIHFreq = ((DWORD)_MEASURE_CLK * 10 * PDATA_WORD(2) / g_ulInputActiveRegionBackUp * 10) +
+ 183   1                     (((DWORD)_MEASURE_CLK * 10 * PDATA_WORD(2)) % g_ulInputActiveRegionBackUp * 10 / g_ulInputA
+             -ctiveRegionBackUp) +
+ 184   1                     ((DWORD)_MEASURE_CLK * 100 * pData[0] / g_ulInputActiveRegionBackUp) -
+ 185   1                     ((DWORD)_MEASURE_CLK * 10 * pData[0] * (g_stMDomainInputData.usHTotal - g_stMDomainInputDat
+             -a.usHWidth) / g_ulInputActiveRegionBackUp / g_stMDomainInputData.usHTotal * 10);
+ 186   1      
+ 187   1          // DHFreq, unit: 0.01kHz
+ 188   1          usDHFreq = ((DWORD)GET_D_CLK_FREQ() * 100 / g_stMDomainOutputData.usHTotal);
+ 189   1      
+ 190   1          switch(GET_MEMORY_SELECT())
+ 191   1          {
+ 192   2              case _FRAME_SYNC_MEMORY:
+ 193   2      
+ 194   2                  // IVS2DVS line skip disable
+ 195   2                  ScalerSetBit(P0_43_FS_DELAY_FINE_TUNE, ~_BIT3, _BIT3);
+ 196   2      #if(_ASPECT_RATIO_WITHOUT_MUTE == _ON)
+                          ScalerFRCSetAspectRatioDDomain();
+              #endif
+ 199   2                  usPreReadLine = ScalerFRCCalculatePreReadLine(usFRCVerSize);
+ 200   2      #if(_DISP_LATENCY_ADJUST_SUPPORT == _ON)
+                          usDelayMax = ScalerFRCGetIVS2DVSDelayMax(usFRCVerSize);
+              #endif
+ 203   2      
+ 204   2      #if((_DISPLAY_ROTATION_SUPPORT == _ON) && (_DISPLAY_ROTATION_TYPE == _DISPLAY_ROTATION_GEN_II))
+ 205   2      
+ 206   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                          if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                          {
+                              // I_M2_DEN_stop should be finish before D_M1_preread
+                              usInputVHeight = g_stMDomainInputData.usVHeight + 1;
+                          }
+                          else
+              #endif
+ 214   2                  {
+ 215   3                      usInputVHeight = g_stMDomainInputData.usVHeight;
+ 216   3                  }
+ 217   2      
+ 218   2                  if((GET_ROT_TYPE() == _ROT_CW180) || (GET_ROT_TYPE() == _ROT_VER_MIRROR))
+ 219   2                  {
+ 220   3                      // Consider IDEN period and (DDEN + pre-read) period
+ 221   3                      if(usInputVHeight >= ((DWORD)(g_stMDomainOutputData.usVStart + g_stMDomainOutputData.usVHe
+             -ight - usPreReadLine) * usIHFreq / usDHFreq))
+ 222   3                      {
+ 223   4                          // Roundup: (IVS2DVS_delay_min + IVS2DVS_delay_max) / 2
+ 224   4                          PDATA_WORD(0) = ((g_stMDomainInputData.usVStart + usInputVHeight) + g_stMDomainInputDa
+             -ta.usVTotal);
+ 225   4                          PDATA_WORD(0) = (PDATA_WORD(0) >> 1) + (PDATA_WORD(0) % 2);
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 5   
+
+ 226   4                      }
+ 227   3                      else
+ 228   3                      {
+ 229   4                          // IVS2DVS delay max
+ 230   4                          PDATA_WORD(0) = g_stMDomainInputData.usVTotal + g_stMDomainInputData.usVStart + usInpu
+             -tVHeight -
+ 231   4                                          ((DWORD)(g_stMDomainOutputData.usVStart + g_stMDomainOutputData.usVHei
+             -ght) * usIHFreq / usDHFreq) -
+ 232   4                                          ((((DWORD)(g_stMDomainOutputData.usVStart + g_stMDomainOutputData.usVH
+             -eight) * usIHFreq % usDHFreq) != 0x00) ? 1 : 0);
+ 233   4      
+ 234   4                          if(PDATA_WORD(0) > g_stMDomainInputData.usVTotal)
+ 235   4                          {
+ 236   5                              PDATA_WORD(0) = g_stMDomainInputData.usVTotal;
+ 237   5                          }
+ 238   4      
+ 239   4                          // Rounddown (IVS2DVS_delay_min + IVS2DVS_delay_max) / 2
+ 240   4                          PDATA_WORD(0) = (((g_stMDomainInputData.usVStart + usInputVHeight) + PDATA_WORD(0)) / 
+             -2);
+ 241   4                      }
+ 242   3      
+ 243   3                      PDATA_WORD(0) -= ((DWORD)usPreReadLine * usIHFreq / usDHFreq);
+ 244   3                  }
+ 245   2                  else
+ 246   2      #endif
+ 247   2                  {
+ 248   3                      // Consider IDEN period and (DDEN + pre-read) period
+ 249   3                      if(g_stMDomainInputData.usVHeight >= ((DWORD)(g_stMDomainOutputData.usVStart + g_stMDomain
+             -OutputData.usVHeight - usPreReadLine) * usIHFreq / usDHFreq))
+ 250   3                      {
+ 251   4                          // (IVStart + IDEN) Period
+ 252   4                          PDATA_WORD(0) = (g_stMDomainInputData.usVStart + g_stMDomainInputData.usVHeight);
+ 253   4      
+ 254   4                          // (DVStart + DDEN) Period
+ 255   4                          PDATA_WORD(1) = ((DWORD)(g_stMDomainOutputData.usVStart + g_stMDomainOutputData.usVHei
+             -ght) * usIHFreq / usDHFreq);
+ 256   4                      }
+ 257   3                      else
+ 258   3                      {
+ 259   4                          // IVStart Period
+ 260   4                          PDATA_WORD(0) = g_stMDomainInputData.usVStart;
+ 261   4      
+ 262   4                          // FRC_Display pre-read Period
+ 263   4                          PDATA_WORD(1) = (DWORD)usPreReadLine * usIHFreq / usDHFreq;
+ 264   4                      }
+ 265   3      
+ 266   3                      if(PDATA_WORD(0) > PDATA_WORD(1))
+ 267   3                      {
+ 268   4                          PDATA_WORD(0) = PDATA_WORD(0) - PDATA_WORD(1) + ucMargin;
+ 269   4                      }
+ 270   3                      else
+ 271   3                      {
+ 272   4                          PDATA_WORD(0) = ucMargin;
+ 273   4                      }
+ 274   3      
+ 275   3                      PDATA_WORD(1) = ((g_stMDomainInputData.usVStart + ucMargin) > ((DWORD)usPreReadLine * usIH
+             -Freq / usDHFreq)) ? ((g_stMDomainInputData.usVStart + ucMargin) - ((DWORD)usPreReadLine * usIHFreq / usDHFreq)) : 0;
+ 276   3      
+ 277   3                      if(PDATA_WORD(1) > PDATA_WORD(0))
+ 278   3                      {
+ 279   4                          PDATA_WORD(0) = PDATA_WORD(1);
+ 280   4                      }
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 6   
+
+ 281   3      
+ 282   3      #if(_DISP_LATENCY_ADJUST_SUPPORT == _ON)
+                              PDATA_WORD(1) = ((DWORD)usDelayMax - PDATA_WORD(0)) * GET_DISP_LATENCY_RATIO() / 100;
+                              PDATA_WORD(0) += PDATA_WORD(1);
+              
+                              // ivs2dvsdelay must be smaller than IVTotal when frame sync
+                              if(PDATA_WORD(0) >= g_stMDomainInputData.usVTotal)
+                              {
+                                  PDATA_WORD(0) = g_stMDomainInputData.usVTotal - 1;
+                              }
+              #endif
+ 292   3                  }
+ 293   2      
+ 294   2                  break;
+ 295   2      
+ 296   2              case _FREE_RUN_MEMORY:
+ 297   2      
+ 298   2                  PDATA_WORD(0) = (g_stMDomainInputData.usVTotal + g_stMDomainInputData.usVStart + g_stMDomainIn
+             -putData.usVHeight);
+ 299   2                  PDATA_WORD(0) -= ((DWORD)(g_stMDomainOutputData.usVStart + g_stMDomainOutputData.usVHeight) * 
+             -usIHFreq / usDHFreq);
+ 300   2      
+ 301   2                  if(PDATA_WORD(0) > 255)
+ 302   2                  {
+ 303   3                      PDATA_WORD(0) = 0xFE - 32;
+ 304   3                  }
+ 305   2                  else
+ 306   2                  {
+ 307   3                      PDATA_WORD(0) -= 32;
+ 308   3                  }
+ 309   2      
+ 310   2                  break;
+ 311   2      
+ 312   2              default:
+ 313   2              case _MN_FRAME_SYNC_MEMORY:
+ 314   2      
+ 315   2      #if(_FRC_HW_AUTO_3BLOCK_TOGGLE_SUPPORT == _ON)
+ 316   2                  switch(GET_MEMORY_DVF_SELECT())
+ 317   2                  {
+ 318   3                      case _6_5_IVF:
+ 319   3                      case _5_4_IVF:
+ 320   3      
+ 321   3                          PDATA_WORD(0) = g_stMDomainInputData.usVStart + g_stMDomainInputData.usVHeight - ((DWO
+             -RD)usPreReadLine * usIHFreq / usDHFreq) + 1;
+ 322   3      
+ 323   3                          break;
+ 324   3      
+ 325   3                      case _2_5_IVF:
+ 326   3      
+ 327   3                          // lower bound : dvtotal+dvstart+dvheight+ivs2dvsdelay > ivstart + ivheight
+ 328   3                          PDATA_WORD(0) = g_stMDomainInputData.usVStart + g_stMDomainInputData.usVHeight;
+ 329   3                          PDATA_WORD(0) -= ((DWORD)(g_stMDomainOutputData.usVTotal + g_stMDomainOutputData.usVSt
+             -art + g_stMDomainOutputData.usVHeight) * usIHFreq / usDHFreq);
+ 330   3      
+ 331   3                          // upper bound : 3 * dvtotal+dvstart+ivs2dvsdelay < IVtotal + ivstart + ivheight/2
+ 332   3                          PDATA_WORD(1) = g_stMDomainInputData.usVTotal + g_stMDomainInputData.usVStart + (g_stM
+             -DomainInputData.usVHeight / 2);
+ 333   3                          PDATA_WORD(1) -= ((DWORD)((g_stMDomainOutputData.usVTotal * 3) + g_stMDomainOutputData
+             -.usVStart) * usIHFreq / usDHFreq);
+ 334   3      
+ 335   3                          PDATA_WORD(0) = (PDATA_WORD(0) + PDATA_WORD(1)) / 2;
+ 336   3      
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 7   
+
+ 337   3                          break;
+ 338   3      
+ 339   3                      default:
+ 340   3      
+ 341   3                          PDATA_WORD(0) = 0x01;
+ 342   3                          break;
+ 343   3                  }
+ 344   2      #else
+                          PDATA_WORD(0) = 0x01;
+              #endif
+ 347   2                  if((GET_MEMORY_DVF_SELECT() == _2_IVF) && (GET_MEMORY_FRAME_BUFFER() == _MEMORY_1_FRAME_BUFFER
+             -))
+ 348   2                  {
+ 349   3                      // dden start must be ahead of iden start : ivs > ivs2dvsdelay + dvs
+ 350   3                      if(g_stMDomainInputData.usVStart <= (PDATA_WORD(0) + CEILING_OF_INT_DIVISION(((DWORD)g_stM
+             -DomainOutputData.usVStart * usIHFreq), usDHFreq)))
+ 351   3                      {
+ 352   4                          // ivs + ivs2dvsdelay < dvs + dvh + ivs2dvsdelay
+ 353   4                          PDATA_WORD(0) = g_stMDomainInputData.usVStart + g_stMDomainInputData.usVHeight + 1; //
+             - 1 (margin)
+ 354   4                          PDATA_WORD(0) -= ((DWORD)(g_stMDomainOutputData.usVStart + g_stMDomainOutputData.usVHe
+             -ight) * usIHFreq / usDHFreq);
+ 355   4                      }
+ 356   3                  }
+ 357   2                  break;
+ 358   2          }
+ 359   1      
+ 360   1          if((PDATA_WORD(0) > 0xF00) || (PDATA_WORD(0) == 0))
+ 361   1          {
+ 362   2              PDATA_WORD(0) = 0x01;
+ 363   2          }
+ 364   1      
+ 365   1          // Disable Frame Sync Fine Tune
+ 366   1          ScalerSetBit(P0_43_FS_DELAY_FINE_TUNE, ~_BIT1, 0x00);
+ 367   1      
+ 368   1          ulIVStoDVSPixels = (DWORD)PDATA_WORD(0) * g_stMDomainInputData.usHTotal;
+ 369   1      
+ 370   1          if(GET_MEMORY_SELECT() == _FRAME_SYNC_MEMORY)
+ 371   1          {
+ 372   2              if(ScalerMDomainGetFrameSyncMode() == _FRAME_SYNC_MODE)
+ 373   2              {
+ 374   3                  // Convert DVline limit to IVline
+ 375   3                  WORD usIVS2DVSChgLimit = ((DWORD)_PANEL_DV_LINE_CHG_LIMIT * g_stMDomainOutputData.usHTotal / G
+             -ET_D_CLK_FREQ() * g_stMDomainInputData.usHFreq / 10) +
+ 376   3                                           ((DWORD)_PANEL_DV_LINE_CHG_LIMIT * g_stMDomainOutputData.usHTotal % G
+             -ET_D_CLK_FREQ() * g_stMDomainInputData.usHFreq / 10 / GET_D_CLK_FREQ());
+ 377   3      
+ 378   3                  // Get Old IVS2DVS + IVSdelay (I line)
+ 379   3                  PDATA_WORD(0) = (ScalerMemoryGetIVS2DVSDelayPixel() / g_stMDomainInputData.usHTotal);
+ 380   3      
+ 381   3                  ScalerMemoryFineTuneIVS2DVSDelay(PDATA_WORD(0), (ulIVStoDVSPixels / g_stMDomainInputData.usHTo
+             -tal), usIVS2DVSChgLimit);
+ 382   3              }
+ 383   2      
+ 384   2      #if(_FORMAT_CONVERSION_SUPPORT == _ON)
+                      if(ScalerFmtCnvFtoPGetStatus() == _TRUE)
+                      {
+                          ulIVStoDVSPixels = (ulIVStoDVSPixels >> 1);
+                      }
+              #endif
+ 390   2      
+ 391   2              PDATA_WORD(2) = (ulIVStoDVSPixels / g_stMDomainInputData.usHTotal);
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 8   
+
+ 392   2              PDATA_WORD(3) = (ulIVStoDVSPixels - ((DWORD)g_stMDomainInputData.usHTotal * PDATA_WORD(2))) >> 4;
+ 393   2              PDATA_WORD(4) = 0x0000;
+ 394   2      
+ 395   2              pData[10] = ulIVStoDVSPixels - ((DWORD)g_stMDomainInputData.usHTotal * PDATA_WORD(2)) - (PDATA_WOR
+             -D(3) << 4);
+ 396   2              pData[11] = 0x00;
+ 397   2      
+ 398   2              //-------------------------------------------------
+ 399   2              // Apply updated Delay
+ 400   2              //-------------------------------------------------
+ 401   2              // IVS2DVS line delay, unit: line
+ 402   2              ScalerSetByte(P0_3E_IVS2DVS_DLY_LINE_H, (pData[4] & 0x1F));
+ 403   2              ScalerSetByte(P0_40_IVS2DVS_DLY_LINE_L, pData[5]);
+ 404   2      
+ 405   2              // IVS2DVS 16iclk1 delay, unit: 16 pixel
+ 406   2              PDATA_WORD(3) -= (PDATA_WORD(3) >= 1) ? 1 : 0;
+ 407   2              SET_IVS2DVS_DELAY_16ICLK1(PDATA_WORD(3));
+ 408   2      
+ 409   2              // IVS2DVS 16iclk2 delay, unit: 16 pixel
+ 410   2              PDATA_WORD(4) -= (PDATA_WORD(4) >= 1) ? 1 : 0;
+ 411   2              SET_IVS2DVS_DELAY_16ICLK2(PDATA_WORD(4));
+ 412   2      
+ 413   2              // IVS2DVS iclk1 delay, unit: 1 pixel
+ 414   2              ScalerSetBit(P0_3D_IV_DV_DELAY_CLK_FINE, ~0xF0, ((pData[10] & 0x0F) << 4));
+ 415   2      
+ 416   2              // IVS2DVS iclk2 delay, unit: 1 pixel
+ 417   2              ScalerSetBit(P0_3D_IV_DV_DELAY_CLK_FINE, ~0x0F, (pData[11] & 0x0F));
+ 418   2          }
+ 419   1          else
+ 420   1          {
+ 421   2              ScalerMemorySetIVS2DVSLineDelay((ulIVStoDVSPixels / g_stMDomainInputData.usHTotal));
+ 422   2      
+ 423   2              // Set Frame Sync Mode Delay Fine Tune = 0
+ 424   2              SET_IVS2DVS_DELAY_16ICLK1(0x0000);
+ 425   2              SET_IVS2DVS_DELAY_16ICLK2(0x0000);
+ 426   2      
+ 427   2              // IVS2DVS iclk1 delay, unit: 1 pixel
+ 428   2              ScalerSetBit(P0_3D_IV_DV_DELAY_CLK_FINE, ~0xF0, 0x00);
+ 429   2      
+ 430   2              // IVS2DVS iclk2 delay, unit: 1 pixel
+ 431   2              ScalerSetBit(P0_3D_IV_DV_DELAY_CLK_FINE, ~0x0F, 0x00);
+ 432   2          }
+ 433   1      
+ 434   1      #if(_ASPECT_RATIO_WITHOUT_MUTE == _ON)
+                  SET_MDOMAIN_OUTPUT_VSTART(usVstbk);
+                  SET_MDOMAIN_OUTPUT_VHEIGHT(usVHeightbk);
+                  SET_MDOMAIN_OUTPUT_VBHEIGHT(usVBHeightbk);
+              #endif
+ 439   1      }
+ 440          
+ 441          #if((_FRC_MEMORY_2_FRAME_SUPPORT == _ON) && (_ONE_FRAME_FRC_SUPPORT == _ON))
+ 442          //--------------------------------------------------
+ 443          // Description  : FRC 2 Frame Buffer Case
+ 444          // Input Value  : N.A.
+ 445          // Output Value : _TRUE: 2 Frame Buffer
+ 446          //--------------------------------------------------
+ 447          bit ScalerFRCCheckDoubleFrameBuffer(WORD usInputHWidth, WORD usInputVHeight)
+ 448          {
+ 449   1          WORD usDHF = ((DWORD)GET_D_CLK_FREQ() * 10 / g_stMDomainOutputData.usHTotal); // unit: 0.1ms
+ 450   1          WORD usPreReadLine = ScalerFRCCalculatePreReadLine(usInputVHeight);
+ 451   1      
+ 452   1          // Consider Double Frame Size
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 9   
+
+ 453   1          if(_MEMORY_ROW > ((DWORD)usInputHWidth * GET_MEMORY_DATA_BIT() / _MEMORY_BIT_NUM * usInputVHeight * 2 
+             -/ _MEMORY_COL_PER_BANK / _MEMORY_BANK))
+ 454   1          {
+ 455   2              return _TRUE;
+ 456   2          }
+ 457   1          else
+ 458   1          {
+ 459   2              // the number that multiple by 10 or 100 below is to get the digit after decimal point
+ 460   2              PDATA_WORD(0) = (DWORD)(usPreReadLine + g_stMDomainOutputData.usVHeight) * 100 / usDHF;
+ 461   2              PDATA_WORD(1) = (DWORD)g_stMDomainInputData.usVHeight * 100 / g_stMDomainInputData.usHFreq;
+ 462   2      
+ 463   2              // get the ratio of ((dden/dhf) / (iden/ihf)) or ((iden/ihf) / (dden/dhf))
+ 464   2              if(PDATA_WORD(0) > PDATA_WORD(1))
+ 465   2              {
+ 466   3                  PDATA_WORD(0) = PDATA_WORD(0) * 10 / PDATA_WORD(1);
+ 467   3              }
+ 468   2              else
+ 469   2              {
+ 470   3                  PDATA_WORD(0) = PDATA_WORD(1) * 10 / PDATA_WORD(0);
+ 471   3              }
+ 472   2      
+ 473   2              // 11 & 18 are from experiment
+ 474   2              // >18 or <11 are not suitable for one frame frc, force to double frame
+ 475   2              if((PDATA_WORD(0) < 11) || (PDATA_WORD(0) > 18))
+ 476   2              {
+ 477   3                  return _TRUE;
+ 478   3              }
+ 479   2          }
+ 480   1      
+ 481   1          return _FALSE;
+ 482   1      }
+ 483          #endif
+ 484          
+ 485          //--------------------------------------------------
+ 486          // Description  : Calculate IVS2DVS delay margin
+ 487          // Input Value  : N.A.
+ 488          // Output Value : IVS2DVS delay margin
+ 489          //--------------------------------------------------
+ 490          BYTE ScalerFRCIVS2DVSDelayMargin(void)
+ 491          {
+ 492   1      #if(_FREESYNC_SUPPORT == _ON)
+ 493   1          if(GET_FREESYNC_ENABLED() == _TRUE)
+ 494   1          {
+ 495   2              // Margin need to consider Fifo margin, line buffer margin and setting margin
+ 496   2              // Fifo margin: FIFO size/ format/ IHwidth * 2
+ 497   2              pData[0] = ((DWORD)_M_DOMAMAIN_FIFO_BIT / GET_MEMORY_DATA_BIT() / g_stMDomainInputData.usHWidth);
+ 498   2              pData[0] += ((((DWORD)_M_DOMAMAIN_FIFO_BIT / GET_MEMORY_DATA_BIT() % g_stMDomainInputData.usHWidth
+             -) != 0x00) ? 1 : 0);
+ 499   2      
+ 500   2              pData[0] += (_FRC_IVS2DVSDELAY_LINE_BUFFER_MARGIN + _FRC_IVS2DVSDELAY_MARGIN_FREESYNC);
+ 501   2          }
+ 502   1          else
+ 503   1      #endif
+ 504   1          {
+ 505   2              pData[0] = _FRC_IVS2DVSDELAY_MARGIN;
+ 506   2          }
+ 507   1      
+ 508   1          return pData[0];
+ 509   1      }
+ 510          
+ 511          #if(_FRC_HW_AUTO_3BLOCK_TOGGLE_SUPPORT == _ON)
+ 512          //--------------------------------------------------
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 10  
+
+ 513          // Description  : Set display adderss for auto block toggle
+ 514          // Input Value  : ulBlockStep --> block step(single frame input and display)
+ 515          // Output Value : None
+ 516          //--------------------------------------------------
+ 517          void ScalerFRCSetDisplayAutoBlkToggle(void)
+ 518          {
+ 519   1          // 1st Read Address
+ 520   1          PDATA_DWORD(0) = (((DWORD)_FRC_R_1ST_BLOCK_STA_ADDR_H << 16) | ((DWORD)_FRC_R_1ST_BLOCK_STA_ADDR_M << 
+             -8) | 0x00);
+ 521   1      
+ 522   1      #if((_MEMORY_TYPE_CONFIG == _MEMORY_SDRAM) || (_MEMORY_TYPE_CONFIG == _MEMORY_DDR1))
+ 523   1          // Column = 256 :
+ 524   1          // Capture Column [9:0] --> 1'b0, Col[8:0]
+ 525   1          // Display Column [8:0]
+ 526   1          PDATA_DWORD(0) = (PDATA_DWORD(0) >> 1);
+ 527   1      #if(_MEMORY_BANK == 2)
+                  // Capture Bank [1:0] --> 1'b0, Bank[0]
+                  // Display Bank [0]
+                  PDATA_DWORD(0) = (PDATA_DWORD(0) >> 1);
+              #endif
+ 532   1      #endif
+ 533   1      
+ 534   1          ScalerSetBit(P5_C1_MN_MADDR_TOG_CTL, ~(_BIT3 | _BIT2), 0x00);
+ 535   1          ScalerSetByte(P5_C6_MN_READ_ADDR_H, pData[1]);
+ 536   1          ScalerSetByte(P5_C7_MN_READ_ADDR_M, pData[2]);
+ 537   1          ScalerSetByte(P5_C8_MN_READ_ADDR_L, pData[3]);
+ 538   1          DebugMessageFRC("-D addr1 FRC", PDATA_DWORD(0));
+ 539   1      
+ 540   1          // 2nd Read Address
+ 541   1          PDATA_DWORD(0) = (((DWORD)_FRC_R_2ND_BLOCK_STA_ADDR_H << 16) | ((DWORD)_FRC_R_2ND_BLOCK_STA_ADDR_M << 
+             -8) | 0x00);
+ 542   1      
+ 543   1      #if((_MEMORY_TYPE_CONFIG == _MEMORY_SDRAM) || (_MEMORY_TYPE_CONFIG == _MEMORY_DDR1))
+ 544   1          // Column = 256 :
+ 545   1          // Capture Column [9:0] --> 1'b0, Col[8:0]
+ 546   1          // Display Column [8:0]
+ 547   1          PDATA_DWORD(0) = (PDATA_DWORD(0) >> 1);
+ 548   1      #if(_MEMORY_BANK == 2)
+                  // Capture Bank [1:0] --> 1'b0, Bank[0]
+                  // Display Bank [0]
+                  PDATA_DWORD(0) = (PDATA_DWORD(0) >> 1);
+              #endif
+ 553   1      #endif
+ 554   1      
+ 555   1          ScalerSetBit(P5_C1_MN_MADDR_TOG_CTL, ~(_BIT3 | _BIT2), _BIT2);
+ 556   1          ScalerSetByte(P5_C6_MN_READ_ADDR_H, pData[1]);
+ 557   1          ScalerSetByte(P5_C7_MN_READ_ADDR_M, pData[2]);
+ 558   1          ScalerSetByte(P5_C8_MN_READ_ADDR_L, pData[3]);
+ 559   1          DebugMessageFRC("-D addr2 FRC", PDATA_DWORD(0));
+ 560   1      
+ 561   1          // 3rd Read Address
+ 562   1          PDATA_DWORD(0) = (((DWORD)_FRC_R_3RD_BLOCK_STA_ADDR_H << 16) | ((DWORD)_FRC_R_3RD_BLOCK_STA_ADDR_M << 
+             -8) | 0x00);
+ 563   1      
+ 564   1      #if((_MEMORY_TYPE_CONFIG == _MEMORY_SDRAM) || (_MEMORY_TYPE_CONFIG == _MEMORY_DDR1))
+ 565   1          // Column = 256 :
+ 566   1          // Capture Column [9:0] --> 1'b0, Col[8:0]
+ 567   1          // Display Column [8:0]
+ 568   1          PDATA_DWORD(0) = (PDATA_DWORD(0) >> 1);
+ 569   1      #if(_MEMORY_BANK == 2)
+                  // Capture Bank [1:0] --> 1'b0, Bank[0]
+                  // Display Bank [0]
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 11  
+
+                  PDATA_DWORD(0) = (PDATA_DWORD(0) >> 1);
+              #endif
+ 574   1      #endif
+ 575   1      
+ 576   1          ScalerSetBit(P5_C1_MN_MADDR_TOG_CTL, ~(_BIT3 | _BIT2), _BIT3);
+ 577   1          ScalerSetByte(P5_C6_MN_READ_ADDR_H, pData[1]);
+ 578   1          ScalerSetByte(P5_C7_MN_READ_ADDR_M, pData[2]);
+ 579   1          ScalerSetByte(P5_C8_MN_READ_ADDR_L, pData[3]);
+ 580   1          DebugMessageFRC("-D addr3 FRC", PDATA_DWORD(0));
+ 581   1      }
+ 582          
+ 583          //--------------------------------------------------
+ 584          // Description  : Set display adderss for auto block toggle
+ 585          // Input Value  : En: enable / disable
+ 586          // Output Value : None
+ 587          //--------------------------------------------------
+ 588          void ScalerFRCSetDisplayAutoBlkToggleEnable(bit bEn)
+ 589          {
+ 590   1          // Enable M:N HW auto toggle's double buffer
+ 591   1          ScalerSetBit(P5_BA_IN1_MADDR_TOG_CTL, ~_BIT5, _BIT5);
+ 592   1      
+ 593   1          if(bEn == _ENABLE)
+ 594   1          {
+ 595   2              // Input Hardware auto toggle address enable
+ 596   2              ScalerSetBit(P5_BA_IN1_MADDR_TOG_CTL, ~_BIT4, _BIT4);
+ 597   2      
+ 598   2              // Display Hardware auto toggle among address enable
+ 599   2              ScalerSetBit(P5_C1_MN_MADDR_TOG_CTL, ~_BIT4, _BIT4);
+ 600   2          }
+ 601   1          else
+ 602   1          {
+ 603   2              // Input Hardware auto toggle address disable
+ 604   2              ScalerSetBit(P5_BA_IN1_MADDR_TOG_CTL, ~_BIT4, 0x00);
+ 605   2      
+ 606   2              // Display Hardware auto toggle among address disable
+ 607   2              ScalerSetBit(P5_C1_MN_MADDR_TOG_CTL, ~_BIT4, 0x00);
+ 608   2          }
+ 609   1      
+ 610   1          // Hardware auto toggle M:N double buffer ready
+ 611   1          ScalerSetBit(P5_BA_IN1_MADDR_TOG_CTL, ~_BIT6, _BIT6);
+ 612   1      
+ 613   1          // Wait dobule buffer
+ 614   1          ScalerTimerPollingFlagProc(_M_N_AUTO_BLK_TOGGLE_STABLE_TIME, P5_BA_IN1_MADDR_TOG_CTL, _BIT6, 0);
+ 615   1      }
+ 616          
+ 617          //--------------------------------------------------
+ 618          // Description  : Set auto block toggle
+ 619          // Input Value  : None
+ 620          // Output Value : None
+ 621          //--------------------------------------------------
+ 622          void ScalerFRCSetHWAutoBlockToggle(void)
+ 623          {
+ 624   1          BYTE ucM = 1;
+ 625   1          BYTE ucN = 1;
+ 626   1      
+ 627   1          PDATA_WORD(0) = ScalerMemoryGetMNRatio();
+ 628   1      
+ 629   1          ucM = (PDATA_WORD(0) >> 8) & 0xFF;
+ 630   1          ucN = PDATA_WORD(0) & 0xFF;
+ 631   1      
+ 632   1          // IVS to DVS shift value for hardware auto toggle among three initial read address
+ 633   1          // Set Shift = 2 _3_IVF, _2_5_IVF
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 12  
+
+ 634   1          ScalerSetBit(P5_CB_MN_BLOCK_STEP_H, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), 2 << 4);
+ 635   1      
+ 636   1          // Multiple of hardware auto toggle among three initial read address, it is (N/M - 1)
+ 637   1          PDATA_WORD(0) = ucN / ucM - 1;
+ 638   1      
+ 639   1          ScalerSetBit(P5_BE_MN_PXL_NUM_H, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), (PDATA_WORD(0) << 4));
+ 640   1      
+ 641   1          // Remain of hardware auto toggle among three initial read address, and it is (N%M)/N * 2^10.(11bit in
+             - total)
+ 642   1          PDATA_WORD(0) = ((ucN % ucM) << 10) / ucN;
+ 643   1          PDATA_WORD(0) += 1;
+ 644   1      
+ 645   1          ScalerSetBit(P5_C1_MN_MADDR_TOG_CTL, ~(_BIT7 | _BIT6 | _BIT5), ((pData[0] << 5) & 0xFF));
+ 646   1          ScalerSetByte(P5_EB_MN_MADDR_TOG_REM, (pData[1] & 0xFF));
+ 647   1      }
+ 648          
+ 649          //--------------------------------------------------
+ 650          // Description  : Set Input adderss for auto block toggle
+ 651          // Input Value  : ulBlockStep --> block step(single frame input and display)
+ 652          // Output Value : None
+ 653          //--------------------------------------------------
+ 654          void ScalerFRCSetInputAutoBlkToggle(void)
+ 655          {
+ 656   1          // 1st write address
+ 657   1          PDATA_DWORD(0) = ((DWORD)_FRC_R_2ND_BLOCK_STA_ADDR_H << 16) + ((DWORD)_FRC_R_2ND_BLOCK_STA_ADDR_M << 8
+             -);
+ 658   1      
+ 659   1          ScalerSetBit(P5_BA_IN1_MADDR_TOG_CTL, ~(_BIT3 | _BIT2), 0x00);
+ 660   1          ScalerSetByte(P5_AD_IN1_MEM_ADDR_H, pData[1]);
+ 661   1          ScalerSetByte(P5_AE_IN1_MEM_ADDR_M, pData[2]);
+ 662   1          ScalerSetByte(P5_AF_IN1_MEM_ADDR_L, pData[3]);
+ 663   1          DebugMessageFRC("-I_addr1 FRC", PDATA_DWORD(0));
+ 664   1      
+ 665   1          // 2nd write address
+ 666   1          PDATA_DWORD(0) = ((DWORD)_FRC_R_3RD_BLOCK_STA_ADDR_H << 16) + ((DWORD)_FRC_R_3RD_BLOCK_STA_ADDR_M << 8
+             -);
+ 667   1      
+ 668   1          ScalerSetBit(P5_BA_IN1_MADDR_TOG_CTL, ~(_BIT3 | _BIT2), _BIT2);
+ 669   1          ScalerSetByte(P5_AD_IN1_MEM_ADDR_H, pData[1]);
+ 670   1          ScalerSetByte(P5_AE_IN1_MEM_ADDR_M, pData[2]);
+ 671   1          ScalerSetByte(P5_AF_IN1_MEM_ADDR_L, pData[3]);
+ 672   1          DebugMessageFRC("-I_addr2 FRC", PDATA_DWORD(0));
+ 673   1      
+ 674   1          // 3rd write address
+ 675   1          PDATA_DWORD(0) = ((DWORD)_FRC_R_1ST_BLOCK_STA_ADDR_H << 16) + ((DWORD)_FRC_R_1ST_BLOCK_STA_ADDR_M << 8
+             -);
+ 676   1      
+ 677   1          ScalerSetBit(P5_BA_IN1_MADDR_TOG_CTL, ~(_BIT3 | _BIT2), _BIT3);
+ 678   1          ScalerSetByte(P5_AD_IN1_MEM_ADDR_H, pData[1]);
+ 679   1          ScalerSetByte(P5_AE_IN1_MEM_ADDR_M, pData[2]);
+ 680   1          ScalerSetByte(P5_AF_IN1_MEM_ADDR_L, pData[3]);
+ 681   1          DebugMessageFRC("-I_addr3 FRC", PDATA_DWORD(0));
+ 682   1      }
+ 683          #endif // End of #if(_FRC_HW_AUTO_3BLOCK_TOGGLE_SUPPORT == _ON)
+ 684          
+ 685          #if(_ASPECT_RATIO_WITHOUT_MUTE == _ON)
+              //--------------------------------------------------
+              // Description  : Set Dvst, Dvheight when aspect ratio wothout mute
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFRCSetAspectRatioDDomain(void)
+C51 COMPILER V9.60.0.0   SCALERFRC                                                         09/09/2025 18:03:17 PAGE 13  
+
+              {
+                  WORD usAspNewDVst = 0;
+                  if(GET_ASPECT_RATIO_MIN_DVH() != 0)
+                  {
+                      if(GET_MDOMAIN_OUTPUT_VHEIGHT() > GET_ASPECT_RATIO_MIN_DVH())
+                      {
+                          usAspNewDVst = GET_MDOMAIN_OUTPUT_VHEIGHT() - GET_ASPECT_RATIO_MIN_DVH();
+                          usAspNewDVst &= 0xFFFC;
+                          usAspNewDVst = GET_MDOMAIN_OUTPUT_VSTART() + (usAspNewDVst / 2);
+                      }
+                      else
+                      {
+                          usAspNewDVst = GET_ASPECT_RATIO_MIN_DVH() - GET_MDOMAIN_OUTPUT_VHEIGHT();
+                          usAspNewDVst &= 0xFFFC;
+                          usAspNewDVst = GET_MDOMAIN_OUTPUT_VSTART() - (usAspNewDVst / 2);
+                      }
+              
+                      SET_MDOMAIN_OUTPUT_VSTART(usAspNewDVst);
+                      SET_MDOMAIN_OUTPUT_VHEIGHT(GET_ASPECT_RATIO_MIN_DVH());
+                      SET_MDOMAIN_OUTPUT_VBHEIGHT(GET_ASPECT_RATIO_MIN_DVH());
+                  }
+              }
+              #endif
+ 715          #endif // End of #if(_FRC_SUPPORT == _ON)
+ 716          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3197    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      27
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

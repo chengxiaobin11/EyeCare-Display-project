@@ -1,0 +1,128 @@
+/********************************************************************************/
+/*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+/*                                                                              */
+/*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+/*                                                                              */
+/*   This software component is confidential and proprietary to Realtek         */
+/*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+/*   or in part, of this work and its derivatives without express permission    */
+/*   is prohibited.                                                             */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : RL6410_Series_ColorUltraVividEnable.c
+// Update Note  :
+//----------------------------------------------------------------------------------------------------
+#include "RL6410_Series_ColorLibInternalInclude.h"
+
+//****************************************************************************
+// DEFINITIONS / MACROS
+//****************************************************************************
+
+
+//****************************************************************************
+// STRUCT / TYPE / ENUM DEFINITTIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// CODE TABLES
+//****************************************************************************
+
+
+//****************************************************************************
+// VARIABLE DECLARATIONS
+//****************************************************************************
+
+
+//****************************************************************************
+// FUNCTION DECLARATIONS
+//****************************************************************************
+void ScalerColorUltraVividEnable(EnumFunctionOnOFF enumFunctionOnOff, EnumDBApply enumDBApply);
+
+//****************************************************************************
+// FUNCTION DEFINITIONS
+//****************************************************************************
+//--------------------------------------------------
+// Description  : Enable / Disable / Clock Gated UltraVivid Function
+// Input Value  : enumFunctionOnOff -> _ENABLE or _DISABLE or _CLCOK_GATED
+// Output Value : None
+//--------------------------------------------------
+void ScalerColorUltraVividEnable(EnumFunctionOnOFF enumFunctionOnOff, EnumDBApply enumDBApply)
+{
+    if(enumFunctionOnOff == _FUNCTION_ON)
+    {
+        // Disable UltraVivid Clock Gated
+        ScalerSetBit(P0_1F_M1_ICLK_GATED_CTRL1, ~_BIT6, _BIT6);
+        ScalerSetBit(P40_1F_M2_ICLK_GATED_CTRL1, ~_BIT6, _BIT6);
+
+        ScalerSetBit(P1_DB_DCLK_GATED_CTRL1, ~_BIT7, _BIT7);
+
+        ScalerSetBit(P1_DB_DCLK_GATED_CTRL1, ~_BIT6, _BIT6);
+
+        // Enable UltraVivid Function
+        // ScalerSetBit(P11_A1_I_DLTI_CTRL_M1, ~_BIT0, _BIT0);
+
+        ScalerSetBit(P14_C0_LSR_CTRL, ~_BIT7, _BIT7);
+
+        ScalerSetBit(P12_A0_SR_SHP_CTRL_0, ~_BIT7, _BIT7);
+
+        // Bypass DSHP
+        ScalerSetBit(P12_A0_SR_SHP_CTRL_0, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), _BIT7);
+        ScalerSetBit(P12_A1_SR_SHP_CTRL_1, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+
+        // Wait for Double Buffer
+        ScalerGlobalIDDomainDBApply(enumDBApply);
+    }
+    else if(enumFunctionOnOff == _FUNCTION_OFF)
+    {
+        // Disable UltraVivid Clock Gated
+        ScalerSetBit(P0_1F_M1_ICLK_GATED_CTRL1, ~_BIT6, _BIT6);
+        ScalerSetBit(P40_1F_M2_ICLK_GATED_CTRL1, ~_BIT6, _BIT6);
+
+        ScalerSetBit(P1_DB_DCLK_GATED_CTRL1, ~_BIT7, _BIT7);
+
+        ScalerSetBit(P1_DB_DCLK_GATED_CTRL1, ~_BIT6, _BIT6);
+
+        // Disable UltraVivid Function
+        ScalerSetBit(P11_A1_I_DLTI_CTRL_M1, ~_BIT0, 0x00);
+
+        ScalerSetBit(P14_C0_LSR_CTRL, ~_BIT7, 0x00);
+
+        // Bypass DSHP
+        ScalerSetBit(P12_A0_SR_SHP_CTRL_0, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), _BIT7);
+        ScalerSetBit(P12_A1_SR_SHP_CTRL_1, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+
+        // Wait for Double Buffer
+        ScalerGlobalIDDomainDBApply(enumDBApply);
+    }
+    else
+    {
+        // Disable UltraVivid Clock Gated
+        ScalerSetBit(P0_1F_M1_ICLK_GATED_CTRL1, ~_BIT6, _BIT6);
+        ScalerSetBit(P40_1F_M2_ICLK_GATED_CTRL1, ~_BIT6, _BIT6);
+
+        ScalerSetBit(P1_DB_DCLK_GATED_CTRL1, ~_BIT7, _BIT7);
+
+        ScalerSetBit(P1_DB_DCLK_GATED_CTRL1, ~_BIT6, _BIT6);
+
+        // Disable UltraVivid Function
+        ScalerSetBit(P11_A1_I_DLTI_CTRL_M1, ~_BIT0, 0x00);
+
+        ScalerSetBit(P14_C0_LSR_CTRL, ~_BIT7, 0x00);
+
+        ScalerSetBit(P12_A0_SR_SHP_CTRL_0, ~_BIT7, 0x00);
+
+        // Wait for Double Buffer
+        ScalerGlobalIDDomainDBApply(_DB_APPLY_POLLING);
+
+        // Enable IDLTI Clock Gated
+        ScalerSetBit(P0_1F_M1_ICLK_GATED_CTRL1, ~_BIT6, 0x00);
+        ScalerSetBit(P40_1F_M2_ICLK_GATED_CTRL1, ~_BIT6, 0x00);
+
+        // Enable LSR & D-SHP Clock Gated
+        ScalerSetBit(P1_DB_DCLK_GATED_CTRL1, ~_BIT7, 0x00);
+
+        ScalerSetBit(P1_DB_DCLK_GATED_CTRL1, ~_BIT6, 0x00);
+    }
+}

@@ -1,0 +1,216 @@
+C51 COMPILER V8.12   RL6463_SERIES_SYNC                                                    03/10/2025 13:50:49 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_SYNC
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_Sync.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_Sync.c LARGE O
+                    -PTIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\S
+                    -ystem\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFun
+                    -ction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Sc
+                    -aler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\Use
+                    -r\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneO
+                    -sd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PR
+                    -INT(.\Output\RL6463\RL6463_Series_Sync.lst) OBJECT(.\Output\RL6463\RL6463_Series_Sync.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_Sync.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RL6463_SERIES_SYNC__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          #if(_DIGITAL_PORT_SUPPORT == _ON)
+  25          BYTE idata g_pucHdcpBksvBackup[5];
+  26          #endif
+  27          
+  28          //****************************************************************************
+  29          // STRUCT / TYPE / ENUM DEFINITTIONS
+  30          //****************************************************************************
+  31          
+  32          //****************************************************************************
+  33          // CODE TABLES
+  34          //****************************************************************************
+  35          
+  36          //****************************************************************************
+  37          // VARIABLE DECLARATIONS
+  38          //****************************************************************************
+  39          
+  40          //****************************************************************************
+  41          // FUNCTION DECLARATIONS
+  42          //****************************************************************************
+  43          WORD ScalerSyncGetInputPixelClk(void);
+  44          
+  45          #if(_DIGITAL_PORT_SUPPORT == _ON)
+  46          void ScalerSyncHdcpEnableDownLoadKey(bit bEnable);
+  47          void ScalerSyncHdcpDownLoadBKsv(BYTE ucSubAddr, BYTE ucLength, BYTE *pucReadArray);
+  48          void ScalerSyncHdcpDownLoadKey(WORD usLength, BYTE *pucReadArray);
+C51 COMPILER V8.12   RL6463_SERIES_SYNC                                                    03/10/2025 13:50:49 PAGE 2   
+
+  49          #endif
+  50          
+  51          #if(_FREESYNC_SUPPORT == _ON)
+  52          void ScalerSyncFREESYNCTestPinEnable(void);
+  53          #endif
+  54          
+  55          //****************************************************************************
+  56          // FUNCTION DEFINITIONS
+  57          //****************************************************************************
+  58          //--------------------------------------------------
+  59          // Description  : Let Upper Layer Get I-domain Pixel Clk
+  60          // Input Value  : None
+  61          // Output Value : Input Pixel Clk (in 0.1MHz)
+  62          //--------------------------------------------------
+  63          WORD ScalerSyncGetInputPixelClk(void)
+  64          {
+  65   1          return GET_INPUT_PIXEL_CLK();
+  66   1      }
+  67          
+  68          #if(_DIGITAL_PORT_SUPPORT == _ON)
+  69          //--------------------------------------------------
+  70          // Description  : Enable/Disable DownLoad HDCP Key
+  71          // Input Value  : None
+  72          // Output Value : None
+  73          //--------------------------------------------------
+  74          void ScalerSyncHdcpEnableDownLoadKey(bit bEnable)
+  75          {
+  76   1          if(bEnable == _ENABLE)
+  77   1          {
+  78   2              // Disable HDMI Repeater Function
+  79   2              ScalerSetDataPortBit(P2_C3_HDCP_AP, _P2_C4_PT_40_PORT_PAGE2_BCAPS, ~_BIT6, 0x00);
+  80   2      
+  81   2              // Suspend Key Calculation before load key
+  82   2              ScalerSetBit(P2_AE_TMDS_RPS, ~(_BIT1 | _BIT0), _BIT0);
+  83   2      
+  84   2              // Manual Select Key SRAM Access Right
+  85   2              ScalerSetBit(P2_A9_TMDS_ABC0, ~_BIT4, 0x00);
+  86   2      
+  87   2              // Switch MAC to Hdmi
+  88   2              ScalerSetBit(PB_00_HD_DP_SEL, ~_BIT0, _BIT0);
+  89   2      
+  90   2              // Enable HDCP Block, and Key download port
+  91   2              ScalerSetBit(P2_C0_HDCP_CR, ~(_BIT7 | _BIT1 | _BIT0), (_BIT7 | _BIT1 | _BIT0));
+  92   2      
+  93   2              // Set Km Clock to EMCU Clock
+  94   2              ScalerSetBit(P2_AC_TMDS_Z0CC2, ~_BIT4, 0x00);
+  95   2      
+  96   2              // Disable HDCP Module Clock Gating
+  97   2              ScalerSetBit(P2_C2_HDCP_PCR, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+  98   2          }
+  99   1          else if(bEnable == _DISABLE)
+ 100   1          {
+ 101   2              // Disable Key download port
+ 102   2              ScalerSetBit(P2_C0_HDCP_CR, ~_BIT1, 0x00);
+ 103   2      
+ 104   2              // New Cipher Mode
+ 105   2              ScalerSetBit(P2_C0_HDCP_CR, ~_BIT7, _BIT7);
+ 106   2      
+ 107   2              // Auto Select Key SRAM Access Right
+ 108   2              ScalerSetBit(P2_A9_TMDS_ABC0, ~_BIT4, _BIT4);
+ 109   2      
+ 110   2              // For Chroma HDCP1.4 20k IIC r0 issue
+C51 COMPILER V8.12   RL6463_SERIES_SYNC                                                    03/10/2025 13:50:49 PAGE 3   
+
+ 111   2              // Clear only AKSV IRQ Flag
+ 112   2              ScalerSetBit(P2_A9_TMDS_ABC0, ~(_BIT7 | _BIT6 | _BIT5 | _BIT2), (_BIT7));
+ 113   2      
+ 114   2              // Internal IRQ Enable (Global)
+ 115   2              ScalerGlobalIRQControl(_ENABLE);
+ 116   2      
+ 117   2              // Enable HDCP 1.4 AKSV IRQ
+ 118   2              ScalerSetBit(P2_AA_TMDS_ABC1, ~(_BIT4), _BIT4);
+ 119   2      
+ 120   2              EX0 = 1;
+ 121   2          }
+ 122   1      }
+ 123          
+ 124          //--------------------------------------------------
+ 125          // Description  : DownLoad HDCP BKsv
+ 126          // Input Value  : None
+ 127          // Output Value : None
+ 128          //--------------------------------------------------
+ 129          void ScalerSyncHdcpDownLoadBKsv(BYTE ucSubAddr, BYTE ucLength, BYTE *pucReadArray)
+ 130          {
+ 131   1          for(pData[0] = ucSubAddr; pData[0] < ucLength; pData[0]++)
+ 132   1          {
+ 133   2      #if((_DVI_SUPPORT == _ON) || (_HDMI_SUPPORT == _ON))
+ 134   2              ScalerSetDataPortByte(P2_C3_HDCP_AP, pData[0], pucReadArray[pData[0]]);
+ 135   2      #endif
+ 136   2      
+ 137   2      #if(_DP_SUPPORT == _ON)
+                      ScalerDpRx0SetDpcdValue(0x06, 0x80, (0x00 | pData[0]), pucReadArray[pData[0]]);
+              
+                      // Enable DP Link Integrity Enable
+                      ScalerSetBit(PB_1B_HDCP_INTGT_VRF, ~_BIT7, _BIT7);
+              #endif
+ 143   2              g_pucHdcpBksvBackup[pData[0]] = pucReadArray[pData[0]];
+ 144   2          }
+ 145   1      
+ 146   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[0]);
+ 147   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[1]);
+ 148   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[2]);
+ 149   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[3]);
+ 150   1          DebugMessageDigital("8. HDCP Bksv Backup", g_pucHdcpBksvBackup[4]);
+ 151   1      }
+ 152          
+ 153          //--------------------------------------------------
+ 154          // Description  : DownLoad HDCP Key
+ 155          // Input Value  : None
+ 156          // Output Value : None
+ 157          //--------------------------------------------------
+ 158          void ScalerSyncHdcpDownLoadKey(WORD usLength, BYTE *pucReadArray)
+ 159          {
+ 160   1          ScalerWrite(P2_C1_HDCP_DKAP, usLength, pucReadArray, _NON_AUTOINC);
+ 161   1      }
+ 162          #endif // End of #if(_DIGITAL_PORT_SUPPORT == _ON)
+ 163          
+ 164          #if(_FREESYNC_SUPPORT == _ON)
+ 165          //--------------------------------------------------
+ 166          // Description  : Enable Freesync Test Pin
+ 167          // Input Value  : None
+ 168          // Output Value : None
+ 169          //--------------------------------------------------
+ 170          void ScalerSyncFREESYNCTestPinEnable(void)
+ 171          {
+ 172   1          // Set DVS test pin (TestOut0) and DHS test pin (TestOut1)
+C51 COMPILER V8.12   RL6463_SERIES_SYNC                                                    03/10/2025 13:50:49 PAGE 4   
+
+ 173   1          ScalerSetDataPortByte(P0_2A_DISPLAY_FORMAT_ADDR_PORT, _P0_2B_PT_48_D_DOMAIN_TESTOUT, 0x0A);
+ 174   1          ScalerSetDataPortByte(P0_8D_TEST_MODE_PORT_ADDR, _P0_8E_PT_00_TEST_MODE, 0x0A);
+ 175   1          ScalerSetDataPortByte(P0_8D_TEST_MODE_PORT_ADDR, _P0_8E_PT_01_TEST_MODE_CTRL, 0x81);
+ 176   1          ScalerSetDataPortByte(P0_8D_TEST_MODE_PORT_ADDR, _P0_8E_PT_20_TESTOUT_SEL0, 0x5B);
+ 177   1          ScalerSetDataPortByte(P0_8D_TEST_MODE_PORT_ADDR, _P0_8E_PT_21_TESTOUT_SEL1, 0x5A);
+ 178   1      }
+ 179          #endif
+ 180          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    271    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =      5    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

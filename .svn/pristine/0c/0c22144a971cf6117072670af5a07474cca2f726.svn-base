@@ -1,0 +1,104 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORPCMINPUTGAMMAADJUST                                03/11/2025 19:56:08 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORPCMINPUTGAMMAADJUST
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorPCMInputGammaAdjust.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorPCMInputGammaAdjust.c LARGE OPT
+                    -IMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\
+                    -..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_
+                    -Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6
+                    -449_Series_ColorPCMInputGammaAdjust.lst) OBJECT(.\Output\RL6449_Series_ColorPCMInputGammaAdjust.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorPCMInputGammaAdjust.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          #define _PCM_INPUTGAMMA_TABLE_SIZE              195
+  22          
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          
+  38          
+  39          //****************************************************************************
+  40          // FUNCTION DECLARATIONS
+  41          //****************************************************************************
+  42          void ScalerColorPCMInputGammaAdjust(BYTE *pucGammaTableArray, BYTE ucBankNum);
+  43          
+  44          
+  45          //****************************************************************************
+  46          // FUNCTION DEFINITIONS
+  47          //****************************************************************************
+  48          
+  49          //--------------------------------------------------
+  50          // Description  : Adjust Input gamma
+  51          // Input Value  : IG Gamma Table Bank and IG Gamma table and Table Length
+C51 COMPILER V8.12   RL6449_SERIES_COLORPCMINPUTGAMMAADJUST                                03/11/2025 19:56:08 PAGE 2   
+
+  52          // Output Value : None
+  53          //--------------------------------------------------
+  54          void ScalerColorPCMInputGammaAdjust(BYTE *pucGammaTableArray, BYTE ucBankNum)
+  55          {
+  56   1          // Set Input Gamma to Old Mode (One Channel)
+  57   1          ScalerSetBit(P9_A1_INPUT_GAMMA_CTRL, ~_BIT0, 0x00);
+  58   1      
+  59   1          // Enable Input Gamma Port Access
+  60   1          ScalerSetBit(P9_A1_INPUT_GAMMA_CTRL, ~_BIT7, _BIT7);
+  61   1      
+  62   1          // Load Input Gamma Table
+  63   1          ScalerBurstWrite(pucGammaTableArray, _PCM_INPUTGAMMA_TABLE_SIZE, ucBankNum, P9_A0_INPUT_GAMMA_PORT, _B
+             -URSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  64   1      
+  65   1          // Load Threshold
+  66   1          ScalerBurstWrite(pucGammaTableArray + _PCM_INPUTGAMMA_TABLE_SIZE, 1, ucBankNum, P9_A2_INPUT_GAMMA_LOW_
+             -THRE, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  67   1          ScalerBurstWrite(pucGammaTableArray + _PCM_INPUTGAMMA_TABLE_SIZE + 1, 1, ucBankNum, P9_A3_INPUT_GAMMA_
+             -HIGH_THRE, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  68   1      
+  69   1          // Disable Input Gamma Port Access
+  70   1          ScalerSetBit(P9_A1_INPUT_GAMMA_CTRL, ~_BIT7, 0x00);
+  71   1      }
+  72          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    129    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

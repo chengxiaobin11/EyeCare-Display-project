@@ -1,0 +1,72 @@
+/********************************************************************************/
+/*   The  Software  is  proprietary,  confidential,  and  valuable to Realtek   */
+/*   Semiconductor  Corporation  ("Realtek").  All  rights, including but not   */
+/*   limited  to  copyrights,  patents,  trademarks, trade secrets, mask work   */
+/*   rights, and other similar rights and interests, are reserved to Realtek.   */
+/*   Without  prior  written  consent  from  Realtek,  copying, reproduction,   */
+/*   modification,  distribution,  or  otherwise  is strictly prohibited. The   */
+/*   Software  shall  be  kept  strictly  in  confidence,  and  shall  not be   */
+/*   disclosed to or otherwise accessed by any third party.                     */
+/*   c<2003> - <2012>                                                           */
+/*   The Software is provided "AS IS" without any warranty of any kind,         */
+/*   express, implied, statutory or otherwise.                                  */
+/********************************************************************************/
+
+//----------------------------------------------------------------------------------------------------
+// ID Code      : DccMode5.h No.0000
+// Update Note  :
+//
+//----------------------------------------------------------------------------------------------------
+
+//****************************************************************************
+// DCC MODE
+//****************************************************************************
+#if(_DCC_TABLE_TYPE == _DCC_GEN_0)
+
+_DCC_CONTROL,
+0x71,
+_DCC_TABLE,
+// control
+0x04, 0x44, 0x03,
+0xB4, 0xF8, 0x08,
+0x10, 0x0C, 0x18,
+// usercurve
+0x0B, 0x19, 0x27, 0x36, 
+0x46, 0x55, 0x65, 0x76, 
+0x86, 0x97, 0xA8, 0xBA, 
+0xCB, 0xDC, 0xEE, 0x00, 
+0x10, 0x00, 0x00,
+0x50, 0x14, 0x34, 0x22,
+_DCC_END,
+
+#elif(_DCC_TABLE_TYPE == _DCC_GEN_1)
+
+_DCC_CONTROL,
+0x71,
+_DCC_TABLE,
+// control
+0x04, 0x44, 0x03,
+0xB4, 0xF8, 0x08,
+0x10, 0x0C, 0x18,
+// control LSB 0x0017 ~ 0x001B
+0x00, 0x00, 0x00, 0x00, 0x00,
+// usercurve
+0x0B, 0x19, 0x27, 0x36, 
+0x46, 0x55, 0x65, 0x76, 
+0x86, 0x97, 0xA8, 0xBA, 
+0xCB, 0xDC, 0xEE, 0x00, 
+0x10, 0x00, 0x00,
+0x50, 0x14, 0x34, 0x22,
+// usercurve Add 0x011B ~ 0x0150
+0x05, 0x80, 0x00, 0x12, 0x00, 0x00,
+0x20, 0x00, 0x00, 0x2E, 0x80, 0x00,
+0x3E, 0x00, 0x00, 0x4D, 0x80, 0x00,
+0x5D, 0x00, 0x00, 0x6D, 0x80, 0x00,
+0x7E, 0x00, 0x00, 0x8E, 0x80, 0x00,
+0x9F, 0x80, 0x00, 0xB1, 0x00, 0x00,
+0xC2, 0x80, 0x00, 0xD3, 0x80, 0x00,
+0xE5, 0x00, 0x00, 0xF7, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+_DCC_END,
+
+#endif

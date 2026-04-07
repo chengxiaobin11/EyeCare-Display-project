@@ -1,0 +1,66 @@
+code BYTE *tOSD_TABLE_LANGUAGE_FONT_WIDTH[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_DUTH_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_CZECH_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_POLISH_TEXT)
+	tsFontWidth0,	
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_THAI_TEXT)
+	tsFontWidthThai,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	tsFontWidthVietnam,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	tsFontWidth0,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	tsFontWidthJapanese,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	tsFontWidthKorean,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	tsFontWidthChinese,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	tsFontWidthChinese,
+#endif
+
+};	//*tOSD_TABLE_LANGUAGE_FONT_WIDTH
+

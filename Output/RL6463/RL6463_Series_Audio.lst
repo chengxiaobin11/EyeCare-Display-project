@@ -1,0 +1,1038 @@
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_AUDIO
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_Audio.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_Audio.c LARGE 
+                    -OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\
+                    -System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFu
+                    -nction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\S
+                    -caler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\Us
+                    -er\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\None
+                    -Osd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND P
+                    -RINT(.\Output\RL6463\RL6463_Series_Audio.lst) OBJECT(.\Output\RL6463\RL6463_Series_Audio.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_Audio.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          #if(_AUDIO_SUPPORT == _ON)
+  20          
+  21          //****************************************************************************
+  22          // DEFINITIONS / MACROS
+  23          //****************************************************************************
+  24          
+  25          //****************************************************************************
+  26          // STRUCT / TYPE / ENUM DEFINITTIONS
+  27          //****************************************************************************
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          StructAudioDigitalInfo g_stAudioD0DigtalInfo;
+  37          StructAudioFreqParameter g_stAudioD0FreqParameter;
+  38          StructAudioDpCodingType g_stDpAudioD0CodingType;
+  39          
+  40          #if(_AUDIO_FW_TRACKING_MODE_SUPPORT == _ON)
+              StructAudioFwTrackingInfo g_stHDMID0AudioFwTrackingInfo;
+              #endif
+  43          
+  44          #if(_DP_SUPPORT == _ON)
+              StructAudioDpCapabilityInfo g_stAudioDpCapabilityInfo;
+              #endif // End of #if(_DP_SUPPORT == _ON)
+  47          
+  48          #if(_INTERNAL_AUDIO_TEST_SUPPORT == _ON)
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 2   
+
+              BYTE g_ucAudioGenInputPort;
+              #endif // End of #if(_INTERNAL_AUDIO_TEST_SUPPORT == _ON)
+  51          
+  52          
+  53          //****************************************************************************
+  54          // FUNCTION DECLARATIONS
+  55          //****************************************************************************
+  56          bit ScalerAudioGetAudioDetected(BYTE ucInputPort);
+  57          EnumAudioSamplingFreqPacket ScalerAudioSamplingFreqDetect(BYTE ucInputPort);
+  58          bit ScalerAudioSamplingFreqChange(void);
+  59          bit ScalerAudioLPCMCheckData(void);
+  60          bit ScalerAudioLPCMCheckChange(void);
+  61          void ScalerAudioLPCMDetectEnableProc(BYTE ucInputPort);
+  62          void ScalerAudioLPCMResetProc(BYTE ucInputPort);
+  63          void ScalerAudioWatchDogProc(bit bOn, BYTE ucInputPort);
+  64          void ScalerAudioHbrModeControl(bit bOn, BYTE ucInputPort);
+  65          EnumSourceSearchPort ScalerAudioGetDigitalAudioPortMapping(void);
+  66          
+  67          #if(_HDMI_SUPPORT == _ON)
+  68          void ScalerAudioHdmiI2sSpdifChannelOutputSelect(EnumAudioIisSpdifOutput enumAudioIisSpdifOutput, BYTE ucIn
+             -putPort);
+  69          bit ScalerAudioLPCMCheckInfo(void);
+  70          EnumSourceTypeDef ScalerAudioDigitalAudioSourceType(void);
+  71          #endif
+  72          
+  73          #if(_DP_SUPPORT == _ON)
+              void ScalerAudioDPDigitalOutputProc(bit bEnable, BYTE ucInputPort);
+              bit ScalerAudioDPGetMuteProc(BYTE ucInputPort);
+              void ScalerAudioDpAudioEnable(bit bEnable, BYTE ucInputPort);
+              void ScalerAudioDpAudioEnable_EXINT0(bit bEnable, BYTE ucInputPort);
+              bit ScalerAudioDpGetCapabilityChange(BYTE ucInputPort);
+              #if(_DP_DPCD_AUDIO_CAPABILITY_USER_CONTROL_SUPPORT == _ON)
+              void ScalerAudioDpSetCapabilityState(BYTE ucInputPort, EnumAudioDpDpcdSupport enumDpcdSupport);
+              #endif // End of #if(_DP_DPCD_AUDIO_CAPABILITY_USER_CONTROL_SUPPORT == _ON)
+              EnumAudioDpDpcdSupport ScalerAudioDpGetCapabilityState(BYTE ucInputPort);
+              #endif
+  84          
+  85          BYTE ScalerAudioGetDigitalAudioSource(BYTE ucInputPort);
+  86          
+  87          #if(_SLEEP_AUDIO_SUPPORT == _ON)
+              #if((_DP_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_AUDIO_INPUT == _PS_AUDIO_DP)))
+              #if(_EMBEDDED_DAC_SUPPORT == _ON)
+              bit ScalerAudioGetDpStandaloneAudioStatus(BYTE ucInputPort);
+              #endif // End of #if(_EMBEDDED_DAC_SUPPORT == _ON)
+              #endif
+              #endif
+  94          
+  95          #if(_LINE_IN_SUPPORT == _ON)
+  96          void ScalerAudioADCInitial(void);
+  97          #endif
+  98          
+  99          #if(_INTERNAL_AUDIO_TEST_SUPPORT == _ON)
+              void ScalerAudioInternalAudioGenSwitch(bit bOn, BYTE ucInputPort, EnumAudioLeftRightChannelSelect enumAudi
+             -oLeftRightChannelSelect);
+              bit ScalerAudioGetInternalAudioGenEnable(BYTE ucInputPort);
+              void ScalerAudioInternalAudioGenReset(BYTE ucInputPort);
+              void ScalerAudioSetInternalGenInputPort(BYTE ucInputPort);
+              BYTE ScalerAudioGetInternalGenInputPort(void);
+              #endif
+ 106          
+ 107          //****************************************************************************
+ 108          // FUNCTION DEFINITIONS
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 3   
+
+ 109          //****************************************************************************
+ 110          //--------------------------------------------------
+ 111          // Description  : Get Audio Detected
+ 112          // Input Value  : None
+ 113          // Output Value : TRUE => Audio Detected
+ 114          //--------------------------------------------------
+ 115          bit ScalerAudioGetAudioDetected(BYTE ucInputPort)
+ 116          {
+ 117   1          switch(ucInputPort)
+ 118   1          {
+ 119   2              case _D0_INPUT_PORT:
+ 120   2              case _D1_INPUT_PORT:
+ 121   2      
+ 122   2                  return ScalerAudioD0GetAudioDetected();
+ 123   2      
+ 124   2              default:
+ 125   2                  break;
+ 126   2          }
+ 127   1      
+ 128   1          return _FALSE;
+ 129   1      }
+ 130          
+ 131          //--------------------------------------------------
+ 132          // Description  : Detect Audio Sampling Freq
+ 133          // Input Value  : ucInputPort
+ 134          // Output Value : Audio Sampling Freq
+ 135          //--------------------------------------------------
+ 136          EnumAudioSamplingFreqPacket ScalerAudioSamplingFreqDetect(BYTE ucInputPort)
+ 137          {
+ 138   1          EnumAudioSamplingFreqType enumSamplingFreqType = _AUDIO_FREQ_NO_AUDIO;
+ 139   1      
+ 140   1          switch(ucInputPort)
+ 141   1          {
+ 142   2              case _D0_INPUT_PORT:
+ 143   2              case _D1_INPUT_PORT:
+ 144   2      
+ 145   2                  enumSamplingFreqType = ScalerAudioD0SamplingFreqDetect();
+ 146   2      
+ 147   2                  break;
+ 148   2      
+ 149   2              default:
+ 150   2                  break;
+ 151   2          }
+ 152   1      
+ 153   1          return ScalerAudioGetSamplingFreqPacket(enumSamplingFreqType);
+ 154   1      }
+ 155          
+ 156          //--------------------------------------------------
+ 157          // Description  : Check Audio Sampling Frequency Change or Not
+ 158          // Input Value  : None
+ 159          // Output Value : _TRUE => Change / _FALSE => Un-Change
+ 160          //--------------------------------------------------
+ 161          bit ScalerAudioSamplingFreqChange(void)
+ 162          {
+ 163   1          switch(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT))
+ 164   1          {
+ 165   2              case _D0_INPUT_PORT:
+ 166   2              case _D1_INPUT_PORT:
+ 167   2      
+ 168   2                  return ScalerAudioD0SamplingFreqChange();
+ 169   2      
+ 170   2                  break;
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 4   
+
+ 171   2      
+ 172   2              default:
+ 173   2                  break;
+ 174   2          }
+ 175   1      
+ 176   1          return _FALSE;
+ 177   1      }
+ 178          
+ 179          //--------------------------------------------------
+ 180          // Description  : Check Audio whether Audio LPCM By Audio Data
+ 181          // Input Value  : ucSourceType
+ 182          // Output Value : _TRUE => LPCM
+ 183          //--------------------------------------------------
+ 184          bit ScalerAudioLPCMCheckData(void)
+ 185          {
+ 186   1          switch(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT))
+ 187   1          {
+ 188   2              case _AUDIO_FROM_D0_PORT:
+ 189   2              case _AUDIO_FROM_D1_PORT:
+ 190   2      
+ 191   2                  if(GET_REG_D0_MAC_SWITCH_TO_HDMI() == _TRUE)
+ 192   2                  {
+ 193   3                      if(ScalerGetBit(P2_CB_HDMI_SR, _BIT4) == 0x00)
+ 194   3                      {
+ 195   4                          return _TRUE;
+ 196   4                      }
+ 197   3                      else
+ 198   3                      {
+ 199   4                          return _FALSE;
+ 200   4                      }
+ 201   3                  }
+ 202   2                  else
+ 203   2                  {
+ 204   3                      // Check Audio Packet
+ 205   3                      if(ScalerAudioD0GetAudioDetected() == _FALSE)
+ 206   3                      {
+ 207   4                          // Reset Coding Type Detect
+ 208   4                          SET_DP_D0_AUDIO_CODING_TYPE_FORMAT(_AUDIO_CODING_TYPE_NONE);
+ 209   4      
+ 210   4                          return _FALSE;
+ 211   4                      }
+ 212   3      
+ 213   3      
+ 214   3                      // Check First Time Check or Coding Type Change before Playback
+ 215   3                      if((GET_DP_D0_AUDIO_CODING_TYPE_FORMAT() == _AUDIO_CODING_TYPE_NONE) ||
+ 216   3                         ((ScalerGetBit(PB6_3B_DP_IRQ_CTRL1, _BIT0) == 0x00) && (ScalerGetBit(PB6_36_DP_GLB_STAT
+             -US, _BIT2) == _BIT2)))
+ 217   3                      {
+ 218   4                          // =================================
+ 219   4                          // Flag Reset
+ 220   4                          // =================================
+ 221   4      
+ 222   4                          // Disable Audio Coding Type Change INT
+ 223   4                          ScalerSetBit(PB6_3B_DP_IRQ_CTRL1, ~_BIT0, 0x00);
+ 224   4      
+ 225   4                          // Clear Audio Coding Type Change Flag
+ 226   4                          ScalerSetBit(PB6_36_DP_GLB_STATUS, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2 | _
+             -BIT1), _BIT2);
+ 227   4      
+ 228   4      
+ 229   4                          // =================================
+ 230   4                          // Detect Coding Type at First Time
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 5   
+
+ 231   4                          // =================================
+ 232   4      
+ 233   4                          DebugMessageAudio("[Audio] Rx0 Coding Type First Time Detect", 0);
+ 234   4      
+ 235   4      
+ 236   4                          // ---------------------------------
+ 237   4                          // Valid_Bit Detect at First
+ 238   4                          // ---------------------------------
+ 239   4      
+ 240   4                          // Set Audio Coding Type Source to Valid_Bit
+ 241   4                          ScalerSetBit(PB6_B0_DP_AUD_CTRL, ~_BIT5, _BIT5);
+ 242   4      
+ 243   4                          // Update Detect Result
+ 244   4                          if(ScalerGetBit(PB6_B0_DP_AUD_CTRL, _BIT4) == 0x00)
+ 245   4                          {
+ 246   5                              DebugMessageAudio("[Audio] Rx0 initial at LPCM via Valid_Bit", 0);
+ 247   5      
+ 248   5                              SET_DP_D0_AUDIO_CODING_TYPE_FORMAT(_AUDIO_LPCM);
+ 249   5                          }
+ 250   4                          else
+ 251   4                          {
+ 252   5                              WORD usDelayTime = 12;
+ 253   5                              EnumAudioSamplingFreqType enumAudioFreq = ScalerAudioD0SamplingFreqDetect();
+ 254   5                              EnumAudioSamplingFreqPacket enumAudioPacket = ScalerAudioGetSamplingFreqPacket(enu
+             -mAudioFreq);
+ 255   5      
+ 256   5                              // -----------------------------
+ 257   5                              // Channel Status Detect Flow
+ 258   5                              // -----------------------------
+ 259   5      
+ 260   5                              // Set Audio Coding Type Source to Channel_Status
+ 261   5                              ScalerSetBit(PB6_B0_DP_AUD_CTRL, ~_BIT5, 0x00);
+ 262   5      
+ 263   5                              // Calculate Minimum Delay for Receiving 192*2 Audio Samples
+ 264   5                              // Avoid 0Hz Value
+ 265   5                              if(enumAudioPacket == _AUDIO_FREQ_PACKET_NO_AUDIO)
+ 266   5                              {
+ 267   6                                  enumAudioPacket = _AUDIO_FREQ_PACKET_32K;
+ 268   6                              }
+ 269   5      
+ 270   5                              // (192Samples * 2) / AudioFreq
+ 271   5                              usDelayTime = (192 * 2) / enumAudioPacket;
+ 272   5      
+ 273   5                              // Delay with 2ms margin added
+ 274   5                              ScalerTimerDelayXms(usDelayTime + 2);
+ 275   5      
+ 276   5                              // Update Detect Result
+ 277   5                              if(ScalerGetBit(PB6_B0_DP_AUD_CTRL, _BIT4) == _BIT4)
+ 278   5                              {
+ 279   6                                  DebugMessageAudio("[Audio] Rx0 initial at Non-LPCM via Channel_Status", 1);
+ 280   6      
+ 281   6                                  SET_DP_D0_AUDIO_CODING_TYPE_FORMAT(_AUDIO_NON_LPCM);
+ 282   6                              }
+ 283   5                              else
+ 284   5                              {
+ 285   6                                  DebugMessageAudio("[Audio] Rx0 initial at LPCM via Channel_Status", 0);
+ 286   6      
+ 287   6                                  SET_DP_D0_AUDIO_CODING_TYPE_FORMAT(_AUDIO_LPCM);
+ 288   6                              }
+ 289   5                          }
+ 290   4                      }
+ 291   3      
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 6   
+
+ 292   3                      // =================================
+ 293   3                      // Return Coding Type Status
+ 294   3                      // =================================
+ 295   3                      if(GET_DP_D0_AUDIO_CODING_TYPE_FORMAT() == _AUDIO_NON_LPCM)
+ 296   3                      {
+ 297   4                          return _FALSE;
+ 298   4                      }
+ 299   3      
+ 300   3                      return _TRUE;
+ 301   3                  }
+ 302   2      
+ 303   2                  break;
+ 304   2      
+ 305   2              default:
+ 306   2                  break;
+ 307   2          }
+ 308   1      
+ 309   1          return _TRUE;
+ 310   1      }
+ 311          
+ 312          //--------------------------------------------------
+ 313          // Description  : Check Audio Coding Change or Not
+ 314          // Input Value  : None
+ 315          // Output Value : _TRUE => LPCM / _FALSE => Un-Change
+ 316          //--------------------------------------------------
+ 317          bit ScalerAudioLPCMCheckChange(void)
+ 318          {
+ 319   1          switch(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT))
+ 320   1          {
+ 321   2              case _AUDIO_FROM_D0_PORT:
+ 322   2              case _AUDIO_FROM_D1_PORT:
+ 323   2      
+ 324   2                  if(GET_REG_D0_MAC_SWITCH_TO_HDMI() == _FALSE)
+ 325   2                  {
+ 326   3                      if(GET_DP_D0_AUDIO_CODING_TYPE_CHANGE() == _TRUE)
+ 327   3                      {
+ 328   4                          // Clear Change Flag
+ 329   4                          CLR_DP_D0_AUDIO_CODING_TYPE_CHANGE();
+ 330   4      
+ 331   4                          return _TRUE;
+ 332   4                      }
+ 333   3                  }
+ 334   2      
+ 335   2                  break;
+ 336   2      
+ 337   2              default:
+ 338   2                  break;
+ 339   2          }
+ 340   1      
+ 341   1          return _FALSE;
+ 342   1      }
+ 343          
+ 344          //--------------------------------------------------
+ 345          // Description  : Enable Audio Coding Type Detect INT
+ 346          // Input Value  : ucInputPort
+ 347          // Output Value : None
+ 348          //--------------------------------------------------
+ 349          void ScalerAudioLPCMDetectEnableProc(BYTE ucInputPort)
+ 350          {
+ 351   1      #if(_LINE_IN_SUPPORT == _ON)
+ 352   1          if(ScalerAudioGetInputSource() == _DIGITAL_AUDIO)
+ 353   1      #endif
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 7   
+
+ 354   1          {
+ 355   2              switch(ucInputPort)
+ 356   2              {
+ 357   3                  case _D0_INPUT_PORT:
+ 358   3                  case _D1_INPUT_PORT:
+ 359   3      
+ 360   3                      if(GET_REG_D0_MAC_SWITCH_TO_HDMI() == _FALSE)
+ 361   3                      {
+ 362   4                          // Clear Change Flag
+ 363   4                          CLR_DP_D0_AUDIO_CODING_TYPE_CHANGE();
+ 364   4      
+ 365   4                          // Clear Audio Coding Type Change Flag
+ 366   4                          ScalerSetBit(PB6_36_DP_GLB_STATUS, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT3 | _BIT2 | _
+             -BIT1), _BIT2);
+ 367   4      
+ 368   4                          // Enable Audio Coding Type Change INT
+ 369   4                          ScalerSetBit(PB6_3B_DP_IRQ_CTRL1, ~_BIT0, _BIT0);
+ 370   4                      }
+ 371   3      
+ 372   3                      break;
+ 373   3      
+ 374   3                  default:
+ 375   3                      break;
+ 376   3              }
+ 377   2          }
+ 378   1      }
+ 379          
+ 380          //--------------------------------------------------
+ 381          // Description  : Reset Audio Coding Type Detect INT
+ 382          // Input Value  : ucInputPort
+ 383          // Output Value : None
+ 384          //--------------------------------------------------
+ 385          void ScalerAudioLPCMResetProc(BYTE ucInputPort)
+ 386          {
+ 387   1      #if(_LINE_IN_SUPPORT == _ON)
+ 388   1          if(ScalerAudioGetInputSource() == _DIGITAL_AUDIO)
+ 389   1      #endif
+ 390   1          {
+ 391   2              switch(ucInputPort)
+ 392   2              {
+ 393   3                  case _D0_INPUT_PORT:
+ 394   3                  case _D1_INPUT_PORT:
+ 395   3      
+ 396   3                      if(GET_REG_D0_MAC_SWITCH_TO_HDMI() == _FALSE)
+ 397   3                      {
+ 398   4                          // Disable Audio Coding Type Change INT
+ 399   4                          ScalerSetBit(PB6_3B_DP_IRQ_CTRL1, ~_BIT0, 0x00);
+ 400   4      
+ 401   4                          // Reset Coding Type Detect
+ 402   4                          SET_DP_D0_AUDIO_CODING_TYPE_FORMAT(_AUDIO_CODING_TYPE_NONE);
+ 403   4                      }
+ 404   3      
+ 405   3                      break;
+ 406   3      
+ 407   3                  default:
+ 408   3                      break;
+ 409   3              }
+ 410   2          }
+ 411   1      }
+ 412          
+ 413          //--------------------------------------------------
+ 414          // Description  : Audio Watch Dog Proc
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 8   
+
+ 415          // Input Value  : bOn
+ 416          // Output Value : None
+ 417          //--------------------------------------------------
+ 418          void ScalerAudioWatchDogProc(bit bOn, BYTE ucInputPort)
+ 419          {
+ 420   1      #if(_LINE_IN_SUPPORT == _ON)
+ 421   1          if(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT) != _AUDIO_FROM_ADC_PORT)
+ 422   1      #endif
+ 423   1          {
+ 424   2              switch(ucInputPort)
+ 425   2              {
+ 426   3                  case _D0_INPUT_PORT:
+ 427   3                  case _D1_INPUT_PORT:
+ 428   3      
+ 429   3                      ScalerAudioD0WatchDogProc(bOn);
+ 430   3                      DebugMessageAudio("Audio D0: WatchDog", bOn);
+ 431   3      
+ 432   3                      break;
+ 433   3      
+ 434   3                  default:
+ 435   3                      break;
+ 436   3              }
+ 437   2          }
+ 438   1      }
+ 439          
+ 440          //--------------------------------------------------
+ 441          // Description  : Audio HBR Mode Control
+ 442          // Input Value  : bOn
+ 443          // Input Value  : ucInputPort
+ 444          // Output Value : None
+ 445          //--------------------------------------------------
+ 446          void ScalerAudioHbrModeControl(bit bOn, BYTE ucInputPort)
+ 447          {
+ 448   1          bOn = bOn;
+ 449   1      
+ 450   1      #if(_LINE_IN_SUPPORT == _ON)
+ 451   1          if(ScalerAudioGetInputSource() == _DIGITAL_AUDIO)
+ 452   1      #endif
+ 453   1          {
+ 454   2              switch(ucInputPort)
+ 455   2              {
+ 456   3                  case _D0_INPUT_PORT:
+ 457   3                  case _D1_INPUT_PORT:
+ 458   3      
+ 459   3                      ScalerAudioD0HbrModeControl(bOn);
+ 460   3                      DebugMessageAudio("Audio D0: HBR Mode Control", bOn);
+ 461   3      
+ 462   3                      break;
+ 463   3      
+ 464   3                  default:
+ 465   3                      break;
+ 466   3              }
+ 467   2          }
+ 468   1      }
+ 469          
+ 470          //--------------------------------------------------
+ 471          // Description  : Get Current Audio Port
+ 472          // Input Value  : None
+ 473          // Output Value : Input Port
+ 474          //--------------------------------------------------
+ 475          EnumSourceSearchPort ScalerAudioGetDigitalAudioPortMapping(void)
+ 476          {
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 9   
+
+ 477   1          switch(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT))
+ 478   1          {
+ 479   2              case _AUDIO_FROM_D0_PORT:
+ 480   2      
+ 481   2                  return _D0_INPUT_PORT;
+ 482   2      
+ 483   2              case _AUDIO_FROM_D1_PORT:
+ 484   2      
+ 485   2                  return _D1_INPUT_PORT;
+ 486   2      
+ 487   2              default:
+ 488   2                  break;
+ 489   2          }
+ 490   1      
+ 491   1          return _NO_INPUT_PORT;
+ 492   1      }
+ 493          
+ 494          #if(_HDMI_SUPPORT == _ON)
+ 495          //--------------------------------------------------
+ 496          // Description  : Audio SPDIF/IIS Output Select
+ 497          // Input Value  : bOn
+ 498          // Input Value  : ucInputPort
+ 499          // Output Value : None
+ 500          //--------------------------------------------------
+ 501          void ScalerAudioHdmiI2sSpdifChannelOutputSelect(EnumAudioIisSpdifOutput enumAudioIisSpdifOutput, BYTE ucIn
+             -putPort)
+ 502          {
+ 503   1          enumAudioIisSpdifOutput = enumAudioIisSpdifOutput;
+ 504   1      
+ 505   1          switch(ucInputPort)
+ 506   1          {
+ 507   2              case _D0_INPUT_PORT:
+ 508   2              case _D1_INPUT_PORT:
+ 509   2      
+ 510   2      #if(_HDMI_SUPPORT == _ON)
+ 511   2                  ScalerAudioD0HdmiI2sSpdifChannelOutputSelect(enumAudioIisSpdifOutput);
+ 512   2      #endif
+ 513   2                  break;
+ 514   2      
+ 515   2              default:
+ 516   2                  break;
+ 517   2          }
+ 518   1      }
+ 519          
+ 520          //--------------------------------------------------
+ 521          // Description  : Check Audio whether Audio LPCM By Info Frame
+ 522          // Input Value  : ucSourceType
+ 523          // Output Value : _TRUE => LPCM
+ 524          //--------------------------------------------------
+ 525          bit ScalerAudioLPCMCheckInfo(void)
+ 526          {
+ 527   1          switch(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT))
+ 528   1          {
+ 529   2              case _AUDIO_FROM_D0_PORT:
+ 530   2              case _AUDIO_FROM_D1_PORT:
+ 531   2      
+ 532   2                  ScalerGetDataPortByte(P2_CD_HDMI_PSAP, 0x15, 1, pData, _NON_AUTOINC);
+ 533   2      
+ 534   2                  if(((pData[0] & 0xF0) == 0x00) || ((pData[0] & 0xF0) == 0x10))
+ 535   2                  {
+ 536   3                      return _TRUE;
+ 537   3                  }
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 10  
+
+ 538   2      
+ 539   2                  break;
+ 540   2      
+ 541   2              default:
+ 542   2                  break;
+ 543   2          }
+ 544   1      
+ 545   1          return _FALSE;
+ 546   1      }
+ 547          
+ 548          //--------------------------------------------------
+ 549          // Description  : Get Current Digital Audio Source type
+ 550          // Input Value  : None
+ 551          // Output Value : Digital Audio Source
+ 552          //--------------------------------------------------
+ 553          EnumSourceTypeDef ScalerAudioDigitalAudioSourceType(void)
+ 554          {
+ 555   1          switch(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT))
+ 556   1          {
+ 557   2              case _AUDIO_FROM_D0_PORT:
+ 558   2              case _AUDIO_FROM_D1_PORT:
+ 559   2      
+ 560   2                  if(ScalerGetBit(PB_00_HD_DP_SEL, _BIT0) == _BIT0)
+ 561   2                  {
+ 562   3                      return _SOURCE_HDMI;
+ 563   3                  }
+ 564   2                  else
+ 565   2                  {
+ 566   3                      return _SOURCE_DP;
+ 567   3                  }
+ 568   2      
+ 569   2              default:
+ 570   2                  break;
+ 571   2          }
+ 572   1      
+ 573   1          return _SOURCE_NONE;
+ 574   1      }
+ 575          #endif
+ 576          
+ 577          #if(_DP_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : DP Audio Digital Output Process
+              // Input Value  : Enable and Input port
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerAudioDPDigitalOutputProc(bit bEnable, BYTE ucInputPort)
+              {
+              #if(_LINE_IN_SUPPORT == _ON)
+                  if(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT) != _AUDIO_FROM_ADC_PORT)
+              #endif
+                  {
+                      switch(ucInputPort)
+                      {
+                          case _D0_INPUT_PORT:
+                          case _D1_INPUT_PORT:
+              
+                              ScalerAudioD0DPDigitalOutputProc(bEnable);
+                              break;
+              
+                          default:
+                              break;
+                      }
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 11  
+
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Check if Mute Audio
+              // Input Value  : ucInputPort
+              // Output Value : _TRUE or _FALSE
+              //--------------------------------------------------
+              bit ScalerAudioDPGetMuteProc(BYTE ucInputPort)
+              {
+              #if(_LINE_IN_SUPPORT == _ON)
+                  if(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT) == _AUDIO_FROM_ADC_PORT)
+                  {
+                      return _FALSE;
+                  }
+              #endif
+              
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                      case _D1_INPUT_PORT:
+              
+                          if(GET_REG_D0_MAC_SWITCH_TO_HDMI() == _FALSE)
+                          {
+                              return _TRUE;
+                          }
+              
+                          break;
+              
+                      default:
+                          break;
+                  }
+              
+                  return _FALSE;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Enable DP audio FSM
+              // Input Value  : Enable or Disable, Input Port
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerAudioDpAudioEnable(bit bEnable, BYTE ucInputPort)
+              {
+              #if(_LINE_IN_SUPPORT == _ON)
+                  if(ScalerAudioGetDigitalAudioPort(_AUDIO_DAC_OUT) != _AUDIO_FROM_ADC_PORT)
+              #endif
+                  {
+                      switch(ucInputPort)
+                      {
+                          case _D0_INPUT_PORT:
+                          case _D1_INPUT_PORT:
+              
+                              ScalerSetBit(PB6_74_AUD_FSM_CTRL_0, ~_BIT7, ((BYTE)bEnable) << 7);
+                              break;
+              
+                          default:
+                              break;
+                      }
+                  }
+              }
+              
+              //--------------------------------------------------
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 12  
+
+              // Description  : Enable DP audio FSM
+              // Input Value  : Enable or Disable, Input Port
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerAudioDpAudioEnable_EXINT0(bit bEnable, BYTE ucInputPort) using 1
+              {
+              #if(_LINE_IN_SUPPORT == _ON)
+                  if(ScalerAudioGetDigitalAudioPort_EXINT0(_AUDIO_DAC_OUT) != _AUDIO_FROM_ADC_PORT)
+              #endif
+                  {
+                      switch(ucInputPort)
+                      {
+                          case _D0_INPUT_PORT:
+                          case _D1_INPUT_PORT:
+                          case _D2_INPUT_PORT:
+              
+                              ScalerSetBit_EXINT(PB6_74_AUD_FSM_CTRL_0, ~_BIT7, ((BYTE)bEnable) << 7);
+                              break;
+              
+                          default:
+                              break;
+                      }
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Dp Audio Capability Change
+              // Input Value  : Input Port
+              // Output Value : _TRUE => Change / _FALSE => Un-Change
+              //--------------------------------------------------
+              bit ScalerAudioDpGetCapabilityChange(BYTE ucInputPort)
+              {
+                  bit bResult = _FALSE;
+              
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                      case _D1_INPUT_PORT:
+                      case _D2_INPUT_PORT:
+              
+                          bResult = GET_AUDIO_DP_D0_CAPABILITY_SWITCH();
+              
+                          CLR_AUDIO_DP_D0_CAPABILITY_SWITCH();
+              
+                          break;
+              
+                      default:
+              
+                          break;
+                  }
+              
+                  return bResult;
+              }
+              
+              #if(_DP_DPCD_AUDIO_CAPABILITY_USER_CONTROL_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Set Dp Audio Capability State
+              // Input Value  : Input Port
+              // Input Value  : EnumAudioDpDpcdSupport
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerAudioDpSetCapabilityState(BYTE ucInputPort, EnumAudioDpDpcdSupport enumDpcdSupport)
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 13  
+
+              {
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                      case _D1_INPUT_PORT:
+                      case _D2_INPUT_PORT:
+              
+                          // Check Previous DP Capability
+                          if(GET_AUDIO_DP_D0_SUPPORT() != enumDpcdSupport)
+                          {
+                              // Set User Define DP Capability
+                              SET_AUDIO_DP_D0_SUPPORT(enumDpcdSupport);
+                              SET_AUDIO_DP_D0_CAPABILITY_SWITCH();
+              
+                              // Change DPCD
+                              SET_DP_RX_CAPABILITY_SWITCHED();
+                          }
+              
+                          break;
+              
+                      default:
+              
+                          break;
+                  }
+              }
+              #endif // End of #if(_DP_DPCD_AUDIO_CAPABILITY_USER_CONTROL_SUPPORT == _ON)
+              
+              //--------------------------------------------------
+              // Description  : Set Dp Audio Capability State
+              // Input Value  : Input Port
+              // Output Value : EnumAudioDpDpcdSupport
+              //--------------------------------------------------
+              EnumAudioDpDpcdSupport ScalerAudioDpGetCapabilityState(BYTE ucInputPort)
+              {
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                      case _D1_INPUT_PORT:
+                      case _D2_INPUT_PORT:
+              
+                          // Get User Define DP Capability
+                          return GET_AUDIO_DP_D0_SUPPORT();
+              
+                          break;
+              
+                      default:
+              
+                          break;
+                  }
+              
+                  return _AUDIO_DP_DPCD_NOT_SUPPORT;
+              }
+              #endif
+ 777          
+ 778          //--------------------------------------------------
+ 779          // Description  : Get Current Digital Audio Source
+ 780          // Input Value  : None
+ 781          // Output Value : Digital Audio Source
+ 782          //--------------------------------------------------
+ 783          BYTE ScalerAudioGetDigitalAudioSource(BYTE ucInputPort)
+ 784          {
+ 785   1          switch(ucInputPort)
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 14  
+
+ 786   1          {
+ 787   2              case _D0_INPUT_PORT:
+ 788   2              case _D1_INPUT_PORT:
+ 789   2      
+ 790   2                  return GET_D0_DIGITAL_AUDIO_SOURCE();
+ 791   2      
+ 792   2              default:
+ 793   2                  break;
+ 794   2          }
+ 795   1      
+ 796   1          return _DIGITAL_AUDIO_SOURCE_NONE;
+ 797   1      }
+ 798          
+ 799          #if(_SLEEP_AUDIO_SUPPORT == _ON)
+              #if((_DP_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_AUDIO_INPUT == _PS_AUDIO_DP)))
+              #if(_EMBEDDED_DAC_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Get Dp audio Status for Sleep Audio
+              // Input Value  : Input Port
+              // Output Value : _TRUE or _FALSE
+              //--------------------------------------------------
+              bit ScalerAudioGetDpStandaloneAudioStatus(BYTE ucInputPort)
+              {
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                      case _D1_INPUT_PORT:
+              
+                          return ((GET_REG_D0_MAC_SWITCH_TO_HDMI() == _FALSE) ? _TRUE : _FALSE);
+              
+                      default:
+                          break;
+                  }
+              
+                  return _FALSE;
+              }
+              #endif // End of #if(_EMBEDDED_DAC_SUPPORT == _ON)
+              #endif
+              #endif
+ 825          
+ 826          #if(_LINE_IN_SUPPORT == _ON)
+ 827          //--------------------------------------------------
+ 828          // Description  : Initial Audio ADC
+ 829          // Input Value  : None
+ 830          // Output Value : None
+ 831          //--------------------------------------------------
+ 832          void ScalerAudioADCInitial(void)
+ 833          {
+ 834   1          // Enable ADDA Loop, High Pass Filter and Set ADC ZCD Type
+ 835   1          ScalerSetBit(P6_B4_AD_CTRL, ~(_BIT7 | _BIT6 | _BIT3 | _BIT2), (_BIT6 | _BIT3));
+ 836   1      
+ 837   1          // Power On ADC
+ 838   1          ScalerSetBit(P6_B0_REG_ADC_POWER, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 839   1      
+ 840   1          // Power On Input Buffer and Mbias
+ 841   1          ScalerSetBit(P6_C0_REG_DAC_POWER0, ~(_BIT2 | _BIT1 | _BIT0), (_BIT2 | _BIT1 | _BIT0));
+ 842   1      
+ 843   1          // Adj ADC OP Noise Cancellation Clock and Enable ADC Op Offset Cancellation
+ 844   1          ScalerSetBit(P6_B2_REG_ADC_CTRL, ~(_BIT5 | _BIT4 | _BIT3), (_BIT5 | _BIT4 | _BIT3));
+ 845   1      
+ 846   1          if(ScalerGlobalGetIDCode() == _RL6463_VER_A_ID_CODE)
+ 847   1          {
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 15  
+
+ 848   2              // Set ADC Front End Gain(-7dB)
+ 849   2              ScalerSetByte(P6_B3_REG_AFE_GAIN, 0x44);
+ 850   2          }
+ 851   1          else
+ 852   1          {
+ 853   2              // Set ADC Front End Gain(-5dB)
+ 854   2              ScalerSetByte(P6_B3_REG_AFE_GAIN, 0x77);
+ 855   2      
+ 856   2              // Bypass Input Buffer
+ 857   2              ScalerSetBit(P6_B0_REG_ADC_POWER, ~_BIT0, _BIT0);
+ 858   2          }
+ 859   1      
+ 860   1          // ADC Unmute and Set Boost Gain
+ 861   1          ScalerSetByte(P6_B5_AD_MUTE, 0x00);
+ 862   1      
+ 863   1          // Set AD Gail of L Ch
+ 864   1          ScalerSetBit(P6_B6_AD_GAIN_L, ~(_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), _LINE_IN_BOOST_GAIN_DB
+             -);
+ 865   1      
+ 866   1          // Set AD Gail of R Ch
+ 867   1          ScalerSetBit(P6_B7_AD_GAIN_R, ~(_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), _LINE_IN_BOOST_GAIN_DB
+             -);
+ 868   1      
+ 869   1          // Set Double Buffer
+ 870   1          ScalerSetBit(P6_B6_AD_GAIN_L, ~_BIT7, _BIT7);
+ 871   1      
+ 872   1          // Set Sampling Frequency "48kHz" For S/PDIF Output From ADC In
+ 873   1          ScalerSetBit(P6_E2_AD_SPDIF_CS_0, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), _AUDIO_SPDIF_FS_48KHZ);
+ 874   1      
+ 875   1          // Set Channel Count "2 ch" For S/PDIF Output From ADC In
+ 876   1          ScalerSetBit(P6_E3_AD_SPDIF_CS_1, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), 0x00);
+ 877   1      
+ 878   1          // Enable I2S Output for ADC In
+ 879   1          ScalerSetBit(P6_E7_AD_I2S_CTRL, ~_BIT7, _BIT7);
+ 880   1      }
+ 881          #endif
+ 882          
+ 883          #if(_INTERNAL_AUDIO_TEST_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Auido Speaker Testing Process
+              // Input Value  : Enable or Disable
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerAudioInternalAudioGenSwitch(bit bOn, BYTE ucInputPort, EnumAudioLeftRightChannelSelect enumAudi
+             -oLeftRightChannelSelect)
+              {
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                      case _D1_INPUT_PORT:
+              
+                          ScalerAudioD0InternalAudioGenSwitch(bOn, enumAudioLeftRightChannelSelect);
+              
+                          break;
+              
+                      default:
+                          break;
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Whether Internal Audio Pattern Gen is Enabled
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 16  
+
+              // Input Value  : None
+              // Output Value : _ENABLE or _DISABLE
+              //--------------------------------------------------
+              bit ScalerAudioGetInternalAudioGenEnable(BYTE ucInputPort)
+              {
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                      case _D1_INPUT_PORT:
+              
+                          return ScalerAudioD0GetInternalAudioGenEnable();
+              
+                      default:
+                          break;
+                  }
+              
+                  return _DISABLE;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Reset Audio Module when Internal Audio Pattern Gen is Finished
+              // Input Value  : ucInputPort
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerAudioInternalAudioGenReset(BYTE ucInputPort)
+              {
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                      case _D1_INPUT_PORT:
+                      case _D2_INPUT_PORT:
+                      case _D3_INPUT_PORT:
+                      case _D4_INPUT_PORT:
+                      case _D5_INPUT_PORT:
+                      default:
+                          break;
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Set Internal Audio Gen Input Port
+              // Input Value  : ucInputPort
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerAudioSetInternalGenInputPort(BYTE ucInputPort)
+              {
+                  SET_AUDIO_INTERNAL_GEN_INPUT_PORT(ucInputPort);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Get Internal Audio Gen Input Port
+              // Input Value  : None
+              // Output Value : ucInputPort
+              //--------------------------------------------------
+              BYTE ScalerAudioGetInternalGenInputPort(void)
+              {
+                  return GET_AUDIO_INTERNAL_GEN_INPUT_PORT();
+              }
+              #endif // End of #if(_INTERNAL_AUDIO_TEST_SUPPORT == _ON)
+ 966          #endif // End of #if(_AUDIO_SUPPORT == _ON)
+
+
+C51 COMPILER V8.12   RL6463_SERIES_AUDIO                                                   03/10/2025 13:50:42 PAGE 17  
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    757    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      6       9
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

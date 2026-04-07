@@ -1,0 +1,651 @@
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_GLOBAL
+OBJECT MODULE PLACED IN .\Output\RL6449_Projecr\RL6449_Series_Global.obj
+COMPILER INVOKED BY: D:\ToolSort\KeilC51V812_\C51\BIN\C51.EXE Kernel\Scaler\RL6449_Series_Scaler\Code\RL6449_Series_Glob
+                    -al.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Commo
+                    -n;.\Kernel\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scal
+                    -er\ScalerFunction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header
+                    -;.\Kernel\Scaler\RL6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Seri
+                    -es_Common\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD
+                    -2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User
+                    -\None Factory\Header) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6
+                    -449_Projecr\RL6449_Series_Global.lst) OBJECT(.\Output\RL6449_Projecr\RL6449_Series_Global.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_Global.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          //****************************************************************************
+  33          // VARIABLE DECLARATIONS
+  34          //****************************************************************************
+  35          #if((_OD_SUPPORT == _ON) && (_FRC_SUPPORT == _ON))
+  36          BYTE g_ucGlobalIntEventDenStart;
+  37          #endif
+  38          #if(_DRR_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+              BYTE g_ucGlobalIntEventDenStop;
+              #endif
+  41          
+  42          //****************************************************************************
+  43          // FUNCTION DECLARATIONS
+  44          //****************************************************************************
+  45          void ScalerGlobalDoubleBufferEnable(bit bEn);
+  46          void ScalerGlobalIDDomainDBSetTriggerEvent(void);
+  47          void ScalerGlobalDDomainDBApply(EnumDBApply enumDBApply);
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 2   
+
+  48          void ScalerGlobalIDomainDBApply(EnumDBApply enumDBApply);
+  49          void ScalerGlobalIDDomainDBApply(EnumDBApply enumDBApply);
+  50          void ScalerGlobalDoubleBufferConfigReset(void);
+  51          bit ScalerGlobalGetDBStatus(void);
+  52          #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+              bit ScalerGlobalGetHLWDBStatus(void);
+              #endif
+  55          void ScalerGlobalCrystalClkSel(EnumClkSel enumClkSel);
+  56          
+  57          void ScalerGlobalWatchDog(bit bEnable);
+  58          
+  59          #if(_DISPLAY_PREVENT_GARBAGE_METHOD == _GARBAGE_PREVENT_BY_BACKLIGHT)
+              void ScalerGlobalPreventGarbageByBacklight_EXINT0(void);
+              #endif
+  62          
+  63          
+  64          //****************************************************************************
+  65          // FUNCTION DEFINITIONS
+  66          //****************************************************************************
+  67          
+  68          //--------------------------------------------------
+  69          // Description  : Enable/Disable double buffer
+  70          // Input Value  : bEn --> _ENABLE or _DISABLE
+  71          // Output Value : None
+  72          //--------------------------------------------------
+  73          void ScalerGlobalDoubleBufferEnable(bit bEn)
+  74          {
+  75   1          ScalerVgipDoubleBufferEnable(_DISABLE);
+  76   1          ScalerMDomainDisplayTimingGenDBEnable(_DISABLE);
+  77   1      
+  78   1          if(bEn == _ENABLE)
+  79   1          {
+  80   2              // IMD Double Buffer Enable
+  81   2              ScalerSetBit(P31_C0_I_DB_CTRL, ~(_BIT7 | _BIT6), _BIT7);
+  82   2      
+  83   2              // I Domain Double Buffer Disable
+  84   2              ScalerSetBit(P31_A0_I_DB_CTRL0, ~(_BIT7 | _BIT3 | _BIT2), 0x00);
+  85   2      
+  86   2      #if(_LOCAL_DIMMING_SUPPORT == _OFF)
+  87   2              // D Domain Double Buffer Disable
+  88   2              ScalerSetBit(P31_B0_D_DB_CTRL0, ~(_BIT7 | _BIT6), 0x00);
+  89   2      #endif
+  90   2          }
+  91   1          else
+  92   1          {
+  93   2              ScalerSetBit(P31_C0_I_DB_CTRL, ~(_BIT7 | _BIT6), 0x00);
+  94   2          }
+  95   1      }
+  96          
+  97          
+  98          //--------------------------------------------------
+  99          // Description  : Set I domain double buffer trigger event
+ 100          // Input Value  : None
+ 101          // Output Value : None
+ 102          //--------------------------------------------------
+ 103          void ScalerGlobalIDDomainDBSetTriggerEvent(void)
+ 104          {
+ 105   1      #if(_FRC_SUPPORT == _ON)
+ 106   1          if(GET_MEMORY_FRAME_BUFFER() != _MEMORY_1_FRAME_BUFFER)
+ 107   1          {
+ 108   2      #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+ 109   2              if((GET_ROT_TYPE() == _ROT_CW180) || (GET_ROT_TYPE() == _ROT_VER_MIRROR))
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 3   
+
+ 110   2              {
+ 111   3                  if(GET_MEMORY_FRAME_BUFFER() == _MEMORY_3_FRAME_BUFFER)
+ 112   3                  {
+ 113   4                      if(ScalerGetBit(P5_AC_DISP_M1_DISP_CTRL1, _BIT3) == _BIT3)
+ 114   4                      {
+ 115   5                          // Input fast case
+ 116   5                          ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, (_BIT5 | _BIT2));
+ 117   5                          ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, _BIT7);
+ 118   5                          ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, 0x00);
+ 119   5                      }
+ 120   4                      else
+ 121   4                      {
+ 122   5                          // Input slow case
+ 123   5                          ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, (_BIT2 | _BIT0));
+ 124   5                          ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, (_BIT7 | _BIT6));
+ 125   5                          ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, 0x00);
+ 126   5                      }
+ 127   4                  }
+ 128   3                  else
+ 129   3                  {
+ 130   4                      // Input slow & fast case
+ 131   4                      ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, (_BIT2 | _BIT0));
+ 132   4                      ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, (_BIT7 | _BIT6));
+ 133   4                      ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, _BIT2);
+ 134   4                  }
+ 135   3              }
+ 136   2              else
+ 137   2      #endif
+ 138   2              {
+ 139   3                  if(ScalerGetBit(P5_AC_DISP_M1_DISP_CTRL1, _BIT3) == _BIT3)
+ 140   3                  {
+ 141   4                      // Input fast case
+ 142   4                      ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, _BIT5);
+ 143   4                      ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, _BIT7);
+ 144   4                      ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, 0x00);
+ 145   4                  }
+ 146   3                  else
+ 147   3                  {
+ 148   4                      // Input slow case
+ 149   4                      ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, (_BIT2 | _BIT0));
+ 150   4                      ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, (_BIT7 | _BIT6));
+ 151   4                      ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, _BIT2);
+ 152   4                  }
+ 153   3              }
+ 154   2          }
+ 155   1          else
+ 156   1          {
+ 157   2              switch(GET_MEMORY_SELECT())
+ 158   2              {
+ 159   3                  case _FREE_RUN_MEMORY:
+ 160   3      
+ 161   3                      // One frame FRC
+ 162   3                      ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, 0x00);
+ 163   3                      ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, _BIT6);
+ 164   3                      ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, 0x00);
+ 165   3      
+ 166   3                      break;
+ 167   3      
+ 168   3                  case _FRAME_SYNC_LINE_BUFFER:
+ 169   3                  case _FRAME_SYNC_MEMORY:
+ 170   3                  default:
+ 171   3      
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 4   
+
+ 172   3      #if(_FREESYNC_SUPPORT == _ON)
+ 173   3                      if(GET_FREESYNC_ENABLED() == _TRUE)
+ 174   3                      {
+ 175   4                          // IVS/ DDEN stop
+ 176   4                          ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, (_BIT4));
+ 177   4                          ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, 0x00);
+ 178   4                          ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, 0x00);
+ 179   4                      }
+ 180   3                      else
+ 181   3      #endif
+ 182   3                      {
+ 183   4                          // IVS/ DVS
+ 184   4                          ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, 0x00);
+ 185   4                          ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, 0x00);
+ 186   4                          ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, 0x00);
+ 187   4                      }
+ 188   3      
+ 189   3                      break;
+ 190   3              }
+ 191   2          }
+ 192   1      #else
+              
+              #if(_FREESYNC_SUPPORT == _ON)
+                  if(GET_FREESYNC_ENABLED() == _TRUE)
+                  {
+                      // IVS/ DDEN stop
+                      ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, (_BIT4));
+                      ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, 0x00);
+                      ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, 0x00);
+                  }
+                  else
+              #endif
+                  {
+                      // IVS/ DVS
+                      ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, 0x00);
+                      ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, 0x00);
+                      ScalerSetBit(P31_C3_IMD_DB_STATUS1, ~0x07, 0x00);
+                  }
+              #endif
+ 211   1      }
+ 212          
+ 213          //--------------------------------------------------
+ 214          // Description  : Set D domain double buffer apply
+ 215          // Input Value  : DB apply polling/ no polling/ none
+ 216          // Output Value : None
+ 217          //--------------------------------------------------
+ 218          void ScalerGlobalDDomainDBApply(EnumDBApply enumDBApply)
+ 219          {
+ 220   1      #if(_FORCE_D_DOMAIN_DB_APPLY == _ON)
+                  if(ScalerGlobalForceDDomainDBRecovery(enumDBApply, _TRUE) == _TRUE)
+                  {
+                      return;
+                  }
+              #endif
+ 226   1      
+ 227   1          // Check IMD Doube Buffer Enable
+ 228   1          if(ScalerGlobalGetDBStatus() == _ENABLE)
+ 229   1          {
+ 230   2              ScalerGlobalIDDomainDBApply(enumDBApply);
+ 231   2          }
+ 232   1          else
+ 233   1          {
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 5   
+
+ 234   2      #if((_LOCAL_DIMMING_SUPPORT == _ON) && (_HW_GLOBAL_DB_TYPE == _GLOBAL_DB_GEN_III))
+                      // D domain DB be effective
+                      if(ScalerGlobalGetDDomainDBStatus() == _ENABLE)
+                      {
+                          ScalerColorDDomainDBApply(enumDBApply);
+                      }
+                      else
+              #endif
+ 242   2              {
+ 243   3                  // Display timing gen double buffer apply
+ 244   3                  ScalerMDomainDisplayTimingGenDBApply(enumDBApply);
+ 245   3              }
+ 246   2          }
+ 247   1      }
+ 248          
+ 249          //--------------------------------------------------
+ 250          // Description  : Set I domain double buffer apply
+ 251          // Input Value  : DB path select, DB apply polling/ no polling/ none
+ 252          // Output Value : None
+ 253          //--------------------------------------------------
+ 254          void ScalerGlobalIDomainDBApply(EnumDBApply enumDBApply)
+ 255          {
+ 256   1          // Check IMD Doube Buffer Enable
+ 257   1          if(ScalerGlobalGetDBStatus() == _ENABLE)
+ 258   1          {
+ 259   2              ScalerGlobalIDDomainDBApply(enumDBApply);
+ 260   2          }
+ 261   1          else
+ 262   1          {
+ 263   2              // I-domain double buffer apply
+ 264   2              ScalerVgipVgipDoubleBufferApply(enumDBApply);
+ 265   2          }
+ 266   1      }
+ 267          
+ 268          //--------------------------------------------------
+ 269          // Description  : Set I and D domain double buffer apply
+ 270          // Input Value  : DB path select, DB apply polling/ no polling/ none
+ 271          // Output Value : None
+ 272          //--------------------------------------------------
+ 273          void ScalerGlobalIDDomainDBApply(EnumDBApply enumDBApply)
+ 274          {
+ 275   1      #if(_FORCE_D_DOMAIN_DB_APPLY == _ON)
+                  if(ScalerGlobalForceDDomainDBRecovery(enumDBApply, _TRUE) == _TRUE)
+                  {
+                      return;
+                  }
+              #endif
+ 281   1      
+ 282   1          // Check IMD Doube Buffer Enable
+ 283   1          if(ScalerGlobalGetDBStatus() == _ENABLE)
+ 284   1          {
+ 285   2              if(enumDBApply != _DB_APPLY_NONE)
+ 286   2              {
+ 287   3                  // Check I/D domain status
+ 288   3                  if((ScalerGetBit(P0_28_VIDEO_DISPLAY_CONTROL_REG, _BIT0) == 0x00) ||
+ 289   3                     (GET_DPLL_POWER_STATUS() == _FALSE) ||
+ 290   3                     (ScalerGetBit(P0_10_M1_VGIP_CTRL, _BIT0) == 0x00))
+ 291   3                  {
+ 292   4                      // Disable Double Buffer
+ 293   4                      ScalerSetBit(P31_C0_I_DB_CTRL, ~_BIT7, 0x00);
+ 294   4                      return;
+ 295   4                  }
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 6   
+
+ 296   3      
+ 297   3      #if(_FREESYNC_SUPPORT == _ON)
+ 298   3                  if((GET_FREESYNC_ENABLED() == _TRUE) && ((GET_MEMORY_SELECT() == _FRAME_SYNC_LINE_BUFFER) || (
+             -GET_MEMORY_SELECT() == _FRAME_SYNC_MEMORY)))
+ 299   3                  {
+ 300   4                      if(ScalerGetBit(P0_28_VIDEO_DISPLAY_CONTROL_REG, _BIT5) == 0x00)
+ 301   4                      {
+ 302   5                          // IDEN stop/ DDEN stop
+ 303   5                          ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, (_BIT5 | _BIT4));
+ 304   5                          ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, 0x00);
+ 305   5                      }
+ 306   4                      else
+ 307   4                      {
+ 308   5                          // IVS/ DDEN stop
+ 309   5                          ScalerSetBit(P31_C0_I_DB_CTRL, ~0x3F, (_BIT4));
+ 310   5                          ScalerSetBit(P31_C1_D_DB_CTRL, ~0xFF, 0x00);
+ 311   5                      }
+ 312   4                  }
+ 313   3      #endif
+ 314   3      
+ 315   3                  // Set IMD apply bit
+ 316   3                  ScalerSetBit(P31_C0_I_DB_CTRL, ~_BIT6, _BIT6);
+ 317   3      
+ 318   3                  if(enumDBApply == _DB_APPLY_POLLING)
+ 319   3                  {
+ 320   4                      // Wait IMD double buffer
+ 321   4                      if(ScalerTimerPollingFlagProc(_DOUBLE_BUFFER_WAIT_TIME, P31_C0_I_DB_CTRL, _BIT6, 0) == _FA
+             -LSE)
+ 322   4                      {
+ 323   5                          // Disable Double Buffer
+ 324   5                          ScalerSetBit(P31_C0_I_DB_CTRL, ~_BIT7, 0x00);
+ 325   5                      }
+ 326   4                  }
+ 327   3              }
+ 328   2          }
+ 329   1          else
+ 330   1          {
+ 331   2              if(enumDBApply != _DB_APPLY_NONE)
+ 332   2              {
+ 333   3                  // I-domain double buffer apply
+ 334   3                  ScalerVgipVgipDoubleBufferApply(enumDBApply);
+ 335   3      
+ 336   3      #if((_LOCAL_DIMMING_SUPPORT == _ON) && (_HW_GLOBAL_DB_TYPE == _GLOBAL_DB_GEN_III))
+                          // D domain DB be effective
+                          if(ScalerGlobalGetDDomainDBStatus() == _ENABLE)
+                          {
+                              ScalerColorDDomainDBApply(enumDBApply);
+                          }
+                          else
+              #endif
+ 344   3                  {
+ 345   4                      // Display timing gen double buffer apply
+ 346   4                      ScalerMDomainDisplayTimingGenDBApply(enumDBApply);
+ 347   4                  }
+ 348   3              }
+ 349   2          }
+ 350   1      }
+ 351          
+ 352          //--------------------------------------------------
+ 353          // Description  : Global Double Buffer Config Reset
+ 354          // Input Value  : None
+ 355          // Output Value : None
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 7   
+
+ 356          //--------------------------------------------------
+ 357          void ScalerGlobalDoubleBufferConfigReset(void)
+ 358          {
+ 359   1          ScalerGlobalDoubleBufferEnable(_DISABLE);
+ 360   1      
+ 361   1          // Enable I-domain double buffer
+ 362   1          ScalerVgipDoubleBufferEnable(_ENABLE);
+ 363   1      
+ 364   1          // Enable Display timing gen double buffer
+ 365   1          ScalerMDomainDisplayTimingGenDBEnable(_ENABLE);
+ 366   1      }
+ 367          
+ 368          //--------------------------------------------------
+ 369          // Description  : Get double buffer status
+ 370          // Input Value  : None
+ 371          // Output Value : None
+ 372          //--------------------------------------------------
+ 373          bit ScalerGlobalGetDBStatus(void)
+ 374          {
+ 375   1          return ((bit)ScalerGetBit(P31_C0_I_DB_CTRL, _BIT7));
+ 376   1      }
+ 377          
+ 378          #if(_HIGHLIGHT_WINDOW_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Get HLW double buffer status
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              bit ScalerGlobalGetHLWDBStatus(void)
+              {
+                  bit bHLWLocalDB = ScalerGetDataPortBit(P0_60_HLW_ADDR_PORT, _P0_61_PT_0C_HLW_BORDER_EN, _BIT2);
+              
+                  return (bHLWLocalDB || ((bit)ScalerGetBit(P31_C0_I_DB_CTRL, _BIT7)) || ((bit)ScalerGetBit(P31_B0_D_DB_
+             -CTRL0, _BIT7)));
+              }
+              #endif
+ 391          
+ 392          //--------------------------------------------------
+ 393          // Description  : Select internal oscillator Clock.
+ 394          // Input Value  : IOSC/ Xtal
+ 395          // Output Value : None
+ 396          //--------------------------------------------------
+ 397          void ScalerGlobalCrystalClkSel(EnumClkSel enumClkSel)
+ 398          {
+ 399   1      #if(_WD_TIMER_INT_SUPPORT == _ON)
+ 400   1          BYTE ucWDPreRefClk = ScalerGetByte(P0_09_GA_POWER_CTRL);
+ 401   1      #endif
+ 402   1      
+ 403   1          if(enumClkSel == _IOSC_CLK)
+ 404   1          {
+ 405   2              // Select at internal Xtal.
+ 406   2              ScalerSetBit(P0_09_GA_POWER_CTRL, ~_BIT3, _BIT3);
+ 407   2      
+ 408   2      #if(_WD_TIMER_INT_SUPPORT == _ON)
+ 409   2              if((ucWDPreRefClk & _BIT3) == 0x00)
+ 410   2              {
+ 411   3                  // Record Global Xtal Clk Has been Switched, WD_Timer INT Ref Clk Change
+ 412   3                  SET_GLOBAL_XTAL_CLK_SWITCH(_GLOBAL_XTAL_CLK_SEL_TO_INTERNAL);
+ 413   3      
+ 414   3                  // Manual Trigger WD_Timer INT to Proc WDTimerProc_WDINT
+ 415   3                  EXIF = (EXIF & (~_BIT4)) | _BIT4;
+ 416   3              }
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 8   
+
+ 417   2              else
+ 418   2              {
+ 419   3                  SET_GLOBAL_XTAL_CLK_SWITCH(_GLOBAL_XTAL_CLK_SEL_UNCHANGE);
+ 420   3              }
+ 421   2      #endif
+ 422   2          }
+ 423   1          else if(enumClkSel == _EXT_XTAL_CLK)
+ 424   1          {
+ 425   2              // Select at external Xtal.
+ 426   2              ScalerSetBit(P0_09_GA_POWER_CTRL, ~_BIT3, 0x00);
+ 427   2      
+ 428   2      #if(_WD_TIMER_INT_SUPPORT == _ON)
+ 429   2              if((ucWDPreRefClk & _BIT3) == _BIT3)
+ 430   2              {
+ 431   3                  // Record Global Xtal Clk Has been Switched, WD_Timer INT Ref Clk Change
+ 432   3                  SET_GLOBAL_XTAL_CLK_SWITCH(_GLOBAL_XTAL_CLK_SEL_TO_EXTERNAL);
+ 433   3      
+ 434   3                  // Manual Trigger WD_Timer INT to Proc WDTimerProc_WDINT
+ 435   3                  EXIF = (EXIF & (~_BIT4)) | _BIT4;
+ 436   3              }
+ 437   2              else
+ 438   2              {
+ 439   3                  SET_GLOBAL_XTAL_CLK_SWITCH(_GLOBAL_XTAL_CLK_SEL_UNCHANGE);
+ 440   3              }
+ 441   2      #endif
+ 442   2          }
+ 443   1      }
+ 444          
+ 445          //--------------------------------------------------
+ 446          // Description  : Enabel Global Watch Dog
+ 447          // Input Value  : _ENABLE or _DISABLE
+ 448          // Output Value : None
+ 449          //--------------------------------------------------
+ 450          void ScalerGlobalWatchDog(bit bEnable)
+ 451          {
+ 452   1          if(bEnable == _ENABLE)
+ 453   1          {
+ 454   2              if(GET_MEMORY_SELECT() == _FRAME_SYNC_LINE_BUFFER)
+ 455   2              {
+ 456   3      #if(_PANEL_FREESYNC_FREE_RUN_DVTOTAL_CALCULATED_BY_VFREQ_MIN == _ON)
+ 457   3      #if(_FREESYNC_SUPPORT == _ON)
+ 458   3                  if(GET_FREESYNC_ENABLED() == _FALSE)
+ 459   3      #endif
+ 460   3      #endif
+ 461   3                  {
+ 462   4                      // Set Free Run DVTotal = WD-Triggering DVTotal + 1 to Prevent DVTotal Too Long
+ 463   4                      ScalerGetDataPortByte(P0_2A_DISPLAY_FORMAT_ADDR_PORT, _P0_2B_PT_0B_DISPLAY_VER_TOTAL_H, 2,
+             - pData, _AUTOINC);
+ 464   4                      PDATA_WORD(0) += 1;
+ 465   4      
+ 466   4                      SET_FREE_RUN_DVTOTAL(PDATA_WORD(0));
+ 467   4      
+ 468   4                      ScalerGlobalDDomainDBApply(_DB_APPLY_POLLING);
+ 469   4                  }
+ 470   3              }
+ 471   2      
+ 472   2              // Set Background Color to Black
+ 473   2              ScalerDDomainBackgroundSetColor(0x00, 0x00, 0x00);
+ 474   2      
+ 475   2              // Clear Display Vsync Timeout Flag
+ 476   2              ScalerSetByte(P0_0C_WATCH_DOG_CTRL0, 0x01);
+ 477   2      
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 9   
+
+ 478   2      #if(_FRC_SUPPORT == _ON)
+ 479   2              // Iclk > 600M && frame buffer, ignore overflow
+ 480   2              if(GET_IGNORE_OVERFLOW_FLAG() == _TRUE)
+ 481   2              {
+ 482   3                  // Overflow gated
+ 483   3                  ScalerSetBit(P0_0D_WATCH_DOG_CTRL1, ~_BIT7, 0x00);
+ 484   3              }
+ 485   2              else
+ 486   2      #endif
+ 487   2              {
+ 488   3                  // Overflow not gated
+ 489   3                  ScalerSetBit(P0_0D_WATCH_DOG_CTRL1, ~_BIT7, _BIT7);
+ 490   3              }
+ 491   2      
+ 492   2      #if(_DISPLAY_PREVENT_GARBAGE_METHOD == _GARBAGE_PREVENT_BY_BACKLIGHT)
+              
+                      // Clear Buffer Status and Input HVsync error flag
+                      ScalerSetByte(P0_02_STATUS0, 0xFF);
+              
+                      // Internal IRQ Enable (Global)
+                      ScalerGlobalIRQControl(_ENABLE);
+              
+                      if((GET_V_SCALE_DOWN() == _TRUE) && (GET_MDOMAIN_OUTPUT_HTOTAL() > (GET_MDOMAIN_OUTPUT_HWIDTH() <<
+             - 1)))
+                      {
+                          // Enable Input HVsync error IRQ
+                          ScalerSetBit(P0_04_IRQ_CTRL0, ~_BIT5, _BIT5);
+                      }
+                      else
+                      {
+                          // Enable Input HVsync error IRQ and fifo under/overflow IRQ
+                          ScalerSetBit(P0_04_IRQ_CTRL0, ~(_BIT5 | _BIT1), (_BIT5 | _BIT1));
+                      }
+              
+                      EX0 = 1;
+              #else
+ 513   2              // Clear flag
+ 514   2              ScalerSetByte(P0_02_STATUS0, 0xFF);
+ 515   2      
+ 516   2              if((GET_V_SCALE_DOWN() == _TRUE) && (GET_MDOMAIN_OUTPUT_HTOTAL() > (GET_MDOMAIN_OUTPUT_HWIDTH() <<
+             - 1)))
+ 517   2              {
+ 518   3                  // Enable Input H/V Error WD & WD Action
+ 519   3                  ScalerSetBit(P0_0C_WATCH_DOG_CTRL0, ~(_BIT7 | _BIT5 | _BIT3 | _BIT2 | _BIT1), (_BIT7 | _BIT5 |
+             - _BIT2 | _BIT1));
+ 520   3              }
+ 521   2              else
+ 522   2              {
+ 523   3                  // Enable Input H/V Error WD & Enable Frame Sync WD & WD Action
+ 524   3                  ScalerSetBit(P0_0C_WATCH_DOG_CTRL0, ~(_BIT7 | _BIT5 | _BIT3 | _BIT2 | _BIT1), (_BIT7 | _BIT5 |
+             - _BIT3 | _BIT2 | _BIT1));
+ 525   3              }
+ 526   2      #endif
+ 527   2              // Disable WD First
+ 528   2              ScalerSetBit(P16_17_MEAS_HS_VS_DELTA_WD, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+ 529   2              ScalerSetBit(P16_18_MEAS_HS_VS_ERROR_WD, ~(_BIT5 | _BIT4), 0x00);
+ 530   2              ScalerSetBit(P16_1C_M1_MEASURE_DUMMY0, ~_BIT7, 0x00);
+ 531   2      
+ 532   2              // Clear flag
+ 533   2              ScalerSetBit(P16_16_MEAS_HS_VS_DELTA_IRQ, ~(_BIT6 | _BIT5 | _BIT4), (_BIT6 | _BIT5 | _BIT4));
+ 534   2              ScalerSetByte(P16_03_MEAS_ERROR_FLG0, 0xFF);
+ 535   2      
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 10  
+
+ 536   2              // Enable measure overrange WD
+ 537   2      #if(_VGA_SUPPORT == _ON)
+                      if(ScalerFmtCnvGetSourceType() != _FC_SOURCE_ADC)
+              #endif
+ 540   2              {
+ 541   3                  ScalerSetBit(P16_17_MEAS_HS_VS_DELTA_WD, ~(_BIT2 | _BIT1 | _BIT0), (_BIT2 | _BIT1 | _BIT0));
+ 542   3              }
+ 543   2      
+ 544   2              // Enable Input H/Vsync overflow WD (analog)
+ 545   2              ScalerSetBit(P16_18_MEAS_HS_VS_ERROR_WD, ~(_BIT5 | _BIT4), (_BIT5 | _BIT4));
+ 546   2      
+ 547   2              // Enable Input Vsync timeout WD
+ 548   2              ScalerSetBit(P16_1C_M1_MEASURE_DUMMY0, ~_BIT7, _BIT7);
+ 549   2          }
+ 550   1          else
+ 551   1          {
+ 552   2      #if(_DISPLAY_PREVENT_GARBAGE_METHOD == _GARBAGE_PREVENT_BY_BACKLIGHT)
+                      // Disable Input HVsync error IRQ
+                      ScalerSetBit(P0_04_IRQ_CTRL0, ~(_BIT5 | _BIT1), 0x00);
+              #else
+ 556   2              // Disable Input H/V Error WD & Enable Frame Sync WD & Input H/Vsync overflow WD
+ 557   2              ScalerSetByte(P0_0C_WATCH_DOG_CTRL0, 0x00);
+ 558   2      #endif
+ 559   2              ScalerSetBit(P16_17_MEAS_HS_VS_DELTA_WD, ~(_BIT2 | _BIT1 | _BIT0), 0x00);
+ 560   2              ScalerSetBit(P16_18_MEAS_HS_VS_ERROR_WD, ~(_BIT5 | _BIT4), 0x00);
+ 561   2              ScalerSetBit(P16_1C_M1_MEASURE_DUMMY0, ~_BIT7, 0x00);
+ 562   2          }
+ 563   1      }
+ 564          
+ 565          #if(_DISPLAY_PREVENT_GARBAGE_METHOD == _GARBAGE_PREVENT_BY_BACKLIGHT)
+              //--------------------------------------------------
+              // Description  : Check if fifo underflow or overflow or IHV error, turn off backlight
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerGlobalPreventGarbageByBacklight_EXINT0(void) using 1
+              {
+                  if(((ScalerGetBit_EXINT(P0_02_STATUS0, (_BIT6 | _BIT5)) != 0x00) && (ScalerGetBit_EXINT(P0_04_IRQ_CTRL
+             -0, _BIT5) == _BIT5)) ||
+                     ((ScalerGetBit_EXINT(P0_02_STATUS0, (_BIT0)) != 0x00) && (ScalerGetBit_EXINT(P0_0D_WATCH_DOG_CTRL1,
+             - _BIT7) == 0x00) && (ScalerGetBit_EXINT(P0_04_IRQ_CTRL0, _BIT1) == _BIT1)) ||
+                     ((ScalerGetBit_EXINT(P0_02_STATUS0, (_BIT1 | _BIT0)) != 0x00) && (ScalerGetBit_EXINT(P0_0D_WATCH_DO
+             -G_CTRL1, _BIT7) == _BIT7) && (ScalerGetBit_EXINT(P0_04_IRQ_CTRL0, _BIT1) == _BIT1)))
+                  {
+              #if(_PANEL_OLED_BACKLIGHT_AC_DET_CONTROL_TYPE == _PANEL_OLED_AC_DET_CTRL_WITHOUT_SEQ)
+                      PCB_BACKLIGHT_POWER_PIN(_LIGHT_CONTROL_OFF);
+              #endif
+              
+                      // Set force to background and free run mode
+                      ScalerSetBit_EXINT(P0_28_VIDEO_DISPLAY_CONTROL_REG, ~(_BIT5 | _BIT3), _BIT5);
+              
+                      // Disable Input HVsync error IRQ
+                      ScalerSetBit_EXINT(P0_04_IRQ_CTRL0, ~(_BIT5 | _BIT1), 0x00);
+                  }
+              }
+              #endif // End of #if(_DISPLAY_PREVENT_GARBAGE_METHOD == _GARBAGE_PREVENT_BY_BACKLIGHT)
+ 589          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    786    ----
+   CONSTANT SIZE    =   ----    ----
+C51 COMPILER V8.12   RL6449_SERIES_GLOBAL                                                  01/02/2025 16:31:41 PAGE 11  
+
+   XDATA SIZE       =      1       3
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

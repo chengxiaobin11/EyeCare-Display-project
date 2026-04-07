@@ -1,0 +1,208 @@
+C51 COMPILER V9.60.0.0   RL6432_SERIES_COLOR                                               08/21/2025 10:44:54 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE RL6432_SERIES_COLOR
+OBJECT MODULE PLACED IN .\Output\RL6432\RL6432_Series_Color.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\Scaler\RL6432_Series_Scaler\Code\RL6432_Series_Color.c LARGE OPTI
+                    -MIZE(9,SPEED) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Syst
+                    -em\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFuncti
+                    -on\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scale
+                    -r\RL6432_Series_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\H
+                    -eader;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;
+                    -.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\H
+                    -eader) DEFINE(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\RL6432_Seri
+                    -es_Color.lst) TABS(2) OBJECT(.\Output\RL6432\RL6432_Series_Color.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6432_Series_Color.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          #if(_D_DITHER_SUPPORT == _ON)
+  23          #define _DDITHER_TEMPORAL_ENABLE                _ENABLE
+  24          #endif // end of #if(_D_DITHER_SUPPORT == _ON)
+  25          
+  26          //****************************************************************************
+  27          // STRUCT / TYPE / ENUM DEFINITTIONS
+  28          //****************************************************************************
+  29          
+  30          //****************************************************************************
+  31          // CODE TABLES
+  32          //****************************************************************************
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          #if(_D_DITHER_SUPPORT == _ON)
+  42          void ScalerColorDDitherAdjust(BYTE code *pucDitherTable, BYTE code *pucSeqTable, BYTE code *pucTempoTable,
+             - BYTE ucBankAddress);
+  43          #endif
+  44          
+  45          #if(_UNIFORMITY_SUPPORT == _ON)
+              void ScalerColorPanelUniformityInitial(void);
+C51 COMPILER V9.60.0.0   RL6432_SERIES_COLOR                                               08/21/2025 10:44:54 PAGE 2   
+
+              #endif
+  48          
+  49          //****************************************************************************
+  50          // FUNCTION DEFINITIONS
+  51          //****************************************************************************
+  52          #if(_D_DITHER_SUPPORT == _ON)
+  53          //--------------------------------------------------
+  54          // Description  : Adjust D Dither Common Setting
+  55          // Input Value  :
+  56          //                pucDitherTable : Dither Table Pointer
+  57          //                pucSeqTable : Seq Table Pointer
+  58          //                pucTempoTable : Temporal Table Pointer
+  59          //                ucBankAddress : Bank Address
+  60          // Output Value : None
+  61          //--------------------------------------------------
+  62          void ScalerColorDDitherAdjust(BYTE code *pucDitherTable, BYTE code *pucSeqTable, BYTE code *pucTempoTable,
+             - BYTE ucBankAddress)
+  63          {
+  64   1          DWORD ulSettingOption = 0x00000000;
+  65   1          BYTE ucKeepNFrame = _DDITHER_KEEP_1_FRAME;
+  66   1      
+  67   1          ScalerColorDDitherLoadDitherTable(pucDitherTable, ucBankAddress);
+  68   1      
+  69   1      #if((_D_DITHER_MULTI_SEQ_ENABLE == _ENABLE) || (_D_DITHER_SERIES_SEQ_ENABLE == _ENABLE) || (_D_DITHER_ADVA
+             -NCE_SETTING_ENABLE == _ENABLE))
+                  ScalerColorDDitherLoadSeqTable(pucSeqTable, 192, ucBankAddress);
+              #else
+  72   1          ScalerColorDDitherLoadSeqTable(pucSeqTable, 48, ucBankAddress);
+  73   1      #endif
+  74   1      
+  75   1          ScalerColorDDitherLoadTempoTable(pucTempoTable, ucBankAddress);
+  76   1      
+  77   1      #if(((_D_DITHER_MULTI_SEQ_ENABLE == _ENABLE) && (_D_DITHER_SERIES_SEQ_ENABLE == _DISABLE)) ||\
+  78   1          (_D_DITHER_SHARE_SEQ_ENABLE == _ENABLE) || (_D_DITHER_SEQ_INV_ENABLE == _ENABLE) ||\
+  79   1          (_D_DITHER_V_FRAME_MOD == _ENABLE) || (_D_DITHER_H_FRAME_MOD == _ENABLE))
+              
+                  switch(_D_DITHER_SUPER_PIXEL_SIZE)
+                  {
+                      case _DDITHER_SUPER_PIXEL_2X2:
+                          if((_PANEL_DISP_BIT_MODE == _PANEL_DISP_18_BIT) || (_PANEL_DISP_BIT_MODE == _PANEL_DISP_30_BIT
+             -))
+                          {
+                              ucKeepNFrame = _DDITHER_KEEP_4_FRAME;
+                          }
+                          else
+                          {
+                              ucKeepNFrame = _DDITHER_KEEP_16_FRAME;
+                          }
+                          break;
+              
+                      case _DDITHER_SUPER_PIXEL_2X4:
+                      case _DDITHER_SUPER_PIXEL_4X2:
+                          if((_PANEL_DISP_BIT_MODE == _PANEL_DISP_18_BIT) || (_PANEL_DISP_BIT_MODE == _PANEL_DISP_30_BIT
+             -))
+                          {
+                              ucKeepNFrame = _DDITHER_KEEP_2_FRAME;
+                          }
+                          else
+                          {
+                              ucKeepNFrame = _DDITHER_KEEP_8_FRAME;
+                          }
+                          break;
+C51 COMPILER V9.60.0.0   RL6432_SERIES_COLOR                                               08/21/2025 10:44:54 PAGE 3   
+
+              
+                      case _DDITHER_SUPER_PIXEL_4X4:
+                          if((_PANEL_DISP_BIT_MODE == _PANEL_DISP_18_BIT) || (_PANEL_DISP_BIT_MODE == _PANEL_DISP_30_BIT
+             -))
+                          {
+                              ucKeepNFrame = _DDITHER_KEEP_1_FRAME;
+                          }
+                          else
+                          {
+                              ucKeepNFrame = _DDITHER_KEEP_4_FRAME;
+                          }
+                          break;
+              
+                      case _DDITHER_SUPER_PIXEL_4X8:
+                      case _DDITHER_SUPER_PIXEL_8X4:
+                          if((_PANEL_DISP_BIT_MODE == _PANEL_DISP_18_BIT) || (_PANEL_DISP_BIT_MODE == _PANEL_DISP_30_BIT
+             -))
+                          {
+                              ucKeepNFrame = _DDITHER_KEEP_1_FRAME;
+                          }
+                          else
+                          {
+                              ucKeepNFrame = _DDITHER_KEEP_2_FRAME;
+                          }
+                          break;
+              
+                      default:
+                          ucKeepNFrame = _DDITHER_KEEP_1_FRAME;
+                          break;
+                  }
+              
+              #endif
+ 135   1      
+ 136   1          ulSettingOption = (_D_DITHER_6BIT_PANEL_FUNC_ENABLE << 7) | (_DDITHER_TEMPORAL_ENABLE << 4) | (_D_DITH
+             -ER_V_FRAME_MOD << 1) | _D_DITHER_H_FRAME_MOD;
+ 137   1          ulSettingOption = ulSettingOption | (((DWORD)((ucKeepNFrame << 4) | _D_DITHER_SUPER_PIXEL_SIZE)) << 8)
+             -;
+ 138   1          ulSettingOption = ulSettingOption | (((DWORD)((_D_DITHER_SERIES_SEQ_ENABLE << 3) | (_D_DITHER_MULTI_SE
+             -Q_ENABLE << 2))) << 16);
+ 139   1          ulSettingOption = ulSettingOption | (((DWORD)((_D_DITHER_SHARE_SEQ_ENABLE << 3) | (_D_DITHER_SEQ_INV_E
+             -NABLE << 1) | _D_DITHER_SEQ_INV_MODE)) << 24);
+ 140   1      
+ 141   1          ScalerColorDDitherLoadSetting(ulSettingOption);
+ 142   1      }
+ 143          #endif // #if(_D_DITHER_SUPPORT == _ON)
+ 144          
+ 145          #if(_UNIFORMITY_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Initial Panel Uniformity Setting
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerColorPanelUniformityInitial(void)
+              {
+                  ScalerSetBit(P34_00_UN_GLOBAL_CTRL, ~(_BIT6 | _BIT5 | _BIT4 | _BIT3), (((_PANEL_UNIFORMITY_HOR_INTERVA
+             -L / 64) << 5) | ((_PANEL_UNIFORMITY_VER_INTERVAL / 64) << 3)));
+                  ScalerSetByte(P34_02_UN_GAIN_LUT_HOR_GRIDS, _PANEL_UNIFORMITY_HOR_GRIDS);
+                  ScalerSetByte(P34_03_UN_GAIN_LUT_VER_GRIDS, _PANEL_UNIFORMITY_VER_GRIDS);
+                  ScalerSetByte(P34_04_UN_GAIN_LUT_HOR_OFFSET, _PANEL_UNIFORMITY_HOR_OFFSET);
+                  ScalerSetByte(P34_05_UN_GAIN_LUT_VER_OFFSET, _PANEL_UNIFORMITY_VER_OFFSET);
+              }
+              #endif // End of #if(_UNIFORMITY_SUPPORT == _ON)
+C51 COMPILER V9.60.0.0   RL6432_SERIES_COLOR                                               08/21/2025 10:44:54 PAGE 4   
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    162    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----      12
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

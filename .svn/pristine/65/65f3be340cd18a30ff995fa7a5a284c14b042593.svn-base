@@ -1,0 +1,160 @@
+C51 COMPILER V9.60.0.0   SCALERCOMMONFWUPDATEFOREGROUND                                    08/21/2025 10:44:53 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE SCALERCOMMONFWUPDATEFOREGROUND
+OBJECT MODULE PLACED IN .\Output\RL6432\ScalerCommonFwUpdateForeground.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\Scaler\ScalerCommonFunction\Code\ScalerCommonFwUpdateForeground.c
+                    - LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\
+                    -Kernel\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\S
+                    -calerFunction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\K
+                    -ernel\Scaler\RL6432_Series_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_C
+                    -ommon\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014
+                    -Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\Non
+                    -e Factory\Header) DEFINE(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\
+                    -ScalerCommonFwUpdateForeground.lst) TABS(2) OBJECT(.\Output\RL6432\ScalerCommonFwUpdateForeground.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerCommonFwUpdateForeground.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_COMMON_FOREGROUND_FW_UPDATE__
+  18          
+  19          #include "ScalerCommonFunctionInclude.h"
+  20          
+  21          #if(_FW_UPDATE_FOREGROUND_SUPPORT == _ON)
+              
+              //****************************************************************************
+              // DEFINITIONS / MACROS
+              //****************************************************************************
+              
+              
+              //****************************************************************************
+              // STRUCT / TYPE / ENUM DEFINITTIONS
+              //****************************************************************************
+              
+              
+              //****************************************************************************
+              // CODE TABLES
+              //****************************************************************************
+              
+              
+              //****************************************************************************
+              // VARIABLE DECLARATIONS
+              //****************************************************************************
+              #if((_FW_UPDATE_FOREGROUND_EXIT_TYPE == _FW_UPDATE_FOREGROUND_RESTORE_SCENE) && (_A0_EMBEDDED_DDCRAM_MAX_S
+             -IZE != _EDID_SIZE_NONE))
+              BYTE g_pucFwUpdateForegroundIspXramData[_FW_UPDATE_FOREGROUND_RESTORE_SCENE_MAX_ISP_LEN];
+              bit g_bFwUpdateForegroundDdcciStatus = _FALSE;
+              #endif
+              
+              // Reserved Xdata for isp program Sram
+C51 COMPILER V9.60.0.0   SCALERCOMMONFWUPDATEFOREGROUND                                    08/21/2025 10:44:53 PAGE 2   
+
+              #if(_A0_EMBEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE)
+              BYTE xdata g_pucProgamBuffer[128]              _at_ _HW_FLASH_PROG_USING_XRAM_START_ADDR;
+              #endif
+              #if(_D0_EMBEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE)
+              BYTE xdata g_pucProgamBuffer2[128]             _at_ (_HW_FLASH_PROG_USING_XRAM_START_ADDR + 128);
+              #endif
+              
+              //****************************************************************************
+              // FUNCTION DECLARATIONS
+              //****************************************************************************
+              #if(_FW_UPDATE_FOREGROUND_EXIT_TYPE == _FW_UPDATE_FOREGROUND_RESET)
+              void ScalerFwUpdateForegroundReset(void);
+              #endif
+              
+              #if(_FW_UPDATE_FOREGROUND_EXIT_TYPE == _FW_UPDATE_FOREGROUND_RESTORE_SCENE)
+              void ScalerFwUpdateForegroundRestoreScene(void);
+              void ScalerFwUpdateForegroundSceneBackup(void);
+              #endif
+              //****************************************************************************
+              // FUNCTION DEFINITIONS
+              //****************************************************************************
+              #if(_FW_UPDATE_FOREGROUND_EXIT_TYPE == _FW_UPDATE_FOREGROUND_RESET)
+              //--------------------------------------------------
+              // Description  : Reset Foreground Fw Update
+              // Input Value  : none
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFwUpdateForegroundReset(void)
+              {
+                  // Reset MCU
+                  MCU_FFEE_MCU_CLOCK_CONTROL |= _BIT1;
+              }
+              #endif
+              
+              #if(_FW_UPDATE_FOREGROUND_EXIT_TYPE == _FW_UPDATE_FOREGROUND_RESTORE_SCENE)
+              //--------------------------------------------------
+              // Description  : Foreground Fw Update Restore Scene
+              // Input Value  : none
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFwUpdateForegroundRestoreScene(void)
+              {
+              #if(_A0_EMBEDDED_DDCRAM_MAX_SIZE != _EDID_SIZE_NONE)
+                  // Restore data 0f address 0xE000~0xE032
+                  memcpy(GET_ISP_XRAM_BUFFER(0), g_pucFwUpdateForegroundIspXramData, _FW_UPDATE_FOREGROUND_RESTORE_SCENE
+             -_MAX_ISP_LEN);
+                  if(g_bFwUpdateForegroundDdcciStatus == _FALSE)
+                  {
+                      // Restore Force nack Ddc Channel
+                      ScalerSyncSetDdcForceNack(_A0_INPUT_PORT, g_bFwUpdateForegroundDdcciStatus);
+                  }
+              #endif
+              }
+              
+              //--------------------------------------------------
+              // Description  : Foreground Fw Update Scene Backup
+              // Input Value  : none
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFwUpdateForegroundSceneBackup(void)
+              {
+              #if(_A0_EMBEDDED_DDCRAM_MAX_SIZE != _EDID_SIZE_NONE)
+C51 COMPILER V9.60.0.0   SCALERCOMMONFWUPDATEFOREGROUND                                    08/21/2025 10:44:53 PAGE 3   
+
+                  // Backup DDC status
+                  g_bFwUpdateForegroundDdcciStatus = ScalerSyncGetDdcForceNackStatus(_A0_INPUT_PORT);
+              
+                  if(g_bFwUpdateForegroundDdcciStatus == _FALSE)
+                  {
+                      // Check for Ddc Busy Set DDCCI NACK
+                      ScalerSyncVGADdcCheckBusyAndForceNack();
+                  }
+                  memset(g_pucFwUpdateForegroundIspXramData, 0, _FW_UPDATE_FOREGROUND_RESTORE_SCENE_MAX_ISP_LEN);
+                  memcpy(g_pucFwUpdateForegroundIspXramData, GET_ISP_XRAM_BUFFER(0), _FW_UPDATE_FOREGROUND_RESTORE_SCENE
+             -_MAX_ISP_LEN);
+              #endif
+              }
+              #endif
+              
+              #endif
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

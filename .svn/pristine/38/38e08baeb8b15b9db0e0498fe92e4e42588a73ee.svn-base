@@ -1,0 +1,146 @@
+C51 COMPILER V9.01   SCALEROSD                                                             05/24/2025 15:51:14 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE SCALEROSD
+OBJECT MODULE PLACED IN .\Output\RL6449\ScalerOsd.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Kernel\Scaler\ScalerFunction\Code\ScalerOsd.c LARGE OPTIMIZE(9,SPEED) INCDI
+                    -R(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kernel\
+                    -Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\Ker
+                    -nel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Header;.\Kernel\Scaler\RL6449_Series_Sca
+                    -ler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Series_Common\Lib\Header;.\Kernel\User
+                    - Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\
+                    -Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_PROJ
+                    -ECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449\ScalerOsd.lst) OBJECT(.\Output
+                    -\RL6449\ScalerOsd.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerOsd.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SCALER_OSD__
+  18          
+  19          #include "ScalerFunctionInclude.h"
+  20          
+  21          
+  22          //****************************************************************************
+  23          // DEFINITIONS / MACROS
+  24          //****************************************************************************
+  25          
+  26          
+  27          //****************************************************************************
+  28          // STRUCT / TYPE / ENUM DEFINITTIONS
+  29          //****************************************************************************
+  30          
+  31          
+  32          //****************************************************************************
+  33          // CODE TABLES
+  34          //****************************************************************************
+  35          
+  36          
+  37          //****************************************************************************
+  38          // VARIABLE DECLARATIONS
+  39          //****************************************************************************
+  40          #if(_OSD_POSITION_OFFSET_CORRECTION == _OFF)
+              BYTE g_ucOsdPositionGlobalOffsetH;
+              BYTE g_ucOsdPositionGlobalOffsetV;
+              #endif
+  44          
+  45          //****************************************************************************
+  46          // FUNCTION DECLARATIONS
+  47          //****************************************************************************
+C51 COMPILER V9.01   SCALEROSD                                                             05/24/2025 15:51:14 PAGE 2   
+
+  48          void ScalerOsdPositionOffset(EnumOsdPositionOffsetType enumOsdPositionOffsetType, BYTE ucHOffset, BYTE ucV
+             -Offset);
+  49          void ScalerOsdReset(void);
+  50          bit ScalerOsdPositionCorrectSupport(void);
+  51          
+  52          //****************************************************************************
+  53          // FUNCTION DEFINITIONS
+  54          //****************************************************************************
+  55          
+  56          //--------------------------------------------------
+  57          // Description  : Set osd position
+  58          // Input Value  : EnumOsdPositionOffsetType -> _OSD_POSITION_OFFSET_GLOBAL or _OSD_POSITION_OFFSET_WINDOW
+  59          //                usHOffset                 -> Horizontal Offset
+  60          //                usVOffset                 -> Vertical  Offset
+  61          // Output Value :
+  62          //--------------------------------------------------
+  63          void ScalerOsdPositionOffset(EnumOsdPositionOffsetType enumOsdPositionOffsetType, BYTE ucHOffset, BYTE ucV
+             -Offset)
+  64          {
+  65   1          if(enumOsdPositionOffsetType == _OSD_POSITION_OFFSET_GLOBAL)
+  66   1          {
+  67   2      #if(_OSD_POSITION_OFFSET_CORRECTION == _OFF)
+                      SET_OSD_POSITION_GOLOBAL_OFFSET_H(ucHOffset);
+                      SET_OSD_POSITION_GOLOBAL_OFFSET_V(ucVOffset);
+              
+                      ucVOffset = ScalerOsdPositionOffsetVerticalAlignByDVBGStart(ucVOffset);
+              #endif
+  73   2      
+  74   2              ScalerSetByte(P3A_2C_FRAME_CTRL_2C, ucVOffset);
+  75   2              ScalerSetByte(P3A_2F_FRAME_CTRL_2F, ucHOffset);
+  76   2          }
+  77   1          else
+  78   1          {
+  79   2              // adjust OSD window V start
+  80   2              ucVOffset = OSD_POSITION_OFFSET_WINDOW_V_OFFSET_ADJUST(ucVOffset);
+  81   2      
+  82   2              ScalerSetBit(P3A_32_FRAME_CTRL_32, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), ((ucVOffset & 0x0F) << 4));
+  83   2              ScalerSetBit(P3A_32_FRAME_CTRL_32, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (ucHOffset & 0x0F));
+  84   2          }
+  85   1      }
+  86          
+  87          //--------------------------------------------------
+  88          // Description  : Reset OSD
+  89          // Input Value  :
+  90          // Output Value :
+  91          //--------------------------------------------------
+  92          void ScalerOsdReset(void)
+  93          {
+  94   1          // Disable OSD Rotate (CW0)
+  95   1          // Avoid fake power off to on, osd auto rotate fail.
+  96   1          ScalerSetBit(P3A_0B_FRAME_CTRL_0B, ~(_BIT7 | _BIT6 | _BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+  97   1          ScalerSetByte(P3A_41_FRAME_CTRL_41, 0x00);
+  98   1      }
+  99          
+ 100          //--------------------------------------------------
+ 101          // Description  : Return _OSD_POSITION_OFFSET_CORRECTION
+ 102          // Input Value  :
+ 103          // Output Value :
+ 104          //--------------------------------------------------
+ 105          bit ScalerOsdPositionCorrectSupport(void)
+ 106          {
+ 107   1          return _OSD_POSITION_OFFSET_CORRECTION;
+C51 COMPILER V9.01   SCALEROSD                                                             05/24/2025 15:51:14 PAGE 3   
+
+ 108   1      }
+ 109          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     54    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

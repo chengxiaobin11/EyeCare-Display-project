@@ -1,0 +1,139 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORRGBOUTPUTGAMMAADJUST                               03/11/2025 19:56:09 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORRGBOUTPUTGAMMAADJUST
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorRGBOutputGammaAdjust.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorRGBOutputGammaAdjust.c LARGE OP
+                    -TIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..
+                    -\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449
+                    -_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL
+                    -6449_Series_ColorRGBOutputGammaAdjust.lst) OBJECT(.\Output\RL6449_Series_ColorRGBOutputGammaAdjust.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorRGBOutputGammaAdjust.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          #define _GAMMA_TABLE_SIZE                       2052
+  22          #define _GAMMA_WRITE_TO_SRAM                    0
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          
+  29          //****************************************************************************
+  30          // CODE TABLES
+  31          //****************************************************************************
+  32          
+  33          
+  34          //****************************************************************************
+  35          // VARIABLE DECLARATIONS
+  36          //****************************************************************************
+  37          
+  38          
+  39          //****************************************************************************
+  40          // FUNCTION DECLARATIONS
+  41          //****************************************************************************
+  42          void ScalerColorRGBOutputGammaAdjust(BYTE *pucGammaTableArray, BYTE ucBankNum);
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Description  : Adjust output gamma
+  49          // Input Value  : SelRegion ans Gamma Table and Gamma Table Banks and Table Length
+  50          // Output Value : None
+  51          //--------------------------------------------------
+C51 COMPILER V8.12   RL6449_SERIES_COLORRGBOUTPUTGAMMAADJUST                               03/11/2025 19:56:09 PAGE 2   
+
+  52          void ScalerColorRGBOutputGammaAdjust(BYTE *pucGammaTableArray, BYTE ucBankNum)
+  53          {
+  54   1          if(ScalerGetBit(P9_D0_RGB_GAMMA_CTRL_M1, _BIT0) == _BIT0) // RGB Gamma On
+  55   1          {
+  56   2              ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+  57   2              ScalerColorRGBOutputGammaEnable(_FUNCTION_OFF);
+  58   2      
+  59   2              ScalerSetBit(P9_D0_RGB_GAMMA_CTRL_M1, ~_BIT1, _BIT1); // Write RGB Gamma
+  60   2      
+  61   2              // Load gamma table of R Channel
+  62   2              ScalerColorOutputGammaChannelCtrl(_GAMMA_RED_CHANNEL, 0x0000, _GAMMA_WRITE_TO_SRAM);
+  63   2              ScalerBurstWrite(pucGammaTableArray, _GAMMA_TABLE_SIZE, ucBankNum, P0_66_GAMMA_PORT_SETA, _BURSTWR
+             -ITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  64   2      
+  65   2              // Load gamma table of G Channel
+  66   2              ScalerColorOutputGammaChannelCtrl(_GAMMA_GREEN_CHANNEL, 0x0000, _GAMMA_WRITE_TO_SRAM);
+  67   2              ScalerBurstWrite(pucGammaTableArray + _GAMMA_TABLE_SIZE, _GAMMA_TABLE_SIZE, ucBankNum, P0_66_GAMMA
+             -_PORT_SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  68   2      
+  69   2              // Load gamma table of B Channel
+  70   2              ScalerColorOutputGammaChannelCtrl(_GAMMA_BLUE_CHANNEL, 0x0000, _GAMMA_WRITE_TO_SRAM);
+  71   2              ScalerBurstWrite(pucGammaTableArray + (_GAMMA_TABLE_SIZE * 2), _GAMMA_TABLE_SIZE, ucBankNum, P0_66
+             -_GAMMA_PORT_SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  72   2      
+  73   2              // Disable Port Access
+  74   2              ScalerSetBit(P0_67_GAMMA_CTRL_SETA, ~_BIT7, 0x00);
+  75   2      
+  76   2              ScalerSetBit(P9_D0_RGB_GAMMA_CTRL_M1, ~_BIT1, 0x00); // Disable Write RGB Gamma
+  77   2      
+  78   2              ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+  79   2              ScalerColorRGBOutputGammaEnable(_FUNCTION_ON);
+  80   2          }
+  81   1          else
+  82   1          {
+  83   2              ScalerSetBit(P9_D0_RGB_GAMMA_CTRL_M1, ~_BIT1, _BIT1); // Write RGB Gamma
+  84   2      
+  85   2              // Load gamma table of R Channel
+  86   2              ScalerColorOutputGammaChannelCtrl(_GAMMA_RED_CHANNEL, 0x0000, _GAMMA_WRITE_TO_SRAM);
+  87   2              ScalerBurstWrite(pucGammaTableArray, _GAMMA_TABLE_SIZE, ucBankNum, P0_66_GAMMA_PORT_SETA, _BURSTWR
+             -ITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  88   2      
+  89   2              // Load gamma table of G Channel
+  90   2              ScalerColorOutputGammaChannelCtrl(_GAMMA_GREEN_CHANNEL, 0x0000, _GAMMA_WRITE_TO_SRAM);
+  91   2              ScalerBurstWrite(pucGammaTableArray + _GAMMA_TABLE_SIZE, _GAMMA_TABLE_SIZE, ucBankNum, P0_66_GAMMA
+             -_PORT_SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  92   2      
+  93   2              // Load gamma table of B Channel
+  94   2              ScalerColorOutputGammaChannelCtrl(_GAMMA_BLUE_CHANNEL, 0x0000, _GAMMA_WRITE_TO_SRAM);
+  95   2              ScalerBurstWrite(pucGammaTableArray + (_GAMMA_TABLE_SIZE * 2), _GAMMA_TABLE_SIZE, ucBankNum, P0_66
+             -_GAMMA_PORT_SETA, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+  96   2      
+  97   2              // Disable Port Access
+  98   2              ScalerSetBit(P0_67_GAMMA_CTRL_SETA, ~_BIT7, 0x00);
+  99   2      
+ 100   2              ScalerSetBit(P9_D0_RGB_GAMMA_CTRL_M1, ~_BIT1, 0x00); // Disable Write RGB Gamma
+ 101   2          }
+ 102   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    234    ----
+   CONSTANT SIZE    =   ----    ----
+C51 COMPILER V8.12   RL6449_SERIES_COLORRGBOUTPUTGAMMAADJUST                               03/11/2025 19:56:09 PAGE 3   
+
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

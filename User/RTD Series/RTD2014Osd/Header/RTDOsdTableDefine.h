@@ -1,0 +1,16328 @@
+
+
+#if((_PANEL_DH_WIDTH == 1920) && (_PANEL_DV_HEIGHT == 1080))
+#define _BEST_RESOLUTION _1_,_9_,_2_,_0_,_X_,_1_,_0_,_8_,_0_
+
+#elif((_PANEL_DH_WIDTH == 2560) && (_PANEL_DV_HEIGHT == 1440))
+#define _BEST_RESOLUTION _2_,_5_,_6_,_0_,_X_,_1_,_4_,_4_,_0_
+
+#elif((_PANEL_DH_WIDTH == 3440) && (_PANEL_DV_HEIGHT == 1440))
+#define _BEST_RESOLUTION _3_,_4_,_4_,_0_,_X_,_1_,_4_,_4_,_0_
+
+#elif((_PANEL_DH_WIDTH == 3840) && (_PANEL_DV_HEIGHT == 2160))
+#define _BEST_RESOLUTION _3_,_8_,_4_,_0_,_X_,_2_,_1_,_6_,_0_
+
+#else
+#define _BEST_RESOLUTION _X_,_X_,_X_,_X_,_X_,_X_,_X_,_X_,_X_
+#endif
+
+
+
+BYTE code str_YES[]=
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	_Y_,_e_,_s_,_END_,
+#endif
+
+#if(_DEF_FRANCAIS_TEXT)
+	_O_,_u_,_i_,_END_,
+#endif
+
+#if(_DEF_DEUTSCH_TEXT)
+	_J_,_a_,_END_,
+#endif
+
+#if(_DEF_DUTH_TEXT)
+	_J_,_a_,_END_,
+#endif
+
+#if(_DEF_ESPANOL_TEXT)
+	_S_,_EUROPE_1a,_END_,
+#endif
+
+#if(_DEF_ITALIANO_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_S_,_EUROPE_d0,_END_,
+	#else
+	_S_,_C_,_END_,
+	#endif
+#endif
+
+#if(_DEF_SUOMI_TEXT)
+	_K_,_y_,_l_,_l_,_EUROPE_18,_END_,
+#endif
+
+#if(_DEF_SWEDEN_TEXT)
+	_A_,_n_,_o_,_END_,
+#endif
+
+#if(_DEF_RUSSIA_TEXT)
+	_EUROPE_8b,_a_,_END_,
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_E_,_v_,_e_,_t_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_T_,_a_,_k_,_END_,	
+#endif
+#if(_DEF_CZECH_TEXT)
+	_J_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_D_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_39,_TH_21,_END_,
+#endif
+
+#if(_DEF_Vietnam_TEXT)
+	_VIE_17,_VIE_7B,_n_,_g_,_,_VIE_9B,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_Y_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_PC_JAP_40,_PC_JAP_3e,_END_,
+#endif
+
+#if(_DEF_KOREAN_TEXT)
+	_PC_KOR_3c,_END_,
+#endif
+
+#if(_DEF_TCHINESE_TEXT)
+	_PC_CHT_13,_END_,
+#endif
+
+#if(_DEF_SCHINESE_TEXT)
+	_PC_CHS_11,_END_,
+#endif
+
+};
+
+BYTE code str_NO[]=
+{
+
+#if(_DEF_ENGLISH_TEXT)
+    _N_,_o_,_END_,
+#endif
+	
+#if(_DEF_FRANCAIS_TEXT)
+	_N_,_o_,_n_,_END_,
+#endif
+	
+#if(_DEF_DEUTSCH_TEXT)
+	_N_,_e_,_i_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_N_,_e_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_N_,_o_,_END_,
+#endif
+	
+#if(_DEF_ITALIANO_TEXT)
+	_N_,_o_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_E_,_i_,_END_,
+#endif
+	
+#if(_DEF_SWEDEN_TEXT)
+	_N_,_e_,_END_,
+#endif
+	
+#if(_DEF_RUSSIA_TEXT)
+	_H_,_e_,_EUROPE_5f,_END_,
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_H_,_a_,_y_,_EUROPE_90,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_B_,_r_,_a_,_k_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_N_,_e_,_j_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_N_,_u_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_26,_TH_21,_END_,
+#endif
+	
+#if(_DEF_Vietnam_TEXT)
+	_K_,_h_,_VIE_3E,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_T_,_i_,_d_,_a_,_k_,___,_A_,_d_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_PC_JAP_3e,_PC_JAP_3e,_PC_JAP_3f,_END_,
+#endif
+	
+#if(_DEF_KOREAN_TEXT)
+	_PC_KOR_3d,_PC_KOR_1a,_PC_KOR_29,_END_,
+#endif
+	
+#if(_DEF_TCHINESE_TEXT)
+	_PC_CHT_14,_END_,
+#endif
+	
+#if(_DEF_SCHINESE_TEXT)
+	_PC_CHS_12,_END_,
+#endif
+
+	
+};
+
+//_EUROPE_0f
+BYTE code str_INPUT_SELECT0[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_I_,_n_,_p_,_u_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_E_,_n_,_t_,_r_,_EUROPE_14,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_i_,_n_,_g_,_a_,_b_,_e_,_q_,_u_,_e_,_l_,_l_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_I_,_n_,_v_,_o_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_S_,_e_,_l_,_e_,_c_,_c_,_i_,_EUROPE_1e,_n_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_S_,_e_,_l_,_e_,_z_,_i_,_o_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_u_,_l_,_o_,_s_,_i_,_g_,_n_,_a_,_a_,_l_,_i_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_V_,_a_,_l_,___,_a_,_v_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_B_,0X5B,0XD7,_EUROPE_3e,_o_,_p_,_END_,
+#else
+	_B_,0x84,_EUROPE_3e,_o_,_p_,_END_,
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_G_,_i_,_r_,_i_,_EUROPE_91,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_W_,_y_,_b_,_EUROPE_1e,_r_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_EUROPE_a8,_b_,_EUROPE_a9,_r_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_S_,_e_,_l_,_e_,_c_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_07,_TH_98,_TH_16,_TH_01,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_VIE_16,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_P_,_i_,_l_,_i_,_h_,_END_,
+	// _M_,_a_,_s_,_u_,_k_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+        _JPN_1a_,_FONT_SELECT_EXT1,_JPN_EXT_b4_,_JPN_7d_,_JPN_7e_,_END_,
+#else
+		_JPN_1a_,_JPN_1b_,_END_,
+#endif
+#endif
+#if(_DEF_KOREAN_TEXT)//?? ??
+		_KOR_1b_,_KOR_1c_,___,_KOR_1d_,_KOR_af_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_17,_CHT_18,_CHT_19,_CHT_1a,_CHT_1b,_CHT_1c,_CHT_1d,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_17,_CHS_18,_CHS_19,_CHS_1a,_CHS_1b,_CHS_1c,_END_,
+#endif
+
+};
+BYTE code str_INPUT_SELECT1[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_S_,_e_,_l_,_e_,_c_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_s_,_e_,_l_,_e_,_c_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_d_,_e_,___,_e_,_n_,_t_,_r_,_a_,_d_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_i_,_n_,_p_,_u_,_t_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_v_,_a_,_l_,_i_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_i_,_n_,_g_,_EUROPE_aa,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//��ڧԧߧѧݧ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_c_,0x0f,0x87,0x5d,_a_,0x7C,_a_,_END_,//_EUROPE_3f,_x_,_o_,_EUROPE_86,_a_,_END_,
+#else
+		_EUROPE_3f,_x_,_o_,_EUROPE_86,_a_,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_S_,_e_,_EUROPE_12,_i_,_m_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_W_,_e_,_j_,_EUROPE_c4,_c_,_i_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_v_,_s_,_t_,_u_,_p_,_u_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_I_,_n_,_t_,_r_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_B8,_TH_0D,_TH_C2,_TH_1A,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_VIE_18,_u_,___,_V_,_VIE_19,_o_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_I_,_n_,_p_,_u_,_t_,_END_,
+	// _M_,_a_,_s_,_u_,_k_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,//_CHT_1a,_CHT_1b,_CHT_1c,_CHT_1d,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,//_CHS_1a,_CHS_1b,_CHS_1c,_END_,
+#endif
+
+};
+
+BYTE code str_AUDIO_ADJUST0[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_u_,_d_,_i_,_o_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_EUROPE_14,_g_,_l_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_u_,_d_,_i_,_o_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_A_,_u_,_d_,_i_,_o_,_DASH_,_END_,
+	#else
+		_G_,_e_,_l_,_u_,_i_,_d_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_j_,_u_,_s_,_t_,_e_,___,_d_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_e_,_g_,_o_,_l_,_a_,_z_,_i_,_o_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_EUROPE_20,_EUROPE_18,_n_,_i_,_s_,_EUROPE_18,_EUROPE_18,_d_,_EUROPE_1f,_t_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_L_,_j_,_u_,_d_,_j_,_u_,_s_,_t_,_e_,_r_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����էڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+		_A_,_y_,0x86,0x0f,_o_,_END_,
+#else
+		_P_,_e_,_EUROPE_87,_y_,_EUROPE_7c,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_EUROPE_11,_a_,_END_,
+
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_S_,_e_,_s_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_R_,_e_,_g_,_u_,_l_,_a_,_c_,_j_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_EUROPE_ab,_p_,_r_,_a_,_v_,_y_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_A_,_j_,_u_,_s_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+        _TH_41,_TH_25,_TH_1E,_TH_68,_TH_5D,_TH_14,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_i_,_VIE_1A,_u_,___,_C_,_h_,_VIE_1B,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_P_,_e_,_n_,_y_,_e_,_s_,_u_,_a_,_i_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+        _JPN_7f_,_FONT_SELECT_EXT1,_JPN_EXT_bf_,_JPN_c4_,_JPN_c5_,_END_,
+#else
+		_FONT_SELECT_EXT1,_JPN_EXT_bf_,_FONT_SELECT_EXT1,_JPN_EXT_c0_,_FONT_SELECT_EXT1,_JPN_EXT_c1_,_FONT_SELECT_EXT1,_JPN_EXT_c2_,_FONT_SELECT_EXT1,_JPN_EXT_c3_,_END_,//_JPN_EXT_95_,_END_,
+#endif
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_1f_,_KOR_f9_,_KOR_1f_,___,_KOR_14_,_KOR_15_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_1e,_CHT_1f,_CHT_d2,_CHT_d3,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_1d,_CHS_1e,_CHS_d2,_CHS_d3,_END_,
+#endif
+
+};
+BYTE code str_AUDIO_ADJUST1[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_u_,_d_,_i_,_o_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_i_,_n_,_s_,_t_,_e_,_l_,_l_,_u_,_n_,_g_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_i_,_n_,_s_,_t_,_e_,_l_,_l_,_i_,_n_,_g_,_END_,
+	#else
+		_A_,_a_,_n_,_p_,_a_,_s_,_s_,_e_,_n_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_S_,_o_,_n_,_i_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_u_,_d_,_i_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�ߧѧ����ۧܧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+0x5D,_a_,_c_,0x5f,_p_,_o_,0x0e,_EUROPE_11,_a_,_END_,
+
+#else
+
+		_EUROPE_8c,_EUROPE_3f,_y_,_EUROPE_11,_a_,_END_,
+
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_y_,_a_,_r_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Ustaw
+		_A_,_u_,_d_,_i_,_o_,_END_,
+		//_U_,_s_,_t_,_a_,_w_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_z_,_v_,_u_,_k_,_u_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ajustare
+		_s_,_u_,_n_,_e_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_1C,_m_,___,_T_,_h_,_a_,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Penyesuaian
+		_A_,_u_,_d_,_i_,_o_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,//_CHT_d2,_CHT_d3,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,//_CHS_d2,_CHS_d3,_END_,
+#endif
+
+};
+
+
+BYTE code str_VIEWMODE0[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_V_,_i_,_e_,_w_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _A_,_n_,_s_,_i_,_c_,_h_,_t_,_s_,_DASH_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_V_,_i_,_e_,_w_,_END_,
+	#else
+		_M_,_o_,_d_,_u_,_s_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_M_,_o_,_d_,_o_,___,_d_,_e_,___,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_o_,_d_,_DOT_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_N_,_EUROPE_18,_k_,_y_,_m_,_EUROPE_18,_t_,_i_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_V_,_i_,_s_,_a_,___,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _P_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_60,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_G_,_EUROPE_1f,_r_,_EUROPE_96,_n_,_EUROPE_10,_m_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_V_,_TH_i_,_TH_e_,_TH_w_,_TH_M_,_TH_o_,_TH_d_,_TH_e_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_25_,_KOR_1a_,___,_KOR_26_,_KOR_ce_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_d0,_CHT_d1,_CHT_d2,_CHT_ec,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_dd,_CHS_cf,_CHS_d2,_CHS_e6,_END_,
+#endif
+
+};
+BYTE code str_VIEWMODE1[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _v_,_i_,_s_,_u_,_a_,_l_,_i_,_s_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _m_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_M_,_o_,_d_,_e_,_END_,
+	#else
+		_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_v_,_i_,_s_,_t_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_v_,_i_,_s_,_u_,_a_,_l_,_i_,_z_,_z_,_DOT_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+				_END_,
+#else
+	    _EUROPE_88,_p_,_o_,_c_,_EUROPE_60,_o_,_EUROPE_5f,_p_,_a_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_M_,_o_,_d_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,//_CHT_d2,_CHT_ec,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,//_CHS_d2,_CHS_e6,_END_,
+#endif
+
+};
+
+BYTE code str_COLOR_ADJUST0[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_o_,_l_,_o_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_C_,_o_,_u_,_l_,_e_,_u_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_F_,_a_,_r_,_b_,_e_,_i_,_n_,_s_,_t_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Kleuraanpassing
+		_K_,_l_,_e_,_u_,_r_,_a_,_a_,_n_,_DASH_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_j_,_u_,_s_,_t_,_e_,___,_d_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_e_,_g_,_o_,_l_,_a_,_z_,_i_,_o_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_V_,_EUROPE_18,_r_,_i_,_n_,_s_,_EUROPE_18,_EUROPE_18,_t_,_EUROPE_1f,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _F_,_EUROPE_18,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_H_,_a_,_c_,_EUROPE_5f,_p_,_o_,_EUROPE_0e,_EUROPE_11,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_R_,_e_,_n_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_R_,_e_,_g_,_u_,_l_,_a_,_c_,_j_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _EUROPE_ab,_p_,_r_,_a_,_v_,_y_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ajustare
+		_A_,_d_,_j_,_u_,_s_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_41,_TH_17,_TH_1E,_TH_5D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_M_,_VIE_19,_u_,___,_S_,_VIE_1F,_c_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Sesuaikan
+		_S_,_e_,_s_,_u_,_a_,_i_,_k_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_23_,_JPN_16_,_JPN_1f_,_JPN_c4_,_JPN_c5_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_22_,_KOR_23_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_20,_CHT_22,_CHT_d2,_CHT_d3,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_1f,_CHS_20,_CHS_d2,_CHS_d3,_END_,
+#endif
+
+};
+BYTE code str_COLOR_ADJUST1[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_EUROPE_14,_g_,_l_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Kleuraanpassing
+		_p_,_a_,_s_,_s_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_C_,_o_,_l_,_o_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_C_,_o_,_l_,_o_,_r_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _g_,_j_,_u_,_s_,_t_,_e_,_r_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		0X85,_EUROPE_3f,_e_,_EUROPE_5f,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_y_,_a_,_r_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//koloru 
+		_k_,_o_,_l_,_o_,_r_,_u_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_b_,_a_,_r_,_e_,_v_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_C_,_u_,_l_,_o_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)// Warna 
+		_W_,_a_,_r_,_n_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_14_,_KOR_15_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,
+#endif
+
+};
+
+BYTE code str_MANUAL_IMAGE_ADJUST0[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_a_,_n_,_u_,_a_,_l_,___,_I_,_m_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_EUROPE_14,_g_,_l_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_M_,_a_,_n_,_u_,_e_,_l_,_l_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_H_,_a_,_n_,_d_,_m_,_a_,_t_,_i_,_g_,_e_,_END_,
+	#else
+		_M_,_a_,_n_,_u_,_a_,_l_,___,_I_,_m_,_a_,_g_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_j_,_u_,_s_,_t_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_e_,_g_,_o_,_l_,_a_,_z_,_i_,_o_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_K_,_u_,_v_,_a_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_M_,_a_,_n_,_u_,_e_,_l_,_l_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_P_,_y_,_EUROPE_7f,_EUROPE_5d,_a_,0x7D,_END_,
+
+#else
+_P_,_y_,_EUROPE_7f,_EUROPE_5d,_DOT_,___,_EUROPE_5d,_a_,_c_,_EUROPE_5f,_DOT_,_END_,
+
+
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_M_,_a_,_n_,_u_,_e_,_l_,___,_G_,_EUROPE_1f,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)// R?czne obrazu
+	#if(_ZHONGQIANG_LANGUAGE)
+		_R_,_EUROPE_cd,_c_,_z_,_n_,_e_,_END_,
+	#else
+		_M_,_a_,_n_,_u_,_a_,_l_,___,_I_,_m_,_a_,_g_,_e_,_END_,
+	#endif
+
+#endif
+#if(_DEF_CZECH_TEXT)
+		_R_,_u_,_EUROPE_ac,___,_EUROPE_1b,_p_,_r_,___,_o_,_b_,_r_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_A_,_j_,_u_,_s_,_t_,_a_,_r_,_e_,_END_,
+	#else
+		_M_,_a_,_n_,_u_,_a_,_l_,___,_I_,_m_,_a_,_g_,_e_,_END_,
+	#endif
+
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_TH_01,_TH_02,_TH_03,_TH_41,_TH_25,_TH_1E,_TH_08,_TH_02,_TH_0A,_END_,
+	#else
+		_TH_M_,_TH_a_,_TH_n_,_TH_u_,_TH_a_,_TH_l_,___,_TH_I_,_TH_m_,_TH_a_,_TH_g_,_TH_e_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_i_,_VIE_1A,_u_,___,_C_,_h_,_VIE_1B,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	#if(_ZHONGQIANG_LANGUAGE)
+		_A_,_t_,_u_,_r_,_,_G_,_a_,_m_,_b_,_a_,_r_,_END_,
+	#else
+		// _P_,_e_,_n_,_y_,_e_,_s_,_u_,_a_,_i_,_a_,_n_,___,_G_,_a_,_m_,_b_,_a_,_r_,_END_,
+		_M_,_a_,_n_,_u_,_a_,_l_,___,_I_,_m_,_a_,_g_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_c2_,_JPN_c3_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_ca_,_KOR_c8_,_KOR_cc_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_bf,_CHT_26,_CHT_27,_CHT_f8,_CHT_d2,_CHT_d3,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_bd,_CHS_cf,_CHS_23,_CHS_d1,_CHS_d2,_CHS_d3,_END_,
+#endif
+
+};
+BYTE code str_MANUAL_IMAGE_ADJUST1[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_d_,_e_,___,_I_,_APOSTROPHE,_i_,_m_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_B_,_i_,_l_,_d_,_a_,_n_,_p_,_a_,_s_,_s_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//beeldaanpassing
+	#if(_ZHONGQIANG_LANGUAGE)
+		_b_,_e_,_e_,_l_,_d_,_,_i_,_n_,_s_,_t_,_DOT_,_END_,
+	#else
+		_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_d_,_e_,_l_,___,_I_,_m_,_a_,_g_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_I_,_m_,_m_,_a_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_S_,_EUROPE_18,_EUROPE_18,_t_,_EUROPE_1f,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_b_,_i_,_l_,_d_,_j_,_u_,_s_,_t_,_e_,_r_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�ߧѧ����ۧܧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		0x5d,_a_,_c_,0x5f,_p_,_o_,0x0E,_EUROPE_11,_a_,_END_,
+
+#else
+		_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_EUROPE_10,_n_,_t_,_EUROPE_10,___,_A_,_y_,_a_,_r_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//dopasowanie
+	#if(_ZHONGQIANG_LANGUAGE)
+		_d_,_o_,_p_,_a_,_s_,_o_,_w_,_DOT_,_END_,
+	#else
+		_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+	#endif
+
+#endif
+#if(_DEF_CZECH_TEXT)
+		_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//imaginii
+	#if(_ZHONGQIANG_LANGUAGE)
+		_i_,_m_,_g_,_DOT_,_,_m_,_a_,_n_,_u_,_a_,_l_,_EUROPE_c8,_END_,
+	#else
+		_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+	#endif
+
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_TH_3C,_TH_1D,_TH_14,_TH_11,_TH_0D,_TH_07,_TH_16,_TH_05,_END_,
+	#else
+		_TH_A_,_TH_d_,_TH_j_,_TH_u_,_TH_s_,_TH_t_,_END_,
+	#endif
+
+#endif
+#if(_DEF_Vietnam_TEXT)
+ #if(_ZHONGQIANG_LANGUAGE)
+ #if(_V22E1_H_LANGUAGE)
+ 	    _T_,_h_,_VIE_27,___,_C_,_VIE_3E,_n_,_g_,_END_,
+ #else
+        _H_,_VIE_86,_n_,_h_,_,_VIE_1C,_n_,_h_,_END_,
+ #endif
+ #else
+		_T_,_h_,_VIE_27,___,_C_,_VIE_3E,_n_,_g_,_END_,
+ #endif
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Gambar
+	#if(_ZHONGQIANG_LANGUAGE)
+		_M_,_a_,_n_,_u_,_a_,_l_,_END_,
+	#else
+		_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_c4_,_JPN_c5_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_14_,_KOR_24_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,
+#endif
+
+};
+
+// Instellingenmenu
+BYTE code str_SETUP_MENU0[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_S_,_e_,_t_,_u_,_p_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_C_,_o_,_n_,_f_,_i_,_g_,_u_,_r_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_M_,_e_,_n_,_EUROPE_10,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_I_,_n_,_s_,_t_,_e_,_l_,_l_,_i_,_n_,_g_,_e_,_n_,_END_,
+	#else
+		_S_,_e_,_t_,_u_,_p_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+        _M_,_e_,_n_,_EUROPE_1b,___,_d_,_e_,_END_,
+#else
+		_M_,_e_,_n_,_EUROPE_1b,___,_d_,_e_,___,_c_,_o_,_n_,_END_,
+#endif
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_e_,_n_,_u_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_s_,_e_,_t_,_DOT_,_V_,_a_,_l_,_i_,_k_,_k_,_o_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_I_,_n_,_s_,_t_,_EUROPE_18,_l_,_l_,_n_,_i_,_n_,_g_,_s_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���֧ߧ� 
+		_M_,_e_,_EUROPE_5d,_EUROPE_81, _END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_y_,_a_,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Menu
+		_M_,_e_,_n_,_u_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_N_,_a_,_b_,_EUROPE_1a,_d_,_k_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_M_,_e_,_n_,_i_,_u_,_l_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_09,_TH_55,_TH_01,_TH_02,_TH_03,_TH_04,_TH_05,_TH_63,_TH_02,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_VIE_19,_i_,___,_VIE_17,_VIE_5B,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_M_,_e_,_n_,_u_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_5d_,_JPN_5e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_3e_,_KOR_24_,___,_KOR_d6_,_KOR_ee_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_f9,_CHT_fa,_CHT_1c,_CHT_3e,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_24,_CHS_25,_CHS_26,_CHS_27,_END_,
+#endif
+
+};
+BYTE code str_SETUP_MENU1[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_e_,_n_,_u_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_i_,_n_,_s_,_t_,_e_,_l_,_l_,_u_,_n_,_g_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_END_,
+	#else
+		_M_,_e_,_n_,_u_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+ #if(_ZHONGQIANG_LANGUAGE)
+     _a_,_j_,_u_,_s_,_t_,_e_,_s_,_END_,
+		
+ #else
+     _f_,_i_,_g_,_u_,_r_,_a_,_c_,_i_,_EUROPE_1e,_n_,_END_,
+ #endif
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_S_,_e_,_t_,_u_,_p_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_m_,_e_,_n_,_y_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_o_,0x88,0x85,0x0f,0x0e,_END_,
+#else
+		 _EUROPE_5d,_a_,_c_,_EUROPE_5f,_p_,_o_,_EUROPE_0e,_EUROPE_11,_EUROPE_0f,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_m_,_e_,_n_,_EUROPE_10,_s_,_EUROPE_10,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Konfiguracja
+		_K_,_o_,_n_,_f_,_i_,_g_,_u_,_r_,_a_,_c_,_j_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_n_,_a_,_s_,_t_,_a_,_v_,_e_,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Configurare 
+		_C_,_o_,_n_,_f_,_i_,_g_,_u_,_r_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_P_,_e_,_n_,_g_,_a_,_t_,_u_,_r_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_27_,_JPN_3e_,_JPN_3f_,_JPN_1f_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,//_CHT_1c,_CHT_3e,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,//_CHS_26,_CHS_27,_END_,
+#endif
+
+};
+
+BYTE code str_HDMI[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+
+#if(_DEF_CZECH_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_H_,_TH_D_,_TH_M_,_TH_I_,_END_,	
+#endif
+#if(_DEF_Vietnam_TEXT)
+    _H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_H_,_D_,_M_,_I_,_END_,	 
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_H_,_D_,_M_,_I_,_END_,
+#endif
+
+};
+
+
+BYTE code str_HDMI1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+
+#if(_DEF_ROMANIAN_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+
+};
+
+
+BYTE code str_HDMI2[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+
+#if(_DEF_ROMANIAN_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,	
+#endif
+#if(_DEF_Vietnam_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+
+};
+
+BYTE code str_INPUT_PORT_TITLE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_I_,_n_,_p_,_u_,_t_,___,_P_,_o_,_r_,_t_,___,_M_,_e_,_s_,_s_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_M_,_e_,_s_,_s_,_a_,_g_,_e_,___,_p_,_o_,_r_,_t_,___,_d_,_APOSTROPHE,_e_,_n_,_t_,_r_,_EUROPE_14,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_i_,_n_,_g_,_a_,_n_,_g_,_s_,_p_,_o_,_r_,_t_,_m_,_e_,_l_,_d_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Bericht invoerpoort
+	#if(_ZHONGQIANG_LANGUAGE)
+		_B_,_e_,_r_,_i_,_c_,_h_,_t_,_,_i_,_n_,_v_,_o_,_e_,_r_,_p_,_o_,_o_,_r_,_t_,_END_,
+	#else
+		_B_,_e_,_r_,_i_,_c_,_h_,_t_,___,_i_,_n_,_p_,_u_,_t_,___,_p_,_o_,_r_,_t_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_M_,_e_,_n_,_s_,_a_,_j_,_e_,___,_p_,_u_,_e_,_r_,_t_,_o_,___,_e_,_n_,_t_,_r_,_a_,_d_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_e_,_s_,_s_,_a_,_g_,_g_,_i_,_o_,___,_p_,_o_,_r_,_t_,_a_,___,_i_,_n_,_g_,_r_,_e_,_s_,_s_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_u_,_l_,_o_,_p_,_o_,_r_,_t_,_t_,_i_,_v_,_i_,_e_,_s_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+			_I_,_n_,_g_,_EUROPE_aa,_n_,_g_,_s_,_p_,_o_,_r_,_t_,___,_m_,_e_,_d_,_d_,_e_,_l_,_a_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ܧ�ڧӧߧ��� �����
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+		_A_,0x11,0x5f,0x0f,0x3f,0x84,0x0e,_,0x88,_o_,_p_,0x5f,_END_,
+#else
+		_B_,_EUROPE_3f,_o_,_EUROPE_86,___,_c_,_o_,_o_,_EUROPE_3e,_EUROPE_83,_DOT_,___,_EUROPE_86,_EUROPE_7c,_EUROPE_7d,___,_EUROPE_88,_o_,_p_,_EUROPE_5f,_a_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_G_,_i_,_r_,_i_,_EUROPE_91,___,_n_,_o_,_k_,_t_,_a_,_s_,_EUROPE_90,___,_m_,_e_,_s_,_a_,_j_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Komunikat portu wej?ciowy
+		_K_,_o_,_m_,_u_,_n_,_i_,_k_,_a_,_t_,___,_p_,_o_,_r_,_t_,_u_,___,_w_,_e_,_j_,_EUROPE_ad,_c_,_i_,_o_,_w_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_Z_,_p_,_r_,_EUROPE_16,_v_,_a_,___,_v_,_s_,_t_,_u_,_p_,___,_p_,_o_,_r_,_t_,_u_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_M_,_e_,_s_,_a_,_j_,___,_p_,_o_,_r_,_t_,___,_d_,_e_,___,_i_,_n_,_t_,_r_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_2F,_TH_16,_TH_22,_TH_1D,_TH_02,_TH_09,_TH_0A,_TH_16,_TH_25,_TH_11,_TH_3D,_TH_0D,_TH_0A,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_h_,_VIE_3E,_n_,_g_,___,_b_,_VIE_5C,_o_,___,_c_,_VIE_91,_n_,_g_,___,_VIE_7C,_VIE_18,_u_,___,_v_,_VIE_19,_o_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Pesan port input
+		_P_,_e_,_s_,_a_,_n_,___,_p_,_o_,_r_,_t_,___,_i_,_n_,_p_,_u_,_t_,_END_,		
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_1a_,_JPN_1b_,_EXT_FONT_,_JPN_EXT_25_,_JPN_1f_,_JPN_15_,_JPN_a8_,_JPN_27_,_JPN_94_,_JPN_de_,_JPN_1f_,_JPN_b6_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_1b_,_KOR_1c_,___,_KOR_ea_,_KOR_b7_,___,_KOR_d6_,_KOR_a6_,_KOR_cc_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_17,_CHT_18,_EXT_FONT_,_CHT_EXT_0a,_CHT_19,_CHT_25,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_17,_CHS_18,_EXT_FONT_,_CHS_EXT_1e,_EXT_FONT_,_CHS_EXT_1f,_CHS_19,_CHT_22,_END_,
+#endif
+
+};
+
+
+BYTE code str_DP[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+
+};
+
+
+BYTE code str_DP1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_1_,_END_,
+#endif
+
+};
+
+
+BYTE code str_DP2[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_,_2_,_END_,
+#endif
+
+};
+
+BYTE code str_VGA[] =
+{
+	_END_,
+};
+/*
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _TH_D_,_TH_DASH_,_TH_S_,_TH_u_,_TH_b_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _D_,_DASH_,_S_,_u_,_b_,_END_,
+#endif
+
+};
+*/
+
+BYTE code str_INPUT_PORT0[] =
+{
+	_H_,_D_,_M_,_I_,_1_,_END_,
+};
+/*
+{
+#if(_DEF_ENGLISH_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	_H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _H_,_D_,_M_,_I_,_1_,_END_,
+#endif
+};
+*/
+
+BYTE code str_INPUT_PORT1[] =
+{
+	_H_,_D_,_M_,_I_,_2_,_END_,
+};
+/*
+{
+#if(_DEF_ENGLISH_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_H_,_D_,_M_,_I_,_2_,_END_,
+#endif
+
+};
+*/
+
+BYTE code str_INPUT_PORT2[] =
+{
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+};
+/*
+{
+#if(_DEF_ENGLISH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _D_,_i_,_s_,_p_,_l_,_a_,_y_,_P_,_o_,_r_,_t_,_END_,
+#endif
+
+};
+*/
+
+#if(_AUDIO_SUPPORT == _ON)
+BYTE code str_VOLUME[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _V_,_o_,_l_,_u_,_m_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _V_,_o_,_l_,_u_,_m_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _L_,_a_,_u_,_t_,_s_,_t_,_EUROPE_18,_r_,_k_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _V_,_o_,_l_,_u_,_m_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _V_,_o_,_l_,_u_,_m_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _V_,_o_,_l_,_u_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _EUROPE_20,_EUROPE_18,_n_,_e_,_n_,_v_,_o_,_i_,_m_,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_V_,_o_,_l_,_y_,_m_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//§¤§â§à§Þ§Ü§à§ã§ä§î
+#if(_V22E1_H_LANGUAGE)
+		_EUROPE_24,_p_,_o_,_EUROPE_60,_EUROPE_11,_o_,_c_,_EUROPE_5f,_EUROPE_95,_END_,
+#else
+		_S_,_e_,_s_,___,_d_,_EUROPE_10,_z_,_e_,_y_,_i_,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)//Ses d¨¹zeyi
+		_S_,_e_,_s_,___,_d_,_EUROPE_10,_z_,_e_,_y_,_i_,_END_,
+		//_VIE_1C,_m_,___,_L_,_VIE_1D,_VIE_1E,_n_,_g_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//G?o?no?? 
+		_G_,_EUROPE_c6,_o_,_EUROPE_c4,_n_,_o_,_EUROPE_c4,_EUROPE_c5,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)//Volym
+#if(_ZHONGQIANG_LANGUAGE)
+        _H_,_l_,_a_,_s_,_i_,_t_,_o_,_s_,_t_,_END_,
+#else
+		_S_,_e_,_s_,___,_d_,_EUROPE_10,_z_,_e_,_y_,_i_,_END_,
+#endif
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_V_,_o_,_l_,_u_,_m_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_03,_TH_4D,_TH_29,_TH_1E,_TH_07,_TH_5D,_TH_14,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+ #if(_ZHONGQIANG_LANGUAGE)
+        _KOR_80_,_m_,_KOR_00_,_KOR_4c_,_KOR_1d_,_KOR_1e_,_n_,_g_,_END_,
+ #else
+		_KOR_7b_,_KOR_7c_,_END_,
+ #endif
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_V_,_o_,_l_,_u_,_m_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+       _CHT_7f,_CHT_80,_END_,
+#else
+		_CHT_1e,_CHT_5e,_END_,
+#endif
+#endif
+#if(_DEF_KOREAN_TEXT)
+
+#if(_ZHONGQIANG_LANGUAGE)
+        _CHS_7b,_CHS_7c,_END_,
+#else
+		_CHS_1d,_CHS_3f,_END_,
+#endif
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    //_H_,_l_,_a_,_s_,_i_,_t_,_o_,_s_,_t_,_END_,
+	    _CHT_1e,_CHT_5e,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+        _FONT_SELECT_EXT1,_CHS_EXT_8d,_CHS_3f,_END_,
+	    //_V_,_o_,_l_,_y_,_m_,_END_,
+#endif
+
+};
+
+BYTE code str_MUTE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _M_,_u_,_t_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _M_,_u_,_e_,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _S_,_t_,_u_,_m_,_m_,_s_,_c_,_h_,_a_,_l_,_t_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Dempen
+	    _D_,_e_,_m_,_p_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _S_,_i_,_l_,_e_,_n_,_c_,_i_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _M_,_u_,_t_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _M_,_y_,_k_,_i_,_s_,_t_,_y_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_JPN_81_,_JPN_3f_,_JPN_1f_,_JPN_15_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���֧٧٧ӧ��ߧ���
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	0X8E,_e_,0x7e,0x7e,0x3f,_y_,0x7f,0x5d,0x84,0x0e,_END_,	
+
+#else
+		_EUROPE_26,_p_,_EUROPE_0f,_EUROPE_87,_EUROPE_7c,_y_,_EUROPE_a5,_e_,_EUROPE_5d,_EUROPE_0f,_e_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_S_,_e_,_s_,_s_,_i_,_z_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Wyciszenie 
+		_W_,_y_,_c_,_i_,_s_,_z_,_e_,_n_,_i_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+        _Z_,_t_,_l_,_u_,_m_,_i_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Dezactivare sunet
+		_D_,_e_,_z_,_a_,_c_,_t_,_i_,_v_,_a_,_r_,_e_,___,_s_,_u_,_n_,_e_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_10,_TH_11,_TH_07,_TH_0B,_TH_14,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+ #if(_ZHONGQIANG_LANGUAGE)
+        _T_,_KOR_1f_,_t_,_,_t_,_i_,_KOR_1a_,_n_,_g_,_END_,
+ #else
+		_KOR_27_,_KOR_ef_,___,_KOR_7d_,_KOR_7e_,_END_,
+ #endif
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Senyap
+		_S_,_e_,_n_,_y_,_a_,_p_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+         _JPN_81_,_JPN_3f_,_JPN_1f_,_JPN_15_,_END_,
+#else
+		_CHT_5f,_CHT_1e,_END_,
+#endif		
+#endif
+#if(_DEF_KOREAN_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+       _CHS_27,_EXT_FONT_, _KOR_EXT_a9_ ,_CHS_7d,_CHS_7e,_END_,
+#else
+		_CHS_5b,_CHS_1d,_END_,
+#endif		
+#endif
+#if(_DEF_TCHINESE_TEXT)
+         _CHT_5f,_CHT_1e,_END_,
+	   // _Z_,_t_,_l_,_u_,_m_,_i_,_t_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+       _FONT_SELECT_EXT1,_CHS_EXT_8c,_FONT_SELECT_EXT1,_CHS_EXT_8d,_END_,
+	    //_T_,_y_,_s_,_t_,_END_,
+#endif
+
+};
+#endif
+
+BYTE code str_STANDARD[]=
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_S_,_t_,_a_,_n_,_d_,_a_,_r_,_d_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_S_,_t_,_a_,_n_,_d_,_a_,_r_,_d_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _S_,_t_,_a_,_n_,_d_,_a_,_r_,_d_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_S_,_t_,_a_,_n_,_d_,_a_,_a_,_r_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _E_,_s_,_t_,_EUROPE_16,_n_,_d_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _S_,_t_,_a_,_n_,_d_,_a_,_r_,_d_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _S_,_t_,_a_,_n_,_d_,_a_,_r_,_d_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_S_,_t_,_a_,_n_,_d_,_a_,_r_,_d_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ѧߧէѧ��
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+			_C_,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_86,_a_,_p_,_EUROPE_5f,_END_,
+		
+#else
+				_C_,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_86,_a_,_p_,_EUROPE_5f,_EUROPE_5d,_o_,_e_,_END_,
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_S_,_t_,_a_,_n_,_d_,_a_,_r_,_t_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)// Standardowy
+		_S_,_t_,_a_,_n_,_d_,_a_,_r_,_d_,_o_,_w_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_S_,_t_,_a_,_n_,_d_,_a_,_r_,_d_,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_S_,_t_,_a_,_n_,_d_,_a_,_r_,_d_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_09,_TH_02,_TH_1A,_TH_03,_TH_15,_TH_02,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_i_,_VIE_22,_u_,___,_c_,_h_,_u_,_VIE_23,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_S_,_t_,_a_,_n_,_d_,_a_,_r_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_ba_,_JPN_bb_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_da_,_KOR_db_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_ae,_CHT_af,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_a8,_CHS_a9,_END_,
+#endif
+
+};
+
+
+BYTE code str_FPS[] =
+{
+#if 1 //(_FPS_RTS_ENGLISH_ONLY)
+#if(_DEF_ENGLISH_TEXT)
+		_F_,_P_,_S_,_,_G_,_a_,_m_,_e_,_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+        _I_,_P_,_S_,_END_,
+	#else
+        _T_,_i_,_r_,_,_EUROPE_17,_,_l_,_a_,_,_1_,_e_,_,_p_,_e_,_r_,_s_,_o_,_n_,_n_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+        _B_,_i_,_l_,_d_,_e_,_r_,_SLASH_,_s_,_END_,
+	#else
+        _E_,_g_,_o_,_DASH_,_S_,_h_,_o_,_o_,_t_,_e_,_r_,_END_,
+	#endif
+#endif
+#if(_DEF_DUTH_TEXT)
+		_F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+        _F_,_P_,_S_,_END_,
+	#else
+	    _A_,_c_,_c_,_i_,_EUROPE_1e,_n_,_,_e_,_n_,_,_1_,_EUROPE_8f,_,_p_,_e_,_r_,_s_,_o_,_n_,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+        _F_,_P_,_S_,_END_,
+	#else
+		_G_,_i_,_o_,_c_,_h_,_i_,_,_F_,_P_,_S_,_END_,
+	#endif
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_1_,_DOT_,_p_,_e_,_r_,_s_,_o_,_o_,_n_,_a_,_n_,_,_a_,_m_,_p_,_u_,_j_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+        _F_,_EUROPE_1f,_r_,_s_,_t_,_a_,_p_,_e_,_r_,_s_,_o_,_n_,_s_,_s_,_K_,_j_,_u_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_F_,_P_,_S_,_END_,
+		//_EUROPE_7b,_a_,_EUROPE_86,_p_,_o_,_EUROPE_3f,_EUROPE_3f,_,_c_,_e_,_EUROPE_11,_y_,_EUROPE_5d,_EUROPE_86,_y_,_END_,
+	#else
+	    _EUROPE_a1,_y_,_EUROPE_5f,_e_,_p_,_,_o_,_EUROPE_5f,_,_1_,_DASH_,_r_,_o_,_,_EUROPE_7c,_EUROPE_0f,_EUROPE_85,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_K_,_a_,_r_,_e_,_SLASH_,_S_,_n_,_DOT_,_END_,
+	#else
+	    _B_,_i_,_r_,_i_,_n_,_c_,_i_,_,_K_,_i_,_EUROPE_9f,_i_,_,_N_,_i_,_EUROPE_9f,_a_,_n_,_c_,_EUROPE_90,_END_,
+	#endif
+#endif
+#if(_DEF_POLISH_TEXT)
+		_F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_S_,_t_,_EUROPE_ae,_EUROPE_c3,_l_,_e_,_EUROPE_ac,_k_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_F_,_TH_P_,_TH_S_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _1_,_KOR_dd_,_EXT_FONT_,_KOR_EXT_aa_,_,_EXT_FONT_,_KOR_EXT_ab_,_EXT_FONT_,_KOR_EXT_8d_,_,_KOR_5f_,_KOR_5d_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_F_,_P_,_S_,_END_,
+#endif
+#else
+#if (_FPS_GAME_CHANGE)
+#if(_DEF_ENGLISH_TEXT)
+        _G_,_a_,_m_,_e_,_,_END_,
+
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+        _J_,_e_,_u_,_x_,_END_,
+  
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+        _S_,_p_,_i_,_e_,_l_,_END_,
+    
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _J_,_u_,_e_,_g_,_o_,_END_,
+	    
+#endif
+#if(_DEF_ITALIANO_TEXT)
+       _G_,_i_,_o_,_c_,_h_,_i_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	  _P_,_e_,_l_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+      _S_,_e_,_p_,_l_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _EUROPE_23,_EUROPE_24,_p_,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _O_,_y_,_u_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+         _H_,_r_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _FONT_SELECT_EXT1,_JPN_EXT_05_,_JPN_1f_,_JPN_ae_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _KOR_5f_,_KOR_5d_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _CHS_e8,_CHS_e9,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _CHT_e4, _CHT_e5,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+       _G_,_a_,_m_,_e_,_END_,
+#endif
+
+
+
+
+#else
+
+#if(_DEF_ENGLISH_TEXT)
+#if(_5KEY_MENU_STYLE)
+        _F_,_P_,_S_,_END_,
+#else
+        _F_,_P_,_S_,_,_G_,_a_,_m_,_e_,_,_END_,
+#endif
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+        _T_,_i_,_r_,_,_EUROPE_17,_,_l_,_a_,_,_1_,_e_,_,_p_,_e_,_r_,_s_,_o_,_n_,_n_,_e_,_END_,
+  
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+        _E_,_g_,_o_,_DASH_,_S_,_h_,_o_,_o_,_t_,_e_,_r_,_END_,
+    
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _A_,_c_,_c_,_i_,_EUROPE_1e,_n_,_,_e_,_n_,_,_1_,_EUROPE_8f,_,_p_,_e_,_r_,_s_,_o_,_n_,_a_,_END_,
+	    
+#endif
+#if(_DEF_ITALIANO_TEXT)
+       _G_,_i_,_o_,_c_,_h_,_i_,_,_F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	   _1_,_DOT_,_p_,_e_,_r_,_s_,_o_,_o_,_n_,_a_,_n_,_,_a_,_m_,_p_,_u_,_j_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+       _S_,_t_,_EUROPE_ae,_EUROPE_c3,_l_,_e_,_EUROPE_ac,_k_,_a_,_END_,
+	   // _F_,_EUROPE_1f,_r_,_s_,_t_,_a_,_p_,_e_,_r_,_s_,_o_,_n_,_s_,_s_,_K_,_j_,_u_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _EUROPE_a1,_y_,_EUROPE_5f,_e_,_p_,_,_o_,_EUROPE_5f,_,_1_,_DASH_,_r_,_o_,_,_EUROPE_7c,_EUROPE_0f,_EUROPE_85,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _B_,_i_,_r_,_i_,_n_,_c_,_i_,_,_K_,_i_,_EUROPE_9f,_i_,_,_N_,_i_,_EUROPE_9f,_a_,_n_,_c_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+        _F_,_EUROPE_1f,_r_,_s_,_t_,_a_,_p_,_e_,_r_,_s_,_o_,_n_,_s_,_s_,_K_,_j_,_u_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _1_,_KOR_dd_,_EXT_FONT_,_KOR_EXT_aa_,_,_EXT_FONT_,_KOR_EXT_ab_,_EXT_FONT_,_KOR_EXT_8d_,_,_KOR_5f_,_KOR_5d_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _F_,_P_,_S_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+       _F_,_P_,_S_,_END_,
+#endif
+
+#endif
+#endif
+};
+
+BYTE code str_RTS[] =
+{
+#if 1 //(_FPS_RTS_ENGLISH_ONLY)
+#if(_DEF_ENGLISH_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		//_R_,_T_,_S_,_END_,
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+		_R_,_T_,_S_,_END_,
+
+#else
+
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_R_,_TH_T_,_TH_S_,_,_TH_G_,_TH_a_,_TH_m_,_TH_e_,_END_,
+		//_TH_R_,_TH_T_,_TH_S_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_R_,_T_,_S_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_R_,_T_,_S_,_END_,
+#endif
+
+#else
+#if(_DEF_ENGLISH_TEXT)
+#if(_5KEY_MENU_STYLE)
+
+		_R_,_T_,_S_,_END_,
+#else
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_R_,_T_,_S_,_END_, //_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_R_,_T_,_S_,_END_, //_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_R_,_T_,_S_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#endif
+};
+
+BYTE code str_MOBA[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_O_,_B_,_A_,_,_G_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)//Ar comb mult en l¨ªn
+#if(_V22E1_H_LANGUAGE)
+		_A_,_r_,___,_c_,_o_,_m_,_b_,___,_m_,_u_,_l_,_t_,___,_e_,_n_,___,_l_,_EUROPE_c3,_n_,_END_,
+#else
+		_M_,_O_,_B_,_A_,_END_,
+#endif		
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)//Taist.ar.moninpeli
+#if(_V22E1_H_LANGUAGE)
+		_T_,_a_,_i_,_s_,_t_,_DOT_,_a_,_r_,_DOT_,_m_,_o_,_n_,_i_,_p_,_e_,_l_,_i_,_END_,
+#else		
+		_M_,_O_,_B_,_A_,_END_,	
+#endif			
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Gra typu MOBA
+		_G_,_r_,_a_,_,_t_,_y_,_p_,_u_,_,_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_M_,_TH_O_,_TH_B_,_TH_A_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_M_,_O_,_B_,_A_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+#if 1//(_V22E1_H_LANGUAGE)//¶àÈËÏßÉÏ¾º¼¼ÓÎÏ·
+		_FONT_SELECT_EXT1,_CHT_EXT_35,_FONT_SELECT_EXT1,_CHT_EXT_36,_FONT_SELECT_EXT1,_CHT_EXT_38,_FONT_SELECT_EXT1,_CHT_EXT_9e,_FONT_SELECT_EXT1,_CHT_EXT_39,_FONT_SELECT_EXT1,_CHT_EXT_3a,_FONT_SELECT_EXT1,_CHT_EXT_29,_FONT_SELECT_EXT1,_CHT_EXT_2a,_END_,
+#else
+	    _M_,_O_,_B_,_A_,_END_,
+#endif		
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _M_,_O_,_B_,_A_,_END_,
+#endif
+
+};
+
+BYTE code str_MOVIE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_o_,_v_,_i_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_P_,_e_,_l_,_EUROPE_1a,_c_,_u_,_l_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_E_,_l_,_o_,_k_,_u_,_v_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ڧߧ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_K_,0X0F,0X5D,_o_,_END_,
+
+#else
+_EUROPE_8d,_EUROPE_0f,_EUROPE_7c,_EUROPE_95,_EUROPE_60,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Film
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_08,_TH_02,_TH_0A,_TH_14,_TH_0D,_TH_1A,_TH_25,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_P_,_h_,_i_,_m_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_F_,_i_,_l_,_m_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_f6_,_JPN_c2_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_b6_,_KOR_bb_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_d0,_CHT_ed,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_dd,_CHS_e7,_END_,
+#endif
+
+};
+
+BYTE code str_WEB[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_W_,_e_,_b_,_b_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���֧�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+
+_B_,_e_,0x3e,_END_,
+#else
+
+		_EUROPE_23,_EUROPE_5d,_EUROPE_5f,_e_,_p_,_EUROPE_5d,_e_,_EUROPE_5f,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Sie? internetowa
+		_S_,_i_,_e_,_EUROPE_c5,_,_i_,_n_,_t_,_e_,_r_,_n_,_e_,_t_,_o_,_w_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_B9,_TH_1E,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_W_,_e_,_b_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_af_,_JPN_a4_,_JPN_88_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d1_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_ee,_CHT_ef,_CHT_f0,_CHT_f1,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_e8,_CHS_e9,_CHS_ea,_CHT_eb,_END_,
+#endif
+
+};
+
+BYTE code str_TEXT[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_T_,_e_,_x_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_T_,_e_,_x_,_t_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_T_,_e_,_x_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Tekst
+		_T_,_e_,_k_,_s_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_T_,_e_,_x_,_t_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_T_,_e_,_s_,_t_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_e_,_k_,_s_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_T_,_e_,_x_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���֧ܧ��
+		_T_,_e_,_EUROPE_11,_c_,_EUROPE_5f,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_M_,_e_,_t_,_i_,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Tekst
+		_T_,_e_,_k_,_s_,_t_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_T_,_e_,_x_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_T_,_e_,_x_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_2F,_TH_16,_TH_11,_TH_1D,_TH_02,_TH_09,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_V_,_VIE_24,_n_,___,_B_,_VIE_25,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_T_,_e_,_k_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_87_,_JPN_a3_,_JPN_17_,_JPN_15_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_5c_,_KOR_cf_,_KOR_b7_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_f2,_CHT_f3,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_ec,_CHS_ed,_END_,
+#endif
+
+};
+
+BYTE code str_MAC[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _TH_M_,_TH_A_,_TH_C_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _M_,_A_,_C_,_END_,
+#endif
+
+};
+
+BYTE code str_MONO[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _M_,_o_,_EUROPE_5d,_o_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _TH_12,_TH_09,_TH_12,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_VIE_26,_n_,___,_S_,_VIE_1F,_c_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+	    _M_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _JPN_5f_,_JPN_f7_,_JPN_95_,_JPN_96_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _KOR_26_,_KOR_d2_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _CHT_3e,_CHT_20,_CHT_99,_CHT_9a,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _CHS_f0,_CHS_f1,_CHS_f2,_CHS_f3,_END_,
+#endif
+
+};
+//0XD9
+BYTE code str_CONTRAST_BRIGHTNESS[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_SLASH_,_B_,_r_,_i_,_g_,_h_,_t_,_n_,_e_,_s_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_e_,_SLASH_,_L_,_u_,_m_,_i_,_n_,_o_,_s_,_i_,_t_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_SLASH_,_H_,_e_,_l_,_l_,_i_,_g_,_k_,_e_,_i_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_SLASH_,_H_,_e_,_l_,_d_,_e_,_r_,_h_,_e_,_i_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_e_,_SLASH_,_B_,_r_,_i_,_l_,_l_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_o_,_SLASH_,_L_,_u_,_m_,_i_,_n_,_o_,_s_,_i_,_t_,_EUROPE_17,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_i_,_SLASH_,_K_,_i_,_r_,_k_,_k_,_a_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_L_,_j_,_u_,_s_,_s_,_t_,_y_,_r_,_k_,_a_,_SLASH_,_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+	0XDA,_o_,_EUROPE_5d,_EUROPE_5f,_p_,_a_,_c_,_EUROPE_5f,_SLASH_,_EUROPE_99,_p_,_EUROPE_11,_o_,_c_,_EUROPE_5f,_EUROPE_95,_END_,
+
+#else
+
+	_K_,_o_,_EUROPE_5d,_EUROPE_5f,_p_,_a_,_c_,_EUROPE_5f,_EUROPE_5d,_DOT_,_SLASH_,_EUROPE_99,_p_,_EUROPE_11,_o_,_c_,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_SLASH_,_P_,_a_,_r_,_l_,_a_,_k_,_l_,_EUROPE_90,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Kontrast/Jasno??
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_SLASH_,_J_,_a_,_s_,_n_,_o_,_s_,_c_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_J_,_a_,_s_,_SLASH_,_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Contrast/Luminozitate
+		_C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_SLASH_,_L_,_u_,_m_,_i_,_n_,_o_,_z_,_i_,_t_,_a_,_t_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_22,_TH_1D,_TH_02,_TH_09,_TH_19,_TH_0F,_TH_02,_TH_05,_SLASH_,_TH_22,_TH_16,_TH_0D,_TH_28,_TH_03,_TH_02,_TH_19,_TH_29,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_VIE_1D,_VIE_26,_n_,_g_,___,_P_,_h_,_VIE_25,_n_,_SLASH_,_VIE_17,_VIE_3F,___,_S_,_VIE_5C,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Kontras/Kecerahan 
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_SLASH_,_K_,_e_,_c_,_e_,_r_,_a_,_h_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_a5_,_JPN_14_,_JPN_15_,_JPN_16_,_JPN_17_,_JPN_15_,_SLASH_,_JPN_18_,_JPN_19_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_16_,_KOR_14_,___,_KOR_17_,_KOR_18_,_SLASH_,_KOR_19_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_d4,_CHT_14,_CHT_15,_SLASH_,_CHT_16,_CHT_15,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_d4,_CHS_14,_CHS_15,_SLASH_,_CHS_16,_CHS_15,_END_,
+#endif
+
+};
+BYTE code str_postion[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_H_,_DOT_,_SLASH_,_V_,_DOT_,___,_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,___,_H_,_SLASH_,_V_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_H_,_DOT_,_SLASH_,_V_,_DOT_,___,_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_H_,_DOT_,_SLASH_,_V_,_DOT_,___,_P_,_o_,_s_,_i_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _P_,_o_,_s_,_i_,_t_,_i_,_EUROPE_1e,_n_,___,_H_,_DOT_,_SLASH_,_V_,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _P_,_o_,_s_,_i_,_z_,_i_,_o_,_n_,_e_,___,_O_,_SLASH_,_V_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _V_,_SLASH_,_P_,_DASH_,_S_,_i_,_j_,_a_,_i_,_n_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_H_,_DASH_,_SLASH_,_V_,_DASH_,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _EUROPE_26,_o_,_EUROPE_7c,_o_,_EUROPE_80,_e_,_EUROPE_5d,_EUROPE_0f,_e_,___,_EUROPE_88,_o_,___,_EUROPE_24,_SLASH_,_B_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_Y_,_DOT_,_SLASH_,_D_,_DOT_,___,_K_,_o_,_n_,_u_,_m_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Pozycja w poziomie/w pionie 
+		_P_,_o_,_z_,_y_,_c_,_j_,_a_,___,_w_,___,_p_,_o_,_z_,_i_,_o_,_m_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_H_,_SLASH_,_V_,___,_p_,_o_,_z_,_i_,_c_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Pozi?ie oriz./vert.
+		_P_,_o_,_z_,_i_,_t_,_i_,_e_,___,_o_,_r_,_i_,_z_,_DOT_,_SLASH_,_v_,_e_,_r_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_33,_TH_02,_TH_23,_TH_13,_TH_18, _TH_05,_TH_13,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+  #if(_ZHONGQIANG_LANGUAGE)
+        _H_,_DOT_,_SLASH_,_V_,_DOT_,_V_,_VIE_93,_,_T_,_r_,_VIE_8E,_END_,
+  #else
+		_H_,_DOT_,_SLASH_,_V_,_DOT_,___,_VIE_17,_VIE_93,_VIE_93,_a_,_VIE_7C,_i_,_VIE_8F,_m_,_END_,
+  #endif
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_P_,_o_,_s_,_i_,_s_,_i_,___,_H_,_SLASH_,_V_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_8c_,_JPN_8d_,_SLASH_,_JPN_91_,_JPN_92_,_JPN_99_,_JPN_9a_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_84_,_KOR_90_,_SLASH_,_KOR_84_,_KOR_91_,___,_KOR_9e_,_KOR_9f_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_84,_CHT_85,_SLASH_,_CHT_88,_CHT_89,_CHT_8f,_CHT_90,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_81,_CHS_82,_SLASH_,_CHS_83,_CHS_84,_CHS_8a,_CHS_8b,_END_,
+#endif
+
+};
+
+BYTE code str_auto_image[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_u_,_t_,_o_,___,_I_,_m_,_a_,_g_,_e_,___,_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_EUROPE_14,_g_,_l_,_a_,_g_,_e_,___,_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_q_,_u_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_DOT_,_A_,_n_,_p_,_a_,_s_,_s_,_u_,_n_,_g_,___,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_c_,_h_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_j_,_u_,_s_,_t_,_e_,___,_A_,_u_,_t_,_o_,_m_,_EUROPE_16,_t_,_i_,_c_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_e_,_g_,_o_,_l_,_a_,_z_,_i_,_o_,_n_,_e_,___,_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_c_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_a_,_a_,_t_,_t_,_i_,_n_,_e_,_n_,___,_A_,_EUROPE_18,_EUROPE_18,_t_,_EUROPE_1f,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_k_,___,_b_,_i_,_l_,_d_,_j_,_u_,_s_,_t_,_e_,_r_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																																											
+			_A_,0x3f,0x5f,_o_,_o_,0x88,_p_,_e_,0x86,_e_,0x7C,_e_,0x5d,0x0f,_e_,_END_,																																								
+#else
+		
+				_A_,_EUROPE_3f,_EUROPE_5f,_o_,_o_,_EUROPE_88,_p_,_e_,_EUROPE_86,_e_,_EUROPE_7c,_DOT_,_END_,
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_O_,_t_,_o_,_m_,_a_,_t_,_i_,_k_,___,_G_,_EUROPE_1f,_r_,_EUROPE_10,_n_,_t_,_EUROPE_10,___,_A_,_y_,_a_,_r_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Autom. regulacja obrazu 	
+		_A_,_u_,_t_,_o_,_m_,_DOT_,___,_r_,_e_,_g_,_u_,_l_,_a_,_c_,_j_,_a_,___,_o_,_b_,_r_,_a_,_z_,_u_,_END_,	
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_DOT_,___,_EUROPE_1b,_p_,_r_,_a_,_v_,_y_,___,_o_,_b_,_r_,_a_,_z_,_u_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ajustare automat? a imaginii 
+		// _A_,_d_,_j_,_u_,_s_,_t_,_a_,_r_,_e_,___,_a_,_u_,_t_,_o_,_m_,_a_,_t_,_a_,___,_a_,___,_i_,_m_,_a_,_g_,_i_,_n_,_i_,_i_,_END_,
+		_A_,_u_,_t_,_o_,___,_I_,_m_,_a_,_g_,_e_,___,_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_41,_TH_17,_TH_1E,_TH_08,_TH_02,_TH_0A,_TH_1F,_TH_1A,_TH_12,_TH_0D,_TH_3F,_TH_37,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+    #if(_ZHONGQIANG_LANGUAGE)
+        _T_,_VIE_83,_,_VIE_17,_VIE_3F,_n_,_g_,_,_C_,_h_,_VIE_86,_n_,_h_,_,_H_,_VIE_86,_n_,_h_,_,_VIE_1C,_n_,_h_,_END_,
+	#else
+		_A_,_u_,_t_,_o_,___,_I_,_m_,_a_,_g_,_e_,___,_A_,_d_,_j_,_u_,_s_,_t_,_END_,//_DEF_Vietnam_TEXT
+    #endif
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Penyesuaian Gambar Otomatis
+		// _P_,_e_,_n_,_y_,_e_,_s_,_u_,_a_,_i_,_a_,_n_,___,_G_,_a_,_m_,_b_,_a_,_r_,___,_O_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_END_,
+		_A_,_u_,_t_,_o_,___,_I_,_m_,_a_,_g_,_e_,___,_A_,_d_,_j_,_u_,_s_,_t_,_END_,
+
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_c0_,_JPN_c1_,_JPN_c2_,_JPN_c3_,_JPN_c4_,_JPN_c5_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d0_,_KOR_bd_,___,_KOR_ca_,_KOR_c8_,_KOR_cc_,___,_KOR_14_,_KOR_15_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_bf,_CHT_cf,_CHT_d0,_CHT_d1,_CHT_d2,_CHT_d3,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_bd,_CHS_cf,_CHS_d0,_CHS_d1,_CHS_d2,_CHS_d3,_END_,
+#endif
+
+};
+
+BYTE code str_horizontal_size[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _H_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,___,_S_,_i_,_z_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _T_,_a_,_i_,_l_,_l_,_e_,___,_h_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _H_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,_e_,___,_G_,_r_,_EUROPE_1f,_EUROPE_22,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Horizontale grootte
+	    _H_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,_e_,___,_g_,_r_,_o_,_o_,_t_,_t_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _T_,_a_,_m_,_a_,_EUROPE_13,_o_,___,_h_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _D_,_i_,_m_,_e_,_n_,_s_,_i_,_o_,_n_,_a_,_m_,_DOT_,_O_,_r_,_i_,_z_,_z_,_o_,_n_,_t_,_a_,_l_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _V_,_a_,_a_,_k_,_a_,_k_,_o_,_k_,_o_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _H_,_o_,_r_,_i_,_s_,_o_,_n_,_t_,_e_,_l_,_l_,___,_s_,_t_,_o_,_r_,_l_,_e_,_k_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _P_,_a_,_EUROPE_8f,_EUROPE_60,_e_,_p_,___,_EUROPE_88,_o_,___,_EUROPE_87,_o_,_p_,_EUROPE_0f,_EUROPE_8f,_o_,_EUROPE_5d,_EUROPE_5f,_a_,_EUROPE_7c,_EUROPE_0f,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_Y_,_a_,_t_,_a_,_y_,___,_B_,_o_,_y_,_u_,_t_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Rozmiar w poziomie 
+		_R_,_o_,_z_,_m_,_i_,_a_,_r_,___,_w_,___,_p_,_o_,_z_,_i_,_o_,_m_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _H_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,___,_v_,_e_,_l_,_i_,_k_,_o_,_s_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Dimensiune orizontal?
+		_D_,_i_,_m_,_e_,_n_,_s_,_i_,_u_,_n_,_e_,___,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_21,_TH_0D,_TH_02,_TH_11,_TH_23,_TH_0D,_TH_1D,_TH_0D,_TH_16,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	    _K_,_VIE_8E,_c_,_h_,___,_t_,_h_,_VIE_1D,_VIE_84,_c_,___,_n_,_g_,_a_,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_U_,_k_,_u_,_r_,_a_,_n_,___,_H_,_o_,_r_,_i_,_s_,_o_,_n_,_t_,_a_,_l_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_8c_,_JPN_8d_,_JPN_9b_,_JPN_24_,_JPN_9c_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_84_,_KOR_90_,___,_KOR_9d_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_84,_CHT_85,_CHT_91,_CHT_15,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_81,_CHS_82,_CHS_8c,_CHS_15,_END_,
+#endif
+
+};
+
+BYTE code str_fine_tune[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _F_,_i_,_n_,_e_,___,_T_,_u_,_n_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _R_,_EUROPE_14,_g_,_l_,_a_,_g_,_e_,___,_i_,_m_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _F_,_e_,_i_,_n_,_e_,_i_,_n_,_s_,_t_,_e_,_l_,_l_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _F_,_i_,_j_,_n_,___,_a_,_f_,_s_,_t_,_e_,_l_,_l_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _S_,_i_,_n_,_t_,_o_,_n_,_i_,_z_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _R_,_e_,_g_,_o_,_l_,_a_,_z_,_i_,_o_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _H_,_i_,_e_,_n_,_o_,_s_,_EUROPE_18,_EUROPE_18,_t_,_EUROPE_1f,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _F_,_i_,_n_,_j_,_u_,_s_,_t_,_e_,_r_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _T_,_o_,_EUROPE_7f,_EUROPE_5d,_a_,_EUROPE_7d,___,_H_,_a_,_c_,_EUROPE_5f,_p_,_o_,_EUROPE_0e,_EUROPE_11,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_EUROPE_93,_n_,_c_,_e_,___,_A_,_y_,_a_,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Dostrojenie dostrojenie 
+		_D_,_o_,_s_,_t_,_r_,_o_,_j_,_e_,_n_,_i_,_e_,___,_d_,_o_,_s_,_t_,_r_,_o_,_j_,_e_,_n_,_i_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _J_,_e_,_m_,_n_,_EUROPE_14,___,_l_,_a_,_d_,_EUROPE_a9,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Reglaj fin?
+		_R_,_e_,_g_,_l_,_a_,_j_,___,_f_,_i_,_n_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_41,_TH_25,_TH_1E,_TH_63,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_i_,_n_,_h_,___,_c_,_h_,_VIE_1B,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_F_,_i_,_n_,_e_,___,_T_,_u_,_n_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_9d_,_JPN_c4_,_JPN_c5_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _KOR_c8_,_KOR_a0_,___,_KOR_14_,_KOR_24_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_92,_CHT_d2,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_8d,_CHS_d2,_END_,
+#endif
+
+};
+
+// #if(_SIX_COLOR_SUPPORT == _ON)
+BYTE code str_SIX_AXIS_COLOR[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_6_,_DASH_,_a_,_x_,_i_,_s_,___,_C_,_o_,_l_,_o_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_C_,_o_,_u_,_l_,_e_,_u_,_r_,___,_6_,___,_a_,_x_,_e_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_6_,_DASH_,_A_,_c_,_h_,_s_,_e_,_n_,_DASH_,_F_,_a_,_r_,_b_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_6_,_DASH_,_a_,_s_,_s_,_i_,_g_,_e_,___,_K_,_l_,_e_,_u_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_C_,_o_,_l_,_o_,_r_,___,_d_,_e_,___,_6_,___,_e_,_j_,_e_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_C_,_o_,_l_,_o_,_r_,_e_,___,_6_,___,_a_,_s_,_s_,_i_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	_6_,_DASH_,_a_,_k_,_s_,_e_,_l_,_i_,_n_,___,_v_,_EUROPE_18,_r_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_S_,_e_,_x_,_a_,_x_,_l_,_a_,_d_,___,_f_,_EUROPE_18,_r_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ߧܧѧ� �ߧѧ����ۧܧ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_T_,_o_,0x5d,_EUROPE_11,_a_,0x7D,_,0x5d,_a_,_c_,0x5f,_p_,_o_,0x0e,_EUROPE_11,_a_,_END_,
+  #else
+	_6_,_DASH_,_EUROPE_11,_o_,_EUROPE_60,_EUROPE_88,_DOT_,___,_EUROPE_25,_EUROPE_3f,_e_,_EUROPE_5f,_END_,
+  #endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_6_,___,_e_,_k_,_s_,_e_,_n_,_l_,_i_,___,_r_,_e_,_n_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//6 osiowy kolor
+	_6_,___,_o_,_s_,_i_,_o_,_w_,_y_,___,_k_,_o_,_l_,_o_,_r_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_6_,___,_o_,_s_,_EUROPE_16,___,_b_,_a_,_r_,_v_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)// Culoare 6 axe
+	_C_,_o_,_l_,_o_,_a_,_r_,_e_,___,_6_,___,_a_,_x_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_5D,_TH_6_,_TH_23,_TH_01,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_6_,___,_T_,_r_,_VIE_5D,_c_,___,_M_,_VIE_19,_u_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Warna 6 sumbu
+	_W_,_a_,_r_,_n_,_a_,___,_6_,___,_s_,_u_,_m_,_b_,_u_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_EXT_FONT_,_JPN_EXT_b3_,_EXT_FONT_,_JPN_EXT_08_,_EXT_FONT_,_JPN_EXT_b4_,_JPN_16_,_JPN_1f_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+	 _6_,_DASH_,_a_,_x_,_i_,_s_,_,_C_,_o_,_l_,_o_,_r_,_END_,
+#else
+	_EXT_FONT_,_KOR_EXT_a9_,_EXT_FONT_,_KOR_EXT_02_,___,_KOR_22_,_END_,
+#endif
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_EXT_FONT_,_CHT_EXT_89,_EXT_FONT_,_CHT_EXT_3b,_CHT_20,_CHT_22,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_EXT_FONT_,_CHS_EXT_85,_EXT_FONT_,_CHS_EXT_38,_EXT_FONT_,_CHS_EXT_26,_CHS_1f,_END_,
+#endif
+
+};
+
+BYTE code str_COLOR_TEMP[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_o_,_l_,_o_,_r_,___,_T_,_e_,_m_,_p_,_e_,_r_,_a_,_t_,_u_,_r_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_T_,_e_,_m_,_p_,_EUROPE_14,_r_,_a_,_t_,_u_,_r_,_e_,___,_c_,_o_,_u_,_l_,_e_,_u_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_F_,_a_,_r_,_b_,_t_,_e_,_m_,_p_,_e_,_r_,_a_,_t_,_u_,_r_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Kleurtemperatuur 
+		_K_,_l_,_e_,_u_,_r_,_t_,_e_,_m_,_p_,_e_,_r_,_a_,_t_,_u_,_u_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_T_,_e_,_m_,_p_,_e_,_r_,_a_,_t_,_u_,_r_,_a_,___,_d_,_e_,___,_c_,_o_,_l_,_o_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_T_,_e_,_m_,_p_,_e_,_r_,_a_,_t_,_u_,_r_,_a_,___,_c_,_o_,_l_,_o_,_r_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_V_,_EUROPE_18,_r_,_i_,_l_,_EUROPE_18,_m_,_p_,_EUROPE_1f,_t_,_i_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_F_,_EUROPE_18,_r_,_g_,_t_,_e_,_m_,_p_,_e_,_r_,_a_,_t_,_u_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���֧ާ�֧�ѧ���� ��ӧ֧��
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_T_,_e_,0X97,0x88,_e_,_p_,_a_,0x5f,_y_,_p_,_a_,_,0x85,0x3f,_e_,0x5f,_a_,_END_,							
+#else
+
+		_EUROPE_25,_EUROPE_3f,_e_,_EUROPE_5f,_o_,_EUROPE_3f,_a_,_EUROPE_7d,___,_EUROPE_5f,_e_,_EUROPE_60,_EUROPE_88,_e_,_p_,_a_,_EUROPE_5f,_y_,_p_,_a_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_R_,_e_,_n_,_k_,___,_S_,_EUROPE_90,_c_,_a_,_k_,_l_,_EUROPE_90,_EUROPE_94,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Temperatura barwowa
+		_T_,_e_,_m_,_p_,_e_,_r_,_a_,_t_,_u_,_r_,_a_,___,_b_,_a_,_r_,_w_,_o_,_w_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_T_,_e_,_p_,_l_,_o_,_t_,_a_,___,_b_,_a_,_r_,_e_,_v_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Temperatur? de culoare
+		_T_,_e_,_m_,_p_,_e_,_r_,_a_,_t_,_u_,_r_,_EUROPE_c8,___,_d_,_e_,___,_c_,_u_,_l_,_o_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_BA,_TH_08,_TH_13,_TH_BB,_TH_27,_TH_5D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_N_,_h_,_i_,_VIE_15,_t_,___,_VIE_7C,_VIE_3F,___,_m_,_VIE_19,_u_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Suhu Warna
+		_S_,_u_,_h_,_u_,___,_W_,_a_,_r_,_n_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_5e_,_FONT_SELECT_EXT1,_JPN_EXT_5f_,_FONT_SELECT_EXT1,_JPN_EXT_60_,_FONT_SELECT_EXT1,_JPN_EXT_61_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_FONT_SELECT_EXT1,_KOR_EXT_87_,_FONT_SELECT_EXT1,_KOR_EXT_88_,_FONT_SELECT_EXT1,_KOR_EXT_89_,_FONT_SELECT_EXT1,_KOR_EXT_8a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_20,_FONT_SELECT_EXT1,_CHT_EXT_21,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_1f,_FONT_SELECT_EXT1,_CHS_EXT_23,_END_,
+#endif
+
+};
+
+BYTE code str_COLOR_MODE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_o_,_l_,_o_,_r_,___,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_M_,_o_,_d_,_e_,___,_d_,_e_,___,_c_,_o_,_u_,_l_,_e_,_u_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_F_,_a_,_r_,_b_,_m_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_K_,_l_,_e_,_u_,_r_,_e_,_n_,_m_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_M_,_o_,_d_,_o_,___,_d_,_e_,___,_c_,_o_,_l_,_o_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_o_,_d_,_a_,_l_,_i_,_t_,_EUROPE_17,___,_c_,_o_,_l_,_o_,_r_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_V_,_EUROPE_18,_r_,_i_,_t_,_i_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_F_,_a_,_r_,_g_,_l_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ӧ֧�. �ާ�է֧ݧ�
+
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		0x25,0x3f,_e_,0x5f,0x2e,0X97,_o_,0x86,_e_,0x7C,0x95,_END_,																
+#else
+
+		_EUROPE_25,_EUROPE_3f,_e_,_EUROPE_5f,_o_,_EUROPE_3f,_o_,_EUROPE_0e,___,_p_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_97,_END_,	//_RUSSIA
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_R_,_e_,_n_,_k_,___,_M_,_o_,_d_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Tryb koloru
+		_T_,_r_,_y_,_b_,___,_k_,_o_,_l_,_o_,_r_,_u_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_B_,_a_,_r_,_e_,_v_,_n_,_EUROPE_a8,___,_r_,_e_,_EUROPE_b1,_i_,_m_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Mod Culoare
+		_M_,_o_,_d_,___,_C_,_u_,_l_,_o_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_12,_TH_13,_TH_09,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_VIE_14,___,_VIE_17,_VIE_3F,___,_M_,_VIE_19,_u_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Mode Warna
+		_M_,_o_,_d_,_e_,___,_W_,_a_,_r_,_n_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_1b_,_JPN_16_,_JPN_1f_,_JPN_5f_,_JPN_1f_,_JPN_93_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_FONT_SELECT_EXT1,_KOR_EXT_aa_,_KOR_ef_,___,_KOR_26_,_KOR_ce_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_20,_CHT_22,_CHT_99,_CHT_9a,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHS_EXT_45,_CHS_1f,_CHS_94,_CHS_95,_END_,
+#endif
+
+};
+
+BYTE code str_COLOR_SPACE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_o_,_l_,_o_,_r_,___,_S_,_p_,_a_,_c_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_EUROPE_9b,_c_,_h_,_e_,_l_,_l_,_e_,___,_c_,_h_,_r_,_o_,_m_,_a_,_DOT_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_F_,_a_,_r_,_b_,_r_,_a_,_u_,_m_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_K_,_l_,_e_,_u_,_r_,_r_,_u_,_i_,_m_,_t_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_E_,_s_,_p_,_a_,_c_,_i_,_o_,___,_d_,_e_,___,_c_,_o_,_l_,_o_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_S_,_p_,_a_,_z_,_i_,_o_,___,_c_,_o_,_l_,_o_,_r_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_V_,_EUROPE_18,_r_,_i_,_a_,_v_,_a_,_r_,_u_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_F_,_EUROPE_18,_r_,_g_,_r_,_y_,_m_,_d_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ӧ֧�. �������ѧߧ��ӧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		0x25,0x3f,_e_,0x5f,0x2e,0x88,_p_,_o_,_c_,0x5f,_p_,0x5d,_c_,0x5f,0x3f,_o_,_END_,																		
+#else
+
+		_EUROPE_25,_EUROPE_3f,_DOT_,_EUROPE_88,_p_,_o_,_c_,_EUROPE_5f,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_R_,_e_,_n_,_k_,___,_D_,_EUROPE_10,_z_,_l_,_e_,_m_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Przestrze¨½ kolor¨®w
+		_P_,_r_,_z_,_e_,_s_,_t_,_r_,_z_,_e_,_n_,_i_,_e_,_EUROPE_cf,___,_k_,_o_,_l_,_o_,_r_,_EUROPE_1e,_w_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_B_,_a_,_r_,_e_,_v_,_n_,_EUROPE_a8,___,_p_,_r_,_o_,_s_,_t_,_o_,_r_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Spa?iu de culoare
+		_S_,_p_,_a_,_t_,_i_,_u_,___,_d_,_e_,___,_c_,_u_,_l_,_o_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_6D,_TH_0D,_TH_53,_TH_5D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_K_,_h_,_VIE_3E,_n_,_g_,___,_G_,_i_,_a_,_n_,___,_M_,_VIE_19,_u_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) // Ruang Warna
+		_R_,_u_,_a_,_n_,_g_,___,_W_,_a_,_r_,_n_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_8d_,_FONT_SELECT_EXT1,_JPN_EXT_8e_,_FONT_SELECT_EXT1,_JPN_EXT_8f_,_FONT_SELECT_EXT1,_JPN_EXT_90_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_FONT_SELECT_EXT1,_KOR_EXT_77_,_FONT_SELECT_EXT1,_KOR_EXT_78_,_FONT_SELECT_EXT1,_KOR_EXT_79_,_FONT_SELECT_EXT1,_KOR_EXT_7a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_20,_CHT_22,_FONT_SELECT_EXT1,_CHT_EXT_22,_CHT_9e,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_1f,_CHS_20,_FONT_SELECT_EXT1,_CHS_EXT_24,_FONT_SELECT_EXT1,_CHS_EXT_25,_END_,
+#endif
+
+};
+
+BYTE code str_COLOR_RANGE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_o_,_l_,_o_,_r_,___,_R_,_a_,_n_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_P_,_l_,_a_,_g_,_e_,___,_d_,_e_,___,_c_,_o_,_u_,_l_,_e_,_u_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_F_,_a_,_r_,_b_,_b_,_e_,_r_,_e_,_i_,_c_,_h_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT) // Kleurenruimte
+	#if(_ZHONGQIANG_LANGUAGE)
+		_K_,_l_,_e_,_u_,_r_,_e_,_n_,_b_,_e_,_r_,_e_,_i_,_k_,_END_,
+	#else
+		_K_,_l_,_e_,_u_,_r_,_e_,_n_,_r_,_u_,_i_,_m_,_t_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_I_,_n_,_t_,_e_,_r_,_v_,_a_,_l_,_o_,___,_d_,_e_,___,_c_,_o_,_l_,_o_,_r_,_e_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_G_,_a_,_m_,_m_,_a_,___,_c_,_o_,_l_,_o_,_r_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_V_,_EUROPE_18,_r_,_i_,_a_,_l_,_u_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_F_,_EUROPE_18,_r_,_g_,_i_,_n_,_t_,_e_,_r_,_v_,_a_,_l_,_l_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ӧ֧��ӧ�� �էڧѧ�ѧ٧��
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		0x25,0x3f,_e_,0x5f,_o_,0x3f,_o_,0x0e,_,0x86,0x0f,_a_,0x88,_a_,0x7e,_o_,0x5d,_END_,																		
+#else
+
+
+		_EUROPE_8b,_EUROPE_0f,_a_,_EUROPE_88,_a_,_EUROPE_8f,_o_,_EUROPE_5d,___,_EUROPE_85,_EUROPE_3f,_e_,_EUROPE_5f,_o_,_EUROPE_3f,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_R_,_e_,_n_,_k_,___,_A_,_r_,_a_,_l_,_EUROPE_90,_EUROPE_94,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Zakres koloru
+		_Z_,_a_,_k_,_r_,_e_,_s_,___,_k_,_o_,_l_,_o_,_r_,_u_,_END_,	
+#endif
+#if(_DEF_CZECH_TEXT)
+		_R_,_o_,_z_,_s_,_a_,_h_,___,_b_,_a_,_r_,_e_,_v_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Interval culori	
+		_I_,_n_,_t_,_e_,_r_,_v_,_a_,_l_,___,_c_,_o_,_l_,_o_,_r_,_i_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_21,_TH_1D,_TH_05,_TH_5D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_K_,_h_,_o_,_VIE_25,_n_,_g_,___,_M_,_VIE_19,_u_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Rentang Warna
+		_R_,_e_,_n_,_t_,_a_,_n_,_g_,___,_W_,_a_,_r_,_n_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_6a_,_FONT_SELECT_EXT1,_JPN_EXT_6b_,_FONT_SELECT_EXT1,_JPN_EXT_6c_,_FONT_SELECT_EXT1,_JPN_EXT_6d_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_22_,_KOR_c1_,_KOR_9e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_20,_CHT_22,_CHT_ca,_CHT_cb,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHS_EXT_26,_CHS_1f,_CHS_c6,_CHS_c7,_END_,
+#endif
+
+};
+
+#if(_OSD_FOR_HDR400 == _ON)
+BYTE code str_HDR[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_H_,_D_,_R_,_END_,	
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_H_,_TH_D_,_TH_R_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+
+};
+#else
+BYTE code str_HDR[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_H_,_TH_D_,_TH_R_,_TH_1_,_TH_0_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_H_,_D_,_R_,_1_,_0_,_END_,
+#endif
+
+};
+#endif
+
+BYTE code str_SHARPNESS[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_S_,_h_,_a_,_r_,_p_,_n_,_e_,_s_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_F_,_i_,_n_,_e_,_s_,_s_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _S_,_c_,_h_,_EUROPE_18,_r_,_f_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_S_,_c_,_h_,_e_,_r_,_p_,_t_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _N_,_i_,_t_,_i_,_d_,_e_,_z_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _N_,_i_,_t_,_i_,_d_,_e_,_z_,_z_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _T_,_e_,_r_,_EUROPE_18,_v_,_y_,_y_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_S_,_k_,_EUROPE_18,_r_,_p_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _P_,_e_,_EUROPE_8f,_EUROPE_11,_o_,_c_,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_N_,_e_,_t_,_l_,_i_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Ostro??
+		_O_,_s_,_t_,_r_,_o_,_EUROPE_c4,_EUROPE_c5,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_O_,_s_,_t_,_r_,_o_,_s_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Claritate
+		_C_,_l_,_a_,_r_,_i_,_t_,_a_,_t_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_11,_TH_1D,_TH_02,_TH_09,_TH_11,_TH_09,_TH_2F,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_VIE_3F,___,_S_,_VIE_1F,_c_,___,_N_,_VIE_85,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Ketajaman
+		_K_,_e_,_t_,_a_,_j_,_a_,_m_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_a7_,_JPN_9e_,_JPN_1f_,_JPN_9f_,_JPN_86_,_JPN_17_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_1d_,_KOR_16_,_KOR_a1_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_93,_CHT_94,_CHT_15,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_8e,_CHS_8f,_CHS_15,_END_,
+#endif
+
+};
+
+BYTE code str_BLUELIGHT[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_B_,_l_,_u_,_e_,___,_L_,_i_,_g_,_h_,_t_,___,_F_,_i_,_l_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_F_,_i_,_l_,_t_,_r_,_e_,___,_l_,_u_,_m_,_i_,_EUROPE_15,_r_,_e_,___,_b_,_l_,_e_,_u_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_B_,_l_,_a_,_u_,_l_,_i_,_c_,_h_,_t_,_f_,_i_,_l_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT) //Blauwlichtfilter
+		_B_,_l_,_a_,_u_,_w_,_l_,_i_,_c_,_h_,_t_,_f_,_i_,_l_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_F_,_i_,_l_,_t_,_r_,_o_,___,_d_,_e_,___,_l_,_u_,_z_,___,_a_,_z_,_u_,_l_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_F_,_i_,_l_,_t_,_r_,_o_,___,_l_,_u_,_c_,_e_,___,_b_,_l_,_u_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_S_,_i_,_n_,_i_,_s_,_e_,_n_,___,_v_,_a_,_l_,_o_,_n_,___,_s_,_u_,_o_,_d_,_a_,_t_,_i_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_B_,_l_,_EUROPE_aa,_l_,_j_,_u_,_s_,_f_,_i_,_l_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ڧݧ��� ��ڧߧ֧ԧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		
+		0x8D,0x0f,0x7C,0x95,0x5f,_p_,_,_c_,0x0f,0x5d,_e_,0x87,_o_,_END_,
+#else
+
+		_C_,_EUROPE_0f,_EUROPE_5d,_EUROPE_0f,_EUROPE_0e,___,_c_,_EUROPE_3f,_e_,_EUROPE_5f,_o_,_EUROPE_9a,_EUROPE_0f,_EUROPE_7c,_EUROPE_5b,_EUROPE_5f,_p_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_M_,_a_,_v_,_i_,___,_I_,_EUROPE_91,_EUROPE_90,_k_,___,_F_,_i_,_l_,_t_,_e_,_s_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Filtr niebieskiego ?wiat?a
+		_F_,_i_,_l_,_t_,_r_,___,_EUROPE_c4,_w_,_i_,_a_,_t_,_EUROPE_c6,_a_,___,_n_,_i_,_e_,_b_,_i_,_e_,_s_,_k_,_i_,_e_,_g_,_o_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_F_,_i_,_l_,_t_,_r_,___,_m_,_o_,_d_,_r_,_EUROPE_14,_h_,_o_,___,_s_,_v_,_EUROPE_a9,_t_,_l_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Filtru de lumin? albastr?
+		_F_,_i_,_l_,_t_,_r_,_u_,___,_d_,_e_,___,_l_,_u_,_m_,_i_,_n_,_EUROPE_c8,___,_a_,_l_,_b_,_a_,_s_,_t_,_r_,_EUROPE_c8,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_6A,_TH_1C,_TH_07,_TH_1A,_TH_16,_TH_25,_TH_23,_TH_19,_TH_05,_TH_5D,_TH_2C,_TH_02,_TH_07,_TH_2D,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_L_,_VIE_16,_c_,___,_VIE_80,_n_,_h_,___,_S_,_VIE_5C,_n_,_g_,___,_X_,_a_,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Filter Cahaya Biru
+		_F_,_i_,_l_,_t_,_e_,_r_,___,_C_,_a_,_h_,_a_,_y_,_a_,___,_B_,_i_,_r_,_u_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_B_,_l_,_u_,_e_,___,_L_,_i_,_g_,_h_,_t_,___,_F_,_i_,_l_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_e1_,_KOR_ba_,___,_KOR_b9_,_KOR_ca_,_KOR_b7_,___,_KOR_85_,_KOR_60_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_f6,_CHT_7b,_CHT_f7,_CHT_ed,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_5d,_CHS_f4,_CHS_91,_CHS_f5,_CHS_f6,_END_,
+#endif
+
+};
+
+BYTE code str_ASPECT_RATIO[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_s_,_p_,_e_,_c_,_t_,___,_R_,_a_,_t_,_i_,_o_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_a_,_p_,_p_,_o_,_r_,_t_,___,_D_,_APOSTROPHE,_A_,_s_,_p_,_e_,_c_,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_S_,_e_,_i_,_t_,_e_,_n_,_v_,_e_,_r_,_h_,_EUROPE_18,_l_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Verhoudingsmodus
+		_V_,_e_,_r_,_h_,_o_,_u_,_d_,_i_,_n_,_g_,_s_,_m_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_R_,_e_,_l_,_a_,_c_,_i_,_EUROPE_1e,_n_,___,_d_,_e_,___,_A_,_s_,_p_,_e_,_c_,_t_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_a_,_p_,_p_,_o_,_r_,_t_,_o_,___,_P_,_r_,_o_,_p_,_o_,_r_,_z_,_i_,_o_,_n_,_i_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_K_,_u_,_v_,_a_,_s_,_u_,_h_,_d_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_B_,_i_,_l_,_d_,_f_,_EUROPE_1f,_r_,_h_,_EUROPE_aa,_l_,_l_,_a_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�������. �������
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_C_,_o_,_o_,0x5f,0x5d,0x2e,_c_,0x5f,_o_,_p_,_o_,0x5d,_END_,			
+				
+#else
+
+		_C_,_o_,_o_,_EUROPE_5f,_EUROPE_5d,_o_,_EUROPE_a5,_e_,_EUROPE_5d,_EUROPE_0f,_e_,___,_C_,_EUROPE_5f,_o_,_p_,_o_,_EUROPE_5d,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	 	_E_,_n_,_SLASH_,_B_,_o_,_y_,___,_O_,_r_,_a_,_n_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Wsp¨®?czynnik proporcji
+		_W_,_s_,_p_,_EUROPE_1e,_EUROPE_c6,_c_,_z_,_y_,_n_,_n_,_i_,_k_,___,_p_,_r_,_o_,_p_,_o_,_r_,_c_,_j_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_P_,_o_,_m_,_EUROPE_a9,_r_,___,_s_,_t_,_r_,_a_,_n_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Raport de aspect
+		_R_,_a_,_p_,_o_,_r_,_t_,___,_d_,_e_,___,_a_,_s_,_p_,_e_,_c_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_1F,_TH_1A,_TH_03,_TH_02,_TH_4C,_TH_1D,_TH_0D,_TH_08,_TH_02,_TH_0A,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_VIE_1B,_l_,_VIE_15,___,_K_,_h_,_u_,_n_,_g_,___,_H_,_VIE_86,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Aspek Rasio 
+		_A_,_s_,_p_,_e_,_k_,___,_R_,_a_,_s_,_i_,_o_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_5b_,_JPN_17_,_FONT_SELECT_EXT1,_JPN_EXT_29_,_JPN_95_,_JPN_15_,_JPN_cd_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_c7_,_KOR_5e_,_KOR_a0_,_KOR_5e_,_KOR_18_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_b5,_CHT_91,_CHT_14,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_8c,_CHS_ad,_CHS_14,_END_,
+#endif
+
+};
+
+BYTE code str_OVERSCAN[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_O_,_v_,_e_,_r_,_s_,_c_,_a_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_S_,_u_,_r_,_b_,_a_,_l_,_a_,_y_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_O_,_v_,_e_,_r_,_s_,_c_,_a_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_O_,_v_,_e_,_r_,_s_,_c_,_a_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_S_,_o_,_b_,_r_,_e_,_b_,_a_,_r_,_r_,_i_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_O_,_v_,_e_,_r_,_s_,_c_,_a_,_n_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_Y_,_l_,_i_,_s_,_k_,_a_,_n_,_n_,_a_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_EUROPE_9c,_v_,_e_,_r_,_s_,_k_,_a_,_n_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_O_,_v_,_e_,_r_,_s_,_c_,_a_,_n_,_END_,
+						
+						
+#else
+
+		_EUROPE_8c,_a_,_EUROPE_88,_o_,_EUROPE_7c,_EUROPE_5d,_e_,_EUROPE_5d,_EUROPE_0f,_e_,___,_EUROPE_8f,_k_,_p_,_a_,_EUROPE_5d,_a_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_A_,_EUROPE_91,_EUROPE_90,_r_,_EUROPE_90,___,_T_,_a_,_r_,_a_,_m_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Overscan
+		_O_,_v_,_e_,_r_,_s_,_c_,_a_,_n_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_P_,_EUROPE_ae,_e_,_s_,_k_,_e_,_n_,_o_,_v_,_EUROPE_16,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Baleiaj ?n excess
+		_B_,_a_,_l_,_e_,_i_,_a_,_j_,___,_EUROPE_cc,_n_,___,_e_,_x_,_c_,_e_,_s_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_01,_TH_02,_TH_03,_TH_19,_TH_23,_TH_01,_TH_0D,_TH_07,_TH_64,_TH_0D,_TH_21,_TH_16,_TH_1E,_TH_07,_TH_21,_TH_1A,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_Q_,_u_,_VIE_85,_t_,___,_H_,_VIE_86,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Overscan
+		_O_,_v_,_e_,_r_,_s_,_c_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_1e_,_JPN_1f_,_JPN_a2_,_JPN_1f_,_JPN_17_,_JPN_a3_,_JPN_9e_,_JPN_14_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_1f_,_KOR_b3_,_KOR_cf_,_KOR_eb_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_96,_CHT_97,_CHT_98,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_91,_CHS_92,_CHS_93,_END_,
+#endif
+
+};
+
+BYTE code str_STABILIZATION[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+#if(_DEFAULT_OSD_STYLE == _TRG_OSD_STYLE)
+		_B_,_l_,_a_,_c_,_k_,___,_E_,_q_,_u_,_a_,_l_,_i_,_z_,_e_,_END_,
+#else
+		_B_,_l_,_a_,_c_,_k_,___,_S_,_t_,_a_,_b_,_i_,_l_,_i_,_z_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_S_,_t_,_a_,_b_,_i_,_l_,_i_,_s_,_a_,_t_,_i_,_o_,_n_,___,_N_,_o_,_i_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_S_,_c_,_h_,_w_,_a_,_r_,_z_,_s_,_t_,_a_,_b_,_i_,_l_,_i_,_s_,_i_,_e_,_r_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Zwartstabilisatie
+		_Z_,_w_,_a_,_r_,_t_,_s_,_t_,_a_,_b_,_i_,_l_,_i_,_s_,_a_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_E_,_s_,_t_,_a_,_b_,_i_,_l_,_i_,_z_,_a_,_c_,_i_,_EUROPE_1e,_n_,___,_d_,_e_,___,_N_,_e_,_g_,_r_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_S_,_t_,_a_,_b_,_i_,_l_,_i_,_z_,_z_,_a_,_z_,_i_,_o_,_n_,_e_,___,_N_,_e_,_r_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_M_,_u_,_s_,_t_,_a_,___,_S_,_t_,_a_,_b_,_i_,_l_,_o_,_i_,_n_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_S_,_v_,_a_,_r_,_t_,___,_s_,_t_,_a_,_b_,_i_,_l_,_i_,_s_,_e_,_r_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�����ӧ֧ߧ� ��֧�ߧ�ԧ�
+
+#if(_DEFAULT_OSD_STYLE == _TRG_OSD_STYLE)
+
+_y_,_p_,_o_,0x3f,_e_,0x5d,0x95,_,0x7f,_e_,_p_,0x5d,_o_,0x87,_o_,_END_,
+#else
+
+		_C_,_EUROPE_5f,_a_,_EUROPE_3e,_EUROPE_0f,_EUROPE_7c,_EUROPE_0f,_EUROPE_7e,_a_,_EUROPE_85,_EUROPE_0f,_EUROPE_7d,___,_EUROPE_98,_e_,_p_,_EUROPE_5d,_o_,_r_,_o_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_S_,_i_,_y_,_a_,_h_,___,_D_,_e_,_n_,_g_,_e_,_l_,_e_,_m_,_e_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Stabilizacja czerni
+		_S_,_t_,_a_,_b_,_i_,_l_,_i_,_z_,_a_,_c_,_j_,_a_,___,_c_,_z_,_e_,_r_,_n_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_S_,_t_,_a_,_b_,_i_,_l_,_i_,_z_,_a_,_c_,_e_,___,_EUROPE_ac,_e_,_r_,_n_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Stabilizare nivel de negru
+		_S_,_t_,_a_,_b_,_i_,_l_,_i_,_z_,_a_,_r_,_e_,___,_n_,_i_,_v_,_e_,_l_,___,_d_,_e_,___,_n_,_e_,_g_,_r_,_u_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_01,_TH_02,_TH_03,_TH_41,_TH_25,_TH_1E,_TH_07,_TH_19,_TH_69,_TH_14,_TH_03,_TH_08,_TH_02,_TH_0A,_TH_60,_TH_33,_TH_02,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_VIE_87,_n_,___,_B_,_VIE_88,_n_,_g_,___,_M_,_VIE_19,_u_,___,_VIE_17,_e_,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Stabilisasi Kehitaman
+		_S_,_t_,_a_,_b_,_i_,_l_,_i_,_s_,_a_,_s_,_i_,___,_K_,_e_,_h_,_i_,_t_,_a_,_m_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_B_,_l_,_a_,_c_,_k_,___,_S_,_t_,_a_,_b_,_i_,_l_,_i_,_z_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_e1_,_FONT_SELECT_EXT1,_KOR_EXT_02_,___,_KOR_d8_,_KOR_24_,_KOR_bb_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHT_EXT_07,_FONT_SELECT_EXT1,_CHT_EXT_08,_FONT_SELECT_EXT1,_CHT_EXT_09,_CHT_fa,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHS_EXT_07,_CHS_1f,_FONT_SELECT_EXT1,_CHS_EXT_09,_CHS_25,_END_,
+#endif
+
+};
+
+BYTE code str_ADVANCED_DCR[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_d_,_v_,_a_,_n_,_c_,_e_,_d_,___,_D_,_C_,_R_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_D_,_C_,_R_,___,_A_,_v_,_a_,_n_,_c_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_r_,_w_,_e_,_i_,_t_,_e_,_r_,_t_,_e_,_s_,___,_D_,_V_,_R_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT) // Geavanceerde DCR
+		_G_,_e_,_a_,_v_,_a_,_n_,_c_,_e_,_e_,_r_,_d_,_e_,___,_D_,_C_,_R_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_D_,_C_,_R_,___,_A_,_v_,_a_,_n_,_z_,_a_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_D_,_C_,_R_,___,_A_,_v_,_a_,_n_,_z_,_a_,_t_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_E_,_d_,_i_,_s_,_t_,_y_,_n_,_y_,_t_,___,_D_,_C_,_R_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_v_,_a_,_n_,_c_,_e_,_r_,_a_,_d_,___,_D_,_C_,_R_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�����էӧڧߧ����� DCR
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		0XD6,_p_,_o_,0x86,0x3f,0x0f,0x5d,_y_,0x5f,0x84,0x0e,_,_D_,_C_,_R_,_END_,				
+								
+#else
+
+		_P_,_a_,_c_,_EUROPE_a5,_EUROPE_0f,_p_,_e_,_EUROPE_5d,_EUROPE_5d,_EUROPE_84,_EUROPE_0e,___,_D_,_C_,_R_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_G_,_e_,_l_,_i_,_EUROPE_91,_m_,_i_,_EUROPE_91,___,_D_,_C_,_R_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Ustawienia dynamicznego kontrastu
+		_U_,_s_,_t_,_a_,_w_,_i_,_e_,_n_,_i_,_a_,___,_d_,_y_,_n_,_DOT_,___,_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_u_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_R_,_o_,_z_,_EUROPE_ad,_EUROPE_1a,_EUROPE_ae,_e_,_n_,_EUROPE_14,___,_D_,_C_,_R_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//DCR avansat
+		_D_,_C_,_R_,___,_a_,_v_,_a_,_n_,_s_,_a_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_D_,_TH_C_,_TH_R_,___,_TH_62,_TH_0D,_TH_BD,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_D_,_C_,_R_,___,_N_,_VIE_87,_n_,_g_,___,_C_,_a_,_o_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //DCR Lanjutan
+		_D_,_C_,_R_,___,_L_,_a_,_n_,_j_,_u_,_t_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_A_,_d_,_v_,_a_,_n_,_c_,_e_,_d_,___,_D_,_C_,_R_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d3_,_KOR_e0_,___,_D_,_C_,_R_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHT_EXT_50,_FONT_SELECT_EXT1,_CHT_EXT_51,_FONT_SELECT_EXT1,_CHT_EXT_52,_FONT_SELECT_EXT1,_CHT_EXT_53,_FONT_SELECT_EXT1,_CHT_EXT_54,_FONT_SELECT_EXT1,_CHT_EXT_55,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHS_EXT_66,_FONT_SELECT_EXT1,_CHS_EXT_67,_FONT_SELECT_EXT1,_CHS_EXT_68,_FONT_SELECT_EXT1,_CHS_EXT_69,_FONT_SELECT_EXT1,_CHS_EXT_6a,_FONT_SELECT_EXT1,_CHS_EXT_6b,_FONT_SELECT_EXT1,_CHS_EXT_6c,_FONT_SELECT_EXT1,_CHS_EXT_6d,_END_,
+#endif
+
+};
+
+
+BYTE code str_RESPONSE_TIME[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_R_,_e_,_s_,_p_,_o_,_n_,_s_,_e_,___,_T_,_i_,_m_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_T_,_e_,_m_,_p_,_s_,___,_d_,_e_,___,_r_,_EUROPE_14,_p_,_o_,_n_,_s_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_n_,_s_,_p_,_r_,_e_,_c_,_h_,_z_,_e_,_i_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT) // Responstijd
+		_R_,_e_,_s_,_p_,_o_,_n_,_s_,_t_,_i_,_j_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_T_,_i_,_e_,_m_,_p_,_o_,___,_d_,_e_,___,_r_,_e_,_s_,_p_,_u_,_e_,_s_,_t_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_T_,_e_,_m_,_p_,_o_,___,_d_,_i_,___,_r_,_i_,_s_,_p_,_o_,_s_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_V_,_a_,_s_,_t_,_e_,_a_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_S_,_v_,_a_,_r_,_s_,_t_,_i_,_d_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ܧ������ ���ܧݧڧܧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+										
+	_C_,_EUROPE_11,_o_,_p_,_o_,_c_,0x5f,0x95,_,_o_,0x5f,_EUROPE_11,0x7C,0x0f,_EUROPE_11,_a_,_END_,									
+#else
+
+		_B_,_p_,_e_,_EUROPE_60,_EUROPE_7d,___,_o_,_EUROPE_5f,_EUROPE_11,_EUROPE_7c,_EUROPE_0f,_EUROPE_11,_a_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_Y_,_a_,_n_,_EUROPE_90,_t_,___,_V_,_e_,_r_,_m_,_e_,___,_Z_,_a_,_m_,_a_,_n_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Czas odpowiedzi
+		_C_,_z_,_a_,_s_,___,_o_,_d_,_p_,_o_,_w_,_i_,_e_,_d_,_z_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_D_,_o_,_b_,_a_,___,_o_,_d_,_e_,_z_,_v_,_y_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Timp de r?spuns
+		_T_,_i_,_m_,_p_,___,_d_,_e_,___,_r_,_EUROPE_c8,_s_,_p_,_u_,_n_,_s_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_1D,_TH_1C,_TH_02,_TH_01,_TH_02,_TH_03,_TH_BE,_TH_16,_TH_1E,_TH_19,_TH_0D,_TH_16,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_h_,_VIE_81,_i_,___,_G_,_i_,_a_,_n_,___,_P_,_h_,_VIE_25,_n_,___,_H_,_VIE_7B,_i_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Waktu Respon
+		_W_,_a_,_k_,_t_,_u_,___,_R_,_e_,_s_,_p_,_o_,_n_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_c7_,_JPN_c8_,_JPN_d2_,_FONT_SELECT_EXT1,_JPN_EXT_41_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_8a_,_KOR_8b_,___,_KOR_a6_,_KOR_a7_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_b3,_CHT_b4,_CHT_8b,_CHT_9e,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_b4,_CHS_b5,_CHS_85,_CHS_9b,_END_,
+#endif
+
+};
+
+BYTE code str_LANGUAGE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_L_,_a_,_n_,_g_,_u_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _S_,_p_,_r_,_a_,_c_,_h_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_T_,_a_,_a_,_l_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_I_,_d_,_i_,_o_,_m_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_L_,_i_,_n_,_g_,_u_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_K_,_i_,_e_,_l_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _s_,_p_,_r_,_EUROPE_aa,_k_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_99,_EUROPE_8f,_EUROPE_84,_EUROPE_11,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_D_,_i_,_l_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//J?zyk
+		_J_,_e_,_z_,_y_,_k_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _J_,_a_,_z_,_y_,_k_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Limb?
+		_L_,_i_,_m_,_b_,_EUROPE_c8,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_08,_TH_02,_TH_6E,_TH_02,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+        _N_,_g_,_VIE_3E,_n_,___,_N_,_g_,_VIE_89,_END_,
+#else
+		_C_,_h_,_VIE_16,_n_,___,_N_,_g_,_VIE_3E,_n_,___,_N_,_g_,_VIE_89,_END_,
+#endif
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Bahasa
+		_B_,_a_,_h_,_a_,_s_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_a6_,_JPN_0a_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_a2_,_KOR_0d_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		___,_CHT_9b,_CHT_9c,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		___,_CHS_96,_CHS_97,_END_,
+#endif
+
+};
+
+
+#if _GSYNC_TEST
+BYTE code str_FREESYNC[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//AMD FreeSync
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//AMD FreeSync
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //AMD FreeSync
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+			  _G_,_DASH_,_S_,_Y_,_N_,_C_,_END_,
+#endif
+};
+
+
+#elif(_OSD_AMD_FREESYNC_VERSION == _ON)
+BYTE code str_FREESYNC[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		  _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//AMD FreeSync
+		  _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//AMD FreeSync
+		  _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		  _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //AMD FreeSync
+		  _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+          _A_,_M_,_D_,_,_F_,_r_,_e_,_e_,_S_,_y_,_n_,_c_,_END_,
+#endif
+
+};
+#else
+BYTE code str_FREESYNC[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+#if(_DEFAULT_OSD_STYLE == _TRG_OSD_STYLE)
+	_A_,_d_,_a_,_p_,_t_,_i_,_v_,_e_,_DASH_,_S_,_y_,_n_,_c_,_END_,
+#else
+	_V_,_a_,_r_,_i_,_a_,_b_,_l_,_e_,___,_R_,_e_,_f_,_r_,_e_,_s_,_h_,___,_R_,_a_,_t_,_e_,_END_,	
+#endif
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _T_,_a_,_u_,_x_,___,_r_,_a_,_f_,_r_,_a_,_EUROPE_be,_c_,_h_,___,_v_,_a_,_r_,_i_,_a_,_b_,_l_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_V_,_a_,_r_,_i_,_a_,_b_,_l_,_e_,___,_A_,_k_,_t_,_u_,_a_,_l_,_DOT_,_DASH_,_R_,_a_,_t_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Variabele VR-frequentie
+		_V_,_a_,_r_,_i_,_a_,_b_,_l_,_e_,___,_V_,_R_,_DASH_,_f_,_r_,_e_,_q_,_u_,_e_,_n_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _T_,_a_,_s_,_a_,___,_d_,_e_,___,_a_,_c_,_t_,_DOT_,___,_V_,_a_,_r_,_i_,_a_,_b_,_l_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_F_,_r_,_e_,_q_,_DOT_,___,_a_,_g_,_g_,_DOT_,___,_v_,_a_,_r_,_i_,_a_,_b_,_i_,_l_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _M_,_u_,_u_,_t_,_t_,_u_,_v_,_a_,___,_v_,_i_,_r_,_k_,_DOT_,_t_,_a_,_a_,_j_,_u_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_V_,_a_,_r_,_i_,_a_,_b_,_e_,_l_,___,_u_,_p_,_p_,_d_,_DOT_,___,_f_,_r_,_e_,_k_,_v_,_DOT_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																
+		_A_,_d_,_a_,_p_,_t_,_i_,_v_,_e_,_DASH_,_S_,_y_,_n_,_c_,_END_,
+																
+#else
+
+		_EUROPE_26,_e_,_p_,_e_,_EUROPE_60,_DOT_,___,_EUROPE_7f,_a_,_c_,_EUROPE_5f,_o_,_EUROPE_5f,_a_,___,_o_,_EUROPE_3e,_EUROPE_5d,_o_,_EUROPE_3f,_EUROPE_7c,_DOT_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	    _D_,_e_,_EUROPE_94,_i_,_EUROPE_91,_k_,_e_,_n_,___,_Y_,_e_,_n_,_i_,_l_,_e_,_m_,_e_,_H_,_EUROPE_90,_z_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Zmienna cz?stotliwo?? od?wie?ania
+		_Z_,_m_,_i_,_e_,_n_,_n_,_a_,___,_c_,_z_,_EUROPE_d9,_s_,_t_,_o_,_t_,_l_,_i_,_w_,_o_,_s_,_c_,_i_,___,_O_,_d_,_EUROPE_d6,_w_,_i_,_e_,_EUROPE_da,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_a_,_r_,_i_,_a_,_b_,_DOT_,___,_o_,_b_,_n_,_o_,_v_,_DOT_,___,_f_,_r_,_e_,_k_,_v_,_DOT_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Rat? de re?mprosp?tare variabil?
+		_R_,_a_,_t_,_a_,___,_d_,_e_,___,_r_,_e_,_i_,_m_,_p_,_r_,_o_,_s_,_p_,_a_,_t_,_a_,_r_,_e_,___,_v_,_a_,_r_,_i_,_a_,_b_,_i_,_l_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_1F,_TH_1A,_TH_03,_TH_02,_TH_01,_TH_02,_TH_03,_TH_50,_TH_07,_TH_20,_TH_03,_TH_4F,_TH_23,_TH_1E,_TH_1E,_TH_23,_TH_41,_TH_03,_TH_6D,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_VIE_8A,_c_,___,_VIE_7C,_VIE_3F,___,_l_,_VIE_19,_m_,___,_m_,_VIE_84,_i_,___,_b_,_i_,_VIE_14,_n_,___,_VIE_7C,_VIE_91,_i_,_END_,
+		//_A_,_d_,_a_,_p_,_t_,_i_,_v_,_e_,_VIE_2D,_S_,_y_,_n_,_c_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Laju Penyegaran Variabel
+		_L_,_a_,_j_,_u_,___,_P_,_e_,_n_,_y_,_e_,_g_,_a_,_r_,_a_,_n_,___,_V_,_a_,_r_,_i_,_a_,_b_,_e_,_l_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_bd_,_FONT_SELECT_EXT1,_JPN_EXT_be_,_JPN_60_,_JPN_25_,_JPN_d4_,_JPN_94_,_JPN_a7_,_JPN_3f_,_JPN_d4_,_JPN_1f_,_JPN_15_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_c7_,_KOR_bc_,_KOR_bb_,_KOR_a2_,_FONT_SELECT_EXT1,_KOR_EXT_2b_,_KOR_7f_,_KOR_d5_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHT_EXT_8a,_FONT_SELECT_EXT1,_CHT_EXT_8b,_FONT_SELECT_EXT1,_CHT_EXT_8c,_FONT_SELECT_EXT1,_CHT_EXT_8d,_FONT_SELECT_EXT1,_CHT_EXT_8e,_FONT_SELECT_EXT1,_CHT_EXT_8f,_END_, 
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHT_EXT_86,_FONT_SELECT_EXT1,_CHT_EXT_87,_FONT_SELECT_EXT1,_CHT_EXT_88,_FONT_SELECT_EXT1,_CHT_EXT_89,_FONT_SELECT_EXT1,_CHT_EXT_8a,_FONT_SELECT_EXT1,_CHT_EXT_8b,_END_, 
+#endif
+
+};
+#endif
+
+BYTE code str_MPRT[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_u_,_s_,_END_,
+	#else
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_a_,_l_,_i_,_t_,_EUROPE_17,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_1_,_m_,_s_,___,_T_,_i_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_1_,_m_,_s_,___,_L_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_1_,_m_,_s_,___,_P_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_60,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//1ms tryb
+		_1_,_m_,_s_,___,_T_,_r_,_y_,_b_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_1_,_m_,_s_,___,_R_,_e_,_EUROPE_b1,_i_,_m_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//1ms Mod
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_1_,_TH_m_,_TH_s_,___,_TH_12,_TH_13,_TH_09,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //1ms Mode
+		_1_,_m_,_s_,___,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_1_,_m_,_s_,___,_JPN_5f_,_JPN_1f_,_JPN_93_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_1_,_m_,_s_,___,_KOR_26_,_KOR_ce_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_1_,_m_,_s_,___,_CHT_99,_CHT_9a,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_1_,_m_,_s_,___,_CHS_94,_CHS_95,_END_,
+#endif
+
+};
+
+
+#if(_DEF_OSD_GAMING == _ON)
+
+BYTE code str_GamingMode[] =
+{
+
+
+#if(_DEF_ENGLISH_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ԧ��ӧ���
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																	
+	0x23,0x87,_p_,_o_,0x3f,0x84,_e_,_END_,																
+#else
+
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_G_,_a_,_m_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_e8,_CHT_e9,_EXT_FONT_,_CHT_EXT_92,_EXT_FONT_,_CHT_EXT_93,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_e4,_CHS_e5,_EXT_FONT_,_CHS_EXT_93,_EXT_FONT_,_CHS_EXT_94,_END_,
+#endif
+
+
+};
+
+#endif
+
+//==================================================
+//Message Resolution Notice
+//==================================================
+
+BYTE code str_NOTICE_0[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_F_,_o_,_r_,___,_b_,_e_,_s_,_t_,___,_p_,_i_,_c_,_t_,_u_,_r_,_e_,___,_q_,_u_,_a_,_l_,_i_,_t_,_y_,_COMMA_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _P_,_o_,_u_,_r_,___,_o_,_b_,_t_,_e_,_n_,_i_,_r_,___,_u_,_n_,_e_,___,_q_,_u_,_a_,_l_,_i_,_t_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_EUROPE_20,_n_,_d_,_e_,_r_,_n_,___,_S_,_i_,_e_,___,_d_,_i_,_e_,___,_A_,_u_,_f_,_l_,_EUROPE_1f,_s_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Voor de beste beeldkwaliteit, 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_V_,_o_,_o_,_r_,_,_d_,_e_,_,_b_,_e_,_s_,_t_,_e_,_,_b_,_e_,_e_,_l_,_d_,_k_,_w_,_a_,_l_,_i_,_t_,_e_,_i_,_t_,_COMMA_,_END_,
+	#else
+	_V_,_o_,_o_,_r_,___,_d_,_e_,___,_b_,_e_,_s_,_t_,___,_b_,_e_,_e_,_l_,_d_,_k_,_w_,_a_,_l_,_i_,_t_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_P_,_a_,_r_,_a_,___,_o_,_b_,_t_,_e_,_n_,_e_,_r_,___,_l_,_a_,___,_m_,_e_,_j_,_o_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _P_,_e_,_r_,___,_u_,_n_,_a_,___,_m_,_i_,_g_,_l_,_i_,_o_,_r_,_e_,___,_q_,_u_,_a_,_l_,_i_,_t_,_EUROPE_17,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+	_P_,_a_,_r_,_a_,_n_,_n_,_a_,___,_k_,_u_,_v_,_a_,_n_,___,_l_,_a_,_a_,_t_,_u_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_F_,_EUROPE_1f,_r_,___,_b_,_EUROPE_18,_s_,_t_,_a_,___,_b_,_i_,_l_,_d_,_k_,_v_,_a_,_l_,_i_,_t_,_e_,_t_,_COMMA_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)																		//���ݧ� �ݧ���֧ԧ� �ܧѧ�֧��ӧ� ����� // �ߧ�ӧڧ�� ��ѧ٧�֧�֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_EUROPE_8b,_EUROPE_7c,_EUROPE_7d,___,_EUROPE_7c,_y_,0x7f,0xa5,_e_,0x87,_o_,___,0x11,_a_,0x7f,_e_,_c_,0x5f,0x3f,_a_,___,_y_,_c_,0x5f,_END_,
+
+#else
+    _EUROPE_8b,_EUROPE_7c,_EUROPE_7d,___,_EUROPE_5d,_a_,_EUROPE_0f,_EUROPE_7c,_y_,_EUROPE_7f,_EUROPE_a5,_e_,_EUROPE_87,_o_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_E_,_n_,___,_i_,_y_,_i_,___,_r_,_e_,_s_,_i_,_m_,___,_k_,_a_,_l_,_i_,_t_,_e_,_s_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Aby uzyska? najlepsz? jako??  
+	_A_,_b_,_y_,___,_u_,_z_,_y_,_s_,_k_,_a_,_c_,___,_n_,_a_,_j_,_l_,_e_,_p_,_s_,_z_,_a_,___,_j_,_a_,_k_,_o_,_s_,_c_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_P_,_r_,_o_,___,_n_,_e_,_j_,_l_,_e_,_p_,_EUROPE_ad,_EUROPE_1a,___,_k_,_v_,_a_,_l_,_i_,_t_,_u_,_END_,	
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Pentru cea mai bun? calitate a  
+	#if(_ZHONGQIANG_LANGUAGE)
+	_P_,_e_,_n_,_t_,_r_,_u_,_,_c_,_a_,_l_,_i_,_t_,_a_,_t_,_e_,_,_o_,_p_,_t_,_i_,_m_,_EUROPE_c8,_,_a_,_END_,
+	#else
+	_P_,_e_,_n_,_t_,_r_,_u_,___,_c_,_e_,_a_,___,_m_,_a_,_i_,___,_b_,_u_,_n_,_a_,___,_c_,_a_,_l_,_i_,_t_,_a_,_t_,_e_,_a_,___,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_TH_13,_TH_02,_TH_01,_TH_29,_TH_16,_TH_05,_TH_01,_TH_02,_TH_03,_TH_B3,_TH_1C,_TH_07,_TH_08,_TH_02,_TH_0A,_TH_21,_TH_16,_TH_05,_TH_08,_TH_02,_TH_0A,_TH_53,_TH_46,_TH_53,_TH_26,_TH_11,_END_,
+	#else
+	_TH_13,_TH_02,_TH_01,_TH_29,_TH_16,_TH_05,_TH_01,_TH_02,_TH_03,_TH_41,_TH_03,_TH_4D,_TH_5D,_TH_28,_TH_1B,_TH_08,_TH_02,_TH_0A,_TH_53,_TH_46,_TH_53,_TH_4C,_TH_1A,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)	
+	_VIE_17,_VIE_8F,___,_c_,_VIE_8D,___,_c_,_h_,_VIE_90,_t_,___,_l_,_VIE_1D,_VIE_1E,_n_,_g_,___,_h_,_VIE_86,_n_,_h_,___,_VIE_25,_n_,_h_,
+	___,_t_,_VIE_8A,_t_,___,_n_,_h_,_VIE_90,_t_,_VIE_2C,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Untuk kualitas gambar terbaik, 
+	_U_,_n_,_t_,_u_,_k_,___,_k_,_u_,_a_,_l_,_i_,_t_,_a_,_s_,___,_g_,_a_,_m_,_b_,_a_,_r_,___,_t_,_e_,_r_,_b_,_a_,_i_,_k_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_JPN_d9_,_JPN_da_,_JPN_8b_,_JPN_c3_,_JPN_19_,_JPN_db_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_d3_,_KOR_bb_,_KOR_d4_,_KOR_d5_,___,_KOR_9e_,_KOR_92_,_COMMA_,___,_KOR_92_,_KOR_23_,_KOR_93_,_KOR_c2_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_c0,_CHT_c1,_CHT_c2,_CHT_c3,_CHT_c4,_CHT_82,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_7e,_CHS_7f,_CHS_80,_CHS_d2,_CHS_d3,_CHS_be,_END_,
+#endif
+
+
+};
+BYTE code str_NOTICE_1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_c_,_h_,_a_,_n_,_g_,_e_,___,_r_,_e_,_s_,_o_,_l_,_u_,_t_,_i_,_o_,_n_,___,_t_,_o_,___,_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_d_,_APOSTROPHE,_i_,_m_,_a_,_g_,_e_,___,_o_,_p_,_t_,_i_,_m_,_a_,_l_,_e_,_COMMA_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_i_,_n_,___,_BEST_RESOLUTION,_COMMA_,___,_u_,_m_,___,_e_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//wijzig de resolutie naar
+	_w_,_i_,_j_,_z_,_i_,_g_,___,_d_,_e_,___,_r_,_e_,_s_,_o_,_l_,_u_,_t_,_i_,_e_,___,_n_,_a_,_a_,_r_,___,_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_c_,_a_,_l_,_i_,_d_,_a_,_d_,___,_d_,_e_,___,_i_,_m_,_a_,_g_,_e_,_n_,_COMMA_,___,_c_,_a_,_m_,_b_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_d_,_e_,_l_,_l_,_APOSTROPHE,___,_i_,_m_,_m_,_a_,_g_,_i_,_n_,_e_,_COMMA_,___, _c_,_a_,_m_,_b_,_i_,_a_,_r_,_e_,_END_,
+#endif
+
+#if(_DEF_SUOMI_TEXT)
+	_v_,_a_,_i_,_h_,_t_,_a_,_m_,_a_,_l_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_EUROPE_18,_n_,_d_,_r_,_a_,___,_u_,_p_,_p_,_l_,_EUROPE_1f,_s_,_n_,_i_,_n_,_g_,_e_,_n_,___,_t_,_i_,_l_,_l_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE//�ߧ�ӧڧ�� ��ѧ٧�֧�֧ߧڧ�
+	
+	
+	_a_,0x5d,_o_,0x3f,0x0f,0x5f,_e_,___,_p_,_a_,_EUROPE_8f,_p_,_e_,_EUROPE_a5,_e_,_EUROPE_5d,_EUROPE_0f,_e_,_END_,
+#else
+	_EUROPE_0f,_EUROPE_8f,_o_,_EUROPE_3e,_p_,_a_,_EUROPE_80,_e_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,___,_EUROPE_88,_o_,_EUROPE_60,_e_,_EUROPE_5d,_EUROPE_7d,_EUROPE_0e,_EUROPE_5f,_e_,_END_,
+
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_i_,_EUROPE_12,_i_,_n_,_COMMA_,___,_EUROPE_12,_EUROPE_1f,_z_,_EUROPE_10,_n_,_EUROPE_10,_r_,_l_,_EUROPE_10,_EUROPE_94,_EUROPE_10,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//obrazu, Zmie¨½ rozdzielczo?? na
+	_o_,_b_,_r_,_a_,_z_,_u_,_COMMA_,_Z_,_m_,_i_,_e_,_n_,___,_r_,_o_,_z_,_d_,_z_,_i_,_e_,_l_,_c_,_z_,_o_,_s_,_c_,___,_n_,_a_,_END_,	
+#endif
+#if(_DEF_CZECH_TEXT)
+	_o_,_b_,_r_,_a_,_z_,_u_,___,_z_,_m_,_EUROPE_a9,_EUROPE_b0,_t_,_e_,_END_,
+#endif
+
+#if(_DEF_ROMANIAN_TEXT)//imaginii,schimb? rezolu?ia la
+	#if(_ZHONGQIANG_LANGUAGE)
+	_i_,_m_,_a_,_g_,_i_,_n_,_i_,_i_,_COMMA_,_,_s_,_c_,_h_,_i_,_m_,_b_,_a_,_EUROPE_c9,_i_,_,_r_,_e_,_z_,_o_,_l_,_u_,_EUROPE_c9,_i_,_a_,_,_l_,_a_,_END_,
+	#else
+	_i_,_m_,_a_,_g_,_i_,_n_,_i_,_COMMA_,_s_,_c_,_h_,_i_,_m_,_b_,_a_,___,_r_,_e_,_z_,_o_,_l_,_u_,_t_,_i_,_a_,___,_l_,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_TH_B0,_TH_13,_TH_07,_TH_41,_TH_98,_TH_14,_TH_0D,_TH_22,_TH_1D,_TH_02,_TH_09,_TH_1C,_TH_7F,_TH_07,_TH_5B,_TH_14,_TH_11,_TH_BF,_TH_07,_TH_B6,_TH_0D,_END_,
+	#else
+	_TH_12,_TH_41,_TH_03,_TH_11,_TH_28,_TH_02,_TH_01,_TH_02,_TH_03,_TH_41,_TH_25,_TH_1E,_TH_07,_TH_53,_TH_14,_TH_1E,_TH_60,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_t_,_h_,_a_,_y_,___,_VIE_7C,_VIE_81,_i_,___,_VIE_7C,_VIE_3F,___,_p_,_h_,_VIE_87,_n_,___,_g_,_i_,_VIE_25,_i_,___,_t_,_h_,_VIE_19,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //ubah resolusi ke
+	_u_,_b_,_a_,_h_,___,_r_,_e_,_s_,_o_,_l_,_u_,_s_,_i_,_k_,_e_,___,_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_BEST_RESOLUTION,_JPN_dc_,_JPN_dd_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_83,_CHT_15,_CHT_c5,_CHT_c6,_CHT_c7,_CHT_c8,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_BEST_RESOLUTION,_END_,
+#endif
+	
+};
+BYTE code str_NOTICE_2[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_u_,_t_,_i_,_l_,_i_,_s_,_e_,_z_,___,_l_,_a_,___,_r_,_EUROPE_14,_s_,_o_,_l_,_u_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_o_,_p_,_t_,_i_,_m_,_a_,_l_,_e_,___,_B_,_i_,_l_,_d_,_q_,_u_,_a_, _l_,_i_,_t_,_EUROPE_18,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_l_,_a_,___,_r_,_e_,_s_,_o_,_l_,_u_,_c_,_i_,_EUROPE_1e,_n_,___,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_l_,_a_,___,_r_,_i_,_s_,_o_,_l_,_u_,_z_,_i_,_o_,_n_,_e_,___,_a_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_r_,_e_,_s_,_o_,_l_,_u_,_u_,_t_,_i_,_o_,_k_,_s_,_i_,___,_BEST_RESOLUTION,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_BEST_RESOLUTION,_END_,
+
+
+#else
+	_p_,_a_,_EUROPE_8f,_p_,_e_,_EUROPE_a5,_e_,_EUROPE_5d,_EUROPE_0f,_e_,___,_EUROPE_5d,_a_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_r_,_o_,_z_,_l_,_i_,_EUROPE_ad,_e_,_n_,_EUROPE_1a,___,_n_,_a_,_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)
+	_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_BEST_RESOLUTION,_END_,
+	#else
+	_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //resolusi terbaik
+	_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_5e_,___,_KOR_bc_,_KOR_ab_,_KOR_be_,_KOR_b8_,_KOR_a6_,_KOR_1f_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_BEST_RESOLUTION,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_bf,_CHS_c0,_CHS_c1,_CHS_c2,_CHS_c3,_CHS_9a,_CHS_99,_CHS_c4,_CHS_c5,_END_,
+#endif
+
+	
+};
+BYTE code str_NOTICE_3[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_BEST_RESOLUTION,_DOT_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_z_,_u_,___,_e_,_r_,_z_,_i_,_e_,_l_,_e_,_n_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_BEST_RESOLUTION,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_BEST_RESOLUTION,_DOT_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_END_,
+#else
+	_BEST_RESOLUTION,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_d_,_e_,_EUROPE_94,_e_,_r_,_i_,_n_,_e_,___,_d_,_e_,_EUROPE_94,_i_,_EUROPE_91,_t_,_i_,_r_,_i_,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_BEST_RESOLUTION,_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif
+	
+};
+
+code BYTE *tOSD_NOTICE_TABLE[] =
+{
+	str_NOTICE_0,
+	str_NOTICE_1,
+	str_NOTICE_2,
+	str_NOTICE_3,
+};
+#if (_AI_EYE_PROTECTION == _ON)
+BYTE code str_AI_DISTANCE_0[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Voor de beste beeldkwaliteit, 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+	#else
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)																		//���ݧ� �ݧ���֧ԧ� �ܧѧ�֧��ӧ� ����� // �ߧ�ӧڧ�� ��ѧ٧�֧�֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+
+#else
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Aby uzyska? najlepsz? jako??  
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Pentru cea mai bun? calitate a  
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+	#else
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+	#else
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)	
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Untuk kualitas gambar terbaik, 
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_T_,_h_,_e_,___,_U_,_s_,_e_,_r_,___,_i_,_s_,___,_t_,_o_,_o_,___,_c_,_l_,_o_,_s_,_e_,_DOT_,_END_,
+#endif
+
+
+};
+BYTE code str_AI_DISTANCE_1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//wijzig de resolutie naar
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+
+#if(_DEF_SUOMI_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE//�ߧ�ӧڧ�� ��ѧ٧�֧�֧ߧڧ�
+	
+	
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#else
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//obrazu, Zmie¨½ rozdzielczo?? na
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+
+#if(_DEF_ROMANIAN_TEXT)//imaginii,schimb? rezolu?ia la
+	#if(_ZHONGQIANG_LANGUAGE)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+	#else
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+	#else
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //ubah resolusi ke
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_P_,_l_,_e_,_a_,_s_,_e_,___,_k_,_e_,_e_,_p_,___,_y_,_o_,_u_,_r_,___,_d_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,_DOT_,_END_,
+#endif
+	
+};
+BYTE code str_AI_DISTANCE_2[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_END_,
+
+
+#else
+	_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_END_,
+	#else
+	_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //resolusi terbaik
+	_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif
+
+	
+};
+BYTE code str_AI_DISTANCE_3[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_END_,
+#else
+	_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif
+	
+};
+
+code BYTE *tOSD_AI_DISTANCE_TABLE[] =
+{
+	str_AI_DISTANCE_0,
+	str_AI_DISTANCE_1,
+	str_AI_DISTANCE_2,
+	str_AI_DISTANCE_3,
+};
+
+BYTE code str_AI_EYE_CARE_0[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Voor de beste beeldkwaliteit, 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+	#else
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)																		//���ݧ� �ݧ���֧ԧ� �ܧѧ�֧��ӧ� ����� // �ߧ�ӧڧ�� ��ѧ٧�֧�֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+
+#else
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Aby uzyska? najlepsz? jako??  
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Pentru cea mai bun? calitate a  
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+	#else
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+	#else
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)	
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Untuk kualitas gambar terbaik, 
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_T_,_o_,___,_a_,_v_,_o_,_i_,_d_,___,_e_,_y_,_e_,___,_f_,_a_,_t_,_i_,_g_,_u_,_e_,_COMMA_,_i_,_t_,___,_i_,_s_,_END_,
+#endif
+
+
+};
+BYTE code str_AI_EYE_CARE_1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//wijzig de resolutie naar
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+
+#if(_DEF_SUOMI_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE//�ߧ�ӧڧ�� ��ѧ٧�֧�֧ߧڧ�
+	
+	
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#else
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//obrazu, Zmie¨½ rozdzielczo?? na
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+
+#if(_DEF_ROMANIAN_TEXT)//imaginii,schimb? rezolu?ia la
+	#if(_ZHONGQIANG_LANGUAGE)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+	#else
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+	#else
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //ubah resolusi ke
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_r_,_e_,_c_,_o_,_m_,_m_,_e_,_n_,_d_,___,_t_,_o_,___,_t_,_a_,_k_,_e_,___,_a_,___,_b_,_r_,_e_,_a_,_k_,_DOT_,_END_,
+#endif
+	
+};
+BYTE code str_AI_EYE_CARE_2[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_END_,
+
+
+#else
+	_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_END_,
+	#else
+	_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //resolusi terbaik
+	_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif
+
+	
+};
+BYTE code str_AI_EYE_CARE_3[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_END_,
+#else
+	_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif
+	
+};
+
+code BYTE *tOSD_AI_EYE_CARE_TABLE[] =
+{
+	str_AI_EYE_CARE_0,
+	str_AI_EYE_CARE_1,
+	str_AI_EYE_CARE_2,
+	str_AI_EYE_CARE_3,
+};
+
+BYTE code str_AI_LOW_POWER_0[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Voor de beste beeldkwaliteit, 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+	#else
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)																		//���ݧ� �ݧ���֧ԧ� �ܧѧ�֧��ӧ� ����� // �ߧ�ӧڧ�� ��ѧ٧�֧�֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+
+#else
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Aby uzyska? najlepsz? jako??  
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Pentru cea mai bun? calitate a  
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+	#else
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+	#else
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)	
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Untuk kualitas gambar terbaik, 
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_T_,_h_,_e_,___,_d_,_i_,_s_,_p_,_l_,_a_,_y_,___,_i_,_s_,___,_c_,_u_,_r_,_r_,_e_,_n_,_t_,_l_,_y_,_END_,
+#endif
+
+
+};
+BYTE code str_AI_LOW_POWER_1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//wijzig de resolutie naar
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+
+#if(_DEF_SUOMI_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE//�ߧ�ӧڧ�� ��ѧ٧�֧�֧ߧڧ�
+	
+	
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#else
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//obrazu, Zmie¨½ rozdzielczo?? na
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+
+#if(_DEF_ROMANIAN_TEXT)//imaginii,schimb? rezolu?ia la
+	#if(_ZHONGQIANG_LANGUAGE)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+	#else
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+	#else
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //ubah resolusi ke
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_i_,_d_,_l_,_e_,___,_a_,_n_,_d_,___,_w_,_i_,_l_,_l_,___,_s_,_o_,_o_,_n_,___,_e_,_n_,_t_,_e_,_r_,_END_,
+#endif
+	
+};
+BYTE code str_AI_LOW_POWER_2[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+
+
+#else
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+	#else
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //resolusi terbaik
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_l_,_o_,_w_,_DASH_,_p_,_o_,_w_,_e_,_r_,___,_m_,_o_,_d_,_e_,_DOT_,_END_,
+#endif
+
+	
+};
+BYTE code str_AI_LOW_POWER_3[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_END_,
+#else
+	_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif
+	
+};
+
+code BYTE *tOSD_AI_LOW_POWER_TABLE[] =
+{
+	str_AI_LOW_POWER_0,
+	str_AI_LOW_POWER_1,
+	str_AI_LOW_POWER_2,
+	str_AI_LOW_POWER_3,
+};
+#endif
+BYTE code str_NOTICE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_R_,_e_,_s_,_o_,_l_,_u_,_t_,_i_,_o_,_n_,___,_N_,_o_,_t_,_i_,_c_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_v_,_i_,_s_,___,_R_,_EUROPE_14,_s_,_o_,_l_,_u_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_u_,_f_,_l_,_EUROPE_1f,_s_,_u_,_n_,_g_,_s_,_h_,_i_,_n_,_w_,_e_,_i_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Bericht resolutie 
+	_B_,_e_,_r_,_i_,_c_,_h_,_t_,___,_r_,_e_,_s_,_o_,_l_,_u_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_v_,_i_,_s_,_o_,___,_r_,_e_,_s_,_o_,_l_,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_N_,_o_,_t_,_e_,___,_s_,_u_,___,_r_,_i_,_s_,_o_,_l_,_u_,_z_,_DOT_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_a_,_r_,_k_,_k_,_u_,_u_,_s_,_i_,_l_,_m_,_o_,_i_,_t_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _N_,_o_,_t_,_e_,_r_,_a_,___,_b_,_i_,_l_,_d_,_u_,_p_,_p_,_l_,_EUROPE_1f,_s_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ߧ�� �� ��ѧ٧�֧�֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																									
+		0x23,0x5d,0x9A,_o_,_,_o_,_,_p_,_a_,0x7e,_p_,_e_,0xa5,_e_,0x5d,0x0f,0x0f,_END_,																							
+#else
+
+		_EUROPE_23,_EUROPE_5d,_EUROPE_9a,_DOT_,___,_o_,___,_p_,_a_,_EUROPE_8f,_p_,_DOT_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_EUROPE_92,_EUROPE_1f,_z_,_EUROPE_10,_n_,_EUROPE_10,_r_,_l_,_EUROPE_10,_k_,___,_B_,_i_,_l_,_d_,_r_,_DOT_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Uwaga dot. rozdzielczo?ci 
+	_U_,_w_,_a_,_g_,_a_,___,_d_,_o_,_t_,_DOT_,___,_r_,_o_,_z_,_d_,_z_,_i_,_e_,_l_,_c_,_z_,_o_,_EUROPE_c4,_c_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _O_,_z_,_n_,_EUROPE_16,_m_,_e_,_n_,_EUROPE_1a,___,_r_,_o_,_z_,_l_,_i_,_EUROPE_ad,_e_,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Notificare rezolu?ie 
+		_N_,_o_,_t_,_i_,_f_,_i_,_c_,_a_,_r_,_e_,___,_r_,_e_,_z_,_o_,_l_,_u_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_13,_TH_09,_TH_02,_TH_14,_TH_07,_TH_13,_TH_1A,_TH_11,_TH_1D,_TH_02,_TH_09,_TH_1C,_TH_4D,_TH_07,_TH_24,_TH_14,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_h_,_VIE_3E,_n_,_g_,___,_B_,_VIE_5C,_o_,___,_VIE_17,_VIE_3F,___,_P_,_h_,_VIE_87,_n_,___,_G_,_i_,_VIE_25,_i_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Pemberitahuan Resolusi 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_P_,_e_,_m_,_b_,_e_,_r_,_i_,_t_,_a_,_h_,_u_,_a_,_n_,_,_R_,_e_,_s_,_o_,_l_,_u_,_s_,_i_,_END_,
+	#else
+	_P_,_e_,_n_,_g_,_u_,_m_,_u_,_m_,_a_,_n_,___,_R_,_e_,_s_,_o_,_l_,_u_,_s_,_i_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_8b_,_JPN_c3_,_JPN_19_,_JPN_a8_,_JPN_a9_,_JPN_aa_,_JPN_ab_,_JPN_ac_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_92_,_KOR_23_,_KOR_93_,___,_KOR_a4_,_KOR_a5_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_82,_CHT_83,_CHT_15,_CHT_9d,_CHT_24,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_7e,_CHS_7f,_CHS_80,_CHS_98,_CHS_99,_END_,
+#endif
+
+};
+BYTE code str_DISTANCE_WARNING[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Bericht resolutie 
+	_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ߧ�� �� ��ѧ٧�֧�֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																									
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#else
+
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Uwaga dot. rozdzielczo?ci 
+	_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Notificare rezolu?ie 
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Pemberitahuan Resolusi 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+	#else
+	_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_D_,_i_,_s_,_t_,_a_,_n_,_c_,_e_,___,_W_,_a_,_r_,_n_,_i_,_n_,_g_,_END_,
+#endif
+
+};
+BYTE code str_EYE_CARE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Bericht resolutie 
+	_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ߧ�� �� ��ѧ٧�֧�֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																									
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#else
+
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Uwaga dot. rozdzielczo?ci 
+	_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Notificare rezolu?ie 
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Pemberitahuan Resolusi 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+	#else
+	_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_E_,_y_,_e_,___,_C_,_a_,_r_,_e_,_END_,
+#endif
+
+};
+
+
+BYTE code str_LOW_POWER[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Bericht resolutie 
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ߧ�� �� ��ѧ٧�֧�֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																								
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#else
+
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Uwaga dot. rozdzielczo?ci 
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Notificare rezolu?ie 
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Pemberitahuan Resolusi 
+#if(_ZHONGQIANG_LANGUAGE)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#else
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_S_,_m_,_a_,_r_,_t_,___,_P_,_o_,_w_,_e_,_r_,___,_T_,_i_,_p_,_s_,_END_,
+#endif
+	
+};
+
+
+//0X8D
+BYTE code str_INFORMATION[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_I_,_n_,_f_,_o_,_r_,_m_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_I_,_n_,_f_,_o_,_r_,_m_,_a_,_t_,_i_,_o_,_n_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_I_,_n_,_f_,_o_,_r_,_m_,_a_,_t_,_i_,_o_,_n_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_I_,_n_,_f_,_o_,_r_,_m_,_a_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+#if(_V22E1_H_LANGUAGE)
+		_I_,_n_,_f_,_o_,_r_,_m_,_a_,_c_,_i_,_EUROPE_1e,_n_,_END_,
+#else		
+        _I_,_n_,_f_,_o_,_END_,
+#endif
+#else
+		_I_,_n_,_f_,_o_,_r_,_m_,_a_,_c_,_i_,_EUROPE_1e,_n_,_END_,
+#endif		
+#endif
+#if(_DEF_ITALIANO_TEXT)
+#if(_V22E1_H_LANGUAGE)
+		_I_,_n_,_f_,_o_,_END_,
+#else		
+		_I_,_n_,_f_,_o_,_r_,_m_,_a_,_z_,_i_,_o_,_n_,_i_,_END_,
+#endif		
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_i_,_e_,_d_,_o_,_t_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _I_,_n_,_f_,_o_,_r_,_m_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ߧ���ާѧ�ڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																											
+	0x23,0x5d,0x9A,_o_,_p_,_m_,_a_,0x85,0x0f,0x7D,_END_,																										
+#else
+
+		_EUROPE_23,_EUROPE_5d,_EUROPE_9a,_o_,_p_,_EUROPE_60,_a_,_EUROPE_85,_EUROPE_0f,_EUROPE_7d,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_B_,_i_,_l_,_g_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_I_,_n_,_f_,_o_,_r_,_m_,_a_,_c_,_j_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _I_,_n_,_f_,_o_,_r_,_m_,_a_,_c_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Informa?ii 
+		_I_,_n_,_f_,_o_,_r_,_m_,_a_,_t_,_i_,_i_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_2F,_TH_16,_TH_43,_TH_1C,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_h_,_VIE_3E,_n_,_g_,___,_t_,_i_,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Informasi 
+	_I_,_n_,_f_,_o_,_r_,_m_,_a_,_s_,_i_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_24_,_JPN_14_,_JPN_25_,_JPN_26_,_JPN_27_,_JPN_1f_,_JPN_a7_,_JPN_ea_,_JPN_14_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_24_,_KOR_25_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_23,_CHT_24,_CHT_19,_CHT_25,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_19,_CHS_22,_END_,
+#endif
+
+};
+
+BYTE code str_OsdSize[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_O_,_S_,_D_,___,_S_,_i_,_z_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_T_,_a_,_i_,_l_,_l_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_O_,_S_,_D_,___,_DASH_,_G_,_r_,_EUROPE_1f,_EUROPE_22,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//OSD-grootte
+		_O_,_S_,_D_,_DASH_,_g_,_r_,_o_,_o_,_t_,_t_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_T_,_a_,_m_,_a_,_EUROPE_13,_o_,___,_d_,_e_,_l_,___,_m_,_e_,_n_,_EUROPE_1b,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_D_,_i_,_m_,_e_,_n_,_s_,_i_,_o_,_n_,_i_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_O_,_S_,_D_,_DASH_,_v_,_a_,_l_,_i_,_k_,_o_,_n_,___,_k_,_o_,_k_,_o_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_O_,_S_,_D_,_DASH_,_s_,_t_,_o_,_r_,_l_,_e_,_k_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_P_,_a_,_EUROPE_7e,_EUROPE_97,_e_,_p_,___,_EUROPE_7e,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_E_,_k_,_r_,_a_,_n_,___,_M_,_e_,_n_,_EUROPE_10,_s_,_EUROPE_10,___,_B_,_o_,_y_,_u_,_t_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Rozmiar OSD
+		_R_,_o_,_z_,_m_,_i_,_a_,_r_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_e_,_l_,_i_,_k_,_o_,_s_,_t_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Dimensiune OSD
+		_D_,_i_,_m_,_e_,_n_,_s_,_i_,_u_,_n_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_21,_TH_0E,_TH_02,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_K_,_VIE_8E,_c_,_h_,___,_t_,_h_,_VIE_1D,_VIE_84,_c_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Ukuran OSD
+	_U_,_k_,_u_,_r_,_a_,_n_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_O_,_S_,_D_,_JPN_9b_,_JPN_22_,_JPN_9c_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_O_,_S_,_D_,___,_KOR_9d_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,
+#endif
+
+};
+
+BYTE code str_TIMEOUT[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_O_,_S_,_D_,___,_T_,_i_,_m_,_e_,_o_,_u_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_I_,_n_,_t_,_e_,_r_,_r_,_u_,_p_,_t_,_i_,_o_,_n_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _O_,_S_,_D_,___,_E_,_i_,_n_,_b_,_l_,_e_,_n_,_d_,_z_,_e_,_i_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//OSD-time-out
+		_O_,_S_,_D_,_DASH_,_t_,_i_,_m_,_e_,_DASH_,_o_,_u_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_T_,_i_,_e_,_m_,_p_,_o_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _T_,_i_,_m_,_e_,_o_,_u_,_t_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _O_,_S_,_D_,_COLON_,_n_,___,_v_,_i_,_i_,_v_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _O_,_S_,_D_,_DASH_,_t_,_i_,_m_,_e_,_o_,_u_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ѧۧާѧ�� OSD
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																													
+	_T_,_a_,0x0e,0X97,_a_,_y_,0x5f,_,_O_,_S_,_D_,_END_,																												
+#else
+
+		_T_,_a_,_EUROPE_0e,_EUROPE_60,_e_,_p_,___,_EUROPE_60,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_O_,_S_,_D_,___,_Z_,_a_,_m_,_a_,_n_,___,_a_,_EUROPE_91,_EUROPE_90,_m_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Limit czasu OSD 
+		_L_,_i_,_m_,_i_,_t_,___,_c_,_z_,_a_,_s_,_u_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _EUROPE_b2,_a_,_s_,_o_,_v_,_EUROPE_a8,___,_l_,_i_,_m_,_i_,_t_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Expirare timp OSD
+		_E_,_x_,_p_,_i_,_r_,_a_,_r_,_e_,___,_t_,_i_,_m_,_p_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_13,_TH_09,_TH_11,_TH_07,_TH_1D,_TH_1C,_TH_02,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_h_,_VIE_81,_i_,___,_g_,_i_,_a_,_n_,___,_c_,_h_,_VIE_81,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Batas Waktu OSD 
+	_B_,_a_,_t_,_a_,_s_,___,_W_,_a_,_k_,_t_,_u_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_a8_,_FONT_SELECT_EXT1,_JPN_EXT_a9_,_FONT_SELECT_EXT1,_JPN_EXT_aa_,_FONT_SELECT_EXT1,_JPN_EXT_ab_,_FONT_SELECT_EXT1,_JPN_EXT_ac_,_FONT_SELECT_EXT1,_JPN_EXT_ad_,_FONT_SELECT_EXT1,_JPN_EXT_ae_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_O_,_S_,_D_,___,_KOR_a6_,_KOR_a7_,___,_KOR_a8_,_KOR_a9_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_1c,_CHT_3e,_CHT_23,_CHT_24,_CHT_8b,_CHT_9e,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_26,_CHS_27,_CHS_9a,_CHS_99,_CHS_85,_CHS_9b,_END_,
+#endif
+
+};
+
+BYTE code str_BACKGROUND[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_O_,_S_,_D_,___,_B_,_a_,_c_,_k_,_g_,_r_,_o_,_u_,_n_,_d_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_r_,_r_,_DASH_,_p_,_l_,_a_,_n_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _O_,_S_,_D_,_DASH_,_H_,_i_,_n_,_t_,_e_,_r_,_g_,_r_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//OSD-achtergrond
+		_O_,_S_,_D_,_DASH_,_a_,_c_,_h_,_t_,_e_,_r_,_g_,_r_,_o_,_n_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_F_,_o_,_n_,_d_,_o_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_S_,_f_,_o_,_n_,_d_,_o_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_O_,_S_,_D_,_COLON_,_n_,___,_t_,_a_,_u_,_s_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _O_,_S_,_D_,_DASH_,_b_,_a_,_k_,_g_,_r_,_u_,_n_,_d_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����� OSD
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																															
+		0X8D,_o_,0x5d,_,_O_,_S_,_D_,_END_,																													
+#else
+
+		_EUROPE_8d,_o_,_EUROPE_5d,___,_EUROPE_8f,_EUROPE_11,_DOT_,___,_M_,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_O_,_S_,_D_,___,_A_,_r_,_k_,_a_,___,_p_,_l_,_a_,_n_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//T?o OSD
+		_T_,_EUROPE_c6,_o_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _P_,_o_,_z_,_a_,_d_,_EUROPE_1a,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Fundal OSD
+		_F_,_u_,_n_,_d_,_a_,_l_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_3E,_TH_0D,_TH_13,_TH_48,_TH_05,___,_TH_O_,_TH_S_,_TH_D_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_H_,_VIE_86,_n_,_h_,___,_n_,_VIE_1A,_n_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Latar Belakang OSD
+	_L_,_a_,_t_,_a_,_r_,___,_B_,_e_,_l_,_a_,_k_,_a_,_n_,_g_,___, _O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_O_,_S_,_D_,___,_JPN_b0_,_JPN_b1_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_O_,_S_,_D_,___,_KOR_aa_,_KOR_ab_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_1c,_CHT_3e,_CHT_9f,_CHT_a0,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_26,_CHS_27,_CHS_9c,_CHS_9d,_CHS_1f,_END_,
+#endif
+
+};
+
+BYTE code str_PIVOT[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_O_,_S_,_D_,___,_P_,_i_,_v_,_o_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_P_,_i_,_v_,_o_,_t_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _O_,_S_,_D_,_DASH_,_Z_,_y_,_k_,_l_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//OSD draaien
+		_O_,_S_,_D_,___,_d_,_r_,_a_,_a_,_i_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _P_,_i_,_v_,_o_,_t_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _O_,_r_,_i_,_e_,_n_,_DOT_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _O_,_S_,_D_,_DASH_,_k_,_EUROPE_18,_EUROPE_18,_n_,_t_,_EUROPE_1f,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _O_,_S_,_D_,___,_v_,_EUROPE_18,_n_,_d_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _O_,_c_,_EUROPE_95,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_O_,_S_,_D_,___,_M_,_i_,_l_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Obr¨®t OSD
+		_O_,_b_,_r_,_EUROPE_1e,_t_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _O_,_t_,_EUROPE_16,_EUROPE_b4,_e_,_n_,_EUROPE_1a,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Pivotare OSD
+		_P_,_i_,_v_,_o_,_t_,_a_,_r_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_01,_TH_02,_TH_03,_TH_13,_TH_C0,_TH_0D,___,_TH_O_,_TH_S_,_TH_D_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_X_,_o_,_a_,_y_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Pivot OSD
+	_P_,_i_,_v_,_o_,_t_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_b7_,_FONT_SELECT_EXT1,_JPN_EXT_b8_,_FONT_SELECT_EXT1,_JPN_EXT_b9_,_FONT_SELECT_EXT1,_JPN_EXT_ba_,_FONT_SELECT_EXT1,_JPN_EXT_bb_,_FONT_SELECT_EXT1,_JPN_EXT_bc_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_O_,_S_,_D_,___,_KOR_ec_,_KOR_c3_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_O_,_S_,_D_,___,_CHT_1c,_CHT_3e,_CHT_a1,_CHT_a2,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_O_,_S_,_D_,___,_CHS_26,_CHS_27,_CHS_9e,_CHS_9f,_END_,
+#endif
+
+};
+
+BYTE code str_POWER_INDICATOR[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_P_,_o_,_w_,_e_,_r_,___,_I_,_n_,_d_,_i_,_c_,_a_,_t_,_o_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_V_,_o_,_y_,_a_,_n_,_t_,___,_a_,_l_,_i_,_m_,_DOT_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_B_,_e_,_t_,_r_,_i_,_e_,_b_,_s_,_a_,_n_,_z_,_e_,_i_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Stroomindicator
+		_S_,_t_,_r_,_o_,_o_,_m_,_i_,_n_,_d_,_i_,_c_,_a_,_t_,_o_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_I_,_n_,_d_,_DOT_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_I_,_n_,_d_,_DOT_,___,_d_,_i_,___,_a_,_l_,_i_,_m_,_DOT_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_V_,_i_,_r_,_t_,_a_,_m_,_e_,_r_,_k_,_k_,_i_,_v_,_a_,_l_,_o_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _S_,_t_,_r_,_EUROPE_1f,_m_,_i_,_n_,_d_,_i_,_k_,_a_,_t_,_o_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ߧէڧܧѧ��� ��ڧ�ѧߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		0X23,0x5d,0x86,0x0f,0X11,_a_,0x5f,_o_,_p_,_,0x88,0x0f,0x5f,_a_,0x5d,0x0f,0x7D,_END_,																															
+																																	
+#else
+
+		_EUROPE_23,_EUROPE_5d,_EUROPE_86,_DOT_,___,_EUROPE_88,_EUROPE_0f,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_G_,_EUROPE_10,_EUROPE_12,___,_G_,_EUROPE_1f,_s_,_t_,_e_,_r_,_g_,_e_,_s_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Wska?nik zasilania
+		_W_,_s_,_k_,_a_,_EUROPE_ce,_n_,_i_,_k_,___,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _I_,_n_,_d_,_i_,_k_,_EUROPE_16,_t_,_o_,_r_,___,_n_,_a_,_p_,_EUROPE_16,_j_,_e_,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Indicator alimentare
+		_I_,_n_,_d_,_i_,_c_,_a_,_t_,_o_,_r_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_26,_TH_20,_TH_29,_TH_1D,_TH_72,_TH_05,_TH_62,_TH_0A,_TH_48,_TH_05,_TH_05,_TH_02,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_VIE_8B,_n_,___,_B_,_VIE_5C,_o_,___,_H_,_i_,_VIE_15,_u_,___,_N_,_g_,_u_,_VIE_7B,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Indikator Daya
+	_I_,_n_,_d_,_i_,_k_,_a_,_t_,_o_,_r_,___,_D_,_a_,_y_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_b4_,_JPN_b5_,_JPN_24_,_JPN_14_,_JPN_b6_,_JPN_b7_,_JPN_1f_,_JPN_ad_,_JPN_1f_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_b2_,_KOR_f2_,___,_KOR_da_,_KOR_a6_,_KOR_8f_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_a5,_CHT_1b,_CHT_a6,_CHT_24,_CHT_a7,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_a2,_CHS_a3,_CHS_a4,_CHS_99,_CHS_a5,_END_,
+#endif
+
+};
+
+BYTE code str_POWER_OFF[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_u_,_t_,_o_,___,_P_,_o_,_w_,_e_,_r_,___,_O_,_f_,_f_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_r_,_r_,_EUROPE_1d,_t_,___,_A_,_u_,_t_,_o_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_u_,_t_,_o_,_DASH_,_A_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Automatisch uitschakelen
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_c_,_h_,___,_u_,_i_,_t_,_s_,_c_,_h_,_a_,_k_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+        _A_,_p_,_a_,_g_,_a_,_d_,_o_,___,_a_,_u_,_t_,_DOT_,_END_,
+#else
+		_A_,_p_,_a_,_g_,_a_,_d_,_o_,___,_a_,_u_,_t_,_o_,_m_,_DOT_,_END_,
+#endif
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_S_,_p_,_e_,_g_,_n_,_DOT_,___,_a_,_u_,_t_,_o_,_m_,_DOT_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_DOT_,_S_,_a_,_m_,_m_,_u_,_t_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_k_,___,_a_,_v_,_s_,_t_,_EUROPE_18,_n_,_g_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ӧ����ܧݧ��֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_A_,0x3f,0x5f,_o_,_o_,0x5f,0X11,0x7C,0x81,0x7f,_e_,0x5d,0x0f,_e_,_END_,																																	
+																																			
+#else
+
+		_A_,_EUROPE_3f,_EUROPE_5f,_o_,_EUROPE_3f,_EUROPE_84,_EUROPE_11,_EUROPE_7c,_DOT_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_O_,_t_,_o_,___,_G_,_EUROPE_10,_EUROPE_12,___,_K_,_a_,_p_,_a_,_t_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Autom. wy?. Zasilania
+		_A_,_u_,_t_,_o_,_m_,_DOT_,___,_w_,_y_,_EUROPE_c6,_DOT_,___,_Z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _A_,_u_,_t_,_o_,_m_,_DOT_,___,_v_,_y_,_p_,_n_,_u_,_t_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Oprire automat?
+		_O_,_p_,_r_,_i_,_r_,_e_,___,_a_,_u_,_t_,_o_,_m_,_a_,_t_,_EUROPE_c8,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_10,_TH_11,_TH_07,_TH_11,_TH_17,_TH_16,_TH_05,_TH_1F,_TH_1A,_TH_12,_TH_0D,_TH_61,_TH_37,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)//T? ??ng T?t Ngu?n
+		_T_,_VIE_83,___,_VIE_17,_VIE_3F,_n_,_g_,___,_T_,_VIE_1F,_t_,___,_N_,_g_,_u_,_VIE_7B,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Mati Otomatis
+	_M_,_a_,_t_,_i_,___,_O_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_c0_,_JPN_c1_,_JPN_b4_,_JPN_b5_,_JPN_1e_,_JPN_25_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d0_,_KOR_bd_,___,_KOR_b2_,_KOR_f2_,___,_KOR_ad_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_bf,_CHT_cf,_CHT_a3,_CHT_a4,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_d0,_CHS_d1,_CHS_a0,_CHS_a1,_END_,
+#endif
+
+};
+
+BYTE code str_SLEEP[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_S_,_l_,_e_,_e_,_p_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_V_,_e_,_i_,_l_,_l_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_S_,_c_,_h_,_l_,_a_,_f_,_DASH_,_M_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Slaapstand
+		_S_,_l_,_a_,_a_,_p_,_s_,_t_,_a_,_n_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_S_,_u_,_s_,_p_,_e_,_n_,_d_,_i_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_S_,_o_,_s_,_p_,_e_,_n_,_s_,_i_,_o_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_L_,_e_,_p_,_o_,_t_,_i_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _V_,_i_,_l_,_o_,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//������ڧ� ��֧اڧ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																																					
+	_C_,0x88,0x7D,0x83,0x0f,0x0e,_,_p_,_e_,0x80,0x0f,0X97,_END_,																																		
+#else
+
+		_P_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_60,___,_o_,_EUROPE_5f,_EUROPE_11,_EUROPE_7c,_DOT_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_U_,_y_,_k_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//U?pienie
+		_U_,_EUROPE_c4,_p_,_i_,_e_,_n_,_i_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _S_,_p_,_EUROPE_16,_n_,_e_,_k_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Repaus
+		_R_,_e_,_p_,_a_,_u_,_s_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_19,_TH_5D,_TH_41,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_N_,_g_,_VIE_27,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Tidur
+	_T_,_i_,_d_,_u_,_r_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_17_,_JPN_60_,_JPN_1f_,_JPN_9f_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_15_,_KOR_b2_,_KOR_26_,_KOR_ce_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_b6,_CHT_b7,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_b7,_CHS_b8,_END_,
+#endif
+
+};
+
+BYTE code str_ECO[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_E_,_C_,_O_,___,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_M_,_o_,_d_,_e_,___,_E_,_C_,_O_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _E_,_C_,_O_,_DASH_,_M_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Eco-modus
+		_E_,_C_,_O_,_DASH_,_m_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_M_,_o_,_d_,_o_,___,_E_,_C_,_O_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_o_,_d_,_DOT_,___,_E_,_C_,_O_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_E_,_C_,_O_,_DASH_,_t_,_i_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_E_,_K_,_O_,_DASH_,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//ECO ��֧اڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																																							
+	_E_,_C_,_O_,_,_p_,_e_,0x80,0x0f,0X97,_END_,																																						
+#else
+
+		_P_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_60,___,_E_,_C_,_O_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_E_,_k_,_o_,_n_,_o_,_m_,_i_,_k_,___,_M_,_o_,_d_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Tryb ECO
+		_T_,_r_,_y_,_b_,___,_E_,_C_,_O_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_R_,_e_,_EUROPE_b1,_i_,_m_,___,_E_,_K_,_O_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Mod ECO
+		_M_,_o_,_d_,___,_E_,_C_,_O_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_12,_TH_13,_TH_09,_TH_11,___,_TH_E_,_TH_C_,_TH_O_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_VIE_14,___,_VIE_17,_VIE_3F,___,_E_,_C_,_O_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Mode ECO
+		_M_,_o_,_d_,_e_,___,_E_,_C_,_O_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_a4_,_JPN_a5_,_JPN_5f_,_JPN_1f_,_JPN_93_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_15_,_KOR_d9_,___,_KOR_26_,_KOR_ce_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_E_,_C_,_O_,___,_CHT_99,_CHT_9a,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_E_,_C_,_O_,___,_CHS_94,_CHS_95,_END_,
+#endif
+
+};
+
+BYTE code str_DP_VERSION[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//DisplayPort 1.1
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_D_,_i_,_s_,_p_,_l_,_a_,_y_,_p_,_o_,_r_,_t_,_1_,_DOT_,_1_,_END_,
+#endif
+
+};
+
+BYTE code str_AUTO_DETECT[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_u_,_t_,_o_,___,_D_,_e_,_t_,_e_,_c_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_D_,_EUROPE_14,_t_,_e_,_c_,_t_,_i_,_o_,_n_,___,_A_,_u_,_t_,_o_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_u_,_t_,_o_,_DASH_,_E_,_r_,_k_,_e_,_n_,_n_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Automatisch detecteren
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_c_,_h_,___,_d_,_e_,_t_,_e_,_c_,_t_,_e_,_r_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_u_,_t_,_o_,_d_,_e_,_t_,_e_,_c_,_t_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_i_,_l_,_e_,_v_,_DOT_,___,_A_,_u_,_t_,_o_,_m_,_DOT_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_u_,_n_,_n_,_i_,_s_,_t_,_a_,___,_A_,_u_,_t_,_o_,_m_,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_k_,___,_i_,_d_,_e_,_n_,_t_,_i_,_f_,_i_,_e_,_r_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ӧ�����֧է֧ݧ֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																																									
+	_A_,0x3f,0x5f,_o_,_o_,0x88,_p_,_e_,0x86,_e_,0x7C,_e_,0x5d,0x0f,_e_,_END_,																																								
+#else
+
+		_A_,_EUROPE_3f,_EUROPE_5f,_o_,_o_,_EUROPE_88,_p_,_e_,_EUROPE_86,_e_,_EUROPE_7c,_DOT_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_O_,_t_,_o_,_m_,_a_,_t_,_i_,_k_,___,_A_,_l_,_g_,_EUROPE_90,_l_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Autom. wykrywanie
+		_A_,_u_,_t_,_o_,_m_,_DOT_,_,_w_,_y_,_k_,_r_,_y_,_w_,_a_,_n_,_i_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_DOT_,___,_d_,_e_,_t_,_e_,_k_,_o_,_v_,_a_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Detectare Automat?
+		_D_,_e_,_t_,_e_,_c_,_t_,_a_,_r_,_e_,___,_a_,_u_,_t_,_o_,_m_,_a_,_t_,_EUROPE_c8,_END_,
+#endif
+#if(_DEF_THAI_TEXT)//
+		_TH_01,_TH_02,_TH_03,_TH_1A,_TH_03,_TH_1D,_TH_67,_TH_66,_TH_1E,_TH_1F,_TH_1A,_TH_12,_TH_0D,_TH_51,_TH_37,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_VIE_83,___,_VIE_17,_VIE_3F,_n_,_g_,___,_P_,_h_,_VIE_5C,_t_,___,_H_,_i_,_VIE_15,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Deteksi Otomatis
+		_D_,_e_,_t_,_e_,_k_,_s_,_i_,___,_O_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _JPN_c0_,_JPN_c1_,_EXT_FONT_,_JPN_EXT_26_,_JPN_f1_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d0_,_KOR_8e_,___,___,___,_EXT_FONT_,_KOR_EXT_0a_,_KOR_cc_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_bf,_CHT_cf,_EXT_FONT_,_CHT_EXT_45,_EXT_FONT_,_CHT_EXT_46,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_d0,_CHS_d1,_EXT_FONT_,_CHS_EXT_41,_EXT_FONT_,_CHS_EXT_42,_END_,
+#endif
+
+};
+
+BYTE code str_SEARCH[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_u_,_t_,_o_,___,_D_,_e_,_t_,_e_,_c_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_D_,_EUROPE_14,_t_,_e_,_c_,_t_,_i_,_o_,_n_,___,_A_,_u_,_t_,_o_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_u_,_t_,_o_,_DASH_,_E_,_r_,_k_,_e_,_n_,_n_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Automatisch detecteren
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_c_,_h_,___,_d_,_e_,_t_,_e_,_c_,_t_,_e_,_r_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_u_,_t_,_o_,_d_,_e_,_t_,_e_,_c_,_t_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_i_,_l_,_e_,_v_,_DOT_,___,_A_,_u_,_t_,_o_,_m_,_DOT_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_u_,_n_,_n_,_i_,_s_,_t_,_a_,___,_A_,_u_,_t_,_o_,_m_,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_k_,___,_i_,_d_,_e_,_n_,_t_,_i_,_f_,_i_,_e_,_r_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																																											
+			_A_,0x3f,0x5f,_o_,_o_,0x88,_p_,_e_,0x86,_e_,0x7C,_e_,0x5d,0x0f,_e_,_END_,																																								
+#else
+		
+				_A_,_EUROPE_3f,_EUROPE_5f,_o_,_o_,_EUROPE_88,_p_,_e_,_EUROPE_86,_e_,_EUROPE_7c,_DOT_,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_O_,_t_,_o_,_m_,_a_,_t_,_i_,_k_,___,_A_,_l_,_g_,_EUROPE_90,_l_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Automatyczne wykrywanie
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_y_,_c_,_z_,_e_,_n_,_i_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_DOT_,___,_d_,_e_,_t_,_e_,_k_,_o_,_v_,_a_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Detectare Automat?
+		_D_,_e_,_t_,_e_,_c_,_t_,_a_,_r_,_e_,___,_a_,_u_,_t_,_o_,_m_,_a_,_t_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_01,_TH_02,_TH_03,_TH_1A,_TH_03,_TH_1D,_TH_67,_TH_66,_TH_1E,_TH_1F,_TH_1A,_TH_12,_TH_0D,_TH_51,_TH_37,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_VIE_83,___,_VIE_17,_VIE_3F,_n_,_g_,___,_P_,_h_,_VIE_5C,_t_,___,_H_,_i_,_VIE_15,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Deteksi Otomatis
+		_D_,_e_,_t_,_e_,_k_,_s_,_i_,___,_O_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _JPN_c0_,_JPN_c1_,_FONT_SELECT_EXT1,_JPN_EXT_26_,_JPN_f1_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d0_,_KOR_8e_,___,___,___,_FONT_SELECT_EXT1,_KOR_EXT_0a_,_KOR_cc_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_bf,_CHT_cf,_FONT_SELECT_EXT1,_CHT_EXT_45,_FONT_SELECT_EXT1,_CHT_EXT_46,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_d0,_CHS_d1,_FONT_SELECT_EXT1,_CHS_EXT_41,_FONT_SELECT_EXT1,_CHS_EXT_42,_END_,
+#endif
+
+};
+
+BYTE code str_DDCCI[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//DDC/CI
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//DDC/CI
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//DDC/CI
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_D_,_TH_D_,_TH_C_,_TH_SLASH_,_TH_C_,_TH_I_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //DDC/CI
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_D_,_D_,_C_,_SLASH_,_C_,_I_,_END_,
+#endif
+
+};
+
+#if(_AI_EYE_PROTECTION == _ON)
+BYTE code str_AI_EYE_PROTECTION[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_A_,_I_,___,_E_,_y_,_e_,___,_P_,_r_,_o_,_t_,_e_,_c_,_t_,_i_,_o_,_n_,_END_,
+#endif
+
+};
+#endif
+
+#if(_AI_LIGHT_ADAPTIVATION == _ON)
+BYTE code str_AI_LIGHT_ADAPTIVATION[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_A_,_I_,___,_P_,_Q_,___,_E_,_n_,_g_,_i_,_n_,_e_,_END_,
+#endif
+
+};
+#endif
+
+#if(_AI_LOW_POWER == _ON)
+BYTE code str_AI_LOW_POWER[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_A_,_I_,___,_L_,_o_,_w_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+
+};
+#endif
+
+
+BYTE code str_MEMORY_RECALL[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_e_,_m_,_o_,_r_,_y_,___,_R_,_e_,_c_,_a_,_l_,_l_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_a_,_p_,_p_,_e_,_l_,___,_d_,_e_,___,_m_,_EUROPE_14,_m_,_o_,_i_,_r_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_Z_,_u_,_r_,_EUROPE_10,_c_,_k_,_s_,_e_,_t_,_z_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Geheugenherstel
+		_G_,_e_,_h_,_e_,_u_,_g_,_e_,_n_,_h_,_e_,_r_,_s_,_t_,_e_,_l_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_R_,_e_,_s_,_t_,_i_,_t_,_u_,_i_,_r_,___,_M_,_e_,_m_,_o_,_r_,_i_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_i_,_c_,_h_,_i_,_a_,_m_,_o_,___,_m_,_e_,_m_,_o_,_r_,_i_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_P_,_a_,_l_,_a_,_u_,_t_,_a_,___,_t_,_e_,_h_,_d_,_a_,_s_,_a_,_s_,_e_,_t_,_u_,_k_,_s_,_e_,_t_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_H_,_EUROPE_18,_m_,_t_,_a_,___,_f_,_r_,_EUROPE_aa,_n_,___,_m_,_i_,_n_,_n_,_e_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ѧӧ�է�ܧڧ� �ߧѧ����ۧܧ�
+		
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																																													
+	0x8C,_a_,0x3f,_o_,0x86,_c_,0X11,0x0f,_e_,_,0x5d,_a_,_c_,0x5f,_p_,_o_,0x0e,0X11,0x0f,_END_,																																												
+#else
+		
+				_B_,_o_,_EUROPE_8f,_EUROPE_3f,_p_,_a_,_EUROPE_5f,___,_p_,_e_,_EUROPE_87,_y_,_EUROPE_7c,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_o_,_EUROPE_11,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_B_,_e_,_l_,_l_,_e_,_k_,___,_G_,_e_,_r_,_i_,___,_EUROPE_92,_a_,_EUROPE_94,_EUROPE_90,_r_,_m_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Przywo?anie pami?ci
+		_P_,_r_,_z_,_y_,_w_,_o_,_EUROPE_c6,_a_,_n_,_i_,_e_,___,_p_,_a_,_m_,_i_,_EUROPE_cd,_c_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_y_,_v_,_o_,_l_,_a_,_t_,___,_p_,_a_,_m_,_EUROPE_a9,_EUROPE_b5,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Reapelare memorie
+		_R_,_e_,_a_,_p_,_e_,_l_,_a_,_r_,_e_,___,_m_,_e_,_m_,_o_,_r_,_i_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_17,_TH_14,_TH_01,_TH_32,_TH_0D,_TH_13,_TH_71,_TH_1D,_TH_14,_TH_11,_TH_1D,_TH_02,_TH_09,_TH_65,_TH_02,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_K_,_h_,_VIE_3E,_i_,___,_P_,_h_,_VIE_5D,_c_,___,_C_,_VIE_19,_i_,___,_VIE_17,_VIE_5B,_t_,___,_G_,_VIE_8A,_c_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Mengingat Memori
+		_M_,_e_,_n_,_g_,_i_,_n_,_g_,_a_,_t_,___,_M_,_e_,_m_,_o_,_r_,_i_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_27_,_JPN_5f_,_JPN_60_,_JPN_1f_,_JPN_60_,_JPN_de_,_JPN_94_,_JPN_15_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d6_,_KOR_26_,_KOR_ef_,___,_KOR_f1_,_KOR_f2_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_3f,_CHT_5b,_CHT_f9,_CHT_fa,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_d8,_CHS_f7,_CHS_24,_CHS_25,_END_,
+#endif
+
+};
+
+BYTE code str_ON[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _O_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+  #if(_ZHONGQIANG_LANGUAGE)
+        _M_,_a_,_r_,_END_,
+  #else
+	    _A_,_l_,_l_,_u_,_m_,_EUROPE_14,_END_,
+  #endif
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _E_,_i_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Aan
+	#if(_ZHONGQIANG_LANGUAGE)
+		_A_,_a_,_n_,_END_,
+	#else
+		_I_,_n_,_s_,_c_,_h_,_a_,_k_,_e_,_l_,_e_,_n_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+ #if(_ZHONGQIANG_LANGUAGE)
+        _E_,_n_,_c_,_END_,
+ #else
+	    _E_,_n_,_c_,_e_,_n_,_d_,_i_,_d_,_o_,_END_,
+ #endif
+#endif
+#if(_DEF_ITALIANO_TEXT)
+ #if(_ZHONGQIANG_LANGUAGE)
+	  _O_,_n_,_END_,  
+ #else
+     _A_,_c_,_c_,_e_,_s_,_o_,_END_,
+ #endif
+#endif
+#if(_DEF_SUOMI_TEXT)
+ #if(_ZHONGQIANG_LANGUAGE)
+        _P_,_EUROPE_18,_EUROPE_18,_l_,_END_,
+ #else
+	    _P_,_EUROPE_18,_EUROPE_18,_l_,_l_,_EUROPE_18,_END_,
+ #endif	    
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_P_,_EUROPE_aa,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _B_,_EUROPE_11,_EUROPE_7c,_DOT_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_EUROPE_12,_EUROPE_90,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//W??cz
+		_W_,_EUROPE_c6,_EUROPE_c7,_c_,_z_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_Z_,_a_,_p_,_DOT_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Pornit 
+		_P_,_o_,_r_,_n_,_i_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_10,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_B_,_VIE_20,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Aktif 
+		_A_,_k_,_t_,_i_,_f_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_1e_,_JPN_14_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _KOR_ac_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _CHT_5d,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _CHS_b6,_END_,
+#endif
+
+};
+
+BYTE code str_OFF[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _O_,_f_,_f_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+ #if(_ZHONGQIANG_LANGUAGE)
+        _A_,_r_,_r_,_END_,
+ #else
+	    _E_,_t_,_e_,_i_,_n_,_t_,_END_,
+ #endif
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _A_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Uit
+	    _U_,_i_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+  #if(_ZHONGQIANG_LANGUAGE)
+      _D_,_e_,_s_,_END_,
+  #else
+     _D_,_e_,_s_,_a_,_c_,_t_,_i_,_v_,_a_,_d_,_o_,_END_,0
+  #endif
+#endif
+#if(_DEF_ITALIANO_TEXT)
+ #if(_ZHONGQIANG_LANGUAGE)
+
+      _O_,_f_,_f_,_END_,
+ #else
+	    _S_,_p_,_e_,_n_,_t_,_o_,_END_,
+ #endif
+#endif
+#if(_DEF_SUOMI_TEXT)
+
+ #if(_ZHONGQIANG_LANGUAGE)
+        _P_,_o_,_i_,_s_,_END_,
+ #else
+	    _P_,_o_,_i_,_s_,___,_p_,_EUROPE_18,_EUROPE_18,_l_,_t_,_EUROPE_18,_END_,
+ #endif
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_v_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_B_,_EUROPE_84,_EUROPE_11,_EUROPE_7c,_DOT_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+#if(_ZHONGQIANG_LANGUAGE)
+     _K_,_p_,_l_,_END_,
+#else
+	 _K_,_a_,_p_,_a_,_l_,_EUROPE_90,_END_,
+#endif
+#endif
+#if(_DEF_POLISH_TEXT)//Wy??cz
+		_W_,_y_,_EUROPE_c6,_EUROPE_c7,_c_,_z_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_y_,_p_,_DOT_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Oprit
+		_O_,_p_,_r_,_i_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_10,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_VIE_1F,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Nonaktif 
+		_n_,_o_,_n_,_a_,_k_,_t_,_i_,_f_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_1e_,_JPN_25_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _KOR_ad_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _CHT_a3,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _CHS_a0,_END_,
+#endif
+
+};
+
+BYTE code str_CONTRAST[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Contrast
+	    _C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+		0XDA,_o_,_EUROPE_5d,_EUROPE_5f,_p_,_a_,_c_,_EUROPE_5f,_END_,
+
+#else
+
+		_K_,_o_,_EUROPE_5d,_EUROPE_5f,_p_,_a_,_c_,_EUROPE_5f,_EUROPE_5d,_DOT_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Kontrast
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Contrast
+		_C_,_o_,_n_,_t_,_r_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_11,_TH_16,_TH_0D,_TH_28,_TH_03,_TH_02,_TH_19,_TH_3C,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_VIE_1D,_VIE_26,_n_,_g_,___,_P_,_h_,_VIE_25,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Kontras
+		_K_,_o_,_n_,_t_,_r_,_a_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_a5_,_JPN_14_,_JPN_15_,_JPN_16_,_JPN_17_,_JPN_15_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_16_,_KOR_14_,___,_KOR_17_,_KOR_18_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_d4,_CHT_14,_CHT_15,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_d4,_CHS_14,_CHS_15,_END_,
+#endif
+
+};
+
+BYTE code str_BRIGHTNESS[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_B_,_r_,_i_,_g_,_h_,_t_,_n_,_e_,_s_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_L_,_u_,_m_,_i_,_n_,_o_,_s_,_i_,_t_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _H_,_e_,_l_,_l_,_i_,_g_,_k_,_e_,_i_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Helderheid
+	    _H_,_e_,_l_,_d_,_e_,_r_,_d_,_h_,_e_,_i_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _B_,_r_,_i_,_l_,_l_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _L_,_u_,_m_,_i_,_n_,_o_,_s_,_i_,_t_,_EUROPE_17,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _K_,_i_,_r_,_k_,_k_,_a_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_L_,_j_,_u_,_s_,_s_,_t_,_y_,_r_,_k_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _EUROPE_99,_p_,_EUROPE_11,_o_,_c_,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_P_,_a_,_r_,_l_,_a_,_k_,_l_,_EUROPE_90,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Jasno??
+		_J_,_a_,_s_,_n_,_o_,_EUROPE_c4,_EUROPE_c5,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_J_,_a_,_s_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Luminozitate
+		_L_,_u_,_m_,_i_,_n_,_o_,_z_,_i_,_t_,_a_,_t_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_22,_TH_1D,_TH_02,_TH_09,_TH_19,_TH_0F,_TH_02,_TH_05,_END_, //_TH_26,_TH_11,_TH_0D,_TH_02,_TH_27,_TH_01,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_VIE_3F,___,_S_,_VIE_5C,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Kecerahan
+		_K_,_e_,_c_,_e_,_r_,_a_,_h_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_18_,_JPN_19_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_19_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_16,_CHT_15,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_16,_CHS_15,_END_,
+#endif
+
+};
+
+BYTE code str_HUE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_H_,_u_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_T_,_e_,_i_,_n_,_t_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_F_,_a_,_r_,_b_,_t_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Tint
+		_T_,_i_,_n_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_T_,_o_,_n_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_T_,_o_,_n_,_a_,_l_,_i_,_t_,_EUROPE_17,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_S_,_EUROPE_18,_v_,_y_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_F_,_EUROPE_18,_r_,_g_,_t_,_o_,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�����֧ߧ��
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+_O_,0x5f,0x5f,_e_,0x5d,_o_,_EUROPE_11,_END_,
+#else
+		_T_,_o_,_EUROPE_5d,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_R_,_e_,_n_,_k_,___,_t_,_o_,_n_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Barwa 
+		_B_,_a_,_r_,_w_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_O_,_d_,_s_,_t_,_EUROPE_1a,_n_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Nuan??
+		_N_,_u_,_a_,_n_,_t_,_EUROPE_c8,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_12,_TH_28,_TH_0D,_TH_5D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_H_,_u_,_e_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Warna 
+	_C_,_o_,_r_,_a_,_k_,___,_W_,_a_,_r_,_n_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_85_,_JPN_c4_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_22_,_KOR_23_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_20,_CHT_d2,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_1f,_CHS_d2,_END_,
+#endif
+
+};
+
+BYTE code str_SATURATION[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_S_,_a_,_t_,_u_,_r_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_S_,_a_,_t_,_u_,_r_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_S_,_EUROPE_18,_t_,_t_,_i_,_g_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Verzadiging
+		_V_,_e_,_r_,_z_,_a_,_d_,_i_,_g_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_S_,_a_,_t_,_u_,_r_,_a_,_c_,_i_,_EUROPE_1e,_n_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_S_,_a_,_t_,_u_,_r_,_a_,_z_,_i_,_o_,_n_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_K_,_y_,_l_,_l_,_EUROPE_18,_i_,_s_,_y_,_y_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_M_,_EUROPE_18,_t_,_t_,_n_,_a_,_d_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_H_,_a_,_c_,_EUROPE_84,_EUROPE_83,_e_,_EUROPE_5d,_EUROPE_5d,_o_,_c_,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_D_,_o_,_y_,_g_,_u_,_n_,_l_,_u_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Nasycenie
+		_N_,_a_,_s_,_y_,_c_,_e_,_n_,_i_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_S_,_y_,_t_,_o_,_s_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Satura?ie
+		_S_,_a_,_t_,_u_,_r_,_a_,_EUROPE_c9,_i_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_11,_TH_1D,_TH_02,_TH_09,_TH_3B,_TH_09,_TH_3C,_TH_1D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_VIE_3F,___,_B_,_VIE_5E,_o_,___,_H_,_VIE_5F,_a_,___,_M_,_VIE_19,_u_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Saturasi
+		_S_,_a_,_t_,_u_,_r_,_a_,_s_,_i_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_8c_,_JPN_19_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_87_,_KOR_93_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_20,_FONT_SELECT_EXT1,_CHT_EXT_3f,_FONT_SELECT_EXT1,_CHT_EXT_40,_CHT_15,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_1f,_FONT_SELECT_EXT1,_CHS_EXT_3d,_FONT_SELECT_EXT1,_CHS_EXT_3e,_CHS_15,_END_,
+#endif
+
+};
+
+BYTE code str_sRGB[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//sRGB
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//sRGB
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//sRGB
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_s_,_TH_R_,_TH_G_,_TH_B_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //sRGB
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_s_,_R_,_G_,_B_,_END_,
+#endif
+
+};
+
+BYTE code str_BLUISH[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_B_,_l_,_u_,_i_,_s_,_h_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_B_,_l_,_e_,_u_,_EUROPE_19,_t_,_r_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _B_,_l_,_EUROPE_18,_u_,_l_,_i_,_c_,_h_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Blauwachtig
+	    _B_,_l_,_a_,_u_,_w_,_a_,_c_,_h_,_t_,_i_,_g_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _A_,_z_,_u_,_l_,_a_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _B_,_l_,_u_,_a_,_s_,_t_,_r_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _S_,_i_,_n_,_e_,_r_,_t_,_EUROPE_18,_v_,_EUROPE_18,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_B_,_l_,_EUROPE_aa,_a_,_k_,_t_,_i_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _C_,_EUROPE_0f,_EUROPE_5d,_e_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_84,_EUROPE_0e,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_M_,_a_,_v_,_i_,_m_,_s_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Niebieskawy
+		_N_,_i_,_e_,_b_,_i_,_e_,_s_,_k_,_a_,_w_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_D_,_o_,___,_m_,_o_,_d_,_r_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Alb?strui
+		_A_,_l_,_b_,_EUROPE_c8,_s_,_t_,_r_,_u_,_i_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_0B,_TH_63,_TH_16,_TH_0D,_TH_2F,_TH_02,_TH_05,_TH_2C,_TH_02,_TH_07,_TH_2D,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_X_,_a_,_n_,_h_,___,_N_,_h_,_VIE_7D,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Kebiruan
+		_K_,_e_,_b_,_i_,_r_,_u_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_86_,_FONT_SELECT_EXT1,_JPN_EXT_87_,_FONT_SELECT_EXT1,_JPN_EXT_88_,_FONT_SELECT_EXT1,_JPN_EXT_89_,_FONT_SELECT_EXT1,_JPN_EXT_8a_,_FONT_SELECT_EXT1,_JPN_EXT_8b_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_e2_,_KOR_e3_,_KOR_e4_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_60,_CHT_7b,_CHT_20,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_5c,_CHS_5d,_CHS_1f,_CHS_d2,_END_,
+#endif
+
+};
+
+BYTE code str_COOL[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_o_,_o_,_l_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_F_,_r_,_o_,_i_,_d_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _K_,_EUROPE_10,_h_,_l_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Koel
+	    _K_,_o_,_e_,_l_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _F_,_r_,_EUROPE_1a,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _F_,_r_,_e_,_d_,_d_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _V_,_i_,_i_,_l_,_e_,_EUROPE_18,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_S_,_v_,_a_,_l_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ݧ�էߧѧ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_X_,_o_,0x7C,_o_,0x86,0x5d,_a_,0x7D,_END_,									
+#else
+
+	    _X_,_o_,_EUROPE_7c,_o_,_EUROPE_86,_EUROPE_5d,_EUROPE_84,_EUROPE_0e,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_S_,_o_,_EUROPE_94,_u_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Zimne
+		_Z_,_i_,_m_,_n_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_S_,_t_,_u_,_d_,_e_,_n_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Rece
+		_R_,_e_,_c_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_34,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_M_,_VIE_5C,_t_,___,_M_,_VIE_7E,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Sejuk
+		_S_,_e_,_j_,_u_,_k_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_84_,_JPN_85_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_e5_,_KOR_c7_,_KOR_e6_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_7c,_CHT_20,_CHT_d2,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_5e,_CHS_1f,_CHS_d2,_END_,
+#endif
+
+};
+
+BYTE code str_NATIVE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_N_,_a_,_t_,_i_,_v_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_N_,_a_,_t_,_i_,_f_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_N_,_a_,_t_,_i_,_v_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Natief
+		_N_,_a_,_t_,_i_,_e_,_f_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _N_,_a_,_t_,_i_,_v_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _O_,_r_,_i_,_g_,_i_,_n_,_a_,_r_,_i_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _N_,_a_,_t_,_i_,_i_,_v_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_I_,_n_,_f_,_EUROPE_1f,_d_,_d_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ѧ���ѧݧ�ߧѧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_H_,_a_,0x5f,_y_,_p_,_a_,0x7C,0x95,0x5d,_a_,0x7D,_END_,									
+#else
+
+	    _EUROPE_23,_c_,_x_,_o_,_EUROPE_86,_EUROPE_5d,_EUROPE_84,_EUROPE_0e,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_D_,_o_,_EUROPE_94,_a_,_l_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naturalny
+		_N_,_a_,_t_,_y_,_w_,_n_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_N_,_a_,_t_,_i_,_v_,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Nativ?
+		_N_,_a_,_t_,_i_,_v_,_EUROPE_c8,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_04,_TH_05,_TH_07,_TH_37,_TH_09,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_N_,_g_,_u_,_y_,_VIE_22,_n_,___,_B_,_VIE_25,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Native
+		_N_,_a_,_t_,_i_,_v_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_ba_,_JPN_bb_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_1a_,_KOR_e7_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_7d,_CHT_f9,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_5f,_CHS_24,_END_,
+#endif
+
+};
+
+BYTE code str_WARM[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_W_,_a_,_r_,_m_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_C_,_h_,_a_,_u_,_d_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _W_,_a_,_r_,_m_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Warm
+	    _W_,_a_,_r_,_m_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _C_,_EUROPE_16,_l_,_i_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _C_,_a_,_l_,_d_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _L_,_EUROPE_18,_m_,_m_,_i_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_V_,_a_,_r_,_m_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���֧�ݧѧ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_T_,_e_,0x88,0x7C,_a_,0x7D,_END_,
+#else
+
+	    _T_,_e_,_EUROPE_88,_EUROPE_7c,_EUROPE_84,_EUROPE_0e,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_S_,_EUROPE_90,_c_,_a_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Ciep?e 
+		_C_,_i_,_e_,_p_,_EUROPE_c6,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_T_,_e_,_p_,_l_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Cald
+		_C_,_a_,_l_,_d_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_35,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_7F,_m_,___,_VIE_80,_p_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Hangat
+		_H_,_a_,_n_,_g_,_a_,_t_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_89_,_JPN_85_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_e8_,_KOR_e9_,_KOR_0b_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_7e,_CHT_20,_CHT_d2,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_60,_CHS_1f,_CHS_d2,_END_,
+#endif
+
+};
+
+BYTE code str_USER[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_U_,_s_,_e_,_r_,___,_C_,_o_,_l_,_o_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_C_,_o_,_u_,_l_,_e_,_u_,_r_,___,_u_,_t_,_i_,_l_,_i_,_s_,_a_,_t_,_e_,_u_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _B_,_e_,_n_,_u_,_t_,_z_,_e_,_r_,_e_,_i_,_n_,_s_,_t_,_e_,_l_,_l_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Gebruikerskleur 
+	    _G_,_e_,_b_,_r_,_u_,_i_,_k_,_e_,_r_,_s_,_k_,_l_,_e_,_u_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _C_,_o_,_l_,_o_,_r_,___,_d_,_e_,___,_u_,_s_,_u_,_a_,_r_,_i_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _C_,_o_,_l_,_o_,_r_,_e_,___,_u_,_t_,_e_,_n_,_t_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _K_,_EUROPE_18,_y_,_t_,_t_,_EUROPE_18,_j_,_EUROPE_18,_n_,___,_v_,_EUROPE_18,_r_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_n_,_v_,_EUROPE_18,_n_,_d_,_a_,_r_,_f_,_EUROPE_18,_r_,_g_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ݧ��. ��ӧ֧�
+
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+0XD6,_o_,0x7C,0x95,0x7e,0x2e,0x85,0x3f,_e_,0x5f,_END_,
+#else
+
+	    _EUROPE_25,_EUROPE_3f,_e_,_EUROPE_5f,_COMMA_,___,_EUROPE_7e,_a_,_EUROPE_86,_a_,_EUROPE_5d,_EUROPE_5d,_EUROPE_84,_EUROPE_0e,___,_EUROPE_88,_o_,_EUROPE_7c,_EUROPE_5b,_EUROPE_7e,_DOT_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_K_,_u_,_l_,_l_,_a_,_n_,_EUROPE_90,_c_,_EUROPE_90,___,_R_,_e_,_n_,_g_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Kolor u?ytkownika 
+		_K_,_o_,_l_,_o_,_r_,_U_,_z_,_y_,_t_,_k_,_o_,_w_,_n_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_U_,_EUROPE_b1,_i_,_v_,_a_,_t_,_e_,_l_,_s_,_k_,_EUROPE_16,___, _b_,_a_,_r_,_v_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Culoare utilizator
+		_C_,_u_,_l_,_o_,_a_,_r_,_e_,_U_,_t_,_i_,_l_,_i_,_z_,_a_,_t_,_o_,_r_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_60,_TH_41,_TH_16,_TH_05,_TH_BC,_TH_12,_TH_40,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_M_,_VIE_19,_u_,___,_S_,_VIE_1F,_c_,___,_N_,_g_,_VIE_1D,_VIE_81,_i_,___,_D_,_VIE_82,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Warna pengguna
+		_W_,_a_,_r_,_n_,_a_,___,_P_,_e_,_n_,_g_,_g_,_u_,_n_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_c6_,_JPN_1f_,_JPN_8a_,_JPN_1f_,_JPN_23_,_JPN_16_,_JPN_1f_,_JPN_5d_,_JPN_5e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_7f_,_KOR_80_,_KOR_d0_,___,_KOR_24_,_KOR_81_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_7f,_CHT_80,_CHT_81,_CHT_bf,_CHT_d2,_CHT_20,_CHT_22,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_7b,_CHS_7c,_CHS_d0,_CHS_25,_CHS_7d,_CHS_1f,_CHS_20,_END_,
+#endif
+
+};
+
+BYTE code str_ADOBE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Adobe RGB
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Adobe RGB
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Adobe RGB
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	    _A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Adobe RGB
+		_A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _A_,_d_,_o_,_b_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+
+};
+
+BYTE code str_DCIP3[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//DCI-P3
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//DCI-P3
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//DCI-P3
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	    _D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //DCI-P3
+		_D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _D_,_C_,_I_,_DASH_,_P_,_3_,_END_,
+#endif
+
+};
+
+
+BYTE code str_AUTO[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _A_,_u_,_t_,_o_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_u_,_t_,_o_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_u_,_t_,_o_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Automatisch
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_c_,_h_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_EUROPE_16,_t_,_i_,_c_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_u_,_t_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_a_,_a_,_t_,_t_,_i_,_n_,_e_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_k_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_A_,_EUROPE_3f,_EUROPE_5f,_o_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_O_,_t_,_o_,_m_,_a_,_t_,_i_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Tryb automatyczny
+		_T_,_r_,_y_,_b_,_a_,_u_,_t_,_o_,_m_,_a_,_t_,_y_,_c_,_z_,_n_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_u_,_t_,_o_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Automat
+		_A_,_u_,_t_,_o_,_m_,_a_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_1F,_TH_1A,_TH_12,_TH_0D,_TH_51,_TH_37,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_VIE_83,___,_VIE_17,_VIE_3F,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Otomatis
+		_O_,_t_,_o_,_m_,_a_,_t_,_i_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_c0_,_JPN_c1_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d0_,_KOR_8e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_bf,_CHT_cf,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_d0,_CHS_d1,_END_,
+#endif
+
+};
+BYTE code str_RGB[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _R_,_G_,_B_,_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_M_,_o_,_d_,_e_,_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_R_,_G_,_B_,_DASH_,_M_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//RGB-modus
+		_R_,_G_,_B_,_DASH_,_m_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_M_,_o_,_d_,_o_,_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_o_,_d_,_a_,_l_,_i_,_t_,_EUROPE_17,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_R_,_G_,_B_,_DASH_,_t_,_l_,_i_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_R_,_G_,_B_,_DASH_,_l_,_EUROPE_18,_g_,_e_,_END_,//_R_,_e_,_EUROPE_b1,_i_,_m_,_,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//RGB ���֧اڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_R_,_G_,_B_,_,_P_,_e_,0x80,0x0f,0X97,_END_,
+#else
+
+		_P_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_60,_,_R_,_G_,_B_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_R_,_G_,_B_,_,_M_,_o_,_d_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Tryb RGB
+		_T_,_r_,_y_,_b_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_R_,_e_,_EUROPE_b1,_i_,_m_,_,_R_,_G_,_B_,_END_,//_R_,_G_,_B_,_DASH_,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Mod RGB
+		_M_,_o_,_d_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_12,_TH_13,_TH_09,_TH_11,___,_TH_R_,_TH_G_,_TH_B_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_VIE_14,___,_VIE_7C,_VIE_3F,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //RGB
+		_M_,_o_,_d_,_e_,___,_R_,_G_,_B_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_R_,_G_,_B_,_,_JPN_5f_,_JPN_1f_,_JPN_93_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_R_,_G_,_B_,_,_KOR_26_,_KOR_ce_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_R_,_G_,_B_,_CHT_99,_CHT_9a,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_R_,_G_,_B_,_CHS_94,_CHS_95,_END_,
+#endif
+
+
+
+};
+BYTE code str_YUV[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _Y_,_U_,_V_,_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_M_,_o_,_d_,_e_,_,_Y_,_U_,_V_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_Y_,_U_,_V_,_DASH_,_M_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//YUV-modus
+		_Y_,_U_,_V_,_DASH_,_m_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_M_,_o_,_d_,_o_,_,_Y_,_U_,_V_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_o_,_d_,_a_,_l_,_i_,_t_,_EUROPE_17,___,_Y_,_U_,_V_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_Y_,_U_,_V_,_DASH_,_t_,_l_,_i_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+_Y_,_U_,_V_,_DASH_,_l_,_EUROPE_18,_g_,_e_,_END_,//_R_,_e_,_EUROPE_b1,_i_,_m_,_,_Y_,_U_,_V_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//YUV ���֧اڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_Y_,_U_,_V_,_,_P_,_e_,0x80,0x0f,0X97,_END_,
+#else
+
+		_P_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_60,_,_Y_,_U_,_V_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_Y_,_U_,_V_,_,_M_,_o_,_d_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Tryb YUV
+		_T_,_r_,_y_,_b_,___,_Y_,_U_,_V_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+_R_,_e_,_EUROPE_b1,_i_,_m_,_,_Y_,_U_,_V_,_END_,//_Y_,_U_,_V_,_DASH_,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Mod YUV
+		_M_,_o_,_d_,___,_Y_,_U_,_V_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_12,_TH_13,_TH_09,_TH_11,___,_TH_Y_,_TH_U_,_TH_V_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_VIE_14,___,_VIE_17,_VIE_3F,___,_Y_,_U_,_V_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //YUV
+		_M_,_o_,_d_,_e_,___,_Y_,_U_,_V_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_Y_,_U_,_V_,_,_JPN_5f_,_JPN_1f_,_JPN_93_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_Y_,_U_,_V_,_,_KOR_26_,_KOR_ce_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_Y_,_U_,_V_,_CHT_99,_CHT_9a,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_Y_,_U_,_V_,_CHS_94,_CHS_95,_END_,
+#endif
+
+};
+
+BYTE code str_FULL_RANGE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_F_,_u_,_l_,_l_,___,_R_,_a_,_n_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_P_,_l_,_a_,_g_,_e_,___,_e_,_n_,_t_,_i_,_EUROPE_15,_r_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_V_,_o_,_l_,_l_,_s_,_t_,_EUROPE_18,_n_,_d_,_i_,_g_,_e_,_r_,___,_B_,_e_,_r_,_e_,_i_,_c_,_h_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Volledig bereik
+		_V_,_o_,_l_,_l_,_e_,_d_,_i_,_g_,___,_b_,_e_,_r_,_e_,_i_,_k_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_R_,_a_,_n_,_g_,_o_,___,_C_,_o_,_m_,_p_,_l_,_e_,_t_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_G_,_a_,_m_,_m_,_a_,___,_c_,_o_,_m_,_p_,_l_,_e_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_EUROPE_18,_y_,_s_,_i_,___,_a_,_l_,_u_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_F_,_u_,_l_,_l_,_t_,___,_i_,_n_,_t_,_e_,_r_,_v_,_a_,_l_,_l_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ݧߧ���
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+0XD6,_o_,0x7C,0x5d,0x84,0x0e,_END_,
+#else
+
+		_EUROPE_26,_o_,_EUROPE_7c,_EUROPE_5d,_EUROPE_84,_EUROPE_0e,___,_EUROPE_8b,_EUROPE_0f,_a_,_EUROPE_88,_a_,_EUROPE_8f,_o_,_EUROPE_5d,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_T_,_a_,_m_,___,_A_,_r_,_a_,_l_,_EUROPE_90,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Pe?ny zakres
+		_P_,_e_,_EUROPE_c6,_n_,_y_,___,_z_,_a_,_k_,_r_,_e_,_s_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_P_,_l_,_n_,_EUROPE_a8,___,_r_,_o_,_z_,_s_,_a_,_h_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Gam? complet?
+		_G_,_a_,_m_,_EUROPE_c8,___,_c_,_o_,_m_,_p_,_l_,_e_,_t_,_EUROPE_c8,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_21,_TH_1D,_TH_05,_TH_07,_TH_52,_TH_09,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_o_,_VIE_19,_n_,___,_B_,_VIE_3F,___,_P_,_h_,_VIE_7D,_m_,___,_v_,_i_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Rentang penuh
+		_R_,_e_,_n_,_t_,_a_,_n_,_g_,___,_p_,_e_,_n_,_u_,_h_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_74_,_FONT_SELECT_EXT1,_JPN_EXT_75_,_FONT_SELECT_EXT1,_JPN_EXT_76_,_FONT_SELECT_EXT1,_JPN_EXT_77_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)//?? ??
+		_FONT_SELECT_EXT1,_KOR_EXT_20_,_FONT_SELECT_EXT1,_KOR_EXT_21_,___,_KOR_c1_,_KOR_9e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_bc,_CHT_ca,_CHT_cb,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_bc,_CHS_c6,_CHS_c7,_END_,
+#endif
+
+};
+BYTE code str_LIMITED_RANGE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_L_,_i_,_m_,_i_,_t_,_e_,_d_,___,_R_,_a_,_n_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_P_,_l_,_a_,_g_,_e_,___,_l_,_i_,_m_,_i_,_t_,_EUROPE_14,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_B_,_e_,_g_,_r_,_e_,_n_,_z_,_t_,_e_,_r_,___,_B_,_e_,_r_,_e_,_i_,_c_,_h_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Beperkt bereik
+		_B_,_e_,_p_,_e_,_r_,_k_,_t_,___,_b_,_e_,_r_,_e_,_i_,_k_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_I_,_n_,_t_,_e_,_r_,_v_,_a_,_l_,_o_,___,_l_,_i_,_m_,_i_,_t_,_a_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_G_,_a_,_m_,_m_,_a_,___,_l_,_i_,_m_,_i_,_t_,_a_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_R_,_a_,_j_,_o_,_i_,_t_,_e_,_t_,_t_,_u_,___,_a_,_l_,_u_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_B_,_e_,_g_,_r_,_EUROPE_18,_n_,_s_,_a_,_t_,___,_i_,_n_,_t_,_e_,_r_,_v_,_a_,_l_,_l_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ԧ�ѧߧڧ�֧ߧߧ���
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_O_,0x87,_p_,_a_,0x5d,0x0f,0x7f,_e_,0x5d,0x5d,0x84,0x0e,_END_,
+#else
+
+		_O_,_EUROPE_87,_p_,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7f,_DOT_,___,_EUROPE_8b,_EUROPE_0f,_a_,_EUROPE_88,_a_,_EUROPE_7e,_o_,_EUROPE_5d,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_S_,_EUROPE_90,_n_,_EUROPE_90,_r_,_l_,_EUROPE_90,___,_A_,_r_,_a_,_l_,_EUROPE_90,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Ograniczony zakres
+		_O_,_g_,_r_,_a_,_n_,_i_,_c_,_z_,_o_,_n_,_y_,___,_z_,_a_,_k_,_r_,_e_,_s_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_O_,_m_,_e_,_z_,_e_,_n_,_EUROPE_a8,___,_r_,_o_,_z_,_s_,_a_,_h_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Gam? limitat?
+		_G_,_a_,_m_,_EUROPE_c8,___,_l_,_i_,_m_,_i_,_t_,_a_,_t_,_EUROPE_c8,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_21,_TH_1D,_TH_05,_TH_53,_TH_65,_TH_02,_TH_9C,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_P_,_h_,_VIE_7D,_m_,___,_V_,_i_,___,_G_,_i_,_VIE_84,_i_,___,_H_,_VIE_7D,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Rentang terbatas
+		_R_,_e_,_n_,_t_,_a_,_n_,_g_,___,_T_,_e_,_r_,_b_,_a_,_t_,_a_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_1a_,_FONT_SELECT_EXT1,_JPN_EXT_96_,_FONT_SELECT_EXT1,_JPN_EXT_0c_,_FONT_SELECT_EXT1,_JPN_EXT_0d_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)//??? ?? 
+		_KOR_98_,_KOR_0b_,_FONT_SELECT_EXT1,_KOR_EXT_1f_,___,_KOR_c1_,_KOR_9e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+#if(_V22E1_H_LANGUAGE)//ÓÐÏÞ·¶Î§
+		_FONT_SELECT_EXT1,_CHT_EXT_9d,_FONT_SELECT_EXT1,_CHT_EXT_25,_CHT_ca,_CHT_cb,_END_,
+#else
+		_FONT_SELECT_EXT1,_CHT_EXT_25,_FONT_SELECT_EXT1,_CHT_EXT_26,_CHT_ca,_CHT_cb,_END_,
+#endif
+#endif
+#if(_DEF_SCHINESE_TEXT)
+#if(_V22E1_H_LANGUAGE)//ÓÐÏÞ·¶Î§
+		_FONT_SELECT_EXT1,_CHS_EXT_9e,_FONT_SELECT_EXT1,_CHS_EXT_29,_CHS_c6,_CHS_c7,_END_,
+#else
+		_FONT_SELECT_EXT1,_CHS_EXT_29,_FONT_SELECT_EXT1,_CHS_EXT_2a,_CHS_c6,_CHS_c7,_END_,
+#endif
+#endif
+
+};
+
+BYTE code str_4_3[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _TH_4_,_TH_BF,_TH_3_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _4_,_COLON_,_3_,_END_,
+#endif
+
+};
+
+
+BYTE code str_5_4[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _TH_5_,_TH_BF,_TH_4_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _5_,_COLON_,_4_,_END_,
+#endif
+
+};
+
+BYTE code str_16_9[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _TH_1_,_TH_6_,_TH_BF,_TH_9_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _1_,_6_,_COLON_,_9_,_END_,
+#endif
+
+};
+
+BYTE code str_16_10[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _TH_1_,_TH_6_,_TH_BF,_TH_1_,_TH_0_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _1_,_6_,_COLON_,_1_,_0_,_END_,
+#endif
+
+};
+//0X25
+BYTE code str_ADVANCED[]=
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_d_,_v_,_a_,_n_,_c_,_e_,_d_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_v_,_a_,_n_,_c_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_r_,_w_,_e_,_i_,_t_,_e_,_r_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT) // Geavanceerd
+		_G_,_e_,_a_,_v_,_a_,_n_,_c_,_e_,_e_,_r_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_v_,_a_,_n_,_z_,_a_,_d_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_v_,_a_,_n_,_z_,_a_,_t_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_e_,_h_,_o_,_k_,_a_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_v_,_a_,_n_,_c_,_e_,_r_,_a_,_d_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�������ܧѧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+												
+			_B_,0X84,_c_,_o_,_EUROPE_11,_a_,0x7D,_END_,									
+#else
+
+		_EUROPE_5e,_EUROPE_7c,_y_,_EUROPE_7f,_EUROPE_a5,_e_,_EUROPE_5d,_EUROPE_5d,_o_,_e_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_G_,_e_,_l_,_i_,_EUROPE_91,_m_,_i_,_EUROPE_91,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_Z_,_a_,_a_,_w_,_a_,_n_,_s_,_o_,_w_,_a_,_n_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_R_,_o_,_z_,_EUROPE_ad,_EUROPE_1a,_EUROPE_ae,_e_,_n_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_A_,_v_,_a_,_n_,_s_,_a_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_62,_TH_0D,_TH_5F,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_N_,_VIE_87,_n_,_g_,___,_c_,_a_,_o_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Lanjutan	
+		_L_,_a_,_n_,_j_,_u_,_t_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _JPN_d1_,_JPN_d2_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d3_,_KOR_e0_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_b8,_CHT_b9,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_ad,_CHS_b9,_END_,
+#endif
+
+};
+
+BYTE code str_ULTRA_FAST[]=
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_U_,_l_,_t_,_r_,_a_,___,_F_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_U_,_l_,_t_,_r_,_a_,___,_r_,_a_,_p_,_i_,_d_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_U_,_l_,_t_,_r_,_a_,_s_,_c_,_h_,_n_,_e_,_l_,_l_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_U_,_l_,_t_,_r_,_a_,___,_s_,_n_,_e_,_l_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_U_,_l_,_t_,_r_,_a_,___,_r_,_EUROPE_16,_p_,_i_,_d_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_U_,_l_,_t_,_r_,_a_,___,_v_,_e_,_l_,_o_,_c_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_H_,_u_,_i_,_p_,_p_,_u_,_n_,_o_,_p_,_e_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_U_,_l_,_t_,_r_,_a_,_s_,_n_,_a_,_b_,_b_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ݧ����
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+														
+		_y_,0x7C,0x95,0x5f,_p_,_a_,_END_,												
+#else
+
+		_C_,_EUROPE_3f,_e_,_p_,_x_,_EUROPE_5d,_EUROPE_0f,_EUROPE_8f,_EUROPE_11,_o_,_e_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_U_,_l_,_t_,_r_,_a_,___,_H_,_EUROPE_90,_z_,_l_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_U_,_l_,_t_,_r_,_a_,___,_s_,_z_,_y_,_b_,_k_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_Z_,_c_,_e_,_l_,_a_,___,_r_,_y_,_c_,_h_,_l_,_EUROPE_a8,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_U_,_l_,_t_,_r_,_a_,_r_,_a_,_p_,_i_,_d_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_03,_TH_1D,_TH_11,_TH_07,_TH_59,_TH_1D,_TH_07,_TH_B6,_TH_0D,_TH_B7,_TH_07,_TH_11,_TH_6E,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_VIE_83,_c_,___,_N_,_h_,_a_,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) // cepat
+		_U_,_l_,_t_,_r_,_a_,___,_c_,_e_,_p_,_a_,_t_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_d0_,_JPN_d1_,_JPN_d2_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_f0_,_KOR_d3_,_KOR_8d_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_ba,_CHT_bb,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_ba,_CHS_bb,_END_,
+#endif
+
+};
+
+BYTE code str_ENGLISH[] =
+{
+    _E_,_n_,_g_,_l_,_i_,_s_,_h_,_END_,
+};
+BYTE code str_FRANCAIS[] =
+{
+    _F_,_r_,_a_,_n_,_EUROPE_12,_a_,_i_,_s_,_END_,
+};
+BYTE code str_DEUTSCH[] =
+{
+    _D_,_e_,_u_,_t_,_s_,_c_,_h_,_END_,
+};
+BYTE code str_DUTH[] =
+{
+	_N_,_e_,_d_,_e_,_r_,_l_,_a_,_n_,_d_,_s_,_END_,
+};
+BYTE code str_ESPANOL[] =
+{
+    _E_,_s_,_p_,_a_,_EUROPE_13,_o_,_l_,_END_,
+};
+BYTE code str_ITALIANO[] =
+{
+    _I_,_t_,_a_,_l_,_i_,_a_,_n_,_o_,_END_,
+};
+BYTE code str_SUOMI[] =
+{
+    _S_,_u_,_o_,_m_,_i_,_END_,
+};
+BYTE code str_SWEDEN[] =
+{
+    _S_,_v_,_e_,_n_,_s_,_k_,_a_,_END_,
+};
+BYTE code str_RUSSIA[] =
+{
+    _P_,_y_,_c_,_c_,_EUROPE_11,_EUROPE_0f,_EUROPE_0e,_END_,
+};
+BYTE code str_TURKISH[] =
+{
+    _T_,_EUROPE_10,_r_,_k_,_EUROPE_12,_e_,_END_,
+};
+BYTE code str_POLISH[] =
+{
+	_P_,_o_,_l_,_s_,_k_,_i_,_END_,
+};
+BYTE code str_CZECH[] =
+{
+    _EUROPE_b2,_e_,_EUROPE_ad,_k_,_a_,_END_,
+};
+BYTE code str_ROMANIAN[] =
+{
+	#if(_ZHONGQIANG_LANGUAGE)
+	_R_,_o_,_m_,_EUROPE_19,_n_,_EUROPE_c8,_END_,
+	#else
+	_R_,_o_,_m_,_EUROPE_1a,_n_,_a_,_END_,
+	#endif
+};
+BYTE code str_THAI[] =
+{
+	0xd3,0xd4,0xd5,_END_,
+};
+BYTE code str_INDONESIAN[] = 
+{
+	_B_,_a_,_h_,_a_,_s_,_a_,___,_I_,_n_,_d_,_o_,_n_,_e_,_s_,_i_,_a_,_END_,
+};
+BYTE code str_Vietnam[] =
+{
+	_T_,_i_,_EUROPE_c1,_n_,_g_,___,_V_,_i_,_EUROPE_c2,_t_,_END_,
+};
+BYTE code str_JAPANESE[] =
+{
+    _JPN_08_,_JPN_09_,_JPN_0a_,_END_,
+};
+BYTE code str_KOREAN[] =
+{
+    _KOR_0b_,_KOR_0c_,_KOR_0d_,_END_,
+};
+BYTE code str_TCHINESE[] =
+{
+    _CHT_04,_CHT_05,_CHT_02,_CHT_03,_END_,
+};
+BYTE code str_SCHINESE[] =
+{
+    _CHT_06,_CHT_07,_CHT_02,_CHT_03,_END_,
+};
+
+BYTE code str_Large[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_L_,_a_,_r_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_G_,_r_,_a_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_G_,_r_,_o_,_EUROPE_22,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Groot	
+		_G_,_r_,_o_,_o_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_G_,_r_,_a_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_G_,_r_,_a_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_S_,_u_,_u_,_r_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_S_,_t_,_o_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_8e,_o_,_EUROPE_7c,_EUROPE_95,_EUROPE_a5,_o_,_EUROPE_0e,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_B_,_EUROPE_10,_y_,_EUROPE_10,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Du?y
+		_D_,_u_,_z_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_e_,_l_,_k_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Mare
+		_M_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_39,_TH_13,_TH_5C,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_L_,_VIE_84,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Besar
+		_B_,_e_,_s_,_a_,_r_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_FONT_SELECT_EXT1,_JPN_EXT_b0_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_9d_,_KOR_5f_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHT_EXT_04,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHS_EXT_04,_END_,
+#endif
+
+};
+
+BYTE code str_PIVOT_90[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _9_,_0_,_EUROPE_b6,_END_,
+#endif
+
+};
+
+BYTE code str_PIVOT_270[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,	
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _2_,_7_,_0_,_EUROPE_b6,_END_,
+#endif
+
+};
+
+BYTE code str_30MINUTES[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_3_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_3_,_0_,___,___,_M_,_i_,_n_,_u_,_n_,_t_,_e_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_3_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_3_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_3_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_o_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_3_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_3_,_0_,___,___,_M_,_i_,_n_,_u_,_u_,_t_,_t_,_i_,_i_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_3_,_0_,___,___,_m_,_i_,_n_,_u_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_3_,_0_,___,___,_M_,_EUROPE_0f,_EUROPE_5d,_END_,
+
+#else
+	_3_,_0_,___,___,_M_,_EUROPE_0f,_EUROPE_5d,_y_,_EUROPE_5f,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_3_,_0_,___,___,_D_,_a_,_k_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_3_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_3_,_0_,___,___,_m_,_i_,_n_,_u_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_3_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_3_,_TH_0_,___,___,_TH_0D,_TH_02,_TH_53,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_3_,_0_,___,_P_,_h_,_VIE_8C,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_3_,_0_,___,___,_M_,_e_,_n_,_i_,_t_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_3_,_0_,___,___,_JPN_d3_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_3_,_0_,___,___,_KOR_e7_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_3_,_0_,___,___,_CHT_bd,_CHT_be,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_3_,_0_,___,___,_CHS_7e,_CHS_86,_END_,
+#endif
+
+};
+
+BYTE code str_45MINUTES[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_4_,_5_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_4_,_5_,___,___,_M_,_i_,_n_,_u_,_n_,_t_,_e_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_4_,_5_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_4_,_5_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_4_,_5_,___,___,_M_,_i_,_n_,_u_,_t_,_o_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_4_,_5_,___,___,_M_,_i_,_n_,_u_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_4_,_5_,___,___,_M_,_i_,_n_,_u_,_u_,_t_,_t_,_i_,_i_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_4_,_5_,___,___,_m_,_i_,_n_,_u_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+			_4_,_5_,___,___,_M_,_EUROPE_0f,_EUROPE_5d,_END_,
+		
+#else
+			_4_,_5_,___,___,_M_,_EUROPE_0f,_EUROPE_5d,_y_,_EUROPE_5f,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_4_,_5_,___,___,_D_,_a_,_k_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_4_,_5_,___,___,_M_,_i_,_n_,_u_,_t_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_4_,_5_,___,___,_m_,_i_,_n_,_u_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_4_,_5_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_4_,_TH_5_,___,___,_TH_0D,_TH_02,_TH_53,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_4_,_5_,___,_P_,_h_,_VIE_8C,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_4_,_5_,___,___,_M_,_e_,_n_,_i_,_t_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_4_,_5_,___,___,_JPN_d3_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_4_,_5_,___,___,_KOR_e7_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_4_,_5_,___,___,_CHT_bd,_CHT_be,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_4_,_5_,___,___,_CHS_7e,_CHS_86,_END_,
+#endif
+
+};
+
+BYTE code str_60MINUTES[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_6_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_6_,_0_,___,___,_M_,_i_,_n_,_u_,_n_,_t_,_e_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_6_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_6_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_6_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_o_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_6_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_6_,_0_,___,___,_M_,_i_,_n_,_u_,_u_,_t_,_t_,_i_,_i_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_6_,_0_,___,___,_m_,_i_,_n_,_u_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+			_6_,_0_,___,___,_M_,_EUROPE_0f,_EUROPE_5d,_END_,
+		
+#else
+			_6_,_0_,___,___,_M_,_EUROPE_0f,_EUROPE_5d,_y_,_EUROPE_5f,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_6_,_0_,___,___,_D_,_a_,_k_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_6_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_6_,_0_,___,___,_m_,_i_,_n_,_u_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_6_,_0_,___,___,_M_,_i_,_n_,_u_,_t_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_6_,_TH_0_,___,___,_TH_0D,_TH_02,_TH_53,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_6_,_0_,___,_P_,_h_,_VIE_8C,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_6_,_0_,___,___,_M_,_e_,_n_,_i_,_t_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_6_,_0_,___,___,_JPN_d3_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_6_,_0_,___,___,_KOR_e7_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_6_,_0_,___,___,_CHT_bd,_CHT_be,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_6_,_0_,___,___,_CHS_7e,_CHS_86,_END_,
+#endif
+
+};
+
+BYTE code str_120MINUTES[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_1_,_2_,_0_,___,_M_,_i_,_n_,_u_,_t_,_e_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_1_,_2_,_0_,___,_M_,_i_,_n_,_u_,_n_,_t_,_e_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_1_,_2_,_0_,___,_M_,_i_,_n_,_u_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_1_,_2_,_0_,___,_M_,_i_,_n_,_u_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_1_,_2_,_0_,___,_M_,_i_,_n_,_u_,_t_,_o_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_1_,_2_,_0_,___,_M_,_i_,_n_,_u_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_1_,_2_,_0_,___,_M_,_i_,_n_,_u_,_u_,_t_,_t_,_i_,_i_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_1_,_2_,_0_,___,_m_,_i_,_n_,_u_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+			_1_,_2_,_0_,___,___,_M_,_EUROPE_0f,_EUROPE_5d,_END_,
+		
+#else
+			_1_,_2_,_0_,___,___,_M_,_EUROPE_0f,_EUROPE_5d,_y_,_EUROPE_5f,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_1_,_2_,_0_,___,_D_,_a_,_k_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_1_,_2_,_0_,___,_M_,_i_,_n_,_u_,_t_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_1_,_2_,_0_,___,_m_,_i_,_n_,_u_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_1_,_2_,_0_,___,_M_,_i_,_n_,_u_,_t_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_1_,_TH_2_,_TH_0_,___,_TH_0D,_TH_02,_TH_53,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_1_,_2_,_0_,___,_P_,_h_,_VIE_8C,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 	
+		_1_,_2_,_0_,___,_M_,_e_,_n_,_i_,_t_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_1_,_2_,_0_,___,_JPN_d3_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_1_,_2_,_0_,___,_KOR_e7_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_1_,_2_,_0_,___,_CHT_bd,_CHT_be,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_1_,_2_,_0_,___,_CHS_7e,_CHS_86,_END_,
+#endif
+
+};
+
+BYTE code str_AUTO_ADJUSTING[] =
+{
+	_A_,_u_,_t_,_o_,___,_I_,_m_,_a_,_g_,_e_,___,_A_,_d_,_j_,_u_,_s_,_t_,_i_,_n_,_g_,_DOT_,_DOT_,_DOT_,_DOT_,_END_,
+};
+
+BYTE code str_AUTO_COLOR[] =
+{
+	//_A_,_u_,_t_,_o_,___,_C_,_o_,_l_,_o_,_r_,_END_,
+    _W_,_h_,_i_,_t_,_e_,___,_B_,_a_,_l_,_a_,_n_,_c_,_i_,_n_,_g_,_DOT_,_DOT_,_DOT_,_DOT_,_DOT_,_END_,
+};
+
+//==================================================
+//Message OOR
+//==================================================
+BYTE code str_OOR[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_O_,_u_,_t_,___,_o_,_f_,___,_R_,_a_,_n_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_H_,_o_,_r_,_s_,___,_d_,_e_,___,_p_,_o_,_r_,_t_,_EUROPE_14,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_u_,_EUROPE_22,_e_,_r_,_h_,_a_,_l_,_b_,___,_d_,_e_,_s_,___,_B_,_e_,_r_,_e_,_i_,_c_,_h_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_B_,_u_,_i_,_t_,_e_,_n_,___,_b_,_e_,_r_,_e_,_i_,_k_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_F_,_u_,_e_,_r_,_a_,___,_d_,_e_,___,_r_,_a_,_n_,_g_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_F_,_u_,_o_,_r_,_i_,___,_s_,_c_,_a_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_r_,_v_,_o_,_a_,_l_,_u_,_e_,_e_,_n_,___,_u_,_l_,_k_,_o_,_p_,_u_,_o_,_l_,_e_,_l_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_U_,_t_,_o_,_m_,___,_r_,_EUROPE_18,_c_,_k_,_v_,_i_,_d_,_d_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_B_,_EUROPE_5d,_e_,___,_EUROPE_86,_EUROPE_0f,_a_,_EUROPE_88,_a_,_EUROPE_8f,_o_,_EUROPE_5d,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_r_,_a_,_l_,_EUROPE_90,_k_,___,_D_,_EUROPE_90,_EUROPE_91,_EUROPE_90,_n_,_d_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT) //Poza zakresem  
+		_P_,_o_,_z_,_a_,___,_z_,_a_,_k_,_r_,_e_,_s_,_e_,_m_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_M_,_i_,_m_,_o_,___,_r_,_o_,_z_,_s_,_a_,_h_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT) //?n afara intervalului 
+		_I_,_n_,___,_a_,_f_,_a_,_r_,_a_,___,_i_,_n_,_t_,_e_,_r_,_v_,_a_,_l_,_u_,_l_,_u_,_i_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_0D,_TH_16,_TH_01,_TH_21,_TH_16,_TH_1E,_TH_07,_TH_21,_TH_1A,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Di luar jangkauan
+		_D_,_i_,___,_l_,_u_,_a_,_r_,___,_j_,_a_,_n_,_g_,_k_,_a_,_u_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _EXT_FONT_,_JPN_EXT_a2_,_EXT_FONT_,_JPN_EXT_a3_,_EXT_FONT_,_JPN_EXT_a4_,_EXT_FONT_,_JPN_EXT_a5_,_EXT_FONT_,_JPN_EXT_a6_,_EXT_FONT_,_JPN_EXT_a7_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_c1_,_KOR_9e_,_KOR_c2_,___,_KOR_c3_,_KOR_0d_,_KOR_c4_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_86,_CHT_87,_CHT_ba,_CHT_c9,_CHT_ca,_CHT_cb,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_1e,_CHS_80,_CHS_ba,_CHS_3e,_CHS_c6,_CHS_c7,_END_,
+#endif
+
+};
+
+//==================================================
+//Message No Signal
+//==================================================
+BYTE code str_NO_SIGNAL[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _N_,_o_,___,_S_,_i_,_g_,_n_,_a_,_l_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _A_,_u_,_c_,_u_,_n_,___,_s_,_i_,_g_,_n_,_a_,_l_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _K_,_e_,_i_,_n_,___,_S_,_i_,_g_,_n_,_a_,_l_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _G_,_e_,_e_,_n_,___,_S_,_i_,_g_,_n_,_a_,_a_,_l_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _S_,_i_,_n_,___,_s_,_e_,_EUROPE_13,_a_,_l_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _N_,_e_,_s_,_s_,_u_,_n_,___,_s_,_e_,_g_,_n_,_a_,_l_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _E_,_i_,___,_s_,_i_,_g_,_n_,_a_,_a_,_l_,_i_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_I_,_n_,_g_,_e_,_n_,___,_s_,_i_,_g_,_n_,_a_,_l_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���֧� ��ڧԧߧѧݧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+	    _H_,_e_,_EUROPE_5f,___,_c_,_EUROPE_0f,_EUROPE_87,_EUROPE_5d,_a_,_EUROPE_7c,_a_,_END_,
+
+#else
+	    _H_,_e_,_EUROPE_5f,___,_c_,_EUROPE_0f,_EUROPE_87,_EUROPE_5d,_a_,_EUROPE_7c,_a_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_S_,_i_,_n_,_y_,_a_,_l_,___,_y_,_o_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_B_,_r_,_a_,_k_,___,_s_,_y_,_g_,_n_,_a_,_EUROPE_c6,_u_,_END_,
+	#else
+		_B_,_r_,_a_,_k_,___,_s_,_i_,_g_,_n_,_a_,_l_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+		_N_,_e_,_n_,_EUROPE_1a,___,_s_,_i_,_g_,_n_,_EUROPE_16,_l_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Lips? semnal 
+		_L_,_i_,_p_,_s_,_EUROPE_c8,___,_s_,_e_,_m_,_n_,_a_,_l_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_26,_TH_09,_TH_61,_TH_5D,_TH_49,_TH_49,_TH_02,_TH_4A,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Tidak ada sinyal
+		_T_,_i_,_d_,_a_,___,_a_,_d_,_a_,___,_S_,_i_,_n_,_y_,_a_,_l_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_K_,_h_,_VIE_3E,_n_,_g_,___,_C_,_VIE_8D,___,_T_,_VIE_8E,_n_,___,_H_,_i_,_VIE_15,_u_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_d5_,_JPN_98_,_JPN_d6_,_JPN_d7_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_bf_,_KOR_9b_,___,_KOR_7d_,_KOR_c0_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_cc,_CHT_19,_CHT_1a,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_c8,_CHS_19,_CHS_1a,_END_,
+#endif
+
+};
+
+#if(_POWER_CONSUMPTION_HINT_SUPPORT == _ON)
+BYTE code str_PC_HINT_0[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_h_,_a_,_n_,_g_,_i_,_n_,_g_,___,_O_,_S_,_D_,___,_s_,_e_,_t_,_t_,_i_,_n_,_g_,_s_,___,_m_,_a_,_y_,___,_i_,_n_,_c_,_r_,_e_,_a_,_s_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_L_,_a_,___,_m_,_o_,_d_,_i_,_f_,_i_,_c_,_a_,_t_,_i_,_o_,_n_,___,_d_,_e_,_s_,___,_p_,_a_,_r_,_a_,_m_,_EUROPE_15,_t_,_r_,_e_,_s_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_D_,_u_,_r_,_c_,_h_,___,_EUROPE_20,_n_,_d_,_e_,_r_,_u_,_n_,_g_,___,_d_,_e_,_r_,___,_O_,_S_,_D_,_DASH_,_E_,_i_,_n_,_s_,_t_,_e_,_l_,_l_,_u_,_n_,_g_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Wijzigen van OSD-instellingen 
+	#if(_ZHONGQIANG_LANGUAGE)
+		_W_,_i_,_j_,_z_,_i_,_g_,_e_,_n_,_,_v_,_a_,_n_,_,_O_,_S_,_D_,_DASH_,_i_,_n_,_s_,_t_,_e_,_l_,_l_,_i_,_n_,_g_,_e_,_n_,_END_,
+	#else
+		_H_,_e_,_t_,___,_w_,_i_,_j_,_z_,_i_,_g_,_e_,_n_,___,_v_,_a_,_n_,___,_O_,_S_,_D_,_DASH_,_i_,_n_,_s_,_t_,_e_,_l_,_l_,_i_,_n_,_g_,_e_,_n_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_C_,_a_,_m_,_b_,_i_,_a_,_r_,___,_l_,_a_,___,_c_,_o_,_n_,_f_,_i_,_g_,_u_,_r_,_a_,_c_,_i_,_EUROPE_1e,_n_,___,_d_,_e_,_l_,___,_m_,_e_,_n_,_EUROPE_1b,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_L_,_a_,___,_m_,_o_,_d_,_i_,_f_,_i_,_c_,_a_,___,_d_,_e_,_l_,_l_,_e_,___,_i_,_m_,_p_,_o_,_s_,_t_,_a_,_z_,_i_,_o_,_n_,_i_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_O_,_S_,_D_,_DASH_,_a_,_s_,_e_,_t_,_u_,_s_,_t_,_e_,_n_,___,_m_,_u_,_u_,_t_,_t_,_a_,_m_,_i_,_n_,_e_,_n_,___,_v_,_o_,_i_,___,_l_,_i_,_s_,_EUROPE_18,_t_,_EUROPE_18,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_EUROPE_20,_n_,_d_,_r_,_i_,_n_,_g_,___,_a_,_v_,___,_O_,_S_,_D_,_DASH_,_i_,_n_,_s_,_t_,_EUROPE_18,_l_,_l_,_n_,_i_,_n_,_g_,_a_,_r_,___,_k_,_a_,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ݧ� �ݧ���֧ԧ� �ܧѧ�֧��ӧ� �����
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+0x8b,0x7c,0x7d,_,0x7c,_y_,0x7f,0xa5,_e_,0x87,_o_,_,_k_,_a_,0x7f,_e_,_c_,0x5f,0xef,_a_,_,_y_,_c_,0x5f,_a_,_END_,
+#else
+		_EUROPE_23,_EUROPE_7e,_EUROPE_60,_e_,_EUROPE_5d,_e_,_EUROPE_5d,_EUROPE_0f,_e_,___,_EUROPE_5d,_a_,_c_,_EUROPE_5f,_p_,_o_,_e_,_EUROPE_11,___,_EUROPE_3f,___,_EUROPE_8f,_EUROPE_11,_p_,_a_,_EUROPE_5d,_EUROPE_5d,_o_,_EUROPE_60,___,_EUROPE_60,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_O_,_S_,_D_,___,_a_,_y_,_a_,_r_,_l_,_a_,_r_,_EUROPE_90,_n_,_EUROPE_90,_n_,___,_d_,_e_,_EUROPE_94,_i_,_EUROPE_91,_t_,_i_,_r_,_i_,_l_,_m_,_e_,_s_,_i_,_COMMA_,___,_g_,_EUROPE_10,_EUROPE_12,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Zmiana ustawie¨½ OSD mo?e 
+		_Z_,_m_,_i_,_a_,_n_,_a_,___,_u_,_s_,_t_,_a_,_w_,_i_,_e_,_n_,_i_,_a_,___,_O_,_S_,_D_,___,_m_,_o_,_z_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_Z_,_m_,_EUROPE_a9,_n_,_o_,_u_,___,_n_,_a_,_s_,_t_,_a_,_v_,_e_,_n_,_EUROPE_1a,___,_O_,_S_,_D_,___,_s_,_e_,___,_m_,_EUROPE_b3,_EUROPE_b1,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)// Schimbarea set?rilor OSD 
+	#if(_ZHONGQIANG_LANGUAGE)
+		_S_,_c_,_h_,_i_,_m_,_b_,_a_,_r_,_e_,_a_,_,_s_,_e_,_t_,_EUROPE_c8,_r_,_i_,_l_,_o_,_r_,_,_O_,_S_,_D_,_END_,
+	#else
+		_S_,_c_,_h_,_i_,_m_,_b_,_a_,_r_,_e_,___,_s_,_e_,_t_,___,_r_,_i_,_l_,_e_,___,_O_,_S_,_D_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_01,_TH_02,_TH_03,_TH_07,_TH_41,_TH_6C,_TH_14,_TH_0D,_TH_01,_TH_02,_TH_03,_TH_04,_TH_05,_TH_06,_TH_02,___,_TH_O_,_TH_S_,_TH_D_,___,_TH_16,_TH_02,_TH_67,_TH_6B,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_h_,_a_,_y_,_,_VIE_9C,_VIE_91,_i_,_,_c_,_VIE_19,_i_,_,_VIE_9C,_VIE_5B,_t_,_,_O_,_S_,_D_,_,_c_,_VIE_8D,_,_t_,_h_,_VIE_8F,_,_t_,_VIE_24,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Mengubah pengaturan OSD 
+	#if(_ZHONGQIANG_LANGUAGE)
+		_M_,_e_,_n_,_g_,_u_,_b_,_a_,_h_,_,_p_,_e_,_n_,_g_,_a_,_t_,_u_,_r_,_a_,_n_,_,_O_,_S_,_D_,_END_,
+	#else
+		_M_,_e_,_r_,_u_,_b_,_a_,_h_,___,_p_,_e_,_n_,_g_,_a_,_t_,_u_,_r_,_a_,_n_,___,_O_,_S_,_D_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_ASIA_04,_PC_ASIA_05,_PC_ASIA_06,_PC_JAP_07,_PC_JAP_08,_PC_JAP_09,_PC_JAP_0a,_PC_JAP_0b,_PC_JAP_0c,_PC_JAP_0d,_PC_JAP_0e,_PC_JAP_0f,_PC_JAP_10,_PC_JAP_11,_PC_JAP_12,_PC_JAP_13,_PC_JAP_14,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_PC_ASIA_04,_PC_ASIA_05,_PC_ASIA_06,_PC_ASIA_00,_PC_KOR_07,_PC_KOR_08,_PC_KOR_09,_PC_ASIA_00,_PC_KOR_0a,_PC_KOR_0b,_PC_KOR_0c,_PC_KOR_0d,_PC_ASIA_00,_PC_KOR_0e,_PC_KOR_0f,_PC_ASIA_00,_PC_KOR_10,_PC_KOR_11,_PC_KOR_12,_PC_KOR_13,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,
+#endif
+
+};
+
+BYTE code str_PC_HINT_1[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_p_,_o_,_w_,_e_,_r_,___,_c_,_o_,_n_,_s_,_u_,_m_,_p_,_t_,_i_,_o_,_n_,_DOT_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_p_,_e_,_u_,_t_,___,_a_,_u_,_g_,_m_,_e_,_n_,_t_,_e_,_r_,___,_l_,_a_,___,_c_,_o_,_n_,_s_,_o_,_m_,_m_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_e_,_r_,_h_,_EUROPE_1f,_h_,_t_,___,_s_,_i_,_c_,_h_,___,_m_,_EUROPE_1f,_g_,_l_,_i_,_c_,_h_,_e_,_r_,_w_,_e_,_i_,_s_,_e_,___,_d_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//kan het energieverbruik 
+		_k_,_a_,_n_,___,_h_,_e_,_t_,___,_e_,_n_,_e_,_r_,_g_,_i_,_e_,_v_,_e_,_r_,_v_,_e_,_r_,_b_,_r_,_u_,_i_,_k_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_O_,_S_,_D_,___,_p_,_u_,_e_,_d_,_e_,___,_a_,_u_,_m_,_e_,_n_,_t_,_a_,_r_,___,_e_,_l_,___,_c_,_o_,_n_,_s_,_u_,_m_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_p_,_o_,_t_,_r_,_e_,_b_,_b_,_e_,___,_a_,_u_,_m_,_e_,_n_,_t_,_a_,_r_,_e_,___,_i_,_l_,___,_c_,_o_,_n_,_s_,_u_,_m_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_v_,_i_,_r_,_r_,_a_,_n_,_k_,_u_,_l_,_u_,_t_,_u_,_s_,_t_,_a_,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_EUROPE_1f,_k_,_a_,___,_e_,_n_,_e_,_r_,_g_,_i_,_f_,_EUROPE_1f,_r_,_b_,_r_,_u_,_k_,_n_,_i_,_n_,_g_,_e_,_n_,_DOT_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�ߧ�ӧڧ�� ��ѧ٧�֧�֧ߧڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+0x5d,_o_,0x3f,0x0f,0x5f,_e_,_,_p_,_a_,0x7e,_p_,_e_,0xa5,_e_,0x5d,0x0f,_e_,_END_,
+#else
+		_EUROPE_60,_o_,_EUROPE_80,_e_,_EUROPE_5f,___,_EUROPE_88,_p_,_EUROPE_0f,_EUROPE_3f,_e_,_c_,_EUROPE_5f,_EUROPE_0f,___,_EUROPE_11,___,_EUROPE_88,_o_,_EUROPE_3f,_EUROPE_84,_EUROPE_a5,_e_,_EUROPE_5d,_EUROPE_0f,_EUROPE_81,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_t_,_EUROPE_10,_k_,_e_,_t_,_i_,_m_,_i_,_n_,_i_,___,_a_,_r_,_t_,_EUROPE_90,_r_,_a_,_b_,_i_,_l_,_i_,_r_,_DOT_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//zwi?kszy? zu?ycie energii. 
+		_z_,_m_,_i_,_e_,_n_,_i_,_c_,___,_z_,_u_,_z_,_y_,_c_,_i_,_e_,___,_e_,_n_,_e_,_r_,_g_,_i_,_i_,_DOT_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_z_,_v_,_EUROPE_a8,_EUROPE_ad,_i_,_t_,___,_s_,_p_,_o_,_t_,_EUROPE_ae,_e_,_b_,_a_,___,_e_,_l_,_e_,_k_,_t_,_r_,_i_,_c_,_k_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//poate cre?te consumul de 
+	#if(_ZHONGQIANG_LANGUAGE)
+		_p_,_o_,_a_,_t_,_e_,_,_c_,_r_,_e_,_EUROPE_ca,_t_,_e_,_,_c_,_o_,_n_,_s_,_u_,_m_,_u_,_l_,_END_,
+	#else
+		_p_,_o_,_a_,_t_,_e_,___,_c_,_r_,_e_,_s_,_t_,_e_,_r_,_e_,___,_c_,_o_,_n_,_s_,_u_,_m_,_u_,_l_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_0A,_TH_09,_TH_01,_TH_02,_TH_03,_TH_39,_TH_2F,_TH_0A,_TH_5D,_TH_05,_TH_05,_TH_02,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_9C,_i_,_VIE_15,_n_,_,_n_,_VIE_24,_n_,_g_,_,_s_,_VIE_99,_,_d_,_VIE_5D,_n_,_g_,_DOT_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //dapat meningkatkan konsumsi 
+		_d_,_a_,_p_,_a_,_t_,___,_m_,_e_,_n_,_i_,_n_,_g_,_k_,_a_,_t_,_k_,_a_,_n_,___,_k_,_o_,_n_,_s_,_u_,_m_,_s_,_i_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_15,_PC_JAP_16,_PC_JAP_0d,_PC_JAP_17,_PC_JAP_18,_PC_JAP_19,_PC_JAP_14,_PC_JAP_1a,_PC_JAP_1b,_PC_JAP_1c,_PC_JAP_1d,_PC_ASIA_03,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_PC_KOR_14,_PC_KOR_15,_PC_KOR_16,_PC_ASIA_00,_PC_KOR_17,_PC_ASIA_00,_PC_KOR_18,_PC_KOR_19,_PC_KOR_1a,_PC_KOR_1b,_PC_ASIA_02,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_PC_CHT_07,_PC_CHT_08,_PC_ASIA_00,_PC_ASIA_04,_PC_ASIA_05,_PC_ASIA_06,_PC_ASIA_00,_PC_CHT_09,_PC_CHT_0a,_PC_CHT_0b,_PC_CHT_0c,_PC_CHT_0d,_PC_CHT_0e,_PC_CHT_0f,_PC_CHT_10,_PC_CHT_11,_PC_CHT_12,_PC_ASIA_03,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_PC_CHS_07,_PC_CHS_08,_PC_ASIA_04,_PC_ASIA_05,_PC_ASIA_06,_PC_CHS_09,_PC_CHS_0a,_PC_CHS_0b,_PC_CHS_0c,_PC_CHS_0d,_PC_CHS_0e,_PC_CHS_0f,_PC_CHS_10,_PC_ASIA_03,_END_,
+#endif
+
+};
+
+BYTE code str_PC_HINT_2[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_EUROPE_14,_l_,_e_,_c_,_t_,_r_,_i_,_q_,_u_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_n_,_e_,_r_,_g_,_i_,_e_,_v_,_e_,_r_,_b_,_r_,_a_,_u_,_c_,_h_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//verhogen
+		_v_,_e_,_r_,_h_,_o_,_g_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_d_,_e_,___,_e_,_n_,_e_,_r_,_g_,_EUROPE_1a,_a_,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_e_,_n_,_e_,_r_,_g_,_e_,_t_,_i_,_c_,_o_,_DOT_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_88,_o_,_EUROPE_5f,_p_,_e_,_EUROPE_3e,_EUROPE_7c,_e_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,___,_EUROPE_8f,_EUROPE_5d,_e_,_p_,_EUROPE_87,_EUROPE_0f,_EUROPE_0f,_DOT_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_P_,_o_,_t_,_w_,_i_,_e_,_r_,_d_,_z_,_i_,_EUROPE_c5,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_e_,_n_,_e_,_r_,_g_,_i_,_e_,_DOT_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//energie.
+	#if(_ZHONGQIANG_LANGUAGE)
+		_d_,_e_,_,_e_,_n_,_e_,_r_,_g_,_i_,_e_,_DOT_,_END_,
+	#else
+		_e_,_n_,_e_,_r_,_g_,_i_,_e_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_14,_TH_16,_TH_09,_TH_25,_TH_1E,_TH_13,_TH_17,_TH_16,_TH_26,_TH_A7,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_VIE_7B,_n_,_g_,_,_VIE_9D,_VIE_97,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //daya.
+		_d_,_a_,_y_,_a_,_DOT_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,
+#endif
+
+};
+
+BYTE code str_PC_HINT_3[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_c_,_c_,_e_,_p_,_t_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_H_,_y_,_v_,_EUROPE_18,_k_,_s_,_y_,_t_,_k_,_EUROPE_1f,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_G_,_o_,_d_,_k_,_EUROPE_18,_n_,_n_,_e_,_r_,___,_d_,_u_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_K_,_a_,_b_,_u_,_l_,___,_e_,_d_,_i_,_l_,_s_,_i_,_n_,___,_m_,_i_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT) 
+	#if(_ZHONGQIANG_LANGUAGE)
+		_A_,_c_,_c_,_e_,_p_,_t_,_a_,_EUROPE_c9,_i_,_EUROPE_b8,_END_,
+	#else
+		_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+		_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_A_,_c_,_c_,_e_,_p_,_t_,_VIE_97,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_M_,_e_,_n_,_e_,_r_,_i_,_m_,_a_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_0a,_PC_JAP_0b,_PC_JAP_1e,_PC_JAP_1c,_PC_JAP_1d,_PC_JAP_1f,_PC_ASIA_01,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_PC_KOR_1c,_PC_KOR_1d,_PC_KOR_1e,_PC_KOR_1f,_PC_KOR_20,_PC_KOR_19,_PC_KOR_1a,_PC_KOR_21,_PC_ASIA_01,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_PC_CHT_13,_PC_CHT_14,_PC_CHT_15,_PC_CHT_16,_PC_ASIA_01,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_PC_CHS_11,_PC_CHS_12,_PC_CHS_13,_PC_CHS_14,_PC_CHS_15,_PC_CHS_16,_PC_ASIA_01,_END_,
+#endif
+
+};
+
+BYTE code str_PC_HINT_4[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_c_,_c_,_e_,_p_,_t_,_e_,_r_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_Z_,_u_,_s_,_t_,_i_,_m_,_m_,_e_,_n_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_A_,_c_,_c_,_e_,_p_,_t_,_e_,_r_,_e_,_n_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_EUROPE_b9,_A_,_c_,_e_,_p_,_t_,_a_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_c_,_c_,_e_,_t_,_t_,_a_,_r_,_e_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_26,_o_,_EUROPE_86,_EUROPE_5f,_EUROPE_3f,_e_,_p_,_EUROPE_80,_EUROPE_86,_a_,_e_,_EUROPE_5f,_e_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_S_,_o_,_u_,_h_,_l_,_a_,_s_,_EUROPE_1a,_t_,_e_,_EUROPE_b8,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_END_,
+#endif
+
+};
+
+code BYTE *tOSD_PC_HINT_TABLE[] =
+{
+	str_PC_HINT_0,
+	str_PC_HINT_1,
+	str_PC_HINT_2,
+	str_PC_HINT_3,
+	str_PC_HINT_4,
+	str_YES,
+	str_NO,
+	
+};
+#endif
+
+
+//==================================================
+//2ND Information Page
+//==================================================
+BYTE code str_RESOLUTION[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_R_,_e_,_s_,_o_,_l_,_u_,_t_,_i_,_o_,_n_,_COLON_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_EUROPE_14,_s_,_o_,_l_,_u_,_t_,_i_,_o_,_n_,_COLON_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _A_,_u_,_f_,_l_,_EUROPE_1f,_s_,_u_,_n_,_g_,_COLON_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_R_,_e_,_s_,_o_,_l_,_u_,_t_,_i_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _R_,_e_,_s_,_o_,_l_,_u_,_c_,_i_,_EUROPE_1e,_n_,_COLON_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _R_,_i_,_s_,_o_,_l_,_u_,_z_,_i_,_o_,_n_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _R_,_e_,_s_,_o_,_l_,_u_,_u_,_t_,_i_,_o_,_COLON_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _U_,_p_,_p_,_l_,_EUROPE_1f,_s_,_n_,_i_,_n_,_g_,_COLON_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ѧ٧�֧�֧ߧڧ֣�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	    _P_,_a_,_EUROPE_8f,_p_,_e_,_EUROPE_a5,_e_,0x5d,0x0f,_e_,_COLON_,_END_,
+
+
+#else
+
+	    _P_,_a_,_EUROPE_8f,_p_,_e_,_EUROPE_a5,_DOT_,_COLON_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_EUROPE_92,_EUROPE_1f,_z_,_EUROPE_10,_n_,_EUROPE_10,_r_,_l_,_EUROPE_10,_k_,_COLON_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Rozdzielczo?? 
+		_R_,_o_,_z_,_d_,_z_,_i_,_e_,_l_,_c_,_z_,_o_,_EUROPE_c4,_EUROPE_c5,_COLON_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _R_,_o_,_z_,_l_,_i_,_EUROPE_ad,_e_,_n_,_EUROPE_1a,_COLON_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Rezolu?ie 
+		_R_,_e_,_z_,_o_,_l_,_u_,_EUROPE_c9,_i_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_11,_TH_0D,_TH_02,_TH_09,_TH_1C,_TH_4D,_TH_07,_TH_5B,_TH_14,_TH_11,_TH_BF,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_VIE_3F,___,_P_,_h_,_VIE_87,_n_,___,_G_,_i_,_VIE_25,_i_,_COLON_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Resolusi 
+		_R_,_e_,_s_,_o_,_l_,_u_,_s_,_i_,_COLON_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_8b_,_JPN_c3_,_JPN_19_,_COLON_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_92_,_KOR_23_,_KOR_93_,_COLON_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_82,_CHT_83,_CHT_15,_COLON_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_7e,_CHS_7f,_CHS_80,_COLON_,_END_,
+#endif
+
+};
+
+
+BYTE code str_HFREQ[] =//��
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_H_,_DOT_,___,_F_,_r_,_e_,_q_,_u_,_e_,_n_,_c_,_y_,_COLON_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_F_,_r_,_EUROPE_14,_q_,_u_,_e_,_n_,_c_,_e_,___,_H_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_H_,_DOT_,___,_f_,_r_,_e_,_q_,_u_,_e_,_n_,_z_,_COLON_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Horiz. freq.
+		_H_,_DOT_,___,_f_,_r_,_e_,_q_,_DOT_,_COLON_,_END_,
+		//_H_,_o_,_r_,_i_,_z_,_DOT_,___,_f_,_r_,_e_,_q_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _F_,_r_,_e_,_c_,_u_,_e_,_n_,_c_,_DOT_,___,_H_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _F_,_r_,_e_,_q_,_u_,_e_,_n_,_z_,_a_,___,_O_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _V_,_a_,_a_,_k_,_a_,_t_,_a_,_a_,_j_,_u_,_u_,_s_,_COLON_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _H_,_DOT_,_F_,_r_,_e_,_k_,_v_,_e_,_n_,_s_,_COLON_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�����ڧ�.��ѧ����ѣ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+0XD8,_o_,_p_,0x0f,0x7e,_DOT_,0x7f,_a_,_c_,0x5f,_o_,0x5f,_a_,_COLON_,_END_,
+
+#else
+
+		_EUROPE_98,_DOT_,___,_EUROPE_87,_DOT_,___,_p_,_a_,_EUROPE_8f,_EUROPE_3f,_DOT_,_COLON_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_Y_,_DOT_,___,_F_,_r_,_e_,_k_,_a_,_n_,_s_,_EUROPE_90,_COLON_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Cz?stotl. pozioma
+		_C_,_z_,_EUROPE_cd,_s_,_t_,_DOT_,___,_P_,_o_,_z_,_i_,_o_,_m_,_a_,_COLON_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _H_,_DOT_,_f_,_r_,_e_,_k_,_v_,_e_,_n_,_c_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Frecven?? oriz.
+		_F_,_r_,_e_,_c_,_v_,_e_,_n_,_EUROPE_c9,_EUROPE_c8,___,_o_,_r_,_i_,_z_,_COLON_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_11,_TH_1D,_TH_02,_TH_09,_TH_69,_TH_23,_TH_0D,_TH_16,_TH_0D,_TH_BF,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_H_,_DOT_,___,_T_,_VIE_18,_n_,___,_S_,_VIE_8A,_COLON_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Frekuensi H.
+		_F_,_r_,_e_,_k_,_u_,_e_,_n_,_s_,_i_,___,_H_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_8c_,_JPN_8d_,_JPN_8e_,_JPN_8f_,_JPN_90_,_COLON_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_84_,_KOR_90_,___,_KOR_82_,_KOR_83_,_KOR_84_,_COLON_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_84,_CHT_85,_CHT_86,_CHT_87,_COLON_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_81,_CHS_82,_CHS_1e,_CHS_80,_COLON_,_END_,
+#endif
+
+};
+
+
+BYTE code str_VFREQ[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_V_,_DOT_,___,_F_,_r_,_e_,_q_,_u_,_e_,_n_,_c_,_y_,_COLON_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_F_,_r_,_EUROPE_14,_q_,_u_,_e_,_n_,_c_,_e_,___,_V_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_V_,_DOT_,___,_f_,_r_,_e_,_q_,_u_,_e_,_n_,_z_,_COLON_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//V. frequentie
+		_V_,_DOT_,___,_f_,_r_,_e_,_q_,_DOT_,_COLON_,_END_,
+		//_V_,_DOT_,___,_f_,_r_,_e_,_q_,_u_,_e_,_n_,_t_,_i_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _F_,_r_,_e_,_c_,_u_,_e_,_n_,_c_,_DOT_,___,_V_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _F_,_r_,_e_,_q_,_u_,_e_,_n_,_z_,_a_,___,_V_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _P_,_y_,_s_,_t_,_y_,_t_,_a_,_a_,_j_,_u_,_u_,_s_,_COLON_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _V_,_DOT_,_F_,_r_,_e_,_k_,_v_,_e_,_n_,_s_,_COLON_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���֧��.��ѧ����ѣ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_B_,_e_,_p_,0x5f,_DOT_,0x7f,_a_,_c_,0x5f,_o_,0x5f,_a_,_COLON_,_END_,
+		
+#else
+
+		_EUROPE_98,_DOT_,___,_EUROPE_3f,_DOT_,___,_p_,_a_,_EUROPE_8f,_EUROPE_3f,_DOT_,_COLON_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_D_,_DOT_,___,_F_,_r_,_e_,_k_,_a_,_n_,_s_,_COLON_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Cz?stotliwo?? pionowa
+		_C_,_z_,_EUROPE_cd,_s_,_t_,_DOT_,___,_P_,_i_,_o_,_n_,_o_,_w_,_a_,_COLON_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _V_,_DOT_,_f_,_r_,_e_,_k_,_v_,_e_,_n_,_c_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Frecven?? vert.
+		_F_,_r_,_e_,_c_,_v_,_e_,_n_,_EUROPE_c9,_EUROPE_c8,___,_v_,_e_,_r_,_t_,_COLON_,_END_,
+		//_F_,_r_,_e_,_c_,_v_,_e_,_n_,_t_,_a_,___,_v_,_e_,_r_,_t_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_11,_TH_1D,_TH_02,_TH_09,_TH_08,_TH_23,_TH_1D,_TH_04,_TH_05,_TH_BF,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_V_,_DOT_,___,_T_,_VIE_18,_n_,___,_S_,_VIE_8A,_COLON_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Frekuensi V.
+		_F_,_r_,_e_,_k_,_u_,_e_,_n_,_s_,_i_,___,_V_,_DOT_,_COLON_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_91_,_JPN_92_,_JPN_8e_,_JPN_8f_,_JPN_90_,_COLON_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_84_,_KOR_91_,___,_KOR_82_,_KOR_83_,_KOR_84_,_COLON_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_88,_CHT_89,_CHT_86,_CHT_87,_COLON_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_83,_CHS_84,_CHS_1e,_CHS_80,_COLON_,_END_,
+#endif
+
+};
+
+
+BYTE code str_PIXEL[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_P_,_i_,_x_,_e_,_l_,___,_C_,_l_,_o_,_c_,_k_,_COLON_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_H_,_o_,_r_,_l_,_o_,_g_,_e_,___,_d_,_e_,___,_p_,_i_,_x_,_e_,_l_,_s_,_COLON_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _P_,_i_,_x_,_e_,_l_,_t_,_a_,_k_,_t_,_COLON_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Pixelklok
+		_P_,_i_,_x_,_e_,_l_,_k_,_l_,_o_,_k_,_COLON_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _R_,_e_,_l_,_o_,_j_,___,_d_,_e_,___,_p_,_EUROPE_1a,_x_,_e_,_l_,_e_,_s_,_COLON_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _C_,_l_,_o_,_c_,_k_,___,_d_,_e_,_i_,___,_p_,_i_,_x_,_e_,_l_,_COLON_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _P_,_i_,_k_,_s_,_e_,_l_,_i_,_k_,_e_,_l_,_l_,_o_,_COLON_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _P_,_i_,_x_,_e_,_l_,_k_,_l_,_o_,_c_,_k_,_a_,_COLON_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ڧܧ�.��ѧ����ѣ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		0XD6,0X0F,0X11,_c_,_DOT_,0x7f,_a_,_c_,0x5f,_o_,0x5f,_a_,_COLON_,_END_,
+				
+#else
+
+		_EUROPE_98,_a_,_c_,_EUROPE_5f,_DOT_,_c_,_EUROPE_7c,_e_,_EUROPE_86,_o_,_EUROPE_3f,_DOT_,_EUROPE_88,_EUROPE_0f,_EUROPE_11,_c_,_DOT_,_COLON_,_END_,
+	#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_P_,_i_,_k_,_s_,_e_,_l_,___,_S_,_a_,_a_,_t_,_i_,_COLON_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Zegar pikseli
+		_Z_,_e_,_g_,_a_,_r_,___,_p_,_i_,_k_,_s_,_e_,_l_,_i_,_COLON_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _T_,_a_,_k_,_t_,___,_p_,_i_,_x_,_e_,_l_,_EUROPE_b3,_COLON_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Frecven?? pixeli 
+		_F_,_r_,_e_,_c_,_v_,_e_,_n_,_EUROPE_c9,_EUROPE_c8,___,_p_,_i_,_x_,_e_,_l_,_i_,_COLON_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_0D,_TH_02,_TH_B4,_TH_01,_TH_02,_TH_0A,_TH_01,_TH_07,_TH_21,_TH_1C,_TH_BF,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_VIE_17,_VIE_7B,_n_,_g_,___,_H_,_VIE_7B,___,_P_,_i_,_x_,_e_,_l_,_COLON_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Jam Piksel 
+		_J_,_a_,_m_,___,_P_,_i_,_k_,_s_,_e_,_l_,_COLON_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_b2_,_JPN_95_,_JPN_de_,_JPN_5c_,_JPN_95_,_JPN_96_,_JPN_94_,_JPN_95_,_COLON_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_94_,_KOR_95_,___,_KOR_96_,_KOR_97_,_COLON_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_8a,_CHT_8b,_CHT_8c,_COLON_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_85,_CHS_86,_CHS_1e,_CHS_80,_COLON_,_END_,
+#endif
+
+};
+
+
+BYTE code str_MODEL_NO[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_o_,_d_,_e_,_l_,___,_N_,_u_,_m_,_b_,_e_,_r_,_COLON_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_N_,_u_,_m_,_EUROPE_14,_r_,_o_,___,_d_,_e_,___,_m_,_o_,_d_,_EUROPE_15,_l_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _M_,_o_,_d_,_e_,_l_,_l_,_n_,_u_,_m_,_m_,_e_,_r_,_COLON_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Modelnummer
+		_M_,_o_,_d_,_e_,_l_,_n_,_u_,_m_,_m_,_e_,_r_,_COLON_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _N_,_EUROPE_1b,_m_,_e_,_r_,_o_,___,_d_,_e_,___,_m_,_o_,_d_,_e_,_l_,_o_,_COLON_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _N_,_u_,_m_,_e_,_r_,_o_,___,_m_,_o_,_d_,_e_,_l_,_l_,_o_,_COLON_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _M_,_a_,_l_,_l_,_i_,_n_,_u_,_m_,_e_,_r_,_o_,_COLON_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _M_,_o_,_d_,_e_,_l_,_l_,_n_,_u_,_m_,_m_,_e_,_r_,_COLON_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _H_,_o_,_EUROPE_60,_e_,_p_,___,_EUROPE_60,_o_,_EUROPE_86,_e_,_EUROPE_7c,_EUROPE_0f,_COLON_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_M_,_o_,_d_,_e_,_l_,___,_N_,_u_,_m_,_a_,_r_,_a_,_s_,_EUROPE_90,_COLON_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Numer modelu
+		_N_,_u_,_m_,_e_,_r_,___,_m_,_o_,_d_,_e_,_l_,_u_,_COLON_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _EUROPE_b2,_EUROPE_1a,_s_,_l_,_o_,___,_m_,_o_,_d_,_e_,_l_,_u_,_COLON_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Num?r model
+		_N_,_u_,_m_,_EUROPE_c8,_r_,___,_m_,_o_,_d_,_e_,_l_,_COLON_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_13,_TH_09,_TH_02,_TH_14,_TH_07,_TH_1C,_TH_21,_TH_42,_TH_0D,_TH_BF,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_M_,_VIE_5E,___,_M_,_VIE_19,_n_,___,_H_,_VIE_86,_n_,_h_,_COLON_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Nomor Model
+		_N_,_o_,_m_,_o_,_r_,___,_M_,_o_,_d_,_e_,_l_,_COLON_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_5f_,_JPN_20_,_JPN_5c_,_JPN_97_,_JPN_98_,_COLON_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_26_,_KOR_9c_,___,_KOR_9a_,_KOR_9b_,_COLON_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_8d,_CHT_1a,_COLON_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_87,_CHS_1a,_COLON_,_END_,
+#endif
+
+};
+
+
+
+//==================================================
+//Message Osd Lock / Unlock
+//==================================================
+BYTE code str_OSD_LOCK_TITLE[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_O_,_S_,_D_,___,_L_,_o_,_c_,_k_,_SLASH_,_U_,_n_,_l_,_o_,_c_,_k_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_V_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_a_,_g_,_e_,_SLASH_,_D_,_EUROPE_14,_v_,_e_,_r_,_r_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_O_,_S_,_D_,_DASH_,_S_,_p_,_e_,_r_,_r_,_e_,_SLASH_,_DASH_,_F_,_r_,_e_,_i_,_g_,_a_,_b_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_O_,_S_,_D_,_,_V_,_e_,_r_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_SLASH_,_O_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+	#else
+	_O_,_S_,_D_,___,_V_,_e_,_r_,_r_,_e_,_n_,_d_,_SLASH_,_O_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_B_,_l_,_o_,_q_,_u_,_e_,_o_,_SLASH_,_D_,_e_,_s_,_b_,_l_,_o_,_q_,_u_,_e_,_o_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_B_,_l_,_o_,_c_,_c_,_o_,_SLASH_,_s_,_b_,_l_,_o_,_c_,_c_,_o_,___,_O_,_S_,_D_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_O_,_S_,_D_,___,_L_,_u_,_k_,_i_,_t_,_s_,_e_,_SLASH_,_A_,_v_,_a_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_L_,_EUROPE_aa,_s_,_a_,___,_e_,_l_,_l_,_e_,_r_,___,_l_,_EUROPE_aa,_s_,_a_,___,_u_,_p_,_p_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//OSD ���ݧ��/���ѧ٧ҧݧ�� 
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_O_,_S_,_D_,_,0x8e,0x7c,_o_,0x11,_SLASH_,_P_,_a_,0x7e,0x3e,0x7c,_o_,0x11,_END_,
+#else
+
+	_EUROPE_8e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,_SLASH_,_p_,_a_,_EUROPE_7e,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,___,_M_,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_E_,_k_,_r_,_a_,_n_,___,_M_,_e_,_n_,_EUROPE_10,_s_,_EUROPE_10,___,_K_,_i_,_l_,_i_,_t_,_l_,_i_,_SLASH_,_A_,_EUROPE_12,_EUROPE_90,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Blokada/odblokowanie OSD
+	_B_,_l_,_o_,_k_,_a_,_d_,_a_,_SLASH_,_o_,_d_,_b_,_l_,_o_,_k_,_o_,_w_,_a_,_n_,_i_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_Z_,_a_,_m_,_k_,_SLASH_,_o_,_d_,_e_,_m_,_k_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_B_,_l_,_o_,_c_,_a_,_r_,_e_,_SLASH_,_D_,_e_,_b_,_l_,_o_,_c_,_a_,_r_,_e_,_,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_44,_TH_16,_TH_01,_TH_SLASH_,_TH_41,_TH_1C,_TH_11,_TH_44,_TH_16,_TH_01,___,_TH_O_,_TH_S_,_TH_D_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_K_,_h_,_VIE_8D,_a_,_SLASH_,_M_,_VIE_92,___,_K_,_h_,_VIE_8D,_a_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Kunci/Buka Kunci OSD
+	#if(_ZHONGQIANG_LANGUAGE)
+	_K_,_u_,_n_,_c_,_i_,_SLASH_,_B_,_u_,_k_,_a_,_,_K_,_u_,_n_,_c_,_i_,_,_O_,_S_,_D_,_END_,
+	#else
+	_K_,_u_,_n_,_d_,_u_,_r_,_SLASH_,_B_,_u_,_k_,_a_,___,_K_,_u_,_n_,_d_,_i_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_O_,_S_,_D_,_JPN_a8_,_JPN_96_,_JPN_94_,_JPN_95_,_SLASH_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_O_,_S_,_D_,___,_KOR_c5_,_KOR_c6_,_SLASH_,_KOR_c5_,_KOR_c6_,___,_KOR_92_,_KOR_98_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_O_,_S_,_D_,_CHT_cd,_CHT_fa,_SLASH_,_CHT_82,_CHT_cd,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_O_,_S_,_D_,___,_CHS_ca,_CHS_25,_SLASH_,_CHS_cb,_CHS_ca,_END_,
+#endif	
+};
+
+BYTE code str_UNLOCKED[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_O_,_S_,_D_,___,_U_,_n_,_l_,_o_,_c_,_k_,_e_,_d_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_D_,_EUROPE_14,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_a_,_g_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_O_,_S_,_D_,___,_S_,_p_,_e_,_r_,_r_,_e_,___,_a_,_u_,_f_,_g_,_e_,_h_,_o_,_b_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//OSD ontgrendeld
+	#if(_ZHONGQIANG_LANGUAGE)
+	_O_,_S_,_D_,_,_O_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_d_,_END_,
+	#else
+	_O_,_S_,_D_,___,_O_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_D_,_e_,_s_,_b_,_l_,_o_,_q_,___,_v_,_i_,_s_,_u_,_a_,_l_,_i_,_z_,___,_p_,_a_,_n_,_t_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_O_,_S_,_D_,___,_S_,_b_,_l_,_o_,_c_,_c_,_a_,_t_,_o_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_O_,_S_,_D_,___,_a_,_v_,_a_,_t_,_t_,_u_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_O_,_S_,_D_,___,_u_,_p_,_p_,_l_,_EUROPE_aa,_s_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_M_,_e_,_EUROPE_5d,_EUROPE_81,___,_p_,_a_,_EUROPE_8f,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5d,_o_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_O_,_S_,_D_,___,_K_,_i_,_l_,_i_,_d_,_i_,___,_a_,_EUROPE_12,_EUROPE_90,_l_,_d_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//OSD odblokowane 
+	_O_,_d_,_b_,_l_,_o_,_k_,_DOT_,_,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_O_,_S_,_D_,___,_o_,_d_,_e_,_m_,_k_,_n_,_u_,_t_,_a_,_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)//OSD deblocat 
+	_O_,_S_,_D_,___,_d_,_e_,_b_,_l_,_o_,_c_,_a_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_O_,_TH_S_,_TH_D_,_TH_C1,_TH_01,_TH_41,_TH_1C,_TH_11,_TH_44,_TH_16,_TH_01,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_O_,_S_,_D_,___,_VIE_17,_VIE_5E,___,_M_,_VIE_92,___,_K_,_h_,_VIE_8D,_a_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//OSD Tidak Terkunci 
+	_O_,_S_,_D_,___,_T_,_i_,_d_,_a_,_k_,___,_T_,_e_,_r_,_k_,_u_,_n_,_c_,_i_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_O_,_S_,_D_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_O_,_S_,_D_,___,_KOR_c5_,_KOR_c6_,_KOR_ca_,___,_KOR_b0_,_KOR_b1_,_KOR_c9_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_1c,_CHT_3e,_CHT_82,_CHT_ce,_CHT_cd,_CHT_fa,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_26,_CHS_27,_CHS_ca,_CHS_25,_CHS_c9,_CHS_cb,_CHS_cc,_END_,
+#endif	
+};
+
+BYTE code str_LOCKED[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_O_,_S_,_D_,___,_L_,_o_,_c_,_k_,_e_,_d_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_V_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_a_,_g_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_O_,_S_,_D_,___,_g_,_e_,_s_,_p_,_e_,_r_,_r_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//OSD vergrendeld
+	_O_,_S_,_D_,___,_V_,_e_,_r_,_g_,_e_,_n_,_d_,_e_,_l_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_B_,_l_,_o_,_q_,___,_v_,_i_,_s_,_u_,_a_,_l_,_i_,_z_,___,_p_,_a_,_n_,_t_,_a_,_l_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_O_,_S_,_D_,___,_B_,_l_,_o_,_c_,_c_,_a_,_t_,_o_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_O_,_S_,_D_,___,_l_,_u_,_k_,_i_,_t_,_t_,_u_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_O_,_S_,_D_,___,_l_,_EUROPE_aa,_s_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_EUROPE_8c,_EUROPE_11,_p_,_a_,_EUROPE_5d,_DOT_,___,_EUROPE_60,_e_,_EUROPE_5d,_EUROPE_81,___,_EUROPE_8f,_a_,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_O_,_S_,_D_,___,_K_,_i_,_l_,_i_,_t_,_l_,_e_,_n_,_d_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//OSD zablokowany
+	_O_,_S_,_D_,___,_z_,_a_,_b_,_l_,_o_,_k_,_o_,_w_,_a_,_n_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_O_,_S_,_D_,___,_z_,_a_,_m_,_k_,_n_,_u_,_t_,_a_,_END_,
+#endif
+		
+#if(_DEF_ROMANIAN_TEXT)//OSD blocat
+	_O_,_S_,_D_,___,_b_,_l_,_o_,_c_,_a_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_O_,_S_,_D_,_TH_08,_TH_01,_TH_44,_TH_16,_TH_01,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_O_,_S_,_D_,___,_VIE_17,_VIE_5E,___,_K_,_h_,_VIE_8D,_a_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//OSD Terkunci
+	_O_,_S_,_D_,___,_T_,_e_,_r_,_k_,_u_,_n_,_c_,_i_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_O_,_S_,_D_,_JPN_b3_,_JPN_ad_,_JPN_14_,_JPN_96_,_JPN_94_,_JPN_95_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_O_,_S_,_D_,___,_KOR_c7_,_KOR_c5_,_KOR_b5_,_KOR_c9_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_1c,_CHT_3e,_CHT_cd,_CHT_fa,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_26,_CHS_27,_CHS_c9,_CHS_ca,_CHS_25,_END_,
+#endif
+};
+code BYTE *tOSD_LOCKED_STATUS_TABLE[] =
+{
+    str_UNLOCKED,
+    str_LOCKED,
+};
+
+
+
+BYTE code str_UNLOCKING[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_U_,_n_,_l_,_o_,_c_,_k_,_i_,_n_,_g_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_D_,_EUROPE_14,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_a_,_g_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_O_,_S_,_D_,___,_S_,_p_,_e_,_r_,_r_,_e_,___,_a_,_u_,_f_,_h_,_e_,_b_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//OSD vergrendeld
+	#if(_ZHONGQIANG_LANGUAGE)
+	_O_,_S_,_D_,_,_O_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+	#else
+	_O_,_S_,_D_,___,_O_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_d_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_D_,_e_,_s_,_b_,_l_,_o_,_q_,___,_v_,_i_,_s_,_u_,_a_,_l_,_i_,_z_,___,_p_,_a_,_n_,_t_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_S_,_b_,_l_,_o_,_c_,_c_,_o_,___,_O_,_S_,_D_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_O_,_S_,_D_,_COLON_,_n_,___,_a_,_v_,_a_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_L_,_EUROPE_aa,_s_,_e_,_r_,___,_u_,_p_,_p_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)////���ѧ٧ҧݧ��.. OSD
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	
+	
+	_P_,_a_,0x7e,0x3e,0x7c,_o_,0x11,_DOT_,___,_O_,_S_,_D_,_END_,
+#else
+
+	_P_,_a_,_EUROPE_8f,_EUROPE_3e,_DOT_,___,_EUROPE_8f,_EUROPE_11,_DOT_,_EUROPE_60,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_O_,_S_,_D_,___,_k_,_i_,_l_,_i_,_d_,_i_,_n_,_i_,___,_a_,_EUROPE_12,_m_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//OSD zablokowane 	
+	_O_,_S_,_D_,___,_z_,_a_,_b_,_l_,_o_,_k_,_o_,_w_,_a_,_n_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_O_,_d_,_e_,_m_,_y_,_k_,_EUROPE_16,_n_,_EUROPE_1a,___,_O_,_S_,_D_,_END_,
+#endif
+		
+#if(_DEF_ROMANIAN_TEXT)//OSD blocat 
+	_D_,_e_,_b_,_l_,_o_,_c_,_a_,_r_,_e_,_,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_TH_01,_TH_02,_TH_03,_TH_41,_TH_1C,_TH_11,_TH_44,_TH_16,_TH_01,_,_TH_O_,_TH_S_,_TH_D_,_END_,
+	#else
+	_TH_O_,_TH_S_,_TH_D_,_TH_01,_TH_02,_TH_03,_TH_41,_TH_1C,_TH_11,_TH_44,_TH_16,_TH_01,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_M_,_VIE_92,___,_K_,_h_,_VIE_8D,_a_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//OSD Terkunci
+	#if(_ZHONGQIANG_LANGUAGE)
+	_M_,_e_,_m_,_b_,_u_,_k_,_a_,_,_k_,_u_,_n_,_c_,_i_,_,_O_,_S_,_D_,_END_,
+	#else
+	_O_,_S_,_D_,___,_T_,_e_,_r_,_k_,_u_,_n_,_c_,_i_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_O_,_S_,_D_,_JPN_b3_,_JPN_ad_,_JPN_14_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_JPN_02_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_O_,_S_,_D_,___,_KOR_c5_,_KOR_c6_,___,_KOR_8c_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_1c,_CHT_3e,_CHT_82,_CHT_ce,_CHT_cd,_CHT_fa,_CHT_02,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_cb,_CHS_cc,_CHS_26,_CHS_27,_CHS_ca,_CHS_25,_END_,
+#endif
+};
+BYTE code str_LOCKING[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_L_,_o_,_c_,_k_,_i_,_n_,_g_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_V_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_a_,_g_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_O_,_S_,_D_,___,_s_,_p_,_e_,_r_,_r_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//OSD vergrendelen
+	_O_,_S_,_D_,___,_V_,_e_,_r_,_g_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_B_,_l_,_o_,_q_,___,_v_,_i_,_s_,_u_,_a_,_l_,_i_,_z_,___,_p_,_a_,_n_,_t_,_a_,_l_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_B_,_l_,_o_,_c_,_c_,_o_,___,_O_,_S_,_D_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_O_,_S_,_D_,_COLON_,_n_,___,_l_,_u_,_k_,_i_,_t_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_L_,_EUROPE_aa,_s_,_e_,_r_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ݧ��. OSD
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+0x8e,0x7c,_o_,0x11,_DOT_,___,_O_,_S_,_D_,_END_,
+#else
+	_EUROPE_8e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,___,_EUROPE_8f,_EUROPE_11,_p_,_a_,_EUROPE_5d,_EUROPE_5d,_o_,_EUROPE_87,_o_,___,_EUROPE_60,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_O_,_S_,_D_,___,_K_,_i_,_l_,_i_,_t_,_l_,_e_,_m_,_e_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Blokada OSD 
+	_B_,_l_,_o_,_k_,_a_,_d_,_a_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_Z_,_a_,_m_,_y_,_k_,_EUROPE_16,_n_,_EUROPE_1a,___,_O_,_S_,_D_,_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)//Blocare OSD
+	_B_,_l_,_o_,_c_,_a_,_r_,_e_,_,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_TH_01,_TH_02,_TH_5D,_TH_05,_TH_44,_TH_16,_TH_01,_,_TH_O_,_TH_S_,_TH_D_,_END_,
+	#else
+	_TH_O_,_TH_S_,_TH_D_,_TH_01,_TH_02,_TH_5D,_TH_05,_TH_44,_TH_16,_TH_01,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_K_,_h_,_VIE_8D,_a_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Mengunci OSD 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_M_,_e_,_n_,_g_,_u_,_n_,_c_,_i_,_,_O_,_S_,_D_,_END_,
+	#else
+	_M_,_e_,_n_,_g_,_u_,_n_,_d_,_i_,___,_O_,_S_,_D_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_O_,_S_,_D_,_JPN_b3_,_JPN_ad_,_JPN_14_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_5d_,_JPN_5e_,_JPN_02_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_O_,_S_,_D_,___,_KOR_c5_,_KOR_c6_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_1c,_CHT_3e,_CHT_cd,_CHT_fa,_CHT_02,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_ca,_CHS_25,_CHS_26,_CHS_27,_END_,
+#endif	
+};
+code BYTE *tOSD_LOCKING_STATUS_TABLE[] =
+{
+    str_LOCKING,
+    str_UNLOCKING,
+};
+
+#if 0//(_LOCK_KEY_5_SECONDS_SUPPORT == _ON)
+BYTE code str_OSD_LOCKING_HINT_LOCK[] =
+{
+    _P_,_r_,_e_,_s_,_s_,___,_a_,_n_,_d_,___,_h_,_o_,_l_,_d_,___,_f_,_o_,_r_,___,_5_,_s_,___,_t_,_o_,___,_l_,_o_,_c_,_k_,___,_O_,_S_,_D_,_END_,
+    _A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_e_,_t_,___,_m_,_a_,_i_,_n_,_t_,_e_,_n_,_e_,_z_,___,_e_,_n_,_f_,_o_,_n_,_c_,_EUROPE_14,_END_,
+    _Z_,_u_,_m_,___,_S_,_p_,_e_,_r_,_r_,_e_,_n_,___,_d_,_e_,_s_,___,_O_,_S_,_D_,___,_5_,___,_s_,_END_,
+    _P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_s_,_i_,_n_,___,_s_,_o_,_l_,_t_,_a_,_r_,___,_d_,_u_,_r_,_a_,_n_,_t_,_e_,___,_5_,___,_s_,_e_,_g_,_u_,_n_,_d_,_o_,_s_,_END_,
+    _T_,_e_,_n_,_e_,_r_,_e_,___,_p_,_r_,_e_,_m_,_u_,_t_,_o_,___,_p_,_e_,_r_,___,_5_,___,_s_,_e_,_c_,_DOT_,___,_p_,_e_,_r_,_END_,
+    
+    _P_,_i_,_d_,_EUROPE_18,___,_p_,_a_,_i_,_n_,_e_,_t_,_t_,_u_,_n_,_a_,___,_5_,___,_s_,___,_l_,_u_,_k_,_i_,_t_,_a_,_k_,_s_,_e_,_s_,_i_,___,_O_,_S_,_D_,_COLON_,_n_,_END_,
+	_S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_a_,___,_p_,_o_,_d_,_r_,_EUROPE_b1,_e_,_n_,_EUROPE_1a,_m_,___,_5_,___,_s_,_END_,
+    _EUROPE_5e,_EUROPE_86,_e_,_p_,_EUROPE_80,_EUROPE_0f,_EUROPE_3f,_a_,_EUROPE_0e,_EUROPE_5f,_e_,___,_5_,___,_c_,_COMMA_,_END_,
+	_E_,_k_,_r_,_a_,_n_,___,_m_,_e_,_n_,_EUROPE_10,_s_,_EUROPE_10,_n_,_EUROPE_10,___,_k_,_i_,_l_,_i_,_t_,_l_,_e_,_m_,_e_,_k_,_END_,
+	_T_,_r_,_y_,_c_,_k_,___,_o_,_c_,_h_,___,_h_,_EUROPE_aa,_l_,_l_,___,_i_,_n_,_t_,_r_,_y_,_c_,_k_,_t_,___,_i_,___,_5_,_s_,_END_,
+
+	_END_, 
+	_EXT_FONT_,_JPN_EXT_7f_,_EXT_FONT_,_JPN_EXT_21_,_EXT_FONT_,_JPN_EXT_22_,_EXT_FONT_,_JPN_EXT_23_,_EXT_FONT_,_JPN_EXT_24_,_JPN_d7_,_JPN_d7_,_EXT_FONT_,_JPN_EXT_15_,_EXT_FONT_,_JPN_EXT_34_,_O_,_S_,_D_,_END_,
+	_EXT_FONT_,_KOR_EXT_8d_,_KOR_f0_,___,_KOR_8e_,_KOR_d8_,___,___,_KOR_11_,_KOR_12_,___,_O_,_S_,_D_,_KOR_c2_,___,_KOR_c5_,_KOR_c6_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+	_EXT_FONT_,_CHT_EXT_41,_EXT_FONT_,_CHT_EXT_42,_EXT_FONT_,_CHT_EXT_58,_CHT_10,_CHT_11,_CHT_cd,_CHT_fa,_O_,_S_,_D_,_END_,
+	_CHS_cd,_EXT_FONT_,_CHS_EXT_3f,_EXT_FONT_,_CHS_EXT_59,_CHS_10,_CHS_ca,_CHS_25,_O_,_S_,_D_,_END_,
+	
+};
+
+BYTE code str_OSD_LOCKING_HINT_UNLOCK[] =
+{
+    _P_,_r_,_e_,_s_,_s_,___,_a_,_n_,_d_,___,_h_,_o_,_l_,_d_,___,_f_,_o_,_r_,___,_5_,_s_,___,_t_,_o_,___,_u_,_n_,_l_,_o_,_c_,_k_,___,_O_,_S_,_D_,_END_,
+    _A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_e_,_t_,___,_m_,_a_,_i_,_n_,_t_,_e_,_n_,_e_,_z_,___,_e_,_n_,_f_,_o_,_n_,_c_,_EUROPE_14,_END_,
+    _Z_,_u_,_m_,___,_F_,_r_,_e_,_i_,_g_,_b_,_e_,_n_,___,_d_,_e_,_s_,___,_O_,_S_,_D_,___,_5_,___,_s_,_END_,
+    _P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_s_,_i_,_n_,___,_s_,_o_,_l_,_t_,_a_,_r_,___,_d_,_u_,_r_,_a_,_n_,_t_,_e_,___,_5_,___,_s_,_e_,_g_,_u_,_n_,_d_,_o_,_s_,_END_,
+    _T_,_e_,_n_,_e_,_r_,_e_,___,_p_,_r_,_e_,_m_,_u_,_t_,_o_,___,_p_,_e_,_r_,___,_5_,___,_s_,_e_,_c_,_DOT_,___,_p_,_e_,_r_,_END_,
+    
+    _P_,_i_,_d_,_EUROPE_18,___,_p_,_a_,_i_,_n_,_e_,_t_,_t_,_u_,_n_,_a_,___,_5_,___,_s_,___,_a_,_v_,_a_,_t_,_a_,_k_,_s_,_e_,_s_,_i_,___,_O_,_S_,_D_,_COLON_,_n_,_END_,
+	_S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_a_,___,_p_,_o_,_d_,_r_,_EUROPE_b1,_e_,_n_,_EUROPE_1a,_m_,___,_5_,___,_s_,_END_,
+    _EUROPE_5e,_EUROPE_86,_e_,_p_,_EUROPE_80,_EUROPE_0f,_EUROPE_3f,_a_,_EUROPE_0e,_EUROPE_5f,_e_,___,_5_,___,_c_,_COMMA_,_END_,
+	_E_,_k_,_r_,_a_,_n_,___,_m_,_e_,_n_,_EUROPE_10,_s_,_EUROPE_10,_n_,_EUROPE_10,_n_,___,_k_,_i_,_l_,_i_,_d_,_i_,_n_,_i_,___,_a_,_EUROPE_12,_m_,_a_,_k_,_END_,
+	_T_,_r_,_y_,_c_,_k_,___,_o_,_c_,_h_,___,_h_,_EUROPE_aa,_l_,_l_,___,_i_,_n_,_t_,_r_,_y_,_c_,_k_,_t_,___,_i_,___,_5_,_s_,_END_,
+
+	_END_, 
+    _EXT_FONT_,_JPN_EXT_7f_,_EXT_FONT_,_JPN_EXT_21_,_EXT_FONT_,_JPN_EXT_22_,_EXT_FONT_,_JPN_EXT_23_,_EXT_FONT_,_JPN_EXT_24_,_JPN_d7_,_JPN_d7_,_EXT_FONT_,_JPN_EXT_15_,_EXT_FONT_,_JPN_EXT_34_,_O_,_S_,_D_,_END_,
+    _EXT_FONT_,_KOR_EXT_8d_,_KOR_f0_,___,_KOR_8e_,_KOR_d8_,___,___,_KOR_11_,_KOR_12_,___,_O_,_S_,_D_,___,_KOR_c5_,_KOR_c6_,_KOR_d5_,_END_,
+	_EXT_FONT_,_CHT_EXT_41,_EXT_FONT_,_CHT_EXT_42,_EXT_FONT_,_CHT_EXT_58,_CHT_10,_CHT_11,_CHT_82,_CHT_cd,_O_,_S_,_D_,_END_,
+    _CHS_cd,_EXT_FONT_,_CHS_EXT_3f,_EXT_FONT_,_CHS_EXT_59,_CHS_10,_CHS_cb,_CHS_ca,_O_,_S_,_D_,_END_,
+	
+};
+
+BYTE code str_OSD_LOCKING_HINT_LOCK_1[] =
+{
+    _END_,
+    _p_,_e_,_n_,_d_,_a_,_n_,_t_,___,_5_,___,_s_,___,_p_,_o_,_u_,_r_,___,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_e_,_r_,___,_I_,_APOSTROPHE,_O_,_S_,_D_,_END_,
+    _g_,_e_,_d_,_r_,_EUROPE_10,_c_,_k_,_t_,___,_h_,_a_,_l_,_t_,_e_,_n_,_END_,
+    _p_,_a_,_r_,_a_,___,_b_,_l_,_o_,_q_,_u_,_e_,_a_,_r_,___,_e_,_l_,___,_m_,_e_,_n_,_EUROPE_1b,___,_O_,_S_,_D_,_END_,
+    _b_,_l_,_o_,_c_,_c_,_a_,_r_,_e_,___,_I_,_APOSTROPHE,_O_,_S_,_D_,_END_,
+    
+    _END_,
+	_z_,_a_,_m_,_k_,_n_,_EUROPE_a9,_t_,_e_,___,_O_,_S_,_D_,_END_,
+    _EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_EUROPE_7e,_a_,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_95,___,_EUROPE_97,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+	_i_,_EUROPE_12,_i_,_n_,___,_5_,___,_s_,_n_,_DOT_,_b_,_a_,_s_,_EUROPE_90,_l_,_EUROPE_90,___,_t_,_u_,_t_,_u_,_n_,_END_,
+	_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_l_,_EUROPE_aa,_s_,_a_,___,_O_,_S_,_D_,_END_,
+
+	_END_, 
+	_EXT_FONT_,_JPN_EXT_12_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_d7_,_JPN_ec_,_JPN_dd_,_END_,
+	_END_,
+	_END_,
+	_END_,
+	
+};
+
+BYTE code str_OSD_LOCKING_HINT_UNLOCK_1[] =
+{
+    _END_,
+    _p_,_e_,_n_,_d_,_a_,_n_,_t_,___,_5_,___,_s_,___,_p_,_o_,_u_,_r_,___,_d_,_EUROPE_14,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_e_,_r_,___,_I_,_APOSTROPHE,_O_,_S_,_D_,_END_,
+    _g_,_e_,_d_,_r_,_EUROPE_10,_c_,_k_,_t_,___,_h_,_a_,_l_,_t_,_e_,_n_,_END_,
+    _p_,_a_,_r_,_a_,___,_d_,_e_,_s_,_b_,_l_,_o_,_q_,_u_,_e_,_a_,_r_,___,_e_,_l_,___,_m_,_e_,_n_,_EUROPE_1b,___,_O_,_S_,_D_,_END_,
+    _s_,_b_,_l_,_o_,_c_,_c_,_a_,_r_,_e_,___,_I_,_APOSTROPHE,_O_,_S_,_D_,_END_,
+    
+    _END_,
+	_o_,_d_,_e_,_m_,_k_,_n_,_EUROPE_a9,_t_,_e_,___,_O_,_S_,_D_,_END_,
+    _EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_p_,_a_,_EUROPE_7e,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_95,___,_EUROPE_97,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+	_i_,_EUROPE_12,_i_,_n_,___,_5_,___,_s_,_n_,_DOT_,_b_,_a_,_s_,_EUROPE_90,_l_,_EUROPE_90,___,_t_,_u_,_t_,_u_,_n_,_END_,
+	_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_l_,_EUROPE_aa,_s_,_a_,___,_u_,_p_,_p_,___,_O_,_S_,_D_,_END_,
+	
+	_END_, 
+	_EXT_FONT_,_JPN_EXT_12_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_JPN_d7_,_JPN_ec_,_JPN_dd_,_END_,
+	_KOR_92_,_KOR_98_,_EXT_FONT_,_KOR_EXT_27_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+	_END_,
+	_END_,
+	
+};
+#else
+BYTE code str_OSD_LOCKING_HINT_LOCK[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _P_,_r_,_e_,_s_,_s_,___,_a_,_n_,_d_,___,_h_,_o_,_l_,_d_,___,_f_,_o_,_r_,___,_1_,_0_,_s_,___,_t_,_o_,___,_l_,_o_,_c_,_k_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_e_,_t_,___,_m_,_a_,_i_,_n_,_t_,_e_,_n_,_e_,_z_,___,_e_,_n_,_f_,_o_,_n_,_c_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _Z_,_u_,_m_,___,_S_,_p_,_e_,_r_,_r_,_e_,_n_,___,_d_,_e_,_s_,___,_O_,_S_,_D_,___,_1_,_0_,___,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Houd 10 seconden ingedrukt om OSD te vergrendelen
+	_H_,_o_,_u_,_d_,___,_1_,_0_,___,_s_,_e_,_c_,_o_,_n_,_d_,_e_,_n_,___,_i_,_n_,_g_,_e_,_d_,_r_,_u_,_k_,_t_,___,_o_,_m_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_s_,_i_,_n_,___,_s_,_o_,_l_,_t_,_a_,_r_,___,_d_,_u_,_r_,_a_,_n_,_t_,_e_,___,_1_,_0_,___,_s_,_e_,_g_,_u_,_n_,_d_,_o_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _T_,_e_,_n_,_e_,_r_,_e_,___,_p_,_r_,_e_,_m_,_u_,_t_,_o_,___,_p_,_e_,_r_,___,_1_,_0_,___,_s_,_e_,_c_,_DOT_,___,_p_,_e_,_r_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _P_,_i_,_d_,_EUROPE_18,___,_p_,_a_,_i_,_n_,_e_,_t_,_t_,_u_,_n_,_a_,___,_1_,_0_,___,_s_,___,_l_,_u_,_k_,_i_,_t_,_a_,_k_,_s_,_e_,_s_,_i_,___,_O_,_S_,_D_,_COLON_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_T_,_r_,_y_,_c_,_k_,___,_o_,_c_,_h_,___,_h_,_EUROPE_aa,_l_,_l_,___,_i_,_n_,_t_,_r_,_y_,_c_,_k_,_t_,___,_i_,___,_1_,_0_,_s_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ѧاާڧ�� �� ��է֧�اڧӧѧۧ�� 10
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_H_,_a_,0x80,0X97,0x0f,0x5f,_e_,_,0x0f,_,_y_,0x86,_e_,_p_,0x80,0x0f,0x3f,_a_,0x0e,0x5f,_e_,_,_1_,_0_,_,_END_,
+	
+#else
+		_EUROPE_5e,_EUROPE_86,_e_,_p_,_EUROPE_80,_EUROPE_0f,_EUROPE_3f,_a_,_EUROPE_0e,_EUROPE_5f,_e_,___,_1_,_0_,___,_c_,_COMMA_,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_E_,_k_,_r_,_a_,_n_,___,_m_,_e_,_n_,_EUROPE_10,_s_,_EUROPE_10,_n_,_EUROPE_10,___,_k_,_i_,_l_,_i_,_t_,_l_,_e_,_m_,_e_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naci?nij i przytrzymaj przez 10 s, aby zablokowa? OSD
+	_N_,_a_,_c_,_i_,_s_,_n_,_i_,_j_,___,_i_,___,_p_,_r_,_z_,_y_,_t_,_r_,_z_,_y_,_m_,_a_,_j_,___,_p_,_r_,_z_,_e_,_z_,___,_1_,_0_,___,_s_,_COMMA_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_a_,___,_p_,_o_,_d_,_r_,_EUROPE_b1,_e_,_n_,_EUROPE_1a,_m_,___,_1_,_0_,___,_s_,_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)//Ap?sa?i ?i men?ine?i ap?sat timp de 10 secunde pentru a bloca OSD
+	_A_,_p_,_EUROPE_c8,_s_,_a_,_EUROPE_c9,_i_,___,_l_,_u_,_n_,_g_,_,_t_,_i_,_m_,_p_,_,_d_,_e_,_,_1_,_0_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_TH_01,_TH_11,_TH_29,_TH_02,_TH_05,_TH_26,_TH_C3,___,_1_,_0_,_S_,___,_TH_B5,_TH_0D,_TH_02,_TH_53,_TH_07,_TH_6D,_TH_16,_TH_44,_TH_16,_TH_01,_,_O_,_S_,_D_,_END_,
+	#else
+	_TH_01,_TH_11,_TH_29,_TH_02,_TH_05,_TH_26,___,_1_,_0_,_S_,___,_TH_B5,_TH_0D,_TH_02,_TH_53,_TH_07,_TH_6D,_TH_16,_TH_44,_TH_16,_TH_01,_O_,_S_,_D_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_N_,_h_,_VIE_90,_n_,___,_v_,_VIE_19,___,_g_,_i_,_VIE_89,___,_1_,_0_,___,_g_,_i_,_VIE_87,_y_,___,_VIE_7C,_VIE_8F,___,_k_,_h_,_VIE_8D,_a_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tekan dan tahan selama 10 detik untuk mengunci OSD
+	_T_,_e_,_k_,_a_,_n_,___,_d_,_a_,_n_,___,_t_,_a_,_h_,_a_,_n_,___,_s_,_e_,_l_,_a_,_m_,_a_,___,_1_,_0_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_1_,_0_,_JPN_0f_,_JPN_10_,_JPN_11_,_JPN_12_,_JPN_d7_,_JPN_d7_,_JPN_13_,_JPN_21_,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_1_,_0_,_KOR_f0_,___,_KOR_8e_,_KOR_d8_,___,___,_KOR_11_,_KOR_12_,___,_O_,_S_,_D_,_KOR_c2_,___,_KOR_c5_,_KOR_c6_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_EXT_FONT_,_CHT_EXT_41,_EXT_FONT_,_CHT_EXT_42,_1_,_0_,_CHT_10,_CHT_11,_CHT_cd,_CHT_fa,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_cd,_EXT_FONT_,_CHS_EXT_3f,_1_,_0_,_CHS_10,_CHS_ca,_CHS_25,_O_,_S_,_D_,_END_,
+#endif
+
+	
+};
+
+BYTE code str_OSD_LOCKING_HINT_UNLOCK[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _P_,_r_,_e_,_s_,_s_,___,_a_,_n_,_d_,___,_h_,_o_,_l_,_d_,___,_f_,_o_,_r_,___,_1_,_0_,_s_,___,_t_,_o_,___,_u_,_n_,_l_,_o_,_c_,_k_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT) 
+    _A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_e_,_t_,___,_m_,_a_,_i_,_n_,_t_,_e_,_n_,_e_,_z_,___,_e_,_n_,_f_,_o_,_n_,_c_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _Z_,_u_,_m_,___,_F_,_r_,_e_,_i_,_g_,_b_,_e_,_n_,___,_d_,_e_,_s_,___,_O_,_S_,_D_,___,_1_,_0_,___,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Houd 10 seconden ingedrukt 
+	_H_,_o_,_u_,_d_,___,_1_,_0_,___,_s_,_e_,_c_,_o_,_n_,_d_,_e_,_n_,___,_i_,_n_,_g_,_e_,_d_,_r_,_u_,_k_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_s_,_i_,_n_,___,_s_,_o_,_l_,_t_,_a_,_r_,___,_d_,_u_,_r_,_a_,_n_,_t_,_e_,___,_1_,_0_,___,_s_,_e_,_g_,_u_,_n_,_d_,_o_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _T_,_e_,_n_,_e_,_r_,_e_,___,_p_,_r_,_e_,_m_,_u_,_t_,_o_,___,_p_,_e_,_r_,___,_1_,_0_,___,_s_,_e_,_c_,_DOT_,___,_p_,_e_,_r_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _P_,_i_,_d_,_EUROPE_18,___,_p_,_a_,_i_,_n_,_e_,_t_,_t_,_u_,_n_,_a_,___,_1_,_0_,___,_s_,___,_a_,_v_,_a_,_t_,_a_,_k_,_s_,_e_,_s_,_i_,___,_O_,_S_,_D_,_COLON_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_T_,_r_,_y_,_c_,_k_,___,_o_,_c_,_h_,___,_h_,_EUROPE_aa,_l_,_l_,___,_i_,_n_,_t_,_r_,_y_,_c_,_k_,_t_,___,_i_,___,_1_,_0_,_s_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if(_DEF_RUSSIA_TEXT)//���ѧاާڧ�� �� ��է֧�اڧӧѧۧ�� 10
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_H_,_a_,0x80,0X97,0x0f,0x5f,_e_,_,0x0f,_,_y_,0x86,_e_,_p_,0x80,0x0f,0x3f,_a_,0x0e,0x5f,_e_,_,_1_,_0_,_,_END_,
+		
+#else
+			_EUROPE_5e,_EUROPE_86,_e_,_p_,_EUROPE_80,_EUROPE_0f,_EUROPE_3f,_a_,_EUROPE_0e,_EUROPE_5f,_e_,___,_1_,_0_,___,_c_,_COMMA_,_END_,
+#endif
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_E_,_k_,_r_,_a_,_n_,___,_m_,_e_,_n_,_EUROPE_10,_s_,_EUROPE_10,_n_,_EUROPE_10,_n_,___,_k_,_i_,_l_,_i_,_d_,_i_,_n_,_i_,___,_a_,_EUROPE_12,_m_,_a_,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naci?nij i przytrzymaj przez 10 s, aby odblokowa? OSD
+	_N_,_a_,_c_,_i_,_s_,_n_,_i_,_j_,___,_i_,___,_p_,_r_,_z_,_y_,_t_,_r_,_z_,_y_,_m_,_a_,_j_,___,_p_,_r_,_z_,_e_,_z_,___,_1_,_0_,___,_s_,_COMMA_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_a_,___,_p_,_o_,_d_,_r_,_EUROPE_b1,_e_,_n_,_EUROPE_1a,_m_,___,_1_,_0_,___,_s_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ap?sa?i ?i men?ine?i ap?sat timp de 10 secunde pentru a debloca OSD
+	_A_,_p_,_EUROPE_c8,_s_,_a_,_EUROPE_c9,_i_,___,_l_,_u_,_n_,_g_,_,_t_,_i_,_m_,_p_,_,_d_,_e_,_,_1_,_0_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_TH_01,_TH_11,_TH_29,_TH_02,_TH_05,_TH_26,_TH_C3,_,_1_,_0_,_S_,___,_TH_B5,_TH_0D,_TH_02,_TH_53,_TH_07,_TH_6D,_TH_16,_TH_41,_TH_0C,_TH_11,_TH_44,_TH_16,_TH_01,_,_O_,_S_,_D_,_END_,
+	#else
+	_TH_01,_TH_11,_TH_29,_TH_02,_TH_05,_TH_26,_1_,_0_,_S_,___,_TH_0F,_TH_0D,_TH_02,_TH_53,_TH_07,_TH_6D,_TH_16,_TH_41,_TH_0C,_TH_11,_TH_44,_TH_16,_TH_01,_O_,_S_,_D_,_END_,
+	#endif
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_N_,_h_,_VIE_90,_n_,___,_v_,_VIE_19,___,_g_,_i_,_VIE_89,___,_1_,_0_,___,_g_,_i_,_VIE_87,_y_,___,_VIE_7C,_VIE_8F,___,_m_,_VIE_92,___,_k_,_h_,_VIE_8D,_a_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tekan dan tahan selama 10 detik untuk membuka kunci OSD
+	_T_,_e_,_k_,_a_,_n_,___,_d_,_a_,_n_,___,_t_,_a_,_h_,_a_,_n_,___,_s_,_e_,_l_,_a_,_m_,_a_,___,_1_,_0_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _1_,_0_,_JPN_0f_,_JPN_10_,_JPN_11_,_JPN_12_,_JPN_d7_,_JPN_d7_,_JPN_13_,_JPN_21_,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _1_,_0_,_KOR_f0_,___,_KOR_8e_,_KOR_d8_,___,___,_KOR_11_,_KOR_12_,___,_O_,_S_,_D_,___,_KOR_c5_,_KOR_c6_,_KOR_d5_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_EXT_FONT_,_CHT_EXT_41,_EXT_FONT_,_CHT_EXT_42,_1_,_0_,_CHT_10,_CHT_11,_CHT_82,_CHT_cd,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _CHS_cd,_EXT_FONT_,_CHS_EXT_3f,_1_,_0_,_CHS_10,_CHS_cb,_CHS_ca,_O_,_S_,_D_,_END_,
+#endif
+
+	
+};
+
+BYTE code str_OSD_LOCKING_HINT_LOCK_1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _p_,_e_,_n_,_d_,_a_,_n_,_t_,___,_1_,_0_,___,_s_,___,_p_,_o_,_u_,_r_,___,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_e_,_r_,___,_I_,_APOSTROPHE,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _g_,_e_,_d_,_r_,_EUROPE_10,_c_,_k_,_t_,___,_h_,_a_,_l_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//om OSD te vergrendelen
+	_o_,_m_,___,_O_,_S_,_D_,___,_t_,_e_,___,_v_,_e_,_r_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _p_,_a_,_r_,_a_,___,_b_,_l_,_o_,_q_,_u_,_e_,_a_,_r_,___,_e_,_l_,___,_m_,_e_,_n_,_EUROPE_1b,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _b_,_l_,_o_,_c_,_c_,_a_,_r_,_e_,___,_I_,_APOSTROPHE,_O_,_S_,_D_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_l_,_EUROPE_aa,_s_,_a_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//_c_,_e_,_k_,_,0x86,0x7c,0x99,_,0x3e,0x7c,_o_,_k_,_a_,_,_O_,_S_,_D_,
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+	_c_,_e_,_EUROPE_11,_,0x86,0x7c,0X7D,_,0x3e,0x7c,_o_,_EUROPE_11,_a_,_,_O_,_S_,_D_,_END_,
+#else
+    _EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_EUROPE_7e,_a_,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_95,___,_EUROPE_97,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_i_,_EUROPE_12,_i_,_n_,___,_1_,_0_,___,_s_,_n_,_DOT_,_b_,_a_,_s_,_EUROPE_90,_l_,_EUROPE_90,___,_t_,_u_,_t_,_u_,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naci?nij i przytrzymaj przez 10 s, aby zablokowa? OSD
+    _a_,_b_,_y_,___,_z_,_a_,_b_,_l_,_o_,_k_,_o_,_w_,_a_,_n_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_z_,_a_,_m_,_k_,_n_,_EUROPE_a9,_t_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ap?sa?i ?i men?ine?i ap?sat timp de 10 secunde pentru a bloca OSD
+	_s_,_e_,_c_,_u_,_n_,_d_,_e_,_,_p_,_e_,_n_,_t_,_r_,_u_,_,_a_,_,_b_,_l_,_o_,_c_,_a_,_,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tekan dan tahan selama 10 detik untuk mengunci OSD
+	_d_,_e_,_t_,_i_,_k_,___,_u_,_n_,_t_,_u_,_k_,___,_m_,_e_,_n_,_g_,_u_,_n_,_c_,_i_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_EXT_FONT_,_JPN_EXT_12_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_d7_,_JPN_ec_,_JPN_dd_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif	
+};
+
+BYTE code str_OSD_LOCKING_HINT_UNLOCK_1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _p_,_e_,_n_,_d_,_a_,_n_,_t_,___,_1_,_0_,___,_s_,___,_p_,_o_,_u_,_r_,___,_d_,_EUROPE_14,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_e_,_r_,___,_I_,_APOSTROPHE,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _g_,_e_,_d_,_r_,_EUROPE_10,_c_,_k_,_t_,___,_h_,_a_,_l_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//om OSD te ontgrendelen
+	_o_,_m_,___,_O_,_S_,_D_,___,_t_,_e_,___,_o_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _p_,_a_,_r_,_a_,___,_d_,_e_,_s_,_b_,_l_,_o_,_q_,_u_,_e_,_a_,_r_,___,_e_,_l_,___,_m_,_e_,_n_,_EUROPE_1b,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _s_,_b_,_l_,_o_,_c_,_c_,_a_,_r_,_e_,___,_I_,_APOSTROPHE,_O_,_S_,_D_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_l_,_EUROPE_aa,_s_,_a_,___,_u_,_p_,_p_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	
+		_c_,_e_,_EUROPE_11,_,0x86,0x7c,0X7D,_,0x3e,0x7c,_o_,_EUROPE_11,_a_,_,_O_,_S_,_D_,_END_,
+#else
+		_EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_p_,_a_,_EUROPE_7e,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_95,___,_EUROPE_97,_e_,_EUROPE_5d,_EUROPE_81,_END_,
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_i_,_EUROPE_12,_i_,_n_,___,_1_,_0_,___,_s_,_n_,_DOT_,_b_,_a_,_s_,_EUROPE_90,_l_,_EUROPE_90,___,_t_,_u_,_t_,_u_,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naci?nij i przytrzymaj przez 10 s, aby odblokowa? OSD
+	_a_,_b_,_y_,___,_z_,_a_,_b_,_l_,_o_,_k_,_o_,_w_,_a_,_n_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_o_,_d_,_e_,_m_,_k_,_n_,_EUROPE_a9,_t_,_e_,___,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ap?sa?i ?i men?ine?i ap?sat timp de 10 secunde pentru a debloca OSD
+	_s_,_e_,_c_,_u_,_n_,_d_,_e_,_,_p_,_e_,_n_,_t_,_r_,_u_,_,_a_,_,_d_,_e_,_b_,_l_,_o_,_c_,_a_,_,_O_,_S_,_D_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tekan dan tahan selama 10 detik untuk membuka kunci OSD
+	#if(_ZHONGQIANG_LANGUAGE)
+	_d_,_e_,_t_,_i_,_k_,___,_u_,_n_,_t_,_u_,_k_,___,_m_,_e_,_m_,_b_,_u_,_k_,_a_,_,_k_,_u_,_n_,_c_,_i_,_,_O_,_S_,_D_,_END_,
+	#else
+	_d_,_e_,_t_,_i_,_k_,___,_u_,_n_,_t_,_u_,_k_,___,_m_,_e_,_n_,_g_,_u_,_n_,_d_,_i_,___,_O_,_S_,_D_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_EXT_FONT_,_JPN_EXT_12_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_JPN_d7_,_JPN_ec_,_JPN_dd_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_92_,_KOR_98_,_EXT_FONT_,_KOR_EXT_27_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif
+
+	
+};
+#endif
+
+code BYTE *tOSD_LOCKING_HINT_TABLE[] =
+{
+	str_OSD_LOCKING_HINT_LOCK,
+	str_OSD_LOCKING_HINT_UNLOCK,
+    str_OSD_LOCKING_HINT_LOCK_1,
+    str_OSD_LOCKING_HINT_UNLOCK_1,
+};
+
+
+
+//==================================================
+//Message Power Key Lock / Unlock
+//==================================================
+BYTE code str_POWER_LOCK_TITLE[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_P_,_o_,_w_,_e_,_r_,___,_L_,_o_,_c_,_k_,_SLASH_,_U_,_n_,_l_,_o_,_c_,_k_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_V_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_a_,_g_,_e_,_SLASH_,_D_,_EUROPE_14,_v_,_e_,_r_,_r_,___,_A_,_l_,_i_,_m_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_E_,_i_,_n_,_SLASH_,_A_,_u_,_s_,_DASH_,_S_,_p_,_e_,_r_,_r_,_e_,_SLASH_,_DASH_,_F_,_r_,_e_,_i_,_g_,_a_,_b_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Stroom vergrendelen/ontgrendelen
+	_S_,_t_,_r_,_o_,_o_,_m_,___,_v_,_e_,_r_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_SLASH_,_o_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_B_,_l_,_o_,_q_,_u_,_e_,_o_,_SLASH_,_D_,_e_,_s_,_b_,_l_,_o_,_q_,_u_,_e_,_o_,___,_a_,_l_,_i_,_m_,_DOT_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_B_,_l_,_o_,_c_,_c_,_o_,_SLASH_,_s_,_b_,_l_,_o_,_c_,_c_,_o_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_z_,_DOT_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_V_,_i_,_r_,_t_,_a_,___,_L_,_u_,_k_,_i_,_t_,_s_,_e_,_SLASH_,_A_,_v_,_a_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_S_,_t_,_r_,_EUROPE_1f,_m_,___,_l_,_EUROPE_aa,_s_,_t_,_SLASH_,_u_,_p_,_p_,_l_,_EUROPE_aa,_s_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ڧ�ѧߧڧ� ���ݧ��/���ѧ٧ҧݧ�� 
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+0x88,0x0f,0x5f,_a_,0x5d,0x0f,_e_,_,0x8e,0x7c,_o_,0x11,_SLASH_,_P_,_a_,0x7e,0x3e,0x7c,_o_,0x11,_END_,
+
+#else
+	_EUROPE_8e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,_SLASH_,_p_,_a_,_EUROPE_7e,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,___,_EUROPE_11,_EUROPE_5d,_o_,_EUROPE_88,_DOT_,___,_EUROPE_88,_EUROPE_0f,_EUROPE_5f,_DOT_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_G_,_EUROPE_10,_EUROPE_12,___,_K_,_i_,_l_,_i_,_t_,_l_,_i_,_SLASH_,_A_,_EUROPE_12,_EUROPE_90,_k_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Blokada/odblok. Zasilania
+	#if(_ZHONGQIANG_LANGUAGE)
+	_B_,_l_,_o_,_k_,_a_,_d_,_a_,_SLASH_,_o_,_d_,_b_,_l_,_o_,_k_,_DOT_,_,_Z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_END_,
+	#else
+	_B_,_l_,_o_,_k_,_a_,_d_,_a_,_SLASH_,_o_,_d_,_b_,_l_,_o_,_k_,_a_,_d_,_a_,_DOT_,___,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+	_Z_,_a_,_m_,_k_,_SLASH_,_o_,_d_,_e_,_m_,_k_,___,_n_,_a_,_p_,_EUROPE_16,_j_,_e_,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Blocare/Deblocare alimentare
+	_B_,_l_,_o_,_c_,_a_,_r_,_e_,_SLASH_,_D_,_e_,_b_,_l_,_o_,_c_,_a_,_r_,_e_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_44,_TH_16,_TH_01,_SLASH_,_TH_41,_TH_1C,_TH_11,_TH_44,_TH_16,_TH_01,_TH_72,_TH_09,_TH_0A,_TH_02,_TH_1D,_TH_07,_TH_1D,_TH_16,_TH_25,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_K_,_h_,_VIE_8D,_a_,_SLASH_,_M_,_VIE_92,___,_K_,_h_,_VIE_8D,_a_,___,_N_,_g_,_u_,_VIE_7B,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Kunci/Buka Kunci Daya
+	_K_,_u_,_n_,_c_,_i_,___,_B_,_u_,_k_,_a_,___,_K_,_u_,_n_,_c_,_i_,___,_D_,_a_,_y_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_JPN_b4_,_JPN_b5_,_JPN_96_,_JPN_94_,_JPN_95_,_SLASH_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_b2_,_KOR_f2_,___,_KOR_c5_,_KOR_c6_,_SLASH_,_KOR_c5_,_KOR_c6_,___,_KOR_92_,_KOR_98_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_a5,_CHT_1b,_CHT_cd,_CHT_fa,_SLASH_,_CHT_82,_CHT_cd,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_a2,_CHS_a3,_CHS_ca,_CHS_25,_SLASH_,_CHS_cb,_CHS_ca,_END_,
+#endif
+	
+};
+
+BYTE code str_UNLOCKED_PWKEY[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _P_,_o_,_w_,_e_,_r_,___,_B_,_u_,_t_,_t_,_o_,_n_,___,_U_,_n_,_l_,_o_,_c_,_k_,_e_,_d_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _D_,_EUROPE_14,_v_,_e_,_r_,_r_,_DOT_,___,_M_,_a_,_r_,_c_,_h_,_e_,_SLASH_,_A_,_r_,_r_,_EUROPE_1d,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _N_,_e_,_t_,_z_,_s_,_c_,_h_,_a_,_l_,_t_,_e_,_r_,___,_e_,_n_,_t_,_s_,_p_,_e_,_r_,_r_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Aan/uitknop ontgrendeld
+	#if(_ZHONGQIANG_LANGUAGE)
+	_A_,_a_,_n_,_SLASH_,_u_,_i_,_t_,_k_,_n_,_o_,_p_,_,_o_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_d_,_END_,
+	#else
+	_A_,_a_,_n_,_SLASH_,_u_,_i_,_t_,_k_,_n_,_o_,_p_,___,_o_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _D_,_e_,_s_,_b_,_l_,_o_,_q_,___,_b_,_o_,_t_,_EUROPE_1e,_n_,___,_e_,_n_,_c_,_e_,_n_,_d_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _T_,_a_,_s_,_t_,_o_,___,_a_,_l_,_i_,_m_,_DOT_,___,_s_,_b_,_l_,_o_,_c_,_c_,_a_,_t_,_o_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _V_,_i_,_r_,_t_,_a_,_p_,_a_,_i_,_n_,_i_,_k_,_DOT_,___,_a_,_v_,_a_,_t_,_t_,_u_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_S_,_t_,_r_,_EUROPE_1f,_m_,_k_,_n_,_a_,_p_,_p_,___,_u_,_p_,_p_,_l_,_EUROPE_aa,_s_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+    _EUROPE_7b,_EUROPE_5d,_o_,_EUROPE_88,_EUROPE_11,_EUROPE_0f,___,_p_,_a_,_EUROPE_8f,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_G_,_EUROPE_10,_EUROPE_12,___,_D_,_EUROPE_10,_EUROPE_94,_DOT_,___,_K_,_i_,_l_,_i_,_d_,_i_,___,_A_,_EUROPE_12,_EUROPE_90,_l_,_d_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Przycisk zasilania odblok. 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_P_,_r_,_z_,_y_,_c_,_i_,_s_,_k_,_,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_,_o_,_d_,_b_,_l_,_o_,_k_,_DOT_,_END_,
+	#else
+	_P_,_r_,_z_,_y_,_s_,_i_,_e_,_n_,_i_,_e_,___,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,___,_o_,_d_,_b_,_l_,_o_,_k_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+	_V_,_y_,_p_,_EUROPE_1a,_n_,_a_,_EUROPE_b4,___,_o_,_d_,_e_,_m_,_k_,_n_,_u_,_t_,_EUROPE_a8,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Buton de alimentare deblocat 
+	_B_,_u_,_t_,_o_,_n_,___,_d_,_e_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_r_,_e_,___,_d_,_e_,_b_,_l_,_o_,_c_,_a_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_41,_TH_09,_TH_0A,_TH_02,_TH_1D,_TH_07,_TH_1D,_TH_16,_TH_25,_TH_08,_TH_01,_TH_41,_TH_1C,_TH_11,_TH_44,_TH_16,_TH_01,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_M_,_VIE_92,___,_K_,_h_,_VIE_8D,_a_,___,_N_,_VIE_8C,_t_,___,_N_,_g_,_u_,_VIE_7B,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tombol Daya Tidak Terkunci 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_o_,_m_,_b_,_o_,_l_,_,_D_,_a_,_y_,_a_,_,_T_,_i_,_d_,_a_,_k_,_,_T_,_e_,_r_,_k_,_u_,_n_,_c_,_i_,_END_,
+	#else
+	_T_,_o_,_m_,_b_,_o_,_l_,___,_D_,_a_,_y_,_a_,___,_T_,_e_,_r_,_k_,_u_,_n_,_c_,_i_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_JPN_b4_,_JPN_b5_,_JPN_b3_,_JPN_ad_,_JPN_14_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_b2_,_KOR_f2_,___,_KOR_b3_,_KOR_b4_,___,_KOR_c5_,_KOR_c6_,_KOR_ca_,___,_KOR_b0_,_KOR_b1_,_KOR_c9_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_a5,_CHT_1b,_CHT_82,_CHT_ce,_CHT_cd,_CHT_fa,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_a2,_CHS_a3,_CHS_cd,_CHS_ce,_CHS_ca,_CHS_25,_CHS_c9,_CHS_cb,_CHS_cc,_END_,
+#endif
+
+	
+};
+
+BYTE code str_LOCKED_PWKEY[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _P_,_o_,_w_,_e_,_r_,___,_B_,_u_,_t_,_t_,_o_,_n_,___,_L_,_o_,_c_,_k_,_e_,_d_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _V_,_e_,_r_,_r_,_DOT_,___,_M_,_a_,_r_,_c_,_h_,_e_,_SLASH_,_A_,_r_,_r_,_EUROPE_1d,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _N_,_e_,_t_,_z_,_s_,_c_,_h_,_a_,_l_,_t_,_e_,_r_,___,_g_,_e_,_s_,_p_,_e_,_r_,_r_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Aan/uitknop vergrendeld
+	_A_,_a_,_n_,_SLASH_,_u_,_i_,_t_,_k_,_n_,_o_,_p_,___,_v_,_e_,_r_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _B_,_l_,_o_,_q_,___,_b_,_o_,_t_,_EUROPE_1e,_n_,___,_e_,_n_,_c_,_e_,_n_,_d_,_i_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _T_,_a_,_s_,_t_,_o_,___,_a_,_l_,_i_,_m_,_DOT_,___,_b_,_l_,_o_,_c_,_c_,_a_,_t_,_o_,_END_,
+#endif
+
+#if(_DEF_SUOMI_TEXT)
+    _V_,_i_,_r_,_t_,_a_,_p_,_a_,_i_,_n_,_i_,_k_,_DOT_,___,_l_,_u_,_k_,_i_,_t_,_t_,_u_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_S_,_t_,_r_,_EUROPE_1f,_m_,_k_,_n_,_a_,_p_,_p_,___,_l_,_EUROPE_aa,_s_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+    _EUROPE_7b,_EUROPE_5d,_o_,_EUROPE_88,_EUROPE_11,_a_,___,_EUROPE_88,_EUROPE_0f,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,___,_EUROPE_8f,_a_,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_G_,_EUROPE_10,_EUROPE_12,___,_D_,_EUROPE_10,_EUROPE_94,_DOT_,___,_K_,_i_,_l_,_i_,_t_,_l_,_e_,_n_,_d_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Przycisk zasilania zablok. 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_P_,_r_,_z_,_y_,_c_,_i_,_s_,_k_,_,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_,_z_,_a_,_b_,_l_,_o_,_k_,_DOT_,_END_,
+	#else
+	_P_,_r_,_z_,_y_,_s_,_i_,_e_,_n_,_i_,_e_,___,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,___,_z_,_a_,_b_,_l_,_o_,_k_,_DOT_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+	_V_,_y_,_p_,_EUROPE_1a,_n_,_a_,_EUROPE_b4,___,_z_,_a_,_m_,_k_,_n_,_u_,_t_,_EUROPE_a8,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Buton de alimentare blocat 
+	_B_,_u_,_t_,_o_,_n_,___,_d_,_e_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_r_,_e_,___,_b_,_l_,_o_,_c_,_a_,_t_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_41,_TH_09,_TH_0A,_TH_02,_TH_1D,_TH_07,_TH_1D,_TH_16,_TH_25,_TH_08,_TH_01,_TH_44,_TH_16,_TH_01,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_K_,_h_,_VIE_8D,_a_,___,_N_,_VIE_8C,_t_,___,_N_,_g_,_u_,_VIE_7B,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tombol Daya Terkunci 
+	_T_,_o_,_m_,_b_,_o_,_l_,___,_D_,_a_,_y_,_a_,___,_T_,_e_,_r_,_k_,_u_,_n_,_c_,_i_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_JPN_b4_,_JPN_b5_,_JPN_b3_,_JPN_ad_,_JPN_14_,_JPN_96_,_JPN_94_,_JPN_95_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_b2_,_KOR_f2_,___,_KOR_b3_,_KOR_b4_,_KOR_ca_,___,_KOR_c5_,_KOR_b5_,_KOR_c9_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_a5,_CHT_1b,_CHT_cd,_CHT_fa,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_a2,_CHS_a3,_CHS_cd,_CHS_ce,_CHS_c9,_CHS_ca,_CHS_25,_END_,
+#endif
+
+	
+};
+code BYTE *tOSD_LOCKED_PWKEY_STATUS_TABLE[] =
+{
+    str_UNLOCKED_PWKEY,
+	str_LOCKED_PWKEY,
+};
+
+BYTE code str_UNLOCKING_PWKEY[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_U_,_n_,_l_,_o_,_c_,_k_,_i_,_n_,_g_,___,_P_,_o_,_w_,_e_,_r_,___,_B_,_u_,_t_,_t_,_o_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_D_,_EUROPE_14,_v_,_e_,_r_,_r_,_DOT_,___,_M_,_a_,_r_,_c_,_h_,_e_,_SLASH_,_A_,_r_,_r_,_EUROPE_1d,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_N_,_e_,_t_,_z_,_s_,_c_,_h_,_DOT_,___,_S_,_p_,_e_,_r_,_r_,_e_,___,_a_,_u_,_f_,_h_,_e_,_b_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Aan/uitknop ontgrendelen
+	_A_,_a_,_n_,_SLASH_,_u_,_i_,_t_,_k_,_n_,_o_,_p_,___,_o_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_D_,_e_,_s_,_b_,_l_,_o_,_q_,___,_b_,_o_,_t_,_EUROPE_1e,_n_,___,_e_,_n_,_c_,_e_,_n_,_d_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_S_,_b_,_l_,_o_,_c_,_c_,_o_,___,_t_,_a_,_s_,_t_,_o_,___,_a_,_l_,_i_,_m_,_DOT_,_END_,
+#endif
+
+#if(_DEF_SUOMI_TEXT)
+	_V_,_i_,_r_,_t_,_a_,_p_,_a_,_i_,_n_,_i_,_k_,_DOT_,___,_a_,_v_,_a_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_L_,_EUROPE_aa,_s_,_e_,_r_,___,_u_,_p_,_p_,___,_S_,_t_,_r_,_EUROPE_1f,_m_,_k_,_n_,_a_,_p_,_p_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		
+		_P_,_a_,0x7e,0x3e,0x7c,_o_,0x11,_DOT_,_,0X11,0X5D,_o_,0X88,0X11,0X0F,_,0X88,0X0F,0X5F,_a_,0x5d,0x0f,0x7d    ,_END_,
+#else
+	
+		_P_,_a_,_EUROPE_8f,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,___,_EUROPE_11,_EUROPE_5d,_o_,_EUROPE_88,_EUROPE_11,_EUROPE_0f,___,_EUROPE_88,_EUROPE_0f,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,_END_,
+#endif
+
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_G_,_EUROPE_10,_EUROPE_12,___,_D_,_EUROPE_10,_EUROPE_94,_DOT_,___,_K_,_i_,_l_,_i_,_d_,_i_,_n_,_i_,___,_A_,_EUROPE_12,_m_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Blokad przycisku zasilania
+	#if(_ZHONGQIANG_LANGUAGE)
+	_O_,_d_,_b_,_l_,_o_,_k_,_DOT_,_,_p_,_r_,_z_,_y_,_c_,_i_,_s_,_k_,_u_,_,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_END_,
+	#else
+	_B_,_l_,_o_,_k_,_a_,_d_,___,_p_,_r_,_z_,_y_,_c_,_i_,_s_,_k_,_u_,___,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+	_O_,_d_,_e_,_m_,_y_,_k_,_EUROPE_16,_n_,_EUROPE_1a,___,_V_,_y_,_p_,_EUROPE_1a,_n_,_a_,_EUROPE_b4,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Blocare buton de alimentare
+	_B_,_l_,_o_,_c_,_a_,_r_,_e_,___,_b_,_u_,_t_,_o_,_n_,___,_d_,_e_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_2A,_TH_02,_TH_03,_TH_41,_TH_1C,_TH_11,_TH_44,_TH_16,_TH_01,_TH_41,_TH_09,_TH_0A,_TH_02,_TH_1D,_TH_07,_TH_1D,_TH_16,_TH_25,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_M_,_VIE_92,___,_K_,_h_,_VIE_8D,_a_,___,_N_,_VIE_8C,_t_,___,_N_,_g_,_u_,_VIE_7B,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Membuka Kunci Tombol Daya 
+	_M_,_e_,_m_,_b_,_u_,_k_,_a_,___,_K_,_u_,_n_,_c_,_i_,___,_T_,_o_,_m_,_b_,_o_,_l_,___,_D_,_a_,_y_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_JPN_b4_,_JPN_b5_,_JPN_b3_,_JPN_ad_,_JPN_14_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_JPN_02_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_b2_,_KOR_f2_,___,_KOR_b3_,_KOR_b4_,___,_KOR_c5_,_KOR_c6_,___,_KOR_b0_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_a5,_CHT_1b,_CHT_82,_CHT_ce,_CHT_cd,_CHT_fa,_CHT_02,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_cb,_CHS_cc,_CHS_a2,_CHS_a3,_CHS_cd,_CHS_ce,_CHS_ca,_CHS_25,_END_,
+#endif
+
+	
+};
+
+BYTE code str_LOCKING_PWKEY[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_L_,_o_,_c_,_k_,_i_,_n_,_g_,___,_P_,_o_,_w_,_e_,_r_,___,_B_,_u_,_t_,_t_,_o_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_V_,_e_,_r_,_r_,_DOT_,___,_M_,_a_,_r_,_c_,_h_,_e_,_SLASH_,_A_,_r_,_r_,_EUROPE_1d,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_N_,_e_,_t_,_z_,_s_,_c_,_h_,_a_,_l_,_t_,_e_,_r_,___,_s_,_p_,_e_,_r_,_r_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Aan/uitknop vergrendelen
+	_A_,_a_,_n_,_SLASH_,_u_,_i_,_t_,_k_,_n_,_o_,_p_,___,_v_,_e_,_r_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_B_,_l_,_o_,_q_,___,_b_,_o_,_t_,_EUROPE_1e,_n_,___,_e_,_n_,_c_,_e_,_n_,_d_,_i_,_d_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_B_,_l_,_o_,_c_,_c_,_o_,___,_t_,_a_,_s_,_t_,_o_,___,_a_,_l_,_i_,_m_,_DOT_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_V_,_i_,_r_,_t_,_a_,_p_,_a_,_i_,_n_,_i_,_k_,_DOT_,___,_l_,_u_,_k_,_i_,_t_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_L_,_EUROPE_aa,_s_,_e_,_r_,___,_S_,_t_,_r_,_EUROPE_1f,_m_,_k_,_n_,_a_,_p_,_p_,_e_,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)// �ܧߧ��ܧ� ��ڧ�ѧߧڧ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	
+	0x8e,0x7c,_o_,0x11,_DOT_,_,0X11,0X5D,_o_,0X88,0X11,0X0F,_,0X88,0X0F,0X5F,_a_,0x5d,0x0f,0x7d    ,_END_,
+#else
+
+	_EUROPE_8e,_EUROPE_7c,_o_,_EUROPE_11,_DOT_,___,_EUROPE_11,_EUROPE_5d,_o_,_EUROPE_88,_EUROPE_11,_EUROPE_0f,___,_EUROPE_88,_EUROPE_0f,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_K_,_i_,_l_,_i_,_t_,_l_,_e_,_m_,_e_,___,_G_,_EUROPE_10,_c_,_EUROPE_10,___,_D_,_EUROPE_10,_EUROPE_94,_m_,_e_,_s_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Blokada przycisku zasilania
+	#if(_ZHONGQIANG_LANGUAGE)
+	_B_,_l_,_o_,_k_,_a_,_d_,_,_p_,_r_,_z_,_y_,_c_,_i_,_s_,_k_,_u_,_,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_END_,
+	#else
+	_B_,_l_,_o_,_k_,_a_,_d_,_a_,___,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,___,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+	_Z_,_a_,_m_,_y_,_k_,_EUROPE_16,_n_,_EUROPE_1a,___,_V_,_y_,_p_,_EUROPE_1a,_n_,_a_,_EUROPE_b4,_e_,_END_,
+#endif
+	
+#if(_DEF_ROMANIAN_TEXT)//Blocare buton de alimentare
+	_B_,_l_,_o_,_c_,_c_,_a_,_r_,_e_,___,_b_,_u_,_t_,_o_,_n_,___,_d_,_e_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_01,_TH_02,_TH_60,_TH_05,_TH_44,_TH_16,_TH_41,_TH_09,_TH_0A,_TH_02,_TH_1D,_TH_07,_TH_1D,_TH_16,_TH_25,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_K_,_h_,_VIE_8D,_a_,___,_N_,_VIE_8C,_t_,___,_N_,_g_,_u_,_VIE_7B,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Mengunci Tombol Daya 
+	_M_,_e_,_n_,_g_,_u_,_n_,_c_,_i_,___,_T_,_o_,_m_,_b_,_o_,_l_,___,_D_,_a_,_y_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_JPN_b4_,_JPN_b5_,_JPN_b3_,_JPN_ad_,_JPN_14_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_5d_,_JPN_5e_,_JPN_02_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_b2_,_KOR_f2_,___,_KOR_b3_,_KOR_b4_,___,_KOR_c5_,_KOR_c6_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_a5,_CHT_1b,_CHT_cd,_CHT_fa,_CHT_02,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_ca,_CHS_25,_CHS_a2,_CHS_a3,_CHS_cd,_CHS_ce,_END_,
+#endif
+
+	
+};
+code BYTE *tOSD_LOCKING_PWKEY_STATUS_TABLE[] =
+{
+    str_LOCKING_PWKEY,
+	str_UNLOCKING_PWKEY,
+};
+
+#if 0//(_LOCK_KEY_5_SECONDS_SUPPORT == _ON)
+BYTE code str_OSD_POWER_LOCKING_HINT_LOCK[] =
+{
+	_P_,_r_,_e_,_s_,_s_,___,_a_,_n_,_d_,___,_h_,_o_,_l_,_d_,___,_f_,_o_,_r_,___,_5_,_s_,___,_t_,_o_,___,_l_,_o_,_c_,_k_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+    _A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_e_,_t_,___,_m_,_a_,_i_,_n_,_t_,_e_,_n_,_e_,_z_,___,_e_,_n_,_f_,_o_,_n_,_c_,_EUROPE_14,___,_p_,_e_,_n_,_d_,_a_,_n_,_t_,_END_,
+    _Z_,_u_,_m_,___,_S_,_p_,_e_,_r_,_r_,_e_,_n_,___,_d_,_e_,_r_,___,_E_,_i_,_n_,_DASH_,_SLASH_,_A_,_u_,_s_,_t_,_a_,_s_,_t_,_e_,___,_5_,___,_s_,_END_,
+    _P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_s_,_i_,_n_,___,_s_,_o_,_l_,_t_,_a_,_r_,___,_d_,_u_,_r_,_a_,_n_,_t_,_e_,___,_5_,___,_s_,_e_,_g_,_u_,_n_,_d_,_o_,_s_,_END_,
+
+    _T_,_e_,_n_,_e_,_r_,_e_,___,_p_,_r_,_e_,_m_,_u_,_t_,_o_,___,_p_,_e_,_r_,___,_5_,___,_s_,_e_,_c_,_DOT_,___,_p_,_e_,_r_,_END_,
+    _P_,_i_,_d_,_EUROPE_18,___,_p_,_a_,_i_,_n_,_e_,_t_,_t_,_u_,_n_,_a_,___,_5_,___,_s_,___,_l_,_u_,_k_,_i_,_t_,_a_,_k_,_s_,_e_,_s_,_i_,___,_V_,_i_,_r_,_r_,_a_,_n_,_END_,
+    _EUROPE_5e,_EUROPE_86,_e_,_p_,_EUROPE_80,_EUROPE_0f,_EUROPE_3f,_a_,_EUROPE_0e,_EUROPE_5f,_e_,___,_5_,___,_c_,_COMMA_,_END_,
+    _G_,_EUROPE_10,_c_,_EUROPE_10,___,_k_,_i_,_l_,_i_,_t_,_l_,_e_,_m_,_e_,_k_,___,_i_,_EUROPE_12,_i_,_n_,___,_5_,___,_s_,_n_,_DOT_,_b_,_a_,_s_,_EUROPE_90,_l_,_EUROPE_90,___,_t_,_u_,_t_,_u_,_n_,_END_,
+
+    _EXT_FONT_,_JPN_EXT_7f_,_EXT_FONT_,_JPN_EXT_21_,_EXT_FONT_,_JPN_EXT_22_,_EXT_FONT_,_JPN_EXT_23_,_EXT_FONT_,_JPN_EXT_24_,_JPN_d7_,_JPN_d7_,_EXT_FONT_,_JPN_EXT_15_,_EXT_FONT_,_JPN_EXT_34_,_JPN_b4_,_JPN_b5_,_EXT_FONT_,_JPN_EXT_12_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_d7_,_JPN_ec_,_JPN_dd_,_END_,
+	_EXT_FONT_,_KOR_EXT_8d_,_KOR_f0_,___,_KOR_8e_,_KOR_d8_,___,___,_KOR_11_,_KOR_12_,___,_KOR_b2_,_KOR_f2_,_KOR_c2_,___,_KOR_c5_,_KOR_c6_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+	_EXT_FONT_,_CHT_EXT_41,_EXT_FONT_,_CHT_EXT_42,_EXT_FONT_,_CHT_EXT_58,_CHT_10,_CHT_11,_CHT_cd,_CHT_fa,_CHT_a5,_CHT_1b,_END_,
+	_CHS_cd,_EXT_FONT_,_CHS_EXT_3f,_EXT_FONT_,_CHS_EXT_59,_CHS_10,_CHS_ca,_CHS_25,_CHS_a2,_CHS_a3,_END_,
+	
+#if(_CZECH_AND_SWEDISH_SUPPORT == _ON)
+	_S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_a_,___,_p_,_o_,_d_,_r_,_EUROPE_b1,_e_,_n_,_EUROPE_1a,_m_,___,_5_,___,_s_,_END_,
+	_T_,_r_,_y_,_c_,_k_,___,_o_,_c_,_h_,___,_h_,_EUROPE_aa,_l_,_l_,___,_i_,_n_,_t_,_r_,_y_,_c_,_k_,_t_,___,_i_,___,_5_,_s_,_END_,
+#endif
+};
+
+BYTE code str_OSD_POWER_LOCKING_HINT_UNLOCK[] =
+{
+	_P_,_r_,_e_,_s_,_s_,___,_a_,_n_,_d_,___,_h_,_o_,_l_,_d_,___,_f_,_o_,_r_,___,_5_,_s_,___,_t_,_o_,___,_u_,_n_,_l_,_o_,_c_,_k_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+    _A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_e_,_t_,___,_m_,_a_,_i_,_n_,_t_,_e_,_n_,_e_,_z_,___,_e_,_n_,_f_,_o_,_n_,_c_,_EUROPE_14,___,_p_,_e_,_n_,_d_,_a_,_n_,_t_,_END_,
+    _Z_,_u_,_m_,___,_F_,_r_,_e_,_i_,_g_,_b_,_e_,_n_,___,_d_,_e_,_r_,___,_E_,_i_,_n_,_DASH_,_SLASH_,_A_,_u_,_s_,_t_,_a_,_s_,_t_,_e_,___,_5_,___,_s_,_END_,
+    _P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_s_,_i_,_n_,___,_s_,_o_,_l_,_t_,_a_,_r_,___,_d_,_u_,_r_,_a_,_n_,_t_,_e_,___,_5_,___,_s_,_e_,_g_,_u_,_n_,_d_,_o_,_s_,_END_,
+
+    _T_,_e_,_n_,_e_,_r_,_e_,___,_p_,_r_,_e_,_m_,_u_,_t_,_o_,___,_p_,_e_,_r_,___,_5_,___,_s_,_e_,_c_,_DOT_,___,_p_,_e_,_r_,_END_,
+    _P_,_i_,_d_,_EUROPE_18,___,_p_,_a_,_i_,_n_,_e_,_t_,_t_,_u_,_n_,_a_,___,_5_,___,_s_,___,_a_,_v_,_a_,_t_,_a_,_k_,_s_,_e_,_s_,_i_,___,_V_,_i_,_r_,_r_,_a_,_n_,_END_,
+    _EUROPE_5e,_EUROPE_86,_e_,_p_,_EUROPE_80,_EUROPE_0f,_EUROPE_3f,_a_,_EUROPE_0e,_EUROPE_5f,_e_,___,_5_,___,_c_,_COMMA_,_END_,
+    _G_,_EUROPE_10,_c_,_EUROPE_10,_n_,___,_k_,_i_,_l_,_i_,_d_,_i_,_n_,_i_,___,_a_,_EUROPE_12,_m_,_a_,_k_,___,_i_,_EUROPE_12,_i_,_n_,___,_5_,___,_s_,_n_,_DOT_,_b_,_a_,_s_,_EUROPE_90,_l_,_EUROPE_90,___,_t_,_u_,_t_,_u_,_n_,_END_,
+
+    _EXT_FONT_,_JPN_EXT_7f_,_EXT_FONT_,_JPN_EXT_21_,_EXT_FONT_,_JPN_EXT_22_,_EXT_FONT_,_JPN_EXT_23_,_EXT_FONT_,_JPN_EXT_24_,_JPN_d7_,_JPN_d7_,_EXT_FONT_,_JPN_EXT_15_,_EXT_FONT_,_JPN_EXT_34_,_JPN_b4_,_JPN_b5_,_EXT_FONT_,_JPN_EXT_12_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_JPN_d7_,_JPN_ec_,_JPN_dd_,_END_,
+    _EXT_FONT_,_KOR_EXT_8d_,_KOR_f0_,___,_KOR_8e_,_KOR_d8_,___,___,_KOR_11_,_KOR_12_,___,_KOR_b2_,_KOR_f2_,___,_KOR_c5_,_KOR_c6_,_KOR_d5_,_END_,
+	_EXT_FONT_,_CHT_EXT_41,_EXT_FONT_,_CHT_EXT_42,_EXT_FONT_,_CHT_EXT_58,_CHT_10,_CHT_11,_CHT_82,_CHT_cd,_CHT_a5,_CHT_1b,_END_,
+	_CHS_cd,_EXT_FONT_,_CHS_EXT_3f,_EXT_FONT_,_CHS_EXT_59,_CHS_10,_CHS_cb,_CHS_ca,_CHS_a2,_CHS_a3,_END_,
+	
+#if(_CZECH_AND_SWEDISH_SUPPORT == _ON)
+	_S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_a_,___,_p_,_o_,_d_,_r_,_EUROPE_b1,_e_,_n_,_EUROPE_1a,_m_,___,_5_,___,_s_,_END_,
+	_T_,_r_,_y_,_c_,_k_,___,_o_,_c_,_h_,___,_h_,_EUROPE_aa,_l_,_l_,___,_i_,_n_,_t_,_r_,_y_,_c_,_k_,_t_,___,_i_,___,_5_,_s_,_END_,
+#endif
+};
+
+BYTE code str_OSD_POWER_LOCKING_HINT_LOCK_1[] =
+{
+    _END_,
+    _5_,___,_s_,___,_p_,_o_,_u_,_r_,___,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_e_,_r_,___,_I_,_APOSTROPHE,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_t_,_i_,_o_,_n_,_END_,
+    _g_,_e_,_d_,_r_,_EUROPE_10,_c_,_k_,_t_,___,_h_,_a_,_l_,_t_,_e_,_n_,_END_,
+    _p_,_a_,_r_,_a_,___,_b_,_l_,_o_,_q_,_u_,_e_,_a_,_r_,___,_l_,_a_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_c_,_i_,_EUROPE_1e,_n_,_END_,
+
+    _b_,_l_,_o_,_c_,_c_,_a_,_r_,_e_,___,_I_,_APOSTROPHE,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_z_,_i_,_o_,_n_,_e_,_END_,
+    _END_,
+    _EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_EUROPE_7e,_a_,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_95,___,_EUROPE_11,_EUROPE_5d,_o_,_EUROPE_88,_EUROPE_11,_y_,___,_EUROPE_88,_EUROPE_0f,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,_END_,
+	_END_,
+
+	_END_,
+	_END_,
+	_END_,
+	_END_,
+	
+#if(_CZECH_AND_SWEDISH_SUPPORT == _ON)
+	_z_,_a_,_m_,_k_,_n_,_EUROPE_a9,_t_,_e_,___,_n_,_a_,_p_,_EUROPE_16,_j_,_e_,_n_,_EUROPE_1a,_END_,
+	_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_l_,_EUROPE_aa,_s_,_a_,___,_s_,_t_,_r_,_EUROPE_1f,_m_,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+};
+
+BYTE code str_OSD_POWER_LOCKING_HINT_UNLOCK_1[] =
+{
+    _END_,
+    _5_,___,_s_,___,_p_,_o_,_u_,_r_,___,_d_,_EUROPE_14,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_e_,_r_,___,_I_,_APOSTROPHE,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_t_,_i_,_o_,_n_,_END_,
+    _g_,_e_,_d_,_r_,_EUROPE_10,_c_,_k_,_t_,___,_h_,_a_,_l_,_t_,_e_,_n_,_END_,
+    _p_,_a_,_r_,_a_,___,_d_,_e_,_s_,_b_,_l_,_o_,_q_,_u_,_e_,_a_,_r_,___,_l_,_a_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_c_,_i_,_EUROPE_1e,_n_,_END_,
+
+    _s_,_b_,_l_,_o_,_c_,_c_,_a_,_r_,_e_,___,_I_,_APOSTROPHE,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_z_,_i_,_o_,_n_,_e_,_END_,
+    _END_,
+    _EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_p_,_a_,_EUROPE_7e,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_95,___,_EUROPE_11,_EUROPE_5d,_o_,_EUROPE_88,_EUROPE_11,_y_,___,_EUROPE_88,_EUROPE_0f,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,_END_,
+	_END_,
+
+	_END_,
+	_KOR_92_,_KOR_98_,_EXT_FONT_,_KOR_EXT_27_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+	_END_,
+	_END_,
+	
+#if(_CZECH_AND_SWEDISH_SUPPORT == _ON)
+	_o_,_d_,_e_,_m_,_k_,_n_,_EUROPE_a9,_t_,_e_,___,_n_,_a_,_p_,_EUROPE_16,_j_,_e_,_n_,_EUROPE_1a,_END_,
+	_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_l_,_EUROPE_aa,_s_,_a_,___,_u_,_p_,_p_,___,_s_,_t_,_r_,_EUROPE_1f,_m_,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+};
+#else
+BYTE code str_OSD_POWER_LOCKING_HINT_LOCK[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_P_,_r_,_e_,_s_,_s_,___,_a_,_n_,_d_,___,_h_,_o_,_l_,_d_,___,_f_,_o_,_r_,___,_1_,_0_,_s_,___,_t_,_o_,___,_l_,_o_,_c_,_k_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_e_,_t_,___,_m_,_a_,_i_,_n_,_t_,_e_,_n_,_e_,_z_,___,_e_,_n_,_f_,_o_,_n_,_c_,_EUROPE_14,___,_p_,_e_,_n_,_d_,_a_,_n_,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _Z_,_u_,_m_,___,_S_,_p_,_e_,_r_,_r_,_e_,_n_,___,_d_,_e_,_r_,___,_E_,_i_,_n_,_DASH_,_SLASH_,_A_,_u_,_s_,_t_,_a_,_s_,_t_,_e_,___,_1_,_0_,___,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Houd 10 seconden ingedrukt 
+	_H_,_o_,_u_,_d_,___,_1_,_0_,___,_s_,_e_,_c_,_o_,_n_,_d_,_e_,_n_,___,_i_,_n_,_g_,_e_,_d_,_r_,_u_,_k_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_s_,_i_,_n_,___,_s_,_o_,_l_,_t_,_a_,_r_,___,_d_,_u_,_r_,_a_,_n_,_t_,_e_,___,_1_,_0_,___,_s_,_e_,_g_,_u_,_n_,_d_,_o_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _T_,_e_,_n_,_e_,_r_,_e_,___,_p_,_r_,_e_,_m_,_u_,_t_,_o_,___,_p_,_e_,_r_,___,_1_,_0_,___,_s_,_e_,_c_,_DOT_,___,_p_,_e_,_r_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _P_,_i_,_d_,_EUROPE_18,___,_p_,_a_,_i_,_n_,_e_,_t_,_t_,_u_,_n_,_a_,___,_1_,_0_,___,_s_,___,_l_,_u_,_k_,_i_,_t_,_a_,_k_,_s_,_e_,_s_,_i_,___,_V_,_i_,_r_,_r_,_a_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_T_,_r_,_y_,_c_,_k_,___,_o_,_c_,_h_,___,_h_,_EUROPE_aa,_l_,_l_,___,_i_,_n_,_t_,_r_,_y_,_c_,_k_,_t_,___,_i_,___,_1_,_0_,_s_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ѧاާڧ�� �� ��է֧�اڧӧѧۧ�� 10 ��֧� �էݧ� �ҧݧ�ܧ� 
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+_H_,_a_,0x80,0x97,0x0f,0x5f,_e_,_,0x0f,_,_y_,0x86,_e_,_p_,0x80,0x0f,0x3f,_a_,0x0e,0x5f,_e_,_,_1_,_0_,_END_,
+
+#else
+    _EUROPE_5e,_EUROPE_86,_e_,_p_,_EUROPE_80,_EUROPE_0f,_EUROPE_3f,_a_,_EUROPE_0e,_EUROPE_5f,_e_,___,_1_,_0_,___,_c_,_COMMA_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+    _G_,_EUROPE_10,_c_,_EUROPE_10,___,_k_,_i_,_l_,_i_,_t_,_l_,_e_,_m_,_e_,_k_,___,_i_,_EUROPE_12,_i_,_n_,___,_1_,_0_,___,_s_,_n_,_DOT_,_b_,_a_,_s_,_EUROPE_90,_l_,_EUROPE_90,___,_t_,_u_,_t_,_u_,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naci?nij i przytrzymaj przez 10
+	_N_,_a_,_c_,_i_,_s_,_n_,_i_,_j_,___,_i_,___,_p_,_r_,_z_,_y_,_t_,_r_,_y_,_m_,_a_,_j_,___,_p_,_r_,_z_,_e_,_z_,___,_1_,_0_,_s_,_COMMA_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_a_,___,_p_,_o_,_d_,_r_,_EUROPE_b1,_e_,_n_,_EUROPE_1a,_m_,___,_1_,_0_,___,_s_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ap?sa?i lung timp de 10 secunde
+	_A_,_p_,_EUROPE_c8,_s_,_a_,_EUROPE_c9,_i_,___,_l_,_u_,_n_,_g_,___,_t_,_i_,_m_,_p_,___,_d_,_e_,___,_1_,_0_,___,_s_,_e_,_c_,_o_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_01,_TH_11,_TH_29,_TH_02,_TH_05,_TH_26,_TH_C3,___,_TH_1_,_TH_0_,___,_TH_B5,_TH_0D,_TH_02,_TH_53,_TH_07,_TH_6D,_TH_16,_TH_44,_TH_16,_TH_01,_TH_41,_TH_09,_TH_0A,_TH_02,_TH_1D,_TH_07,_TH_1D,_TH_16,_TH_25,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_N_,_h_,_VIE_90,_n_,___,_v_,_VIE_19,___,_g_,_i_,_VIE_89,___,_1_,_0_,___,_g_,_i_,_VIE_87,_y_,___,_VIE_7C,_VIE_8F,___,_k_,_h_,_VIE_8D,_a_,___,_n_,_g_,_u_,_VIE_7B,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tekan dan tahan selama 10 detik
+	_T_,_e_,_k_,_a_,_n_,___,_d_,_a_,_n_,___,_t_,_a_,_h_,_a_,_n_,___,_s_,_e_,_l_,_a_,_m_,_a_,___,_1_,_0_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _1_,_0_,_JPN_0f_,_JPN_10_,_JPN_11_,_JPN_12_,_JPN_d7_,_JPN_d7_,_JPN_13_,_JPN_21_,_JPN_b4_,_JPN_b5_,_JPN_40_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_d7_,_JPN_ec_,_JPN_dd_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_1_,_0_,_KOR_f0_,___,_KOR_8e_,_KOR_d8_,___,___,_KOR_11_,_KOR_12_,___,_KOR_b2_,_KOR_f2_,_KOR_c2_,___,_KOR_c5_,_KOR_c6_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_EXT_FONT_,_CHT_EXT_41,_EXT_FONT_,_CHT_EXT_42,_1_,_0_,_CHT_10,_CHT_11,_CHT_cd,_CHT_fa,_CHT_a5,_CHT_1b,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_cd,_EXT_FONT_,_CHS_EXT_3f,_1_,_0_,_CHS_10,_CHS_ca,_CHS_25,_CHS_a2,_CHS_a3,_END_,
+#endif
+
+	
+};
+
+BYTE code str_OSD_POWER_LOCKING_HINT_UNLOCK[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_P_,_r_,_e_,_s_,_s_,___,_a_,_n_,_d_,___,_h_,_o_,_l_,_d_,___,_f_,_o_,_r_,___,_1_,_0_,_s_,___,_t_,_o_,___,_u_,_n_,_l_,_o_,_c_,_k_,___,_P_,_o_,_w_,_e_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_e_,_t_,___,_m_,_a_,_i_,_n_,_t_,_e_,_n_,_e_,_z_,___,_e_,_n_,_f_,_o_,_n_,_c_,_EUROPE_14,___,_p_,_e_,_n_,_d_,_a_,_n_,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _Z_,_u_,_m_,___,_F_,_r_,_e_,_i_,_g_,_b_,_e_,_n_,___,_d_,_e_,_r_,___,_E_,_i_,_n_,_DASH_,_SLASH_,_A_,_u_,_s_,_t_,_a_,_s_,_t_,_e_,___,_1_,_0_,___,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Houd 10 seconden ingedrukt 
+	_H_,_o_,_u_,_d_,___,_1_,_0_,___,_s_,_e_,_c_,_o_,_n_,_d_,_e_,_n_,___,_i_,_n_,_g_,_e_,_d_,_r_,_u_,_k_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_s_,_i_,_n_,___,_s_,_o_,_l_,_t_,_a_,_r_,___,_d_,_u_,_r_,_a_,_n_,_t_,_e_,___,_1_,_0_,___,_s_,_e_,_g_,_u_,_n_,_d_,_o_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _T_,_e_,_n_,_e_,_r_,_e_,___,_p_,_r_,_e_,_m_,_u_,_t_,_o_,___,_p_,_e_,_r_,___,_1_,_0_,___,_s_,_e_,_c_,_DOT_,___,_p_,_e_,_r_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _P_,_i_,_d_,_EUROPE_18,___,_p_,_a_,_i_,_n_,_e_,_t_,_t_,_u_,_n_,_a_,___,_1_,_0_,___,_s_,___,_a_,_v_,_a_,_t_,_a_,_k_,_s_,_e_,_s_,_i_,___,_V_,_i_,_r_,_r_,_a_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_T_,_r_,_y_,_c_,_k_,___,_o_,_c_,_h_,___,_h_,_EUROPE_aa,_l_,_l_,___,_i_,_n_,_t_,_r_,_y_,_c_,_k_,_t_,___,_i_,___,_1_,_0_,_s_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_H_,_a_,0x80,0x97,0x0f,0x5f,_e_,_,0x0f,_,_y_,0x86,_e_,_p_,0x80,0x0f,0x3f,_a_,0x0e,0x5f,_e_,_,_1_,_0_,_END_,
+	
+#else
+
+    _EUROPE_5e,_EUROPE_86,_e_,_p_,_EUROPE_80,_EUROPE_0f,_EUROPE_3f,_a_,_EUROPE_0e,_EUROPE_5f,_e_,___,_1_,_0_,___,_c_,_COMMA_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+    _G_,_EUROPE_10,_c_,_EUROPE_10,_n_,___,_k_,_i_,_l_,_i_,_d_,_i_,_n_,_i_,___,_a_,_EUROPE_12,_m_,_a_,_k_,___,_i_,_EUROPE_12,_i_,_n_,___,_1_,_0_,___,_s_,_n_,_DOT_,_b_,_a_,_s_,_EUROPE_90,_l_,_EUROPE_90,___,_t_,_u_,_t_,_u_,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naci?nij i przytrzymaj przez 10
+	_N_,_a_,_c_,_i_,_s_,_n_,_i_,_j_,___,_i_,___,_p_,_r_,_z_,_y_,_t_,_r_,_y_,_m_,_a_,_j_,___,_p_,_r_,_z_,_e_,_z_,___,_1_,_0_,_s_,_COMMA_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_a_,___,_p_,_o_,_d_,_r_,_EUROPE_b1,_e_,_n_,_EUROPE_1a,_m_,___,_1_,_0_,___,_s_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ap?sa?i lung timp de 10 secunde
+	_A_,_p_,_EUROPE_c8,_s_,_a_,_EUROPE_c9,_i_,___,_l_,_u_,_n_,_g_,___,_t_,_i_,_m_,_p_,___,_d_,_e_,___,_1_,_0_,___,_s_,_e_,_c_,_o_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_01,_TH_11,_TH_29,_TH_02,_TH_05,_TH_26,_TH_C3,___,_TH_1_,_TH_0_,___,_TH_0F,_TH_0D,_TH_02,_TH_53,_TH_07,_TH_6D,_TH_16,_TH_41,_TH_1C,_TH_11,_TH_44,_TH_16,_TH_01,_TH_41,_TH_09,_TH_0A,_TH_02,_TH_1D,_TH_07,_TH_1D,_TH_16,_TH_25,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)	
+	_N_,_h_,_VIE_90,_n_,___,_v_,_VIE_19,___,_g_,_i_,_VIE_89,___,_1_,_0_,___,_g_,_i_,_VIE_87,_y_,___,_VIE_7C,_VIE_8F,___,_m_,_VIE_92,___,_k_,_h_,_VIE_8D,_a_,___,_n_,_g_,_u_,_VIE_7B,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tekan dan tahan selama 10
+	_T_,_e_,_k_,_a_,_n_,___,_d_,_a_,_n_,___,_t_,_a_,_h_,_a_,_n_,___,_s_,_e_,_l_,_a_,_m_,_a_,___,_1_,_0_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _1_,_0_,_JPN_0f_,_JPN_10_,_JPN_11_,_JPN_12_,_JPN_d7_,_JPN_d7_,_JPN_13_,_JPN_21_,_JPN_b4_,_JPN_b5_,_JPN_40_,_JPN_96_,_JPN_94_,_JPN_95_,_JPN_8b_,_JPN_d8_,_JPN_d7_,_JPN_ec_,_JPN_dd_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _1_,_0_,_KOR_f0_,___,_KOR_8e_,_KOR_d8_,___,___,_KOR_11_,_KOR_12_,___,_KOR_b2_,_KOR_f2_,___,_KOR_c5_,_KOR_c6_,_KOR_d5_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_EXT_FONT_,_CHT_EXT_41,_EXT_FONT_,_CHT_EXT_42,_1_,_0_,_CHT_10,_CHT_11,_CHT_82,_CHT_cd,_CHT_a5,_CHT_1b,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_cd,_EXT_FONT_,_CHS_EXT_3f,_1_,_0_,_CHS_10,_CHS_cb,_CHS_ca,_CHS_a2,_CHS_a3,_END_,
+#endif
+
+	
+};
+
+BYTE code str_OSD_POWER_LOCKING_HINT_LOCK_1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _1_,_0_,___,_s_,___,_p_,_o_,_u_,_r_,___,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_e_,_r_,___,_I_,_APOSTROPHE,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _g_,_e_,_d_,_r_,_EUROPE_10,_c_,_k_,_t_,___,_h_,_a_,_l_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//om stroom te vergrendelen
+	_o_,_m_,___,_s_,_t_,_r_,_o_,_o_,_m_,___,_t_,_e_,___,_v_,_e_,_r_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _p_,_a_,_r_,_a_,___,_b_,_l_,_o_,_q_,_u_,_e_,_a_,_r_,___,_l_,_a_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_c_,_i_,_EUROPE_1e,_n_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _b_,_l_,_o_,_c_,_c_,_a_,_r_,_e_,___,_I_,_APOSTROPHE,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_z_,_i_,_o_,_n_,_e_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_l_,_EUROPE_aa,_s_,_a_,___,_s_,_t_,_r_,_EUROPE_1f,_m_,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	_c_,_e_,_EUROPE_11,_,0x86,0x7c,0x7d,_,0x3e,0x7c,_o_,_EUROPE_11,_a_,_END_,
+	
+#else
+
+    _EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_EUROPE_7e,_a_,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_95,___,_EUROPE_11,_EUROPE_5d,_o_,_EUROPE_88,_EUROPE_11,_y_,___,_EUROPE_88,_EUROPE_0f,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//aby zablokowa? zasilanie
+	_a_,_b_,_y_,___,_z_,_a_,_b_,_l_,_o_,_k_,_o_,_w_,_a_,_c_,___,_z_,_a_,_s_,_i_,_l_,_a_,_n_,_i_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_z_,_a_,_m_,_k_,_n_,_EUROPE_a9,_t_,_e_,___,_n_,_a_,_p_,_EUROPE_16,_j_,_e_,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//pentru a bloca alimentarea
+	_p_,_e_,_n_,_t_,_r_,_u_,___,_a_,___,_b_,_l_,_o_,_c_,_a_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_r_,_e_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)	
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//detik untuk mengunci daya
+	_d_,_e_,_t_,_i_,_k_,___,_u_,_n_,_t_,_u_,_k_,___,_m_,_e_,_n_,_g_,_u_,_n_,_c_,_i_,___,_d_,_a_,_y_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif
+	
+};
+
+BYTE code str_OSD_POWER_LOCKING_HINT_UNLOCK_1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _1_,_0_,___,_s_,___,_p_,_o_,_u_,_r_,___,_d_,_EUROPE_14,_v_,_e_,_r_,_r_,_o_,_u_,_i_,_l_,_l_,_e_,_r_,___,_I_,_APOSTROPHE,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _g_,_e_,_d_,_r_,_EUROPE_10,_c_,_k_,_t_,___,_h_,_a_,_l_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//om stroom te ontgrendelen
+	_o_,_m_,___,_s_,_t_,_r_,_o_,_o_,_m_,___,_t_,_e_,___,_o_,_n_,_t_,_g_,_r_,_e_,_n_,_d_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _p_,_a_,_r_,_a_,___,_d_,_e_,_s_,_b_,_l_,_o_,_q_,_u_,_e_,_a_,_r_,___,_l_,_a_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_c_,_i_,_EUROPE_1e,_n_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _s_,_b_,_l_,_o_,_c_,_c_,_a_,_r_,_e_,___,_I_,_APOSTROPHE,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_z_,_i_,_o_,_n_,_e_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_l_,_EUROPE_aa,_s_,_a_,___,_u_,_p_,_p_,___,_s_,_t_,_r_,_EUROPE_1f,_m_,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_c_,_e_,_EUROPE_11,_,0x86,0x7c,0x7d,_,0x3e,0x7c,_o_,_EUROPE_11,_a_,_END_,
+		
+#else
+
+    _EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_p_,_a_,_EUROPE_7e,_EUROPE_3e,_EUROPE_7c,_o_,_EUROPE_11,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_95,___,_EUROPE_11,_EUROPE_5d,_o_,_EUROPE_88,_EUROPE_11,_y_,___,_EUROPE_88,_EUROPE_0f,_EUROPE_5f,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_7d,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+	_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_o_,_d_,_e_,_m_,_k_,_n_,_EUROPE_a9,_t_,_e_,___,_n_,_a_,_p_,_EUROPE_16,_j_,_e_,_n_,_EUROPE_1a,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//pentru a debloca alimentarea
+	_p_,_e_,_n_,_t_,_r_,_u_,___,_a_,___,_d_,_EUROPE_14,_b_,_l_,_o_,_c_,_a_,___,_a_,_l_,_i_,_m_,_e_,_n_,_t_,_a_,_r_,_e_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)	
+	_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//detik untuk membuka kunci daya
+	#if(_ZHONGQIANG_LANGUAGE)
+	_d_,_e_,_t_,_i_,_k_,_,_u_,_n_,_t_,_u_,_k_,_,_m_,_e_,_m_,_b_,_u_,_k_,_a_,_,_D_,_a_,_y_,_a_,_END_,
+
+	#else
+	_d_,_e_,_t_,_i_,_k_,___,_u_,_n_,_t_,_u_,_k_,___,_m_,_e_,_m_,_b_,_u_,_k_,_a_,___,_k_,_u_,_n_,_c_,_i_,___,_d_,_a_,_y_,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_92_,_KOR_98_,_EXT_FONT_,_KOR_EXT_27_,_KOR_20_,_KOR_cb_,_DOT_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_END_,
+#endif
+	
+};
+#endif
+
+
+code BYTE *tOSD_POWER_LOCKING_HINT_TABLE[] =
+{
+	str_OSD_POWER_LOCKING_HINT_LOCK,
+	str_OSD_POWER_LOCKING_HINT_UNLOCK,
+    str_OSD_POWER_LOCKING_HINT_LOCK_1,
+    str_OSD_POWER_LOCKING_HINT_UNLOCK_1,
+};
+//timing¾¯¸æ
+BYTE code str_WARNING[] =
+{
+	0XD2,_END_,
+};
+
+BYTE code str_LOGO_BOOT_UP[] =
+{
+#if(_DEF_HotOSD_Logo_MessageEanble_swtich)
+
+#if(_DEF_ENGLISH_TEXT)
+	_B_,_o_,_o_,_t_,_u_,_p_,___,_S_,_c_,_r_,_e_,_e_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_D_,_EUROPE_14,_m_,_a_,_r_,_r_,_a_,_g_,_e_,___,_d_,_e_,___,_l_,_EUROPE_a7,_EUROPE_14,_c_,_r_,_a_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_S_,_t_,_a_,_r_,_t_,_b_,_i_,_l_,_d_,_s_,_c_,_h_,_i_,_r_,_m_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Opstartscherm
+	_O_,_p_,_s_,_t_,_a_,_r_,_t_,_s_,_c_,_h_,_e_,_r_,_m_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_p_,_a_,_n_,_t_,_a_,_l_,_l_,_a_,___,_d_,_e_,___,_a_,_r_,_r_,_a_,_n_,_q_,_u_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_S_,_c_,_h_,_e_,_r_,_m_,_a_,_t_,_a_,___,_d_,_i_,___,_a_,_v_,_v_,_i_,_o_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_K_,_EUROPE_18,_y_,_n_,_n_,_i_,_s_,_t_,_y_,_s_,_n_,_EUROPE_18,_y_,_t_,_t_,_EUROPE_1f,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _S_,_t_,_a_,_r_,_t_,_s_,_k_,_EUROPE_18,_r_,_m_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_EUROPE_8c,_a_,_EUROPE_87,_p_,_y_,_EUROPE_8f,_o_,_EUROPE_7f,_EUROPE_5d,_a_,_EUROPE_7d,___,_c_,_EUROPE_5f,_p_,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_85,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_B_,_a_,_EUROPE_91,_l_,_a_,_t_,_m_,_a_,___,_E_,_k_,_r_,_a_,_n_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Ekran uruchamiania
+	_E_,_k_,_r_,_a_,_n_,___,_u_,_r_,_u_,_c_,_h_,_a_,_m_,_i_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _S_,_p_,_o_,_u_,_EUROPE_ad,_t_,_EUROPE_a9,_c_,___,_o_,_b_,_r_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ecran de pornire sistem
+	_E_,_c_,_r_,_a_,_n_,___,_d_,_e_,___,_p_,_o_,_r_,_n_,_i_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_01,_TH_02,_TH_03,_TH_1E,_TH_28,_TH_13,_TH_0,_TH_02,_TH_67,_TH_16,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_M_,_VIE_19,_n_,___,_H_,_VIE_86,_n_,_h_,___,_K_,_h_,_VIE_81,_i_,___,_VIE_17,_VIE_3F,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Layar Booting
+	_L_,_a_,_y_,_a_,_r_,___,_B_,_o_,_o_,_t_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_EXT_FONT_,_JPN_EXT_80_,_JPN_c1_,_JPN_c2_,_EXT_FONT_,_JPN_EXT_2c_,_JPN_a8_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_EXT_FONT_,_KOR_EXT_8e_,_EXT_FONT_,_KOR_EXT_8f_,_EXT_FONT_,_KOR_EXT_90_,_EXT_FONT_,_KOR_EXT_91_,_EXT_FONT_,_KOR_EXT_92_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_EXT_FONT_,_CHT_EXT_70,_EXT_FONT_,_CHT_EXT_71,_EXT_FONT_,_CHT_EXT_72,_EXT_FONT_,_CHT_EXT_73,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_b6,_CHS_a1,_CHS_ae,_CHS_b3,_END_,
+#endif
+
+
+
+#else
+
+
+#if(_DEF_ENGLISH_TEXT)
+	_B_,_o_,_o_,_t_,___,_U_,_p_,___,_S_,_c_,_r_,_e_,_e_,_n_,___,_O_,_n_,_SLASH_,_O_,_f_,_f_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_D_,_EUROPE_14,_m_,_a_,_r_,_r_,_a_,_g_,_e_,___,_d_,_e_,___,_l_,_EUROPE_a7,_EUROPE_14,_c_,_r_,_a_,_n_,___,_a_,_c_,_t_,_i_,_v_,_EUROPE_14,_SLASH_,_d_,_EUROPE_14,_s_,_a_,_c_,_t_,_i_,_v_,_EUROPE_14,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_S_,_t_,_a_,_r_,_t_,_b_,_i_,_l_,_d_,_s_,_c_,_h_,_i_,_r_,_m_,___,_e_,_i_,_n_,_SLASH_,_a_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Opstartscherm aan/uit
+	_O_,_p_,_s_,_t_,_a_,_r_,_t_,_s_,_c_,_h_,_e_,_r_,_m_,___,_a_,_a_,_n_,_SLASH_,_u_,_i_,_t_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_A_,_c_,_t_,_i_,_v_,_a_,_r_,_SLASH_,_D_,_e_,_s_,_a_,_c_,_t_,_i_,_v_,_a_,_r_,___,_p_,_a_,_n_,_t_,_a_,_l_,_l_,_a_,___,_d_,_e_,___,_a_,_r_,_r_,_a_,_n_,_q_,_u_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_S_,_c_,_h_,_e_,_r_,_m_,_a_,_t_,_a_,___,_d_,_i_,___,_a_,_v_,_v_,_i_,_o_,___,_O_,_n_,_SLASH_,_O_,_f_,_f_,_END_,
+#endif
+
+#if(_DEF_SUOMI_TEXT)
+	_K_,_EUROPE_18,_y_,_n_,_n_,_i_,_s_,_t_,_y_,_s_,_n_,_EUROPE_18,_y_,_t_,_t_,_EUROPE_1f,___,_P_,_EUROPE_18,_EUROPE_18,_l_,_l_,_e_,_SLASH_,_P_,_o_,_i_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _S_,_t_,_a_,_r_,_t_,_s_,_k_,_EUROPE_18,_r_,_m_, ___,_p_,_EUROPE_aa,_SLASH_,_a_,_v_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_EUROPE_8c,_a_,_EUROPE_87,_p_,_y_,_EUROPE_8f,_o_,_EUROPE_7f,_EUROPE_5d,_a_,_EUROPE_7d,___,_c_,_EUROPE_5f,_p_,_a_,_EUROPE_5d,_EUROPE_0f,_EUROPE_85,_a_,___,_EUROPE_3f,_EUROPE_11,_EUROPE_7c,_DOT_,_SLASH_,_o_,_EUROPE_5f,_EUROPE_11,_EUROPE_7c,_DOT_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_B_,_a_,_EUROPE_91,_l_,_a_,_t_,_m_,_a_,___,_E_,_k_,_r_,_a_,_n_,_EUROPE_90,___,_A_,_EUROPE_12,_EUROPE_90,_k_,_SLASH_,_K_,_a_,_p_,_a_,_l_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//W?./Wy?. ekranu uruchamiania
+	_W_,_EUROPE_d7,_DOT_,_SLASH_,_W_,_y_,_EUROPE_d7,_DOT_,___,_e_,_k_,_r_,_a_,_n_,_u_,___,_u_,_r_,_u_,_c_,_h_,_a_,_m_,_i_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _S_,_p_,_o_,_u_,_EUROPE_ad,_t_,_EUROPE_a9,_c_,___,_o_,_b_,_r_,___,_z_,_a_,_p_,_SLASH_,_v_,_y_,_p_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Activare/dezactivare ecran de pornire sistem
+	_A_,_c_,_t_,_i_,_v_,_a_,_r_,_e_,_SLASH_,_d_,_e_,_z_,_a_,_c_,_t_,_i_,_v_,_a_,_r_,_e_,___,_e_,_c_,_r_,_a_,_n_,___,_d_,_e_,___,_p_,_o_,_r_,_n_,_i_,_r_,_e_,___,_s_,_i_,_s_,_t_,_e_,_m_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_07,_TH_10,_TH_11,___,_TH_10,_TH_11,_TH_01,_TH_02,_TH_03,_TH_1E,_TH_28,_TH_13,_TH_01,_TH_02,_TH_67,_TH_16,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_T_,_VIE_1F,_t_,_SLASH_,_B_,_VIE_20,_t_,___,_M_,_VIE_19,_n_,___,_H_,_VIE_86,_n_,_h_,___,_K_,_h_,_VIE_81,_i_,___,_VIE_17,_VIE_3F,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Layar Booting Aktif/Nonaktif
+	_L_,_a_,_y_,_a_,_r_,___,_B_,_o_,_o_,_t_,_i_,_n_,_g_,___,_A_,_k_,_t_,_i_,_f_,_SLASH_,_N_,_o_,_n_,_a_,_k_,_t_,_i_,_f_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_EXT_FONT_,_JPN_EXT_80_,_JPN_c1_,_JPN_c2_,_EXT_FONT_,_JPN_EXT_2c_,_JPN_a8_,_JPN_1e_,_JPN_14_,_EXT_FONT_,_JPN_EXT_81_,_JPN_1e_,_JPN_25_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_EXT_FONT_,_KOR_EXT_8e_,_EXT_FONT_,_KOR_EXT_8f_,_EXT_FONT_,_KOR_EXT_90_,_EXT_FONT_,_KOR_EXT_91_,_EXT_FONT_,_KOR_EXT_92_,_EXT_FONT_,_KOR_EXT_93_,_EXT_FONT_,_KOR_EXT_94_,_EXT_FONT_,_KOR_EXT_95_,_EXT_FONT_,_KOR_EXT_96_,_EXT_FONT_,_KOR_EXT_97_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_EXT_FONT_,_CHT_EXT_70,_EXT_FONT_,_CHT_EXT_71,_EXT_FONT_,_CHT_EXT_72,_EXT_FONT_,_CHT_EXT_73,_EXT_FONT_,_CHT_EXT_70,_EXT_FONT_,_CHT_EXT_75,_EXT_FONT_,_CHT_EXT_76,_EXT_FONT_,_CHT_EXT_77,_EXT_FONT_,_CHT_EXT_78,_EXT_FONT_,_CHT_EXT_79,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_b6,_CHS_a1,_CHS_ae,_CHS_b3,_CHS_b6,_EXT_FONT_,_CHS_EXT_7d,_CHS_a0,_EXT_FONT_,_CHS_EXT_7f,_END_,
+#endif
+
+
+#endif
+};
+
+BYTE code str_BOOT_UP_HINT_ON[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_P_,_r_,_e_,_s_,_s_,___,_t_,_o_,___,_t_,_u_,_r_,_n_,___,_o_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_p_,_o_,_u_,_r_,___,_a_,_c_,_t_,_i_,_v_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_Z_,_u_,_m_,___,_E_,_i_,_n_,_s_,_c_,_h_,_a_,_l_,_t_,_e_,_n_,___,_d_,_r_,_EUROPE_10,_c_,_k_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Druk om in te schakelen
+	_D_,_r_,_u_,_k_,___,_o_,_m_,___,_t_,_e_,___,_s_,_c_,_h_,_a_,_k_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_p_,_a_,_r_,_a_,___,_a_,_c_,_t_,_i_,_v_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_P_,_r_,_e_,_m_,_e_,_r_,_e_,___,_p_,_e_,_r_,___,_a_,_c_,_c_,_e_,_n_,_d_,_e_,_r_,_e_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_P_,_a_,_i_,_n_,_a_,___,_k_,_y_,_t_,_k_,_e_,_EUROPE_18,_k_,_s_,_e_,_s_,_i_,___,_p_,_EUROPE_18,_EUROPE_18,_l_,_l_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_T_,_r_,_y_,_c_,_k_,___,_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_s_,_l_,_EUROPE_18,___,_p_,_EUROPE_18,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_H_,_a_,_EUROPE_80,_EUROPE_97,_EUROPE_0f,_EUROPE_5f,_e_,_COMMA_,___,_EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_EUROPE_3f,_EUROPE_11,_EUROPE_7c,_EUROPE_81,_EUROPE_7f,_EUROPE_0f,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_A_,_EUROPE_12,_m_,_a_,_k_,___,_i_,_EUROPE_12,_i_,_n_,___,_b_,_a_,_s_,_EUROPE_90,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naci?nij, aby w??czy?
+	_N_,_a_,_c_,_i_,_s_,_n_,_i_,_j_,___,_a_,_b_,_y_,___,_w_,_l_,_a_,_c_,_z_,_y_,_c_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_z_,_a_,_p_,_n_,_EUROPE_a9,_t_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ap?sa?i pentru a porni
+	_A_,_p_,_EUROPE_c8,_s_,_a_,_EUROPE_c9,_i_,___,_p_,_e_,_n_,_t_,_r_,_u_,___,_a_,___,_p_,_o_,_r_,_n_,_i_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_01,_TH_11,_TH_68,_TH_97,_TH_16,_TH_68,_TH_10,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_N_,_h_,_VIE_90,_n_,___,_VIE_7C,_VIE_8F,___,_b_,_VIE_20,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tekan untuk menghidupkan
+	_T_,_e_,_k_,_a_,_n_,___,_u_,_n_,_t_,_u_,_k_,___,_m_,_e_,_n_,_g_,_h_,_i_,_d_,_u_,_p_,_k_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_EXT_FONT_,_JPN_EXT_c4_,_EXT_FONT_,_JPN_EXT_c5_,_JPN_1f_,_JPN_19_,_EXT_FONT_,_JPN_EXT_24_,_JPN_dd_,_EXT_FONT_,_JPN_EXT_82_,_JPN_1e_,_JPN_14_,_JPN_e3_,_JPN_d6_,_EXT_FONT_,_JPN_EXT_3a_,_JPN_ec_,_JPN_dd_,_END_,
+	#else
+	_EXT_FONT_,_JPN_EXT_24_,_JPN_dd_,_EXT_FONT_,_JPN_EXT_82_,_JPN_1e_,_JPN_14_,_JPN_e3_,_JPN_d6_,_EXT_FONT_,_JPN_EXT_3a_,_JPN_ec_,_JPN_dd_,_END_,
+	#endif
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_EXT_FONT_,_KOR_EXT_a0_,_EXT_FONT_,_KOR_EXT_a1_,_EXT_FONT_,_KOR_EXT_a2_,_EXT_FONT_,_KOR_EXT_a3_,_EXT_FONT_,_KOR_EXT_a4_,_EXT_FONT_,_KOR_EXT_a5_,_EXT_FONT_,_KOR_EXT_a6_,_EXT_FONT_,_KOR_EXT_a7_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_EXT_FONT_,_CHT_EXT_80,_EXT_FONT_,_CHT_EXT_81,_EXT_FONT_,_CHT_EXT_82,_EXT_FONT_,_CHT_EXT_83,_EXT_FONT_,_CHT_EXT_84,_EXT_FONT_,_CHT_EXT_85,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_EXT_FONT_,_CHS_EXT_80,_EXT_FONT_,_CHS_EXT_81,_EXT_FONT_,_CHS_EXT_82,_CHS_b6,_END_,
+#endif
+
+
+};
+
+BYTE code str_BOOT_UP_HINT_OFF[] =	//°´ÏÂ¹Ø±Õ
+{
+#if(_DEF_HotOSD_Logo_MessageEanble_swtich)
+
+
+#if(_DEF_ENGLISH_TEXT)
+	_M_,_o_,_d_,_e_,___,_M_,_e_,_s_,_s_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_M_,_e_,_s_,_s_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_M_,_e_,_l_,_d_,_g_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Druk om uit te schakelen
+	_D_,_r_,_u_,_k_,___,_o_,_m_,___,_u_,_i_,_t_,___,_t_,_e_,___,_s_,_c_,_h_,_a_,_k_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_M_,_e_,_n_,_s_,_a_,_j_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_M_,_e_,_s_,_s_,_a_,_g_,_DOT_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_T_,_u_,_l_,_o_,_s_,_i_,_g_,_n_,_a_,_a_,_l_,_i_,_n_,___,_i_,_l_,_m_,_o_,_i_,_t_,_u_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _L_,_EUROPE_18,_g_,_e_,_DASH_,_m_,_e_,_d_,_d_,_e_,_l_,_a_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_C_,_o_,_o_,_EUROPE_3e,_EUROPE_83,_e_,_EUROPE_5d,_EUROPE_0f,_e_,___,_o_,___,_p_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_60,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_M_,_o_,_d_,___,_M_,_e_,_s_,_a_,_j_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naci?nij, aby wy??czy?
+	_N_,_a_,_c_,_i_,_s_,_n_,_i_,_j_,___,_a_,_b_,_y_,___,_w_,_y_,_l_,_a_,_c_,_z_,_y_,_c_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _Z_,_p_,_r_,_EUROPE_16,_v_,_a_,___,_r_,_e_,_EUROPE_b1,_END_,
+#endif
+
+#if(_DEF_JAPANESE_TEXT)
+	_JPN_5f_,_JPN_1f_,_JPN_93_,_JPN_27_,_JPN_94_,_JPN_de_,_JPN_1f_,_JPN_b6_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_KOR_26_,_KOR_ce_,___,_KOR_d6_,_KOR_a6_,_KOR_cc_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_19,_CHT_1a,_CHT_99,_CHT_9a,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_19,_CHS_1a,_CHT_94,_CHT_95,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_C_,_h_,_VIE_14,___,_VIE_17,_VIE_3F,___,_T_,_h_,_VIE_3E,_n_,_g_,___,_B_,_VIE_5C,_o_,_END_,
+#endif
+
+
+#else
+
+
+#if(_DEF_ENGLISH_TEXT)
+	_P_,_r_,_e_,_s_,_s_,___,_t_,_o_,___,_t_,_u_,_r_,_n_,___,_o_,_f_,_f_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	_A_,_p_,_p_,_u_,_y_,_e_,_z_,___,_p_,_o_,_u_,_r_,___,_d_,_EUROPE_14,_s_,_a_,_c_,_t_,_i_,_v_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	_Z_,_u_,_m_,___,_A_,_b_,_s_,_c_,_h_,_a_,_l_,_t_,_e_,_n_,___,_d_,_r_,_EUROPE_10,_c_,_k_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Druk om uit te schakelen
+	_D_,_r_,_u_,_k_,___,_o_,_m_,___,_u_,_i_,_t_,___,_t_,_e_,___,_s_,_c_,_h_,_a_,_k_,_e_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	_P_,_r_,_e_,_s_,_i_,_o_,_n_,_a_,_r_,___,_p_,_a_,_r_,_a_,___,_d_,_e_,_s_,_a_,_c_,_t_,_i_,_v_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	_P_,_r_,_e_,_m_,_e_,_r_,_e_,___,_p_,_e_,_r_,___,_s_,_p_,_e_,_g_,_n_,_e_,_r_,_e_,_END_,
+#endif
+	
+#if(_DEF_SUOMI_TEXT)
+	_P_,_a_,_i_,_n_,_a_,___,_k_,_y_,_t_,_k_,_e_,_EUROPE_18,_k_,_s_,_e_,_s_,_i_,___,_p_,_o_,_i_,_s_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+    _T_,_r_,_y_,_c_,_k_,___,_f_,_EUROPE_1f,_r_,___,_a_,_t_,_t_,___,_s_,_t_,_EUROPE_18,_n_,_g_,_a_,___,_a_,_v_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	_H_,_a_,_EUROPE_80,_EUROPE_97,_EUROPE_0f,_EUROPE_5f,_e_,_COMMA_,___,_EUROPE_7f,_EUROPE_5f,_o_,_EUROPE_3e,_EUROPE_84,___,_o_,_EUROPE_5f,_EUROPE_11,_EUROPE_7c,_EUROPE_81,_EUROPE_7f,_EUROPE_0f,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	_K_,_a_,_p_,_a_,_t_,_m_,_a_,_k_,___,_i_,_EUROPE_12,_i_,_n_,___,_b_,_a_,_s_,_EUROPE_90,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Naci?nij, aby wy??czy?
+	_N_,_a_,_c_,_i_,_s_,_n_,_i_,_j_,___,_a_,_b_,_y_,___,_w_,_y_,_l_,_a_,_c_,_z_,_y_,_c_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+    _S_,_t_,_i_,_s_,_k_,_n_,_u_,_t_,_EUROPE_1a,_m_,___,_v_,_y_,_p_,_n_,_EUROPE_a9,_t_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ap?sa?i pentru a porni
+	_A_,_p_,_EUROPE_c8,_s_,_a_,_EUROPE_c9,_i_,___,_p_,_e_,_n_,_t_,_r_,_u_,___,_a_,___,_o_,_p_,_r_,_i_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_01,_TH_11,_TH_0A,_TH_16,_TH_10,_TH_11,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_N_,_h_,_VIE_90,_n_,___,_VIE_7C,_VIE_8F,___,_t_,_VIE_1F,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Tekan untuk menghidupkan
+	#if(_ZHONGQIANG_LANGUAGE)
+	_T_,_e_,_k_,_a_,_n_,_,_u_,_n_,_t_,_u_,_k_,_,_m_,_e_,_m_,_a_,_t_,_i_,_k_,_a_,_n_,_END_,
+	#else
+	_T_,_e_,_k_,_a_,_n_,___,_u_,_n_,_t_,_u_,_k_,___,_m_,_e_,_n_,_g_,_h_,_i_,_d_,_u_,_p_,_k_,_a_,_n_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_EXT_FONT_,_JPN_EXT_c4_,_EXT_FONT_,_JPN_EXT_c5_,_JPN_1f_,_JPN_19_,_EXT_FONT_,_JPN_EXT_24_,_JPN_dd_,_EXT_FONT_,_JPN_EXT_82_,_JPN_1e_,_JPN_25_,_JPN_e3_,_JPN_d6_,_EXT_FONT_,_JPN_EXT_3a_,_JPN_ec_,_JPN_dd_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	_EXT_FONT_,_KOR_EXT_98_,_EXT_FONT_,_KOR_EXT_99_,_EXT_FONT_,_KOR_EXT_9a_,_EXT_FONT_,_KOR_EXT_9b_,_EXT_FONT_,_KOR_EXT_9c_,_EXT_FONT_,_KOR_EXT_9d_,_EXT_FONT_,_KOR_EXT_9e_,_EXT_FONT_,_KOR_EXT_9f_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_EXT_FONT_,_CHT_EXT_80,_EXT_FONT_,_CHT_EXT_7b,_EXT_FONT_,_CHT_EXT_7c,_EXT_FONT_,_CHT_EXT_7d,_EXT_FONT_,_CHT_EXT_7e,_EXT_FONT_,_CHT_EXT_7f,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_EXT_FONT_,_CHS_EXT_80,_EXT_FONT_,_CHS_EXT_81,_CHS_a0,_EXT_FONT_,_CHS_EXT_83,_END_,
+#endif
+
+
+#endif
+};
+
+code BYTE  *tOSD_BOOT_UP_HINT_TABLE[] =
+{
+	str_BOOT_UP_HINT_OFF,
+	str_BOOT_UP_HINT_ON,
+};
+
+
+
+BYTE code str_SERIAL_NO[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_S_,_e_,_r_,_i_,_a_,_l_,___,_N_,_u_,_m_,_b_,_e_,_r_,_COLON_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_N_,_u_,_m_,_EUROPE_14,_r_,_o_,___,_s_,_EUROPE_14,_r_,_i_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_S_,_e_,_r_,_i_,_e_,_n_,_n_,_u_,_m_,_m_,_e_,_r_,_COLON_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Serienummer
+		_S_,_e_,_r_,_i_,_e_,_n_,_u_,_m_,_m_,_e_,_r_,_COLON_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _N_,_EUROPE_b6,___,_d_,_e_,___,_s_,_e_,_r_,_i_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_N_,_DOT_,___,_d_,_i_,___,_s_,_e_,_r_,_i_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_S_,_a_,_r_,_j_,_a_,_n_,_u_,_m_,_e_,_r_,_o_,_COLON_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _S_,_e_,_r_,_i_,_e_,_n_,_u_,_m_,_m_,_e_,_r_,_COLON_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _C_,_e_,_p_,_DOT_,___,_EUROPE_5d,_o_,_EUROPE_60,_e_,_p_,_COLON_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_S_,_e_,_r_,_i_,___,_N_,_u_,_m_,_a_,_r_,_a_,_s_,_EUROPE_90,_COLON_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Nr. seryjny
+		_N_,_r_,_DOT_,___,_s_,_e_,_r_,_y_,_j_,_n_,_y_,_COLON_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _S_,_e_,_r_,_i_,_o_,_v_,_EUROPE_14,___,_EUROPE_b4,_EUROPE_1a,_s_,_l_,_o_,_COLON_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Num?r de serie
+		_N_,_u_,_m_,_EUROPE_c8,_r_,___,_d_,_e_,___,_s_,_e_,_r_,_i_,_e_,_COLON_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_13,_TH_09,_TH_02,_TH_14,_TH_07,_TH_1C,_TH_21,_TH_62,_TH_07,_TH_17,_TH_14,_TH_1C,_TH_BF,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_S_,_VIE_8A,___,_s_,_e_,_r_,_i_,_COLON_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Nomor Seri
+		_N_,_o_,_m_,_o_,_r_,___,_S_,_e_,_r_,_i_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_a7_,_JPN_60_,_JPN_5b_,_JPN_5c_,_JPN_97_,_JPN_98_,_COLON_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_98_,_KOR_99_,___,_KOR_9a_,_KOR_9b_,_COLON_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_8e,_CHT_1a,_COLON_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_88,_CHS_89,_CHS_1a,_COLON_,_END_,
+#endif
+
+	
+};
+
+
+BYTE code str_WEBSITE[] =
+{
+	_w_,_w_,_w_,_DOT_,_V_,_i_,_e_,_w_,_S_,_o_,_n_,_i_,_c_,_DOT_,_c_,_o_,_m_,_END_,
+};
+
+
+
+code BYTE *tOSD_2ND_INFOR_TABLE[] =
+{
+	str_RESOLUTION,
+	str_HFREQ,
+	str_VFREQ,
+	str_PIXEL,
+	str_MODEL_NO,
+	str_SERIAL_NO,
+	str_WEBSITE,
+};
+
+
+BYTE code str_OPTIMIZE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_O_,_p_,_t_,_i_,_m_,_i_,_z_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_O_,_p_,_t_,_i_,_m_,_i_,_s_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _O_,_p_,_t_,_i_,_m_,_i_,_e_,_r_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _O_,_p_,_t_,_i_,_m_,_a_,_l_,_i_,_s_,_e_,_r_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _O_,_p_,_t_,_i_,_m_,_i_,_z_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _O_,_t_,_t_,_i_,_m_,_i_,_z_,_z_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _O_,_p_,_t_,_i_,_m_,_o_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_O_,_p_,_t_,_i_,_m_,_e_,_r_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//�����ڧާڧ٧ѧ�ڧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_O_,_EUROPE_88,_EUROPE_5f,_EUROPE_0f,_EUROPE_60,_EUROPE_0f,_EUROPE_8f,_a_,0x85,0x0f,0x7d,_END_,
+#else
+	    _O_,_EUROPE_88,_EUROPE_5f,_EUROPE_0f,_EUROPE_60,_EUROPE_0f,_EUROPE_8f,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_a_,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_E_,_n_,___,_EUROPE_9e,_y_,_i_,___,_H_,_a_,_l_,_e_,___,_G_,_e_,_t_,_i_,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT) // Optimiza?i
+	#if(_ZHONGQIANG_LANGUAGE)
+		_O_,_p_,_t_,_y_,_m_,_a_,_l_,_i_,_z_,_u_,_j_,_END_,
+	#else
+		_O_,_p_,_t_,_i_,_m_,_i_,_z_,_a_,_EUROPE_c9,_i_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+		_O_,_p_,_t_,_i_,_m_,_a_,_l_,_i_,_z_,_o_,_v_,_a_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Optimiza?i
+	#if(_ZHONGQIANG_LANGUAGE)
+		_O_,_p_,_t_,_i_,_m_,_i_,_z_,_a_,_EUROPE_c9,_i_,_END_,
+	#else
+		_O_,_p_,_t_,_i_,_m_,_i_,_z_,_a_,_r_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_41,_TH_25,_TH_09,_TH_13,_TH_07,_TH_13,_TH_09,_TH_02,_TH_4D,_TH_4C,_TH_09,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_VIE_8A,_i_,___,_VIE_1D,_u_,___,_h_,_VIE_8D,_a_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Mengoptimalkan
+		_M_,_e_,_n_,_g_,_o_,_p_,_t_,_i_,_m_,_a_,_l_,_k_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_bc_,_JPN_bd_,_JPN_be_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_dc_,_KOR_ae_,_KOR_bb_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_b0,_CHT_b1,_CHT_b2,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_aa,_CHS_ab,_CHS_ac,_END_,
+#endif
+
+};
+
+BYTE code str_CONSERVE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_o_,_n_,_s_,_e_,_r_,_v_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_C_,_o_,_n_,_s_,_e_,_r_,_v_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _S_,_p_,_a_,_r_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _B_,_e_,_s_,_p_,_a_,_r_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _C_,_o_,_n_,_s_,_e_,_r_,_v_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _C_,_o_,_n_,_s_,_e_,_r_,_v_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _S_,_EUROPE_18,_i_,_l_,_y_,_t_,_EUROPE_18,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_B_,_e_,_v_,_a_,_r_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ߧ�֧�ӧѧ�ڧӧ�.
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+_K_,_o_,0x5d,_c_,_e_,_p_,0x3f,_a_,0x5f,0x0f,0x3f,0x5d,_DOT_,_END_,
+#else
+	    _C_,_o_,_x_,_p_,_a_,_EUROPE_5d,_EUROPE_7d,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_K_,_o_,_r_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Chro¨½
+		_C_,_h_,_r_,_o_,_EUROPE_cf,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_EUROPE_ab,_s_,_p_,_o_,_r_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Conservare
+		_C_,_o_,_n_,_s_,_e_,_r_,_v_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_01,_TH_02,_TH_03,_TH_16,_TH_0D,_TH_25,_TH_01,_TH_6F,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_L_,_VIE_1D,___,_T_,_r_,_VIE_89,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Conserve
+		_C_,_o_,_n_,_s_,_e_,_r_,_v_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_bf_,_JPN_b4_,_JPN_1b_,_JPN_5f_,_JPN_1f_,_JPN_93_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_de_,_KOR_df_,_KOR_cc_,___,_KOR_25_,_KOR_86_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_a8,_CHT_b1,_CHT_b2,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_ad,_CHS_ab,_CHS_ac,_END_,
+#endif
+
+};
+
+BYTE code str_RED[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_R_,_e_,_d_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_o_,_u_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_R_,_o_,_t_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Rood
+		_R_,_o_,_o_,_d_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_R_,_o_,_j_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_o_,_s_,_s_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_P_,_u_,_n_,_a_,_i_,_n_,_e_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_R_,_EUROPE_1f,_t_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ѧ�ߧ���
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+0XDA,_p_,_a_,_c_,0x5d,0x84,0x0e,_END_,
+#else
+
+		_EUROPE_7b,_p_,_a_,_c_,_EUROPE_5d,_o_,_EUROPE_87,_o_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_K_,_EUROPE_90,_r_,_m_,_EUROPE_90,_z_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Czerwony
+		_C_,_z_,_e_,_r_,_w_,_o_,_n_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_EUROPE_b2,_e_,_r_,_v_,_e_,_n_,_EUROPE_16,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Ro?u
+		_R_,_o_,_EUROPE_ca,_u_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_5D,_TH_23,_TH_11,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_M_,_VIE_19,_u_,___,_VIE_17,_VIE_60,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Merah
+		_M_,_e_,_r_,_a_,_h_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_b8_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_ae_,_KOR_22_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_ac,_CHT_20,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_a6,_CHS_1f,_END_,
+#endif
+
+};
+
+BYTE code str_GREEN[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_G_,_r_,_e_,_e_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_V_,_e_,_r_,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_G_,_r_,_EUROPE_10,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Groen
+		_G_,_r_,_o_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_V_,_e_,_r_,_d_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_V_,_e_,_r_,_d_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_V_,_i_,_h_,_r_,_e_,_EUROPE_18,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_G_,_r_,_EUROPE_1f,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���֧ݧ֧ߧ���
+
+//0x7e		
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+0x8C,_e_,0x7C,_e_,0x5d,0x84,0x0e,_END_,
+
+#else
+
+		_EUROPE_8c,_e_,_EUROPE_7c,_e_,_EUROPE_5d,_o_,_EUROPE_87,_o_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_Y_,_e_,_EUROPE_91,_i_,_l_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Zielony
+		_Z_,_i_,_e_,_l_,_o_,_n_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_Z_,_e_,_l_,_e_,_n_,_EUROPE_16,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Verde
+		_V_,_e_,_r_,_d_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_5D,_TH_07,_TH_10,_TH_14,_TH_1D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_M_,_VIE_19,_u_,___,_X_,_a_,_n_,_h_,___,_L_,_VIE_19,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Hijau
+		_H_,_i_,_j_,_a_,_u_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_b9_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_cd_,_KOR_22_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_ad,_CHT_20,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_a7,_CHS_1f,_END_,
+#endif
+
+};
+
+BYTE code str_BLUE[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_B_,_l_,_u_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_B_,_l_,_e_,_u_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_B_,_l_,_a_,_u_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Blauw
+		_B_,_l_,_a_,_u_,_w_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_z_,_u_,_l_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_B_,_l_,_u_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_S_,_i_,_n_,_i_,_n_,_e_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_B_,_l_,_EUROPE_aa,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ڧߧڧ�
+				
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+_C_,0x0f,0x5d,0x0f,0x0e,_END_,
+
+#else
+
+		_C_,_EUROPE_0f,_EUROPE_5d,_e_,_EUROPE_87,_o_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_M_,_a_,_v_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Niebieski
+		_N_,_i_,_e_,_b_,_i_,_e_,_s_,_k_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_M_,_o_,_d_,_r_,_EUROPE_16,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Albastru
+		_A_,_l_,_b_,_a_,_s_,_t_,_r_,_u_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_5D,_TH_2F,_TH_02,_TH_07,_TH_2D,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_X_,_a_,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Biru
+		_B_,_i_,_r_,_u_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_82_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_1e_,_KOR_22_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_7b,_CHT_20,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_5d,_CHS_1f,_END_,
+#endif
+
+};
+
+BYTE code str_CYAN[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_y_,_a_,_n_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_C_,_y_,_a_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_Z_,_y_,_a_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Cyaan
+		_C_,_y_,_a_,_a_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_C_,_i_,_a_,_n_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_C_,_i_,_a_,_n_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_S_,_y_,_a_,_a_,_n_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_C_,_y_,_a_,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_24,_o_,_EUROPE_7c,_y_,_EUROPE_3e,_o_,_EUROPE_0e,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_C_,_a_,_m_,_g_,_EUROPE_1f,_b_,_e_,_EUROPE_94,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Cyjan
+		_C_,_y_,_j_,_a_,_n_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_z_,_u_,_r_,_o_,_v_,_EUROPE_16,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Azuriu
+		_A_,_z_,_u_,_r_,_i_,_u_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_5D,_TH_6D,_TH_02,_TH_16,_TH_09,_TH_07,_TH_62,_TH_14,_TH_1D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_y_,_a_,_n_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Biru kehijauan
+	#if(_ZHONGQIANG_LANGUAGE)
+		_B_,_i_,_r_,_u_,_,_k_,_e_,_h_,_i_,_j_,_a_,_u_,_a_,_n_,_END_,
+	#else
+		_B_,_i_,_r_,_u_,___,_h_,_i_,_j_,_a_,_u_,_END_,
+	#endif
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_a7_,_JPN_5b_,_JPN_14_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_cd_,_KOR_1e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHT_EXT_3d,_CHT_20,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHS_EXT_08,_CHS_1f,_END_,
+#endif
+
+};
+
+BYTE code str_MAGENTA[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Magenta
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		0XD6,_y_,_p_,_EUROPE_88,_y_,_p_,_EUROPE_5d,_EUROPE_84,_EUROPE_0e,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_E_,_f_,_l_,_a_,_t_,_u_,_n_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Magenta
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_P_,_u_,_r_,_p_,_u_,_r_,_o_,_v_,_EUROPE_16,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Fucsia
+		_F_,_u_,_c_,_s_,_i_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_5D,_TH_23,_TH_11,_TH_05,_TH_16,_TH_09,_TH_18,_TH_1D,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_H_,_VIE_7B,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Magenta
+		_M_,_a_,_g_,_e_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_eb_,_FONT_SELECT_EXT1,_JPN_EXT_1c_,_JPN_14_,_JPN_ad_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d0_,_FONT_SELECT_EXT1,_KOR_EXT_23_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHT_EXT_3e,_CHT_ac,_CHT_20,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHS_EXT_0a,_CHS_a6,_END_,
+#endif
+
+};
+
+BYTE code str_YELLOW[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_Y_,_e_,_l_,_l_,_o_,_w_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_J_,_a_,_u_,_n_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_G_,_e_,_l_,_b_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Geel
+		_G_,_e_,_e_,_l_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_m_,_a_,_r_,_i_,_l_,_l_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_G_,_i_,_a_,_l_,_l_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_K_,_e_,_l_,_t_,_a_,_i_,_n_,_e_,_n_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_G_,_u_,_l_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_89,_e_,_EUROPE_7c,_EUROPE_5f,_EUROPE_84,_EUROPE_0e,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_S_,_a_,_r_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//?¨®?ty
+		_EUROPE_cb,_EUROPE_1e,_EUROPE_c6,_t_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_EUROPE_b7,_l_,_u_,_t_,_EUROPE_16,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Galben
+		_G_,_a_,_l_,_b_,_e_,_n_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_5D,_TH_07,_TH_13,_TH_5D,_TH_16,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_M_,_VIE_19,_u_,___,_V_,_VIE_19,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Kuning
+		_K_,_u_,_n_,_i_,_n_,_g_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_22_,_JPN_a4_,_JPN_96_,_JPN_1f_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d2_,_FONT_SELECT_EXT1,_KOR_EXT_24_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_e6,_CHT_20,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHS_EXT_10,_CHS_1f,_END_,
+#endif
+
+};
+
+//==================================================
+//3RD Manual Image HV Position adjust
+//==================================================
+BYTE code str_HPOS[] = 
+{
+
+#if(_DEF_ENGLISH_TEXT)
+#if(_PROJECT_ID == _ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)
+		_H_,_DOT_,_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,_END_,
+#else
+		_H_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,___,_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,_END_,
+#endif		
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,___,_h_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_H_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,_e_,___,_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Horiz. Positie
+		_H_,_o_,_r_,_i_,_z_,_DOT_,___,_P_,_o_,_s_,_i_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_P_,_o_,_s_,_i_,_c_,_i_,_EUROPE_1e,_n_,___,_h_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_a_,_l_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_P_,_o_,_s_,_i_,_z_,_i_,_o_,_n_,_e_,___,_o_,_r_,_i_,_z_,_z_,_o_,_n_,_t_,_a_,_l_,_e_,_END_,
+#endif
+		
+#if(_DEF_SUOMI_TEXT)
+		_V_,_a_,_a_,_k_,_a_,_s_,_i_,_j_,_a_,_i_,_n_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_H_,_o_,_r_,_i_,_s_,_o_,_n_,_t_,_e_,_l_,_l_,_t_,___,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_26,_DOT_,___,_EUROPE_88,_o_,___,_EUROPE_87,_o_,_p_,_EUROPE_0f,_EUROPE_8c,_DOT_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_Y_,_a_,_t_,_a_,_y_,___,_K_,_o_,_n_,_u_,_m_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Cz?stotl. pionowa
+		_C_,_z_,_e_,_s_,_t_,_o_,_t_,_l_,_DOT_,___,_p_,_i_,_o_,_n_,_o_,_w_,_a_,_END_,
+#endif
+
+#if(_DEF_CZECH_TEXT)
+		_H_,_o_,_r_,_i_,_z_,_o_,_n_,_t_,_EUROPE_16,_l_,_n_,_EUROPE_1a,___,_p_,_o_,_z_,_i_,_c_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Pozi?ie oriz
+		_P_,_o_,_z_,_i_,_t_,_i_,_e_,___,_o_,_r_,_i_,_z_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_33,_TH_02,_TH_33,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_H_,_DOT_,___,_VIE_17,_VIE_93,_VIE_93,_a_,_VIE_7C,_i_,_VIE_8F,_m_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Posisi H.
+		_P_,_o_,_s_,_i_,_s_,_i_,___,_H_,_DOT_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_8c_,_JPN_8d_,_JPN_99_,_JPN_9a_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_84_,_KOR_90_,___,_KOR_9e_,_KOR_9f_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_84,_CHT_85,_CHT_8f,_CHT_90,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_81,_CHS_82,_CHS_8a,_CHS_8b,_END_,
+#endif
+		
+};
+
+BYTE code str_VPOS[] = 
+{
+#if(_DEF_ENGLISH_TEXT)
+#if(_PROJECT_ID == _ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)
+		_V_,_DOT_,_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,_END_,
+#else
+		_V_,_e_,_r_,_t_,_i_,_c_,_a_,_l_,___,_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,___,_v_,_e_,_r_,_t_,_i_,_c_,_a_,_l_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_V_,_e_,_r_,_t_,_i_,_k_,_a_,_l_,_e_,___,_P_,_o_,_s_,_i_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//V. positie
+		_V_,_DOT_,___,_P_,_o_,_s_,_i_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_P_,_o_,_s_,_i_,_c_,_i_,_EUROPE_1e,_n_,___,_v_,_e_,_r_,_t_,_i_,_c_,_a_,_l_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_P_,_o_,_s_,_i_,_z_,_i_,_o_,_n_,_e_,___,_v_,_e_,_r_,_t_,_i_,_c_,_a_,_l_,_e_,_END_,
+#endif
+		
+#if(_DEF_SUOMI_TEXT)
+		_P_,_y_,_s_,_t_,_y_,_s_,_i_,_j_,_a_,_i_,_n_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_V_,_e_,_r_,_t_,_i_,_k_,_a_,_l_,___,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_26,_DOT_,___,_EUROPE_88,_o_,___,_EUROPE_3f,_e_,_p_,_EUROPE_5f,_DOT_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_D_,_i_,_k_,_e_,_y_,___,_K_,_o_,_n_,_u_,_m_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Pozycja pionowa
+		_P_,_o_,_z_,_y_,_c_,_j_,_a_,___,_p_,_i_,_o_,_n_,_o_,_w_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_e_,_r_,_t_,_i_,_k_,_EUROPE_16,_l_,_n_,_EUROPE_1a,___,_p_,_o_,_z_,_i_,_c_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Pozi?ie vert. 
+		_P_,_o_,_z_,_i_,_t_,_i_,_e_,___,_v_,_e_,_r_,_t_,_DOT_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_33,_TH_02,_TH_23,_TH_13,_TH_0D,_TH_05,_TH_23,_TH_1D,_TH_04,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_V_,_DOT_,___,_VIE_17,_VIE_93,_VIE_93,_a_,_VIE_7C,_i_,_VIE_8F,_m_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Posisi V.
+		_P_,_o_,_s_,_i_,_s_,_i_,___,_V_,_DOT_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_91_,_JPN_92_,_JPN_99_,_JPN_9a_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_84_,_KOR_91_,___,_KOR_9e_,_KOR_9f_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_88,_CHT_89,_CHT_8f,_CHT_90,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_83,_CHS_84,_CHS_8a,_CHS_8b,_END_,
+#endif
+
+		
+};
+
+BYTE code str_NULL[] = 
+{
+    _END_,
+};
+
+
+
+BYTE code str_Africa[] =	//·ÇÖÞ
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_f_,_r_,_i_,_c_,_a_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_f_,_r_,_i_,_q_,_u_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_f_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+		_A_,_f_,_r_,_i_,_k_,_a_,_END_,
+	#else
+		_A_,_f_,_r_,_i_,_c_,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_EUROPE_bf,_f_,_r_,_i_,_c_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_f_,_r_,_i_,_c_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_f_,_r_,_i_,_k_,_k_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_f_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_A_,_EUROPE_8d,_p_,_EUROPE_0f,_k_,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_f_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Afryka
+		_A_,_f_,_r_,_y_,_k_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_f_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Africa
+		_A_,_f_,_r_,_i_,_c_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_23,_TH_16,_TH_20,_TH_2B,_TH_01,_TH_02,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_VIE_87,_u_,___,_P_,_h_,_i_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Afrika
+		_A_,_f_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_23,_PC_JAP_24,_PC_JAP_25,_PC_JAP_26,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_DEF_Dis_String_k24,_DEF_Dis_String_k2f,_DEF_Dis_String_k2d,_DEF_Dis_String_k27,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_DEF_Dis_String_fei,_DEF_Dis_String_zhou,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_DEF_Dis_String_fei,_DEF_Dis_String_zhou,_END_,
+#endif
+
+};
+
+BYTE code str_America[] =	//ÃÀÖÞ
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_m_,_e_,_r_,_i_,_c_,_a_,_s_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_m_,_EUROPE_14,_r_,_i_,_q_,_u_,_e_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_m_,_e_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Amerika
+		_A_,_m_,_e_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_m_,_EUROPE_14,_r_,_i_,_c_,_a_,_s_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_m_,_e_,_r_,_i_,_c_,_h_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_m_,_e_,_r_,_i_,_k_,_a_,_t_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_N_,_o_,_r_,_d_,_DASH_,_o_,_c_,_h_,___,_S_,_y_,_d_,_a_,_m_,_e_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_C_,_e_,_EUROPE_3f,_e_,_p_,_EUROPE_5d,_DOT_,_EUROPE_0f,___,_EUROPE_c0,_EUROPE_80,_EUROPE_5d,_a_,_EUROPE_7d,___,_A_,_EUROPE_60,_e_,_p_,_EUROPE_0f,_k_,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_k_,_u_,_z_,_e_,_y_,___,_v_,_e_,___,_G_,_EUROPE_10,_n_,_e_,_y_,___,_A_,_m_,_e_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Ameryki
+		_A_,_m_,_e_,_r_,_y_,_k_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_m_,_e_,_r_,_i_,_k_,_y_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Regiunea Americilor
+		_R_,_e_,_g_,_i_,_u_,_n_,_e_,_a_,___,_A_,_m_,_e_,_r_,_i_,_c_,_i_,_l_,_o_,_r_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_16,_TH_07,_TH_09,_TH_2B,_TH_01,_TH_02,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_VIE_87,_u_,___,_M_,_VIE_94,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Amerika
+		_A_,_m_,_e_,_r_,_i_,_k_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_23,_PC_JAP_27,_PC_JAP_25,_PC_JAP_26,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_DEF_Dis_String_k24,_DEF_Dis_String_k25,_DEF_Dis_String_k2d,_DEF_Dis_String_k27,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_DEF_Dis_String_mei,_DEF_Dis_String_zhou,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_DEF_Dis_String_mei,_DEF_Dis_String_zhou,_END_,
+#endif
+
+};
+
+BYTE code str_Asia[] =	//ÑÇÖÞ
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_A_,_s_,_i_,_a_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_s_,_i_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_A_,_s_,_i_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Azi?
+	#if(_ZHONGQIANG_LANGUAGE)
+		_A_,_z_,_i_,_EUROPE_5c,_END_,
+	#else
+		_A_,_z_,_i_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_A_,_s_,_i_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_s_,_i_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_a_,_s_,_i_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_A_,_s_,_i_,_e_,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_A_,_EUROPE_8f,_EUROPE_0f,_EUROPE_7d,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_s_,_y_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Azja
+		_A_,_z_,_j_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_s_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Asia
+		_A_,_s_,_i_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_16,_TH_07,_TH_62,_TH_14,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_a_,_u_,___,_VIE_80,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Asia
+		_A_,_s_,_i_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_23,_PC_JAP_28,_PC_JAP_23,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_DEF_Dis_String_k24,_DEF_Dis_String_k28,_DEF_Dis_String_k24,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_DEF_Dis_String_ya,_DEF_Dis_String_zhou,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_DEF_Dis_String_ya,_DEF_Dis_String_zhou,_END_,
+#endif
+
+};
+
+BYTE code str_Europe[] =	//Å·ÖÞ
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_a_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_a_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_E_,_u_,_r_,_o_,_o_,_p_,_p_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_E_,_EUROPE_3f,_p_,_o_,_EUROPE_88,_a_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_A_,_v_,_r_,_u_,_p_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_E_,_v_,_r_,_u_,_p_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_14,_TH_12,_TH_03,_TH_41,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_a_,_u_,___,_VIE_80,_u_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_E_,_u_,_r_,_o_,_p_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_29,_PC_JAP_2a,_PC_JAP_2b,_PC_JAP_2c,_PC_JAP_2d,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_DEF_Dis_String_k29,_DEF_Dis_String_k2a,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_DEF_Dis_String_ou,_DEF_Dis_String_zhou,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_DEF_Dis_String_ou,_DEF_Dis_String_zhou,_END_,
+#endif
+
+};
+
+#if(_DEF_ZhongDong)
+BYTE code str_MiddleEast[] =      //ÖÐ¶«
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_i_,_d_,_d_,_l_,_e_,___,_E_,_a_,_s_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_M_,_o_,_y_,_e_,_n_,_DASH_,_O_,_r_,_i_,_e_,_n_,_t_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_N_,_a_,_h_,_e_,_r_,___,_O_,_s_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Midden-Oosten
+		_M_,_i_,_d_,_d_,_e_,_n_,_DASH_,_O_,_o_,_s_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_O_,_r_,_i_,_e_,_n_,_t_,_e_,___,_M_,_e_,_d_,_i_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_e_,_d_,_i_,_o_,___,_O_,_r_,_i_,_e_,_n_,_t_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_L_,_EUROPE_18,_h_,_i_,_DASH_,_i_,_t_,_EUROPE_18,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_M_,_e_,_l_,_l_,_a_,_n_,_EUROPE_1f,_s_,_t_,_e_,_r_,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_8e,_EUROPE_7c,_EUROPE_0f,_EUROPE_80,_EUROPE_5d,_EUROPE_0f,_EUROPE_0e,___,_B_,_o_,_c_,_EUROPE_5f,_o_,_EUROPE_11,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_O_,_r_,_t_,_a_,___,_D_,_o_,_EUROPE_94,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Bliski Wsch¨®d
+		_B_,_l_,_i_,_s_,_k_,_i_,___,_W_,_s_,_c_,_h_,_EUROPE_1e,_d_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_S_,_t_,_EUROPE_ae,_e_,_d_,_n_,_EUROPE_1a,___,_V_,_EUROPE_a8,_c_,_h_,_o_,_d_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Orientul Mijlociu
+		_O_,_r_,_i_,_e_,_n_,_t_,_u_,_l_,___,_M_,_i_,_j_,_l_,_o_,_c_,_i_,_u_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_0A,_TH_4D,_TH_1D,_TH_0D,_TH_16,_TH_16,_TH_01,_TH_01,_TH_1C,_TH_02,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_r_,_u_,_n_,_g_,___,_VIE_17,_VIE_3E,_n_,_g_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Timur Tengah
+		_T_,_i_,_m_,_u_,_r_,___,_T_,_e_,_n_,_g_,_a_,_h_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_3c,_PC_JAP_3d,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_DEF_Dis_String_k3a,_DEF_Dis_String_k3b,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_DEF_Dis_String_zhong,_DEF_Dis_String_dong,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_DEF_Dis_String_zhong,_DEF_Dis_String_dong,_END_,
+#endif
+
+};
+#endif
+
+BYTE code str_Oceania[] =	//´óÑóÖÞ
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_O_,_c_,_e_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_O_,_c_,_EUROPE_14,_a_,_n_,_i_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_O_,_z_,_e_,_a_,_n_,_i_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Oceani?
+	#if(_ZHONGQIANG_LANGUAGE)
+		_O_,_c_,_e_,_a_,_n_,_i_,_EUROPE_5c,_END_,
+	#else
+		_O_,_c_,_e_,_a_,_n_,_i_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_O_,_c_,_e_,_a_,_n_,_EUROPE_1a,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_O_,_c_,_e_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_O_,_s_,_e_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_O_,_c_,_e_,_a_,_n_,_i_,_e_,_n_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_O_,_k_,_e_,_a_,_EUROPE_5d,_EUROPE_1f,_EUROPE_7d,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_O_,_k_,_y_,_a_,_n_,_u_,_s_,_y_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Oceania
+		_O_,_c_,_e_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_O_,_c_,_e_,_EUROPE_16,_n_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Oceania
+		_O_,_c_,_e_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_12,_TH_16,_TH_07,_TH_62,_TH_14,_TH_07,_TH_61,_TH_14,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_VIE_87,_u_,___,_VIE_17,_VIE_7D,_i_,___,_D_,_VIE_1D,_VIE_95,_n_,_g_,___,_h_,_a_,_y_,___,_VIE_96,_c_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Oseania
+		_O_,_s_,_e_,_a_,_n_,_i_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_35,_PC_JAP_36,_PC_JAP_23,_PC_JAP_37,_PC_JAP_23,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_DEF_Dis_String_k31,_DEF_Dis_String_k33,_DEF_Dis_String_k24,_DEF_Dis_String_k37,_DEF_Dis_String_k24,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_DEF_Dis_String_da,_DEF_Dis_String_yang,_DEF_Dis_String_zhou,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_DEF_Dis_String_da,_DEF_Dis_String_yang,_DEF_Dis_String_zhou,_END_,
+#endif
+
+};
+
+BYTE code str_Other[] =	//ÆäËü
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_O_,_t_,_h_,_e_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_A_,_u_,_t_,_r_,_e_,_s_,___,_p_,_a_,_y_,_s_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_S_,_o_,_n_,_s_,_t_,_i_,_g_,_e_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_A_,_n_,_d_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_O_,_t_,_r_,_o_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_A_,_l_,_t_,_r_,_o_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_M_,_u_,_u_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_EUROPE_9c,_v_,_r_,_i_,_g_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_EUROPE_8b,_p_,_y_,_r_,_o_,_e_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_D_,_i_,_EUROPE_94,_e_,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_I_,_n_,_n_,_y_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_J_,_i_,_n_,_EUROPE_a8,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_A_,_l_,_t_,_u_,_l_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_0C,_TH_1D,_TH_0E,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_K_,_h_,_VIE_5C,_c_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_L_,_a_,_i_,_n_,_n_,_y_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_38,_PC_JAP_39,_PC_JAP_22,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_DEF_Dis_String_k35,_DEF_Dis_String_k36,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_DEF_Dis_String_qi,_DEF_Dis_String_ta,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_DEF_Dis_String_qi,_DEF_Dis_String_ta,_END_,
+#endif
+
+};
+
+
+BYTE code str_ViewMode[] = 
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _M_,_o_,_d_,_e_,___,_v_,_i_,_s_,_u_,_a_,_l_,_i_,_s_,_a_,_t_,_i_,_o_,_n_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _A_,_n_,_s_,_i_,_c_,_h_,_t_,_s_,_DASH_,_m_,_o_,_d_,_u_,_s_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_M_,_o_,_d_,_o_,___,_d_,_e_,___,_v_,_i_,_s_,_t_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_o_,_d_,_DOT_,___,_v_,_i_,_s_,_u_,_a_,_l_,_i_,_z_,_z_,_DOT_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_N_,_EUROPE_18,_k_,_y_,_m_,_EUROPE_18,_t_,_i_,_l_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_V_,_i_,_s_,_a_,___,_l_,_EUROPE_18,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+
+	    _P_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_60,_END_,
+
+#else
+	    _P_,_e_,_EUROPE_80,_EUROPE_0f,_EUROPE_60,___,_EUROPE_88,_p_,_o_,_c_,_EUROPE_60,_o_,_EUROPE_5f,_p_,_a_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_G_,_EUROPE_1f,_r_,_EUROPE_96,_n_,_EUROPE_10,_m_,___,_M_,_o_,_d_,_u_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_V_,_TH_i_,_TH_e_,_TH_w_,_TH_M_,_TH_o_,_TH_d_,_TH_e_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+#if(_V22E1_H_LANGUAGE)
+		_V_,_i_,_e_,_w_,_M_,_o_,_d_,_e_,_END_,
+#else
+		_V_,_i_,_e_,_w_,_JPN_5f_,_JPN_1f_,_JPN_93_,_END_,
+#endif
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_25_,_KOR_1a_,___,_KOR_26_,_KOR_ce_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_d0,_CHT_d1,_CHT_d2,_CHT_ec,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_dd,_CHS_cf,_CHS_d2,_CHS_e6,_END_,
+#endif
+
+};
+
+//���ܧ�ڧӧߧ��� �����
+
+BYTE code str_InputSelect[] = 
+{
+
+#if(_DEF_ENGLISH_TEXT)
+	    _I_,_n_,_p_,_u_,_t_,_,_S_,_e_,_l_,_e_,_c_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_E_,_n_,_t_,_r_,_EUROPE_14,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_E_,_i_,_n_,_g_,_a_,_b_,_e_,_q_,_u_,_e_,_l_,_l_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Invoerselectie
+		_I_,_n_,_v_,_o_,_e_,_r_,_s_,_e_,_l_,_e_,_c_,_t_,_i_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_S_,_e_,_l_,_e_,_c_,_c_,_i_,_EUROPE_1e,_n_,___,_d_,_e_,___,_e_,_n_,_t_,_r_,_a_,_d_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_S_,_e_,_l_,_e_,_z_,_i_,_o_,_n_,_e_,___,_i_,_n_,_p_,_u_,_t_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_u_,_l_,_o_,_s_,_i_,_g_,_n_,_a_,_a_,_l_,_i_,_n_,___,_v_,_a_,_l_,_i_,_n_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_V_,_a_,_l_,___,_a_,_v_,___,_i_,_n_,_g_,_EUROPE_aa,_n_,_g_,_END_,//_I_,_n_,_p_,_u_,_t_,_,_S_,_e_,_l_,_e_,_c_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_B_,_EUROPE_84,_EUROPE_3e,_o_,_p_,___,_c_,0x0f,0x87,0x5d,_a_,0x7c,_a_,_END_,
+
+#else
+		_B_,_EUROPE_84,_EUROPE_3e,_o_,_p_,___,_EUROPE_3f,_x_,_o_,_EUROPE_86,_a_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_G_,_i_,_r_,_i_,_EUROPE_91,___,_S_,_e_,_EUROPE_12,_i_,_m_,_i_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Wyb¨®r wej?cia 
+		_W_,_y_,_b_,_EUROPE_1e,_r_,___,_W_,_e_,_j_,_EUROPE_c4,_c_,_i_,_a_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_V_,_EUROPE_a8,_b_,_EUROPE_a9,_r_,___,_v_,_s_,_t_,_u_,_p_,_u_,_END_,//_I_,_n_,_p_,_u_,_t_,_,_S_,_e_,_l_,_e_,_c_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_S_,_e_,_l_,_e_,_c_,_t_,_a_,_r_,_e_,___,_i_,_n_,_t_,_r_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_0B,_TH_14,_TH_01,_TH_B8,_TH_0D,_TH_0A,_TH_1A,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_h_,_VIE_16,_n_,___,_VIE_17,_VIE_18,_u_,___,_V_,_VIE_19,_o_,_END_,//_I_,_n_,_p_,_u_,_t_,_,_S_,_e_,_l_,_e_,_c_,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_P_,_i_,_l_,_i_,_h_,___,_I_,_n_,_p_,_u_,_t_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_1a_,_JPN_1b_,_JPN_7d_,_JPN_7e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_1b_,_KOR_1c_,___,_KOR_1d_,_KOR_af_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_17,_CHT_18,_CHT_19,_CHT_1a,_CHT_1b,_CHT_1c,_CHT_1d,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_17,_CHS_18,_CHS_19,_CHS_1a,_CHS_1b,_CHS_1c,_END_,
+#endif
+
+};
+
+BYTE code str_LanguageSelect[] = 
+{
+	//_L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_,_S_,_e_,_l_,_e_,_c_,_t_,_END_,
+
+#if(_DEF_ENGLISH_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	    _L_,_a_,_n_,_g_,_u_,_a_,_g_,_e_,_END_,
+#endif
+
+};
+
+BYTE code str_DistrictSelect[] = 
+{
+
+
+#if(_DEF_ENGLISH_TEXT)
+		_R_,_e_,_g_,_i_,_o_,_n_,_END_,                 //_ENGLISH     
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_EUROPE_14,_g_,_i_,_o_,_n_,_END_,          //_FRENCH
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_R_,_e_,_g_,_i_,_o_,_n_,_END_,				   //_GERMAN
+#endif
+#if(_DEF_DUTH_TEXT)
+		_R_,_e_,_g_,_i_,_o_,_END_,				   //_DUTCH
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_R_,_e_,_g_,_i_,_EUROPE_1e,_n_,_END_,          //_SPANISH
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_e_,_g_,_i_,_o_,_n_,_e_,_END_,             //_ITALIAN
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_A_,_l_,_u_,_e_,_END_,						   //_FINNISH
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_R_,_e_,_g_,_i_,_o_,_n_,_END_,                 //_TURKISH
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_P_,_e_,_r_,_EUROPE_0f,_o_,_EUROPE_5d,_END_,   //_SWEDEN
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_B_,_EUROPE_1f,_l_,_g_,_e_,_END_,              //_RUSSIA
+#endif
+#if(_DEF_POLISH_TEXT)
+		_R_,_e_,_g_,_i_,_o_,_n_,_END_,                 //_POLISH
+#endif
+#if(_DEF_CZECH_TEXT)
+		_R_,_e_,_g_,_i_,_o_,_n_,_END_,                 //_CZECH
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_R_,_e_,_g_,_i_,_u_,_n_,_e_,_END_,             //_ROMANIAN
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_08,_TH_61,_TH_08,_TH_02,_TH_11,_END_,										   //_THAI
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_K_,_h_,_u_,___,_v_,_VIE_83,_c_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Wilayah
+		_W_,_i_,_l_,_a_,_y_,_a_,_h_,_END_,			   //_INDONESIAN
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_PC_JAP_20,_PC_JAP_21,_END_,				   //_JANPANESE
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_DEF_Dis_String_k22,_DEF_Dis_String_k23,_END_, //_KOREAN
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_DEF_Dis_String_di,_DEF_Dis_String_qu,_END_,   //_CHINESE_T	
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_DEF_Dis_String_di,_DEF_Dis_String_qu,_END_,   //_CHINESE_S
+#endif
+
+};
+
+BYTE code str_MENU[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_a_,_i_,_n_,_,_M_,_e_,_n_,_u_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_M_,_e_,_n_,_u_,_,_p_,_r_,_i_,_n_,_c_,_i_,_p_,_a_,_l_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_H_,_a_,_u_,_p_,_t_,_m_,_e_,_n_,_EUROPE_10,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_H_,_o_,_o_,_f_,_d_,_m_,_e_,_n_,_u_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_M_,_e_,_n_,_EUROPE_1c,_,_P_,_r_,_i_,_n_,_c_,_i_,_p_,_a_,_l_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_M_,_e_,_n_,_EUROPE_1c,_,_P_,_r_,_i_,_n_,_c_,_i_,_p_,_a_,_l_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_P_,_EUROPE_18,_EUROPE_18,_v_,_a_,_l_,_i_,_k_,_k_,_o_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_H_,_l_,_a_,_v_,_n_,_EUROPE_1a,_,_n_,_a_,_b_,_EUROPE_1a,_d_,_k_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_EUROPE_24,_EUROPE_7c,_a_,0X3F,0X5D,_o_,_e_,_,0X97,_e_,0X5D,0X81,_END_,
+
+
+#else
+		_EUROPE_24,_EUROPE_7c,_a_,_B_,_H_,_o_,_e_,_,_M_,_e_,_H_,_EUROPE_c0,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_A_,_n_,_a_,_,_M_,_e_,_n_,_EUROPE_10,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_M_,_e_,_n_,_u_,_,_g_,_EUROPE_c6,_EUROPE_1e,_w_,_n_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_H_,_u_,_v_,_u_,_d_,_m_,_e_,_n_,_y_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT) // Meniul principal
+		_M_,_e_,_n_,_i_,_u_,_l_,_,_P_,_r_,_i_,_n_,_c_,_i_,_p_,_a_,_l_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_09,_TH_C0,_TH_13,_TH_5D,_TH_01,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_M_,_e_,_n_,_u_,_,_C_,_h_,_VIE_8E,_n_,_h_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_M_,_e_,_n_,_u_,_,_U_,_t_,_a_,_m_,_a_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_27_,_JPN_22_,_JPN_14_,_JPN_27_,_JPN_3e_,_JPN_3f_,_JPN_1f_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_de_,_KOR_dd_,_KOR_de_,_KOR_ee_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+	_CHT_db,_CHT_1c,_CHT_3e,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+	_CHS_e0,_CHS_26,_CHS_27,_END_,
+#endif
+
+};
+
+BYTE code str_EXIT[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_E_,_x_,_i_,_t_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_Q_,_u_,_i_,_t_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_B_,_e_,_e_,_n_,_d_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_A_,_f_,_s_,_l_,_u_,_i_,_t_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_S_,_a_,_l_,_i_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_E_,_s_,_c_,_i_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_L_,_o_,_p_,_e_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_K_,_o_,_n_,_e_,_c_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_B_,0x95,0xd7,_x_,_o_,0x86,_END_,
+
+#else
+		_B_,_b_,_l_,_X_,_O_,_EUROPE_8b,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_EUROPE_92,_I_,_k_,_I_,_EUROPE_91,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_W_,_y_,_j_,_EUROPE_c4,_c_,_i_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_A_,_v_,_s_,_l_,_u_,_t_,_a_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_l_,_e_,_EUROPE_c4,_i_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_16,_TH_16,_TH_01,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_T_,_h_,_o_,_VIE_5C,_t_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		_K_,_e_,_l_,_u_,_a_,_r_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+	_JPN_7b_,_JPN_7c_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_3f_,_KOR_5b_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_5c,_CHT_5d,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_FONT_SELECT_EXT1,_CHS_EXT_8f,_FONT_SELECT_EXT1,_CHS_EXT_90,_END_,
+#endif
+
+};
+
+
+
+
+
+BYTE code str_CLEAR[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _C_,_l_,_e_,_a_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _E_,_f_,_f_,_a_,_c_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _M_,_e_,_l_,_d_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_B_,_e_,_r_,_i_,_c_,_h_,_t_,_END_,
+	#else
+    _C_,_l_,_e_,_a_,_r_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _B_,_o_,_r_,_r_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _C_,_a_,_n_,_c_,_e_,_l_,_l_,_a_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _P_,_o_,_i_,_s_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_R_,_e_,_n_,_s_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+_y_,0x86,_a_,0x7c,0x0f,0x5f,0x95,_END_,
+#else
+    _EUROPE_5e,_EUROPE_86,_a_,_EUROPE_7c,_EUROPE_0f,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+    _M_,_e_,_s_,_a_,_j_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	_U_,_s_,_u_,_EUROPE_cf,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+	_S_,_m_,_a_,_z_,_a_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_G_,_o_,_l_,_i_,_EUROPE_c9,_i_,_END_,
+	#else
+	_S_,_t_,_e_,_r_,_g_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_5D,_TH_02,_TH_05,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_X_,_VIE_8D,_a_,___,_T_,_h_,_VIE_3E,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_H_,_a_,_p_,_u_,_s_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _JPN_27_,_JPN_94_,_JPN_de_,_JPN_1f_,_JPN_b6_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _KOR_d6_,_KOR_a6_,_KOR_cc_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _CHT_93,_CHT_ce,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _CHS_8e,_CHS_cc,_END_,
+#endif
+};
+
+BYTE code str_MESSAGE0[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _M_,_e_,_s_,_s_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _M_,_e_,_s_,_s_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _L_,_EUROPE_1f,_s_,_c_,_h_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_W_,_i_,_s_,_s_,_e_,_n_,_END_,
+	#else
+	_M_,_e_,_s_,_s_,_a_,_g_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _M_,_e_,_n_,_s_,_a_,_j_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _M_,_e_,_s_,_s_,_a_,_g_,_g_,_i_,_o_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _V_,_i_,_e_,_s_,_t_,_i_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_m_,_e_,_d_,_d_,_e_,_l_,_a_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ҧ�֧ߧڧ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+    _C_,_o_,_o_,_EUROPE_3e,_EUROPE_83,_e_,_EUROPE_5d,_EUROPE_0f,_e_,_END_,
+
+
+#else
+    _C_,_o_,_o_,_EUROPE_3e,_EUROPE_83,_e_,_EUROPE_5d,_EUROPE_0f,_e_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+    _T_,_e_,_m_,_i_,_z_,_l_,_e_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_k_,_o_,_m_,_u_,_n_,_i_,_k_,_a_,_t_,_END_,
+	#else
+	_I_,_n_,_f_,_o_,_r_,_m_,_a_,_c_,_j_,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+	_z_,_p_,_r_,_EUROPE_16,_v_,_u_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_m_,_e_,_s_,_a_,_j_,_u_,_l_,_END_,
+	#else
+	_M_,_e_,_s_,_s_,_a_,_j_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_57,_TH_16,_TH_11,_TH_1D,_TH_02,_TH_09,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_N_,_g_,___,_B_,_VIE_5C,_o_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_P_,_e_,_s_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _EXT_FONT_,_JPN_EXT_1f_,_EXT_FONT_,_JPN_EXT_20_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _KOR_cc_,_KOR_d7_,_KOR_1a_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _CHT_19,_CHT_25,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _CHS_19,_CHS_22,_END_,
+#endif    
+	
+};
+
+BYTE code str_DISABLE[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+	_D_,_i_,_s_,_a_,_b_,_l_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _D_,_EUROPE_14,_s_,_a_,_c_,_t_,_i_,_v_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _M_,_e_,_l_,_d_,_u_,_n_,_g_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Uitschakelen
+	#if(_ZHONGQIANG_LANGUAGE)
+	_B_,_e_,_r_,_i_,_c_,_h_,_t_,_END_,
+	#else
+	_D_,_i_,_s_,_a_,_b_,_l_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _D_,_e_,_s_,_h_,_a_,_b_,_i_,_l_,_i_,_t_,_a_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _D_,_i_,_s_,_a_,_b_,_i_,_l_,_i_,_t_,_a_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _P_,_o_,_i_,_s_,_t_,_a_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_I_,_n_,_a_,_k_,_t_,_i_,_v_,_e_,_r_,_a_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ܧݧ��ڧ��
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+	
+	_O_,0X5F,0X11,0X86,0X81,0X7F,0X0F,0X5F,0X95,_END_,
+#else
+		_EUROPE_5e,_EUROPE_86,_a_,_EUROPE_7c,_EUROPE_0f,_EUROPE_5f,_EUROPE_95,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+    _M_,_e_,_s_,_a_,_j_,_EUROPE_90,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Wy??cz 
+	#if(_ZHONGQIANG_LANGUAGE)
+	_K_,_o_,_m_,_u_,_n_,_i_,_k_,_a_,_t_,_END_,
+	#else
+	_W_,_y_,_l_,_a_,_c_,_z_,_o_,_n_,_y_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+	_D_,_e_,_a_,_k_,_t_,_i_,_v_,_o_,_v_,_a_,_t_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	_D_,_e_,_z_,_a_,_c_,_t_,_i_,_v_,_a_,_r_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_10,_TH_11,_TH_39,_TH_2F,_TH_05,_TH_02,_TH_0D,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_T_,_VIE_1F,_t_,___,_T_,_h_,_VIE_3E,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)//Nonaktif 
+	_P_,_e_,_s_,_a_,_n_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _JPN_27_,_JPN_94_,_JPN_de_,_JPN_1f_,_JPN_b6_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _KOR_d6_,_KOR_a6_,_KOR_cc_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _CHT_d5,_CHT_80,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _CHS_d5,_CHS_7b,_END_,
+#endif	
+};
+
+BYTE code str_MESSAGE1[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+    _M_,_e_,_s_,_s_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+    _M_,_e_,_s_,_s_,_a_,_g_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+    _d_,_e_,_a_,_k_,_t_,_i_,_v_,_DOT_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_u_,_i_,_t_,_END_,
+	#else
+	_M_,_e_,_s_,_s_,_a_,_g_,_e_,_END_,
+	#endif
+#endif
+#if(_DEF_ESPANOL_TEXT)
+    _M_,_e_,_n_,_s_,_a_,_j_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+    _M_,_e_,_s_,_s_,_a_,_g_,_g_,_i_,_o_,_END_,
+#endif
+    
+#if(_DEF_SUOMI_TEXT)
+    _v_,_i_,_e_,_s_,_t_,_i_,___,_k_,_EUROPE_18,_y_,_t_,_DOT_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	_m_,_e_,_d_,_d_,_e_,_l_,_a_,_n_,_d_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ҧ�֧ߧڧ� �� ��ѧ٧�֧�֧ߧڧ�
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+		_C_,_o_,_o_,_EUROPE_3e,_EUROPE_83,_e_,_EUROPE_5d,_EUROPE_0f,_e_,_END_,
+	
+	
+#else
+		_C_,_o_,_o_,_EUROPE_3e,_EUROPE_83,_e_,_EUROPE_5d,_EUROPE_0f,_e_,_END_,
+#endif
+#endif
+#if(_DEF_TURKISH_TEXT)
+    _E_,_n_,_g_,_e_,_l_,_l_,_e_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_W_,_y_,_EUROPE_7c,_EUROPE_c7,_c_,_z_,_e_,_n_,_i_,_a_,_END_,
+	#else
+	_I_,_n_,_f_,_o_,_r_,_m_,_a_,_c_,_j_,_a_,_END_,
+	#endif
+#endif
+#if(_DEF_CZECH_TEXT)
+	_z_,_p_,_r_,_EUROPE_16,_v_,_u_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+	#if(_ZHONGQIANG_LANGUAGE)
+	_M_,_e_,_s_,_a_,_j_,_END_,
+	#else
+	_M_,_e_,_s_,_s_,_a_,_j_,_END_,
+	#endif
+#endif
+#if(_DEF_THAI_TEXT)
+	_TH_57,_TH_16,_TH_11,_TH_1D,_TH_02,_TH_09,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+	_n_,_g_,___,_B_,_VIE_5C,_o_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+	_N_,_o_,_n_,_a_,_k_,_t_,_i_,_f_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+    _JPN_1e_,_JPN_25_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+    _KOR_7f_,_KOR_80_,_KOR_d8_,_KOR_a1_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+    _CHT_19,_CHT_25,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+    _CHS_19,_CHS_22,_END_,
+#endif
+
+	
+};
+
+
+//==================================================
+//Common String Page
+//==================================================
+BYTE code str_Empty[] =
+{
+	_END_,
+	_END_,
+	_END_,
+	_END_,
+	_END_,
+	
+	_END_,
+	_END_,
+	_END_,
+	_END_,
+	_END_,
+	
+	_END_,
+	_END_,
+	_END_,
+	_END_,
+	_END_,
+
+};
+
+code BYTE *tOSD_NOTICE_KEY_DESCRIBE_TABLE[] =
+{
+	// 1key  hh
+	#if(_AI_EYE_PROTECTION == _ON)
+	str_DISABLE,
+	str_MESSAGE0,
+	#else
+	str_CLEAR,
+	str_MESSAGE0,
+	#endif
+	// 2key
+	str_Empty,
+	str_Empty,
+	// 3key
+	str_Empty,
+	str_Empty,
+    // 4key
+	str_DISABLE,
+	str_MESSAGE1,
+	// 5key
+    str_Empty,
+    str_Empty,
+};
+
+
+
+code BYTE *tOSD_3RD_SLEEP_TABLE[] =
+{
+	str_30MINUTES,
+	str_45MINUTES,
+	str_60MINUTES,
+	str_120MINUTES,
+	str_OFF,
+};
+
+
+code BYTE  *tsOSD_MAIN_ITEM0[] = 
+{
+    str_INPUT_SELECT0,
+#if(_MENU_AUDIO_SUPPORT)
+    str_AUDIO_ADJUST0,
+#endif
+    str_VIEWMODE0,
+    str_COLOR_ADJUST0,
+    str_MANUAL_IMAGE_ADJUST0,
+    str_SETUP_MENU0,
+};
+code BYTE  *tsOSD_MAIN_ITEM1[] = 
+{
+    str_INPUT_SELECT1,
+#if(_MENU_AUDIO_SUPPORT)
+    str_AUDIO_ADJUST1,
+#endif
+    str_VIEWMODE1,
+    str_COLOR_ADJUST1,
+    str_MANUAL_IMAGE_ADJUST1,
+    str_SETUP_MENU1,
+};
+
+
+code BYTE  *tsOSD_HOT_KEY_VIEWMODE[] = // hot key
+{
+
+	str_STANDARD,
+	str_FPS,
+#if(_DEF_VIEWMODE_RTS == _ON)
+	str_RTS,
+#endif	
+#if(_DEF_VIEWMODE_MOBA == _ON)
+	str_MOBA,
+#endif	
+	str_MOVIE,
+	str_WEB,
+	str_TEXT,
+#if(_DEF_VIEWMODE_MAC == _ON)
+	str_MAC,
+#endif	
+	str_MONO,
+
+};
+
+code BYTE  *tsOSD_HOT_KEY_LANGUAGE[] = // hot key
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		str_ENGLISH,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		str_FRANCAIS,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		str_DEUTSCH,
+#endif
+#if(_DEF_DUTH_TEXT)
+		str_DUTH,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		str_ESPANOL,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		str_ITALIANO,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		str_SUOMI,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+	str_SWEDEN,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		str_RUSSIA,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		str_TURKISH,
+#endif
+#if(_DEF_POLISH_TEXT)
+		str_POLISH,
+#endif
+#if(_DEF_CZECH_TEXT)
+		str_CZECH,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		str_ROMANIAN,
+#endif
+#if(_DEF_THAI_TEXT)
+		str_THAI,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		str_Vietnam,
+#endif
+#if(_DEF_INDONESIAN_TEXT)
+		str_INDONESIAN, 
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		str_JAPANESE,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		str_KOREAN,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		str_TCHINESE,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		str_SCHINESE,
+#endif
+
+};
+#if(_AUDIO_SUPPORT == _ON)
+
+code BYTE  *tsOSD_HOT_KEY_VOLUME[] = // hot key
+{
+	str_VOLUME,
+};
+#endif
+code BYTE  *tsOSD_HOT_KEY_CONBRI[] = // hot key
+{
+	str_CONTRAST,
+	str_BRIGHTNESS,
+};
+
+code BYTE  *tsOSD_HOT_KEY_INPUT[] = // hot key
+{
+#if(_PCB_TYPE == _RL6449_216PIN_HK_M_RTD2775E15_1DP2H_eDPVB1)
+
+	str_INPUT_PORT0,	//str_HDMI1,
+	str_INPUT_PORT1,	//str_HDMI2,
+	str_INPUT_PORT2,	//str_DP1,
+
+#elif (_PCB_TYPE == _RL6432_156PIN_HKMRT2557E02_1H1DP_LVDS)
+	str_INPUT_PORT0,	//str_HDMI1,
+	str_INPUT_PORT1,	//str_HDMI2,
+	str_INPUT_PORT2,	//str_DP1,
+#else
+
+
+#if(_A0_INPUT_PORT_TYPE == _A0_VGA_PORT)
+	str_VGA,
+#endif
+
+#if(_D0_INPUT_PORT_TYPE == _D0_HDMI_PORT)
+	str_HDMI,
+#elif(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)&&(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)	
+	str_DP1,
+#elif(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)&&(_D1_INPUT_PORT_TYPE != _D1_DP_PORT)	
+	str_DP,
+#endif
+
+#if(_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT)&&((_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)||(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)||(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT))
+	str_HDMI1,
+#elif(_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT)&&((_D2_INPUT_PORT_TYPE != _D2_HDMI_PORT)&&(_D3_INPUT_PORT_TYPE != _D3_HDMI_PORT)&&(_D4_INPUT_PORT_TYPE != _D4_HDMI_PORT))
+	str_HDMI,
+#elif(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)&&(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
+	str_DP2,
+#elif(_D1_INPUT_PORT_TYPE == _D1_DP_PORT)&&(_D0_INPUT_PORT_TYPE != _D0_DP_PORT)	
+	str_DP,
+#endif
+
+#if(_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT)
+	str_HDMI2,
+#elif(_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)&&((_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)||(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT))
+	str_HDMI1,
+#elif(_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)&&((_D3_INPUT_PORT_TYPE != _D3_HDMI_PORT)&&(_D4_INPUT_PORT_TYPE != _D4_HDMI_PORT))
+	str_HDMI,
+#elif(_D2_INPUT_PORT_TYPE == _D2_DP_PORT)
+	str_DP,
+#endif
+
+#if(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)
+	//str_HDMI3,
+#elif(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE != _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)
+	str_HDMI2,
+#elif(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE != _D2_HDMI_PORT)
+	str_HDMI2,
+#elif(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)&&(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT)
+	str_HDMI1,
+#elif(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)&&(_D4_INPUT_PORT_TYPE != _D4_HDMI_PORT)
+	str_HDMI,
+#endif
+
+
+#if(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)&&(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)
+    //tsOSD_HDMI4,
+#elif(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE != _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)&&(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)   
+	//tsOSD_HDMI3,
+#elif(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE != _D2_HDMI_PORT)&&(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)   
+	//tsOSD_HDMI3,
+#elif(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)&&(_D3_INPUT_PORT_TYPE != _D3_HDMI_PORT)   
+	//tsOSD_HDMI3,
+#elif(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE != _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE != _D2_HDMI_PORT)&&(_D3_INPUT_PORT_TYPE == _D3_HDMI_PORT)   
+	str_HDMI2,
+#elif(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE == _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE != _D2_HDMI_PORT)&&(_D3_INPUT_PORT_TYPE != _D3_HDMI_PORT)   
+	str_HDMI2,
+#elif(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE != _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE == _D2_HDMI_PORT)&&(_D3_INPUT_PORT_TYPE != _D3_HDMI_PORT)   
+	str_HDMI2,
+#elif(_D4_INPUT_PORT_TYPE == _D4_HDMI_PORT)&&(_D1_INPUT_PORT_TYPE != _D1_HDMI_PORT)&&(_D2_INPUT_PORT_TYPE != _D2_HDMI_PORT)&&(_D3_INPUT_PORT_TYPE != _D3_HDMI_PORT)   
+	str_HDMI,
+#endif
+
+#endif
+
+};
+
+code BYTE  *tsOSD_HOT_KEY_DISTRICT[] = // hot key
+{
+	str_Africa,
+	str_America,
+	str_Asia,
+	str_Europe,
+#if(_DEF_ZhongDong)
+	str_MiddleEast,
+#endif
+	str_Oceania,
+	str_Other,
+};
+
+#if(_DEF_NAVIGATION_OSD_ENABLE)
+code BYTE  *tsOSD_HOT_KEY_NAVIGATION[] =
+{
+	str_ViewMode,
+	str_CONTRAST_BRIGHTNESS,
+	str_InputSelect,
+	str_MENU,
+	str_EXIT,
+};
+#endif
+
+
+code BYTE  *tsOSD_STRING_ITEM_TABLE[] =
+{
+#if(_PCB_TYPE == _RL6851__76PIN__HKMRT2313BRE01__1A1H__LVDS)
+    str_VGA,								// _MENU_FUN_INPUT_0
+	str_NULL,								// _MENU_FUN_INPUT_1
+    str_HDMI,								// _MENU_FUN_INPUT_2
+    str_NULL,								// _MENU_FUN_INPUT_3
+#elif(_PCB_TYPE == _RL6449_216PIN_HK_M_RTD2775E15_1DP2H_eDPVB1)
+	str_INPUT_PORT0,						// _MENU_FUN_INPUT_0
+	str_INPUT_PORT1,						// _MENU_FUN_INPUT_1
+	str_INPUT_PORT2,						// _MENU_FUN_INPUT_2
+	str_NULL, 								// _MENU_FUN_INPUT_3
+#elif(_PCB_TYPE == _RL6432_156PIN_HKMRT2557E02_1H1DP_LVDS)
+	str_INPUT_PORT0,						// _MENU_FUN_INPUT_0
+	str_INPUT_PORT1,						// _MENU_FUN_INPUT_1
+	str_INPUT_PORT2,						// _MENU_FUN_INPUT_2
+	str_NULL, 								// _MENU_FUN_INPUT_3
+#else    
+	str_VGA,								// _MENU_FUN_INPUT_0
+	str_NULL,								// _MENU_FUN_INPUT_1
+    str_HDMI,								// _MENU_FUN_INPUT_2
+    str_DP,									// _MENU_FUN_INPUT_3
+#endif
+
+#if(_AUDIO_SUPPORT == _ON)
+    str_VOLUME,								// _MENU_FUN_VOLUME
+    str_MUTE,								// _MENU_FUN_MUTE
+#endif
+    str_STANDARD,							// _MENU_FUN_VIEWMODE_STANDARD
+    str_FPS,								// _MENU_FUN_VIEWMODE_FPS
+    str_RTS,								// _MENU_FUN_VIEWMODE_RTS
+    str_MOBA,								// _MENU_FUN_VIEWMODE_MOBA
+    str_MOVIE,								// _MENU_FUN_VIEWMODE_MOVIE
+    str_WEB,								// _MENU_FUN_VIEWMODE_WEB
+    str_TEXT,								// _MENU_FUN_VIEWMODE_TEXT
+    str_MAC,								// _MENU_FUN_VIEWMODE_MAC
+    str_MONO,								// _MENU_FUN_VIEWMODE_MONO
+
+    str_CONTRAST_BRIGHTNESS,				// _MENU_FUN_CONTRAST_BRIGHTNESS
+// #if(_SIX_COLOR_SUPPORT == _ON)
+    str_SIX_AXIS_COLOR,						// _MENU_FUN_SIX_AXIS
+// #endif
+    str_COLOR_TEMP,							// _MENU_FUN_TEMP
+    str_COLOR_MODE,							// _MENU_FUN_GAMUT
+    str_COLOR_SPACE,						// _MENU_FUN_SPACE
+    str_COLOR_RANGE,						// _MENU_FUN_RANGE
+    str_HDR,								// _MENU_FUN_HDR
+
+#if(_VGA_SUPPORT == _ON)
+	str_auto_image,							// _MENU_FUN_AUTO_IMAGE_ADJ
+	str_horizontal_size,					// _MENU_FUN_HORIZONTAL_SIZE
+	str_postion, 							// _MENU_FUN_VGA_POSTION
+	str_fine_tune,							// _MENU_FUN_FINE_TUNE
+	str_NULL,								// _MENU_FUN_VGA_HPOSITON
+	str_NULL,								// _MENU_FUN_VGA_VPOSITON
+#endif
+
+    str_SHARPNESS,							// _MENU_FUN_SHARPNESS
+    str_BLUELIGHT,							// _MENU_FUN_BLUELIGHT
+    str_ASPECT_RATIO,						// _MENU_FUN_ASPECT
+    str_OVERSCAN,							// _MENU_FUN_OVERSCAN
+    str_STABILIZATION,						// _MENU_FUN_BLK_STABLE
+    str_ADVANCED_DCR,						// _MENU_FUN_ADV_DCR
+    str_RESPONSE_TIME,						// _MENU_FUN_RESPONSE_TIME
+
+    str_LANGUAGE,							// _MENU_FUN_LANGUAGE
+    str_FREESYNC,							// _MENU_FUN_FREESYNC
+    str_MPRT,								// _MENU_FUN_MPRT
+    
+#if(_DEF_OSD_GAMING == _ON)
+	str_GamingMode,							// _MENU_FUN_GAMING
+	str_NULL,								// _MENU_FUN_TIMER
+	str_NULL,								// _MENU_FUN_CROSSHAIR
+	str_NULL,								// _MENU_FUN_FPS_COUNTER
+
+#endif
+
+    str_NOTICE,								// _MENU_FUN_NOTICE
+    str_INFORMATION,						// _MENU_FUN_INFORMATION
+#if(_DEF_OSD_DOUBLE)
+    str_OsdSize,							// _MENU_FUN_OSD_SIZE
+#endif
+    str_TIMEOUT,							// _MENU_FUN_OSD_TIMEOUT
+    str_BACKGROUND,							// _MENU_FUN_OSD_BACKGROUND
+    str_PIVOT,								// _MENU_FUN_OSD_PIVOT
+    str_POWER_INDICATOR,					// _MENU_FUN_POWER_INDICATOR
+    str_POWER_OFF,							// _MENU_FUN_AUTO_POWEROFF
+    str_SLEEP,								// _MENU_FUN_SLEEP
+    str_ECO,								// _MENU_FUN_ECO
+    str_DP_VERSION,							// _MENU_FUN_DP_VERSION
+    str_SEARCH,								// _MENU_FUN_SEARCH
+    str_DDCCI,								// _MENU_FUN_DDCCI   
+#if(_AI_EYE_PROTECTION == _ON)
+    str_AI_EYE_PROTECTION,					//_MENU_FUN_AI_EYE_PROTECTION
+#endif
+#if(_AI_LIGHT_ADAPTIVATION == _ON)
+	str_AI_LIGHT_ADAPTIVATION,					//_MENU_FUN_AI_LIGHT_ADAPTIVATION
+#endif
+#if(_AI_LOW_POWER == _ON)
+	str_AI_LOW_POWER,					//_MENU_FUN_AI_LOW_POWER
+#endif
+
+    str_MEMORY_RECALL,						// _MENU_FUN_RECALL
+};
+
+
+code BYTE  *tsOSD_STRING_MUTE_ITEM[] =
+{
+    str_ON,
+	str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_CONTRAST_BRIGHTNESS_ITEM[] =
+{
+    str_CONTRAST,
+	str_BRIGHTNESS,
+};
+
+code BYTE  *tsOSD_STRING_SIX_AXIS_COLOR_ITEM[] =
+{
+	str_HUE,
+	str_SATURATION,
+};
+
+code BYTE  *tsOSD_STRING_COLOR_TEMP_ITEM[] =
+{
+#if(_DEF_CT_SRGB_SUPPIRT == _ON)
+	str_sRGB,
+#endif
+#if(_DEF_CT_5800_SUPPORT == _ON)
+	str_BLUISH,
+#endif
+	str_COOL,
+	str_NATIVE,
+	str_WARM,
+	str_USER,
+};
+
+code BYTE  *tsOSD_STRING_COLOR_MODE_ITEM[] =
+{
+	str_sRGB,
+#if(_DEF_PCM_ADOBE_RGB == _ON)
+	str_ADOBE,
+#endif
+	str_DCIP3,
+	str_NATIVE,
+};
+
+code BYTE  *tsOSD_STRING_COLOR_SPACE_ITEM[] =
+{
+	str_AUTO,
+	str_RGB,
+	str_YUV,
+};
+
+code BYTE  *tsOSD_STRING_COLOR_RANGE_ITEM[] =
+{
+	str_AUTO,
+	str_FULL_RANGE,
+	str_LIMITED_RANGE,
+};
+
+code BYTE *tsOSD_STRING_HDR_ITEM[] =
+{
+	str_AUTO,
+	str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_ASPECT_RATIO_ITEM[] =
+{
+	str_4_3,
+	str_5_4,
+	str_16_9,
+	str_16_10,
+};
+
+code BYTE  *tsOSD_STRING_OVERSCAN_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_RESPONSE_TIME_ITEM[] =
+{
+#if(_OD_TIME_OFF_OPTION == _ON)
+	str_OFF,		
+#endif
+	str_STANDARD,
+	str_ADVANCED,
+	str_ULTRA_FAST,
+};
+
+code BYTE  *tsOSD_STRING_LANGUAGE_ITEM[] =  
+{  
+#if (_DEF_ENGLISH_TEXT)  
+	str_ENGLISH,    // Ó¢Óï  
+#endif  
+
+#if (_DEF_FRANCAIS_TEXT)  
+	str_FRANCAIS,   // ·¨Óï  
+#endif  
+
+#if (_DEF_DEUTSCH_TEXT)  
+	str_DEUTSCH,    // µÂÓï  
+#endif  
+
+#if (_DEF_DUTH_TEXT)  
+	str_DUTH,       // ºÉÀ¼Óï
+#endif
+
+#if (_DEF_ESPANOL_TEXT)  
+	str_ESPANOL,    // Î÷°àÑÀÓï  
+#endif  
+
+#if (_DEF_ITALIANO_TEXT)  
+	str_ITALIANO,   // Òâ´óÀûÓï  
+#endif  
+
+#if (_DEF_SUOMI_TEXT)  
+	str_SUOMI,      // ·ÒÀ¼Óï  
+#endif  
+#if (_DEF_SWEDEN_TEXT)  
+	str_SWEDEN,//	   //	ÈðµäÓï
+#endif  
+#if (_DEF_RUSSIA_TEXT)  
+	str_RUSSIA,     // ¶íÓï  
+#endif  
+
+#if (_DEF_TURKISH_TEXT)  
+	str_TURKISH,    // ÍÁ¶úÆäÓï  
+#endif  
+
+#if (_DEF_POLISH_TEXT)  
+	str_POLISH,     // ²¨À¼Óï
+#endif
+
+#if (_DEF_CZECH_TEXT)  
+	str_CZECH,//     // ½Ý¿ËÓï  
+#endif  
+
+#if (_DEF_ROMANIAN_TEXT)  
+	str_ROMANIAN,   // ÂÞÂíÄáÑÇÓï
+#endif
+
+#if (_DEF_THAI_TEXT)  
+	str_THAI,       // Ì©Óï
+#endif
+#if (_DEF_Vietnam_TEXT)  
+	str_Vietnam,    // Ô½ÄÏÓï  
+#endif  
+
+#if (_DEF_INDONESIAN_TEXT)  
+	str_INDONESIAN, // Ó¡ÄáÓï
+#endif
+#if (_DEF_JAPANESE_TEXT)  
+	str_JAPANESE,   // ÈÕÓï  
+#endif  
+
+#if (_DEF_KOREAN_TEXT)  
+	str_KOREAN,     // º«Óï  
+#endif  
+
+#if (_DEF_TCHINESE_TEXT)  
+	str_TCHINESE,   // ·±ÌåÖÐÎÄ  
+#endif  
+
+#if (_DEF_SCHINESE_TEXT)  
+	str_SCHINESE,   // ¼òÌåÖÐÎÄ  
+#endif  
+
+
+
+};
+
+#if(_DEF_OSD_GAMING == _ON)
+
+
+BYTE code tsOsdStrTimerMode[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ѧۧާ֧�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																			
+		_T_,_a_,0x0e,0X97,_e_,_p_,_END_,																	
+#else
+
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_T_,_i_,_m_,_e_,_r_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_EXT_FONT_,_CHT_EXT_10,_EXT_FONT_,_CHT_EXT_11,_EXT_FONT_,_CHT_EXT_94,_EXT_FONT_,_CHT_EXT_95,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_e4,_CHS_e5,_EXT_FONT_,_CHS_EXT_95,_EXT_FONT_,_CHS_EXT_96,_END_,
+#endif
+
+
+};
+
+BYTE code tsOsdStrCrosshairMode[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,	
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����ڧ�֧�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																					
+		0XD6,_p_,0x0f,0x85,_e_,0x7C,_END_,																			
+#else
+
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_C_,_r_,_o_,_s_,_s_,_h_,_a_,_i_,_r_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_EXT_FONT_,_CHT_EXT_10,_EXT_FONT_,_CHT_EXT_11,_EXT_FONT_,_CHT_EXT_96,_EXT_FONT_,_CHT_EXT_97,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_e4,_CHS_e5,_EXT_FONT_,_CHS_EXT_97,_EXT_FONT_,_CHS_EXT_98,_END_,
+#endif
+
+
+};
+
+BYTE code tsOsdStrFPSCounterMode[] =
+{
+#if(_DEF_ENGLISH_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//����e���ڧ� FPS
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																							
+		_C_,0x7f,_e_,0x5f,0x7f,0x0f,0X11,_,_F_,_P_,_S_,_END_,																					
+#else
+
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_F_,_P_,_S_,_,_C_,_o_,_u_,_n_,_t_,_e_,_r_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_EXT_FONT_,_CHT_EXT_98,_EXT_FONT_,_CHT_EXT_99,_EXT_FONT_,_CHT_EXT_9a,_EXT_FONT_,_CHT_EXT_9b,_EXT_FONT_,_CHT_EXT_9c,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_EXT_FONT_,_CHS_EXT_99,_EXT_FONT_,_CHS_EXT_9a,_EXT_FONT_,_CHS_EXT_9b,_EXT_FONT_,_CHS_EXT_9c,_EXT_FONT_,_CHS_EXT_9d,_END_,
+#endif
+
+};
+
+
+code BYTE  *tsOSD_STRING_GAMING_ITEM[] =
+{
+	tsOsdStrTimerMode,
+	tsOsdStrCrosshairMode,
+	tsOsdStrFPSCounterMode,
+};
+
+BYTE code tsOsdStrTimer15[] =
+{
+
+	_1_,_5_,_COLON_,_0_,_0_,_END_,/*
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,
+	_1_,_5_,_COLON_,_0_,_0_,_END_,*/
+
+};
+
+
+BYTE code tsOsdStrTimer30[] =
+{
+
+	_3_,_0_,_COLON_,_0_,_0_,_END_,/*
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,
+	_3_,_0_,_COLON_,_0_,_0_,_END_,*/
+
+};
+
+
+BYTE code tsOsdStrTimer45[] =
+{
+
+	_4_,_5_,_COLON_,_0_,_0_,_END_,/*
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,
+	_4_,_5_,_COLON_,_0_,_0_,_END_,*/
+
+
+};
+
+
+BYTE code tsOsdStrTimer60[] =
+{
+
+	_6_,_0_,_COLON_,_0_,_0_,_END_,/*
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,
+	_6_,_0_,_COLON_,_0_,_0_,_END_,*/
+
+
+};
+
+
+BYTE code tsOsdStrTimer90[] =
+{
+
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+		/*
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,
+	_9_,_0_,_COLON_,_0_,_0_,_END_,*/
+
+
+};
+
+
+BYTE code *tsOSD_STRING_TIMER_ITEM[] =
+{
+	str_OFF,			//str_OFF,
+	tsOsdStrTimer15,	//str_OFF,
+	tsOsdStrTimer30,	//str_OFF,
+	tsOsdStrTimer45,	//str_OFF,
+	tsOsdStrTimer60,	//str_OFF,
+	tsOsdStrTimer90,	//str_OFF,
+};
+
+BYTE code *tsOSD_STRING_CROSSHAIR_ITEM[] =
+{
+	str_OFF,	//str_OFF,
+	tsOsdNull,	//str_OFF,
+	tsOsdNull,	//str_OFF,
+	tsOsdNull,	//str_OFF,
+	tsOsdNull,	//str_OFF,
+	tsOsdNull,	//str_OFF,
+	tsOsdNull,	//str_OFF,
+};
+
+BYTE code *tsOSD_STRING_FPSCOUNTER_ITEM[] =
+{
+    str_ON,		//str_ON,
+	str_OFF,	//str_OFF,
+};
+
+#endif
+
+code BYTE  *tsOSD_STRING_FREESYNC_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_NOTICE_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_SIX_OSDSIZE_ITEM[] =
+{
+	str_NATIVE,
+	str_Large,
+};
+
+code BYTE  *tsOSD_STRING_BACKGROUND_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_PIVOT_ITEM[] =
+{
+#if(_DEF_PIVOT_OPTION_ON_OFF)
+	str_ON,
+	str_OFF,
+#else	
+	str_PIVOT_90,
+	str_PIVOT_270,
+	str_OFF,
+#endif
+};
+
+code BYTE  *tsOSD_STRING_POWER_INDICATOR_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+
+BYTE code *tsOSD_STRING_POWER_OFF_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_SLEEP_ITEM[] =
+{
+	str_30MINUTES,
+	str_45MINUTES,
+	str_60MINUTES,
+	str_120MINUTES,
+	str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_ECO_ITEM[] =
+{
+	str_STANDARD,
+	str_OPTIMIZE,
+	str_CONSERVE,
+};
+
+code BYTE  *tsOSD_STRING_SEARCH_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_DDCCI_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+
+#if(_AI_EYE_PROTECTION == _ON)
+code BYTE  *tsOSD_STRING_AI_EYE_PROTECTION_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+#endif
+
+#if(_AI_LIGHT_ADAPTIVATION == _ON)
+code BYTE  *tsOSD_STRING_AI_LIGHT_ADAPTIVATION_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+#endif
+#if(_AI_LOW_POWER == _ON)
+code BYTE  *tsOSD_STRING_AI_LOW_POWER_ITEM[] =
+{
+	str_ON,
+	str_OFF,
+};
+#endif
+
+
+code BYTE  *tsOSD_STRING_ON_OFF_TABLE[] =
+{
+	str_OFF,
+	str_ON,
+};
+
+code BYTE  *tsOSD_STRING_DP_VERSION_ITEM[] =
+{
+    str_ON,		//str_ON,
+	str_OFF,	//str_OFF,
+};
+
+code BYTE  *tsOSD_STRING_SIX_COLOR_ITEM[] =
+{
+	str_RED,
+	str_GREEN,
+	str_BLUE,
+	str_CYAN,
+	str_MAGENTA,
+	str_YELLOW,
+};
+
+code BYTE  *tsOSD_STRING_USER_COLOR_ITEM[] =
+{
+	str_RED,
+	str_GREEN,
+	str_BLUE,
+};
+
+code BYTE  *tsOSD_STRING_PSOTION[] =
+{
+    str_HPOS,
+	str_VPOS, 
+};
+
+BYTE code tsOsdStrHDR[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_H_,_D_,_R_,_END_,
+#endif
+
+};
+
+#if(_OSD_VIEWMODE_USER_GAME_MODE)			
+
+BYTE code str_VIEW_MODE_RECALL[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_M_,_e_,_m_,_o_,_r_,_y_,___,_R_,_e_,_c_,_a_,_l_,_l_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_a_,_p_,_p_,_e_,_l_,___,_d_,_e_,___,_m_,_EUROPE_14,_m_,_o_,_i_,_r_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_Z_,_u_,_r_,_EUROPE_10,_c_,_k_,_s_,_e_,_t_,_z_,_e_,_n_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)//Geheugenherstel
+		_G_,_e_,_h_,_e_,_u_,_g_,_e_,_n_,____,_h_,_e_,_r_,_s_,_t_,_e_,_l_,_l_,_e_,_n_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_R_,_e_,_s_,_t_,_i_,_t_,_u_,_i_,_r_,___,_M_,_e_,_m_,_o_,_r_,_i_,_a_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_i_,_c_,_h_,_i_,_a_,_m_,_o_,___,_m_,_e_,_m_,_o_,_r_,_i_,_a_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_P_,_a_,_l_,_a_,_u_,_t_,_a_,___,_t_,_e_,_h_,_d_,_a_,_s_,_a_,_s_,_e_,_t_,_u_,_k_,_s_,_e_,_t_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_H_,_EUROPE_18,_m_,_t_,_a_,___,_f_,_r_,_EUROPE_aa,_n_,___,_m_,_i_,_n_,_n_,_e_,_t_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)//���ѧӧ�է�ܧڧ� �ߧѧ����ۧܧ�
+
+#if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+																																											
+	0X8C,_a_,0x3f,_o_,0x86,_c_,_k_,0x0f,_e_,_,0x5d,_a_,_c_,0x5f,_p_,_o_,0x0e,_k_,0x0f,_END_,																																										
+#else
+
+		_B_,_o_,_EUROPE_8f,_EUROPE_3f,_p_,_a_,_EUROPE_5f,___,_p_,_e_,_EUROPE_87,_y_,_EUROPE_7c,_EUROPE_0f,_p_,_o_,_EUROPE_3f,_o_,_EUROPE_11,_END_,
+#endif
+#endif
+
+#if(_DEF_TURKISH_TEXT)
+		_B_,_e_,_l_,_l_,_e_,_k_,___,_G_,_e_,_r_,_i_,___,_EUROPE_92,_a_,_EUROPE_94,_EUROPE_90,_r_,_m_,_a_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)//Przywo?anie pami?ci 
+		_P_,_r_,_z_,_y_,_w_,_r_,_o_,_c_,_i_,_e_,___,_p_,_a_,_m_,_i_,_e_,_c_,_i_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_V_,_y_,_v_,_o_,_l_,_a_,_t_,___,_p_,_a_,_m_,_EUROPE_a9,_EUROPE_b5,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)//Reapelare memorie 
+		_R_,_e_,_a_,_p_,_e_,_l_,_a_,_r_,_e_,___,_m_,_e_,_m_,_o_,_r_,_i_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_TH_07,_TH_17,_TH_16,_TH_01,_TH_52,_TH_0D,_TH_13,_TH_0D,_TH_1D,_TH_16,_TH_11,_TH_1D,TH_02,_TH_09,_TH_67,_TH_02,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_K_,_h_,_VIE_3E,_i_,___,_P_,_h_,_VIE_5D,_c_,___,_C_,_VIE_19,_i_,___,_VIE_17,_VIE_5B,_t_,___,_G_,_VIE_8A,_c_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) //Mengingat Memori 
+		_M_,_e_,_n_,_g_,_i_,_n_,_g_,_a_,_t_,___,_M_,_e_,_m_,_o_,_r_,_i_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_JPN_27_,_JPN_5f_,_JPN_60_,_JPN_1f_,_JPN_60_,_JPN_de_,_JPN_94_,_JPN_15_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_KOR_d6_,_KOR_26_,_KOR_ef_,___,_KOR_f1_,_KOR_f2_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_CHT_3f,_CHT_5b,_CHT_f9,_CHT_fa,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_CHS_d8,_CHS_f7,_CHS_24,_CHS_25,_END_,
+#endif
+
+};
+
+
+BYTE code str_VIEW_MODE_GAMER1[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+/*
+#if(_DEF_FRANCAIS_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_1_,_END_,
+#endif
+*/
+};
+
+BYTE code str_VIEW_MODE_GAMER2[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_2_,_END_,
+#endif
+
+};
+
+BYTE code str_VIEW_MODE_GAMER3[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_G_,_A_,_M_,_E_,_R_,_3_,_END_,
+#endif
+
+};
+
+BYTE code str_FPS1[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+        _F_,_P_,_S_,_1_,_END_,
+#endif
+
+};
+
+BYTE code str_FPS2[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+        _F_,_P_,_S_,_2_,_END_,
+#endif
+
+};
+
+BYTE code str_VIEW_MODE_RENAME[] =
+{
+
+#if(_DEF_ENGLISH_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_FRANCAIS_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_DEUTSCH_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_DUTH_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_ESPANOL_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_ITALIANO_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SUOMI_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SWEDEN_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_RUSSIA_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_TURKISH_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_POLISH_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_CZECH_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_ROMANIAN_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_THAI_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_Vietnam_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_INDONESIAN_TEXT) 
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_JAPANESE_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_KOREAN_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_TCHINESE_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+#if(_DEF_SCHINESE_TEXT)
+		_R_,_e_,_n_,_a_,_m_,_e_,_END_,
+#endif
+
+};
+
+code BYTE  *tsOSD_STRING_VIEW_MODE_STANDARD_ITEM[] =
+{
+
+	str_STABILIZATION,
+	str_ADVANCED_DCR,
+	str_BLUELIGHT,
+	str_RESPONSE_TIME,
+	str_VIEW_MODE_RECALL,
+
+};
+
+code BYTE  *tsOSD_STRING_VIEW_MODE_FPS_ITEM[] =
+{
+
+	str_VIEW_MODE_GAMER1,
+	str_VIEW_MODE_GAMER2,
+	str_VIEW_MODE_GAMER3,
+	str_FPS1,
+	str_FPS2,
+	str_RTS,
+	str_MOBA,
+
+};
+
+code BYTE  *tsOSD_STRING_VIEW_MODE_FPS_ITEM_SUB[] =
+{
+
+	str_STABILIZATION,
+	str_ADVANCED_DCR,
+	str_BLUELIGHT,
+	str_RESPONSE_TIME,
+	str_VIEW_MODE_RENAME,
+	str_VIEW_MODE_RECALL,
+
+};
+
+#endif
+
+
+// 主菜单左上角机型�?
+
+BYTE code tOSD_MODEL_NAME[] =
+{
+
+#if(_PROJECT_ID ==_ID_ZQ_2775E15_INNOLUX_MV270KCA_D8B_8BIT_QHD180_VX2758A_2K_PRO_20241223) \
+	||(_PROJECT_ID ==_ID_ZQ_2775E15_INNOLUX_MV270KCA_D8B_8BIT_QHD180_VX2758A_2K_PRO_2_20250103)\
+	||(_PROJECT_ID ==_ID_ZQ_2775E15_INNOLUX_MV270KCA_E8B_8BIT_QHD180_VX2758A_2K_PRO_2_20250228)
+	_V_,_X_,_2_,_7_,_5_,_8_,_A_,_DASH_,_2_,_K_,_DASH_,_P_,_R_,_O_,_END_,
+	
+#elif(_PROJECT_ID==_ID_ZQ_2775E15_BOE_DV245QHB_N20_8BIT_QHD180_ZQ25F180_20250110)
+	_Z_,_Q_,_2_,_5_,_F_,_1_,_8_,_0_,_END_,
+
+#elif(_PROJECT_ID==_ID_ZQ_2775E15_INNOLUX_MV270KCA_D8B_8BIT_QHD180_VX2756_2K_PRO_2_20250115)
+	_V_,_X_,_2_,_7_,_5_,_6_,_DASH_,_2_,_K_,_DASH_,_P_,_R_,_O_,_END_,
+
+#elif(_PROJECT_ID==_ID_ZQ_2775E15_BOE_ME270QHB_NF2_8BIT_QHD180_VX2756_2K_PRO_2_20250224)
+	_V_,_X_,_2_,_7_,_5_,_6_,_DASH_,_2_,_K_,_DASH_,_P_,_R_,_O_,_END_,
+
+#elif(_PROJECT_ID==_ID_ZQ_2513E05_PANDA_LC215DTBA_8BIT_FHD75_VA2271_H_20241223)	
+    _V_,_X_,_2_,_2_,_E_,_1_,_DASH_,_H_,_END_,
+
+#elif(_PROJECT_ID==_ID_ZQ_2513E05_BOE_HV320FHB_F4A_8BIT_FHD75_VA2271_H_20250301)	
+    _V_,_X_,_2_,_2_,_E_,_1_,_DASH_,_H_,_END_,
+
+#elif(_PROJECT_ID==_ID_ZQ_2313E01_BOE_MV238FHB_N63_8BIT_FHD100_WLCD_24FH25_20250207)	
+	_W_,_L_,_C_,_D_,_DASH_,_2_,_4_,_F_,_H_,_2_,_5_,_END_,
+
+#elif(_PROJECT_ID==_ID_ZQ_2557E02_SG2701B08_4_FHD200_MKF27F240L_20250515)
+    #if EDID_SELECT == EDID_MKF27F240
+	_M_,_K_,_F_,_2_,_7_,_F_,_2_,_4_,_0_,_END_,
+    #elif EDID_SELECT == EDID_MKF24F240
+	_M_,_K_,_F_,_2_,_4_,_F_,_2_,_4_,_0_,_END_,
+	#else
+	_M_,_K_,_F_,_2_,_7_,_F_,_2_,_4_,_0_,_L_,_END_,
+	#endif
+#elif(_PROJECT_ID == _ID_JX_2557E02_MV238FHB_NF5_QHD144_EYEPROTECT_CLASSIC_R5KEY)
+	_M_,_K_,_F_,_2_,_7_,_F_,_2_,_4_,_0_,_END_,
+#else
+	_V_,_X_,_2_,_4_,_5_,_7_,_DASH_,_2_,_K_,_DASH_,_P_,_R_,_O_,_END_,
+#endif
+
+};
+
+code BYTE  str_PROJECT_NAME[] =
+{
+    _PROJECT_NAME,_END_,
+};
+
+

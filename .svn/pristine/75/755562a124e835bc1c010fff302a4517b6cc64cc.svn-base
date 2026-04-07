@@ -1,0 +1,3298 @@
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE RTD2014NVRAMOSD
+OBJECT MODULE PLACED IN .\Output\RL6432\RTD2014NVRamOsd.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE User\RTD Series\RTD2014Osd\Code\RTD2014NVRamOsd.c LARGE OPTIMIZE(9,SPEED
+                    -) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\
+                    -Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Heade
+                    -r;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Ser
+                    -ies_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kern
+                    -el\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD F
+                    -actory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFIN
+                    -E(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\RTD2014NVRamOsd.lst) TA
+                    -BS(2) OBJECT(.\Output\RL6432\RTD2014NVRamOsd.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RTD2014NVRamOsd.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __RTD_NVRAM_OSD__
+  18          
+  19          #include "UserCommonInclude.h"
+  20          
+  21          #if(_OSD_TYPE == _REALTEK_2014_OSD)
+  22          
+  23          
+  24          void RTDFlashLoadSceneModeData(BYTE ucGameMode);
+  25          
+  26          
+  27          #if(_DEF_DDCCI_EDID_TOOL)
+  28          BYTE g_stSNData[_SN_NUMBER_AMOUNT+1] = {0};
+  29          #endif
+  30          //zheli
+  31          //BYTE xdata NavData[28] = {0};
+  32          //BYTE  NavData[28] = {0};
+  33          
+  34          //--------------------------------------------------
+  35          // Version Code of NVRam
+  36          //--------------------------------------------------
+  37          #define _CHECKSUM                                   0x82
+  38          #define _VERSION_CODE                               _CHECKSUM
+  39          
+  40          //--------------------------------------------------
+  41          // Brightness/Contrast Default Value
+  42          //--------------------------------------------------
+  43          #if(_CTS_TYPE == _CTS_GEN_1_12BIT)
+  44          #define _CONTRAST_VGA                               0x800
+  45          #define _CONTRAST_DVI                               0x800
+  46          #define _CONTRAST_VIDEO8                            0x800
+  47          #define _CONTRAST_HDMI                              0x800
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 2   
+
+  48          #define _CONTRAST_DP                                0x800
+  49          #else
+              #define _CONTRAST_VGA                               0x080
+              #define _CONTRAST_DVI                               0x080
+              #define _CONTRAST_VIDEO8                            0x080
+              #define _CONTRAST_HDMI                              0x080
+              #define _CONTRAST_DP                                0x080
+              #endif
+  56          
+  57          #if(_BRI_TYPE == _BRI_GEN_1_10BIT)
+  58          #define _BRIGHTNESS_VGA                             0x1F8
+  59          #define _BRIGHTNESS_DVI                             0x200
+  60          #define _BRIGHTNESS_VIDEO8                          0x200
+  61          #define _BRIGHTNESS_HDMI                            0x200
+  62          #define _BRIGHTNESS_DP                              0x200
+  63          #else
+              #define _BRIGHTNESS_VGA                             0x07E
+              #define _BRIGHTNESS_DVI                             0x080
+              #define _BRIGHTNESS_VIDEO8                          0x080
+              #define _BRIGHTNESS_HDMI                            0x080
+              #define _BRIGHTNESS_DP                              0x080
+              #endif
+  70          //--------------------------------------------------
+  71          // Six Color Data Default Values
+  72          //--------------------------------------------------
+  73          #define _SIX_COLOR_HUE_R                            50
+  74          #define _SIX_COLOR_SATURATION_R                     100
+  75          #define _SIX_COLOR_SATURATION_R_MONO        0
+  76          
+  77          #define _SIX_COLOR_HUE_Y                            50
+  78          #define _SIX_COLOR_SATURATION_Y                     100
+  79          #define _SIX_COLOR_SATURATION_Y_MONO        0
+  80          
+  81          #define _SIX_COLOR_HUE_G                            50
+  82          #define _SIX_COLOR_SATURATION_G                     100
+  83          #define _SIX_COLOR_SATURATION_G_MONO        0
+  84          
+  85          #define _SIX_COLOR_HUE_C                            50
+  86          #define _SIX_COLOR_SATURATION_C                     100
+  87          #define _SIX_COLOR_SATURATION_C_MONO        0
+  88          
+  89          #define _SIX_COLOR_HUE_B                            50
+  90          #define _SIX_COLOR_SATURATION_B                     100
+  91          #define _SIX_COLOR_SATURATION_B_MONO        0
+  92          
+  93          #define _SIX_COLOR_HUE_M                            50
+  94          #define _SIX_COLOR_SATURATION_M                     100
+  95          #define _SIX_COLOR_SATURATION_M_MONO        0
+  96          
+  97          #if(_SYSTEM_EEPROM_EMULATION_SUPPORT == _ON)
+  98          //--------------------------------------------------
+  99          // Definitions of PageInfo Address
+ 100          //--------------------------------------------------
+ 101          #define _FLASH_FW_CHECKSUM_ADDR                     (_FLASH_PAGE_SIZE - 16)
+ 102          #define _FLASH_FW_VERSIONCODE_ADDR                  (_FLASH_PAGE_SIZE - 15)
+ 103          #define _PAGEINFO_CHECKSUM_ADDR                     (_FLASH_PAGE_SIZE - 5)
+ 104          #define _PAGEINFO_PAGEID_ADDR                       (_FLASH_PAGE_SIZE - 4)
+ 105          #define _PAGEINFO_MOVECOUNT_ADDR                    (_FLASH_PAGE_SIZE - 3)
+ 106          
+ 107          // This value is used to indicate the EEPROM emulaiton FW version
+ 108          #define _EEPROM_EMULATION_VERSION                   0x01
+ 109          #endif
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 3   
+
+ 110          
+ 111          extern void RTDFlashRestoreViewModeParameters(void);
+ 112          
+ 113          
+ 114          // Attention: it is necessary for sizeof(StructOsdUserDataType) < ((_FLASH_ITEMID_OSD_DATA_END - _FLASH_IT
+             -EMID_OSD_DATA_START) * (_DATA_ITEM_LENGTH - 2))
+ 115          // Please check it when add items in StructOsdUserDataType
+ 116          //---------------------------vsc user data ---------------------------------
+ 117          code VSCStructOsdUserDataType g_vscstOsdUserDataDefault = _USER_DATA_DEFAULT;
+ 118          
+ 119          
+ 120          
+ 121          code StructOsdUserDataType g_stOSDDefaultData =
+ 122          {
+ 123            _OSD_BACKLIGHT_DEFAULE,     // usBackLight
+ 124              _SRGB_BACKLIGHT,    // 
+ 125          
+ 126              50,                         // ucOsdHPos;
+ 127              50,                         // ucOsdVPos;
+ 128              _TIMEOUT_DEFAULT,       // ucOsdTimeout;
+ 129              _ASPECT_RATIO_DEFAULT,      // ucAspectOriginRatio
+ 130              0,                          // ucTransparency;
+ 131          //--------------------------------------------------------
+ 132              _LANGUAGE_DEFAULT,          // b5Language;
+ 133              _COLOREFFECT_STANDARD,      // b4ColorEffect;
+ 134          //--------------------------------------------------------
+ 135              _CT_6500,                 // b4ColorTempType;
+ 136              _COLOR_SPACE_RGB,         // b3VGARGBYUV;
+ 137          #if(_DEF_VGA_TIMING_KEY_2_4)
+                _M_1280x768_75,     // b1Mode768_75   // 1024x768@75 / 1280x768@75
+              #endif
+ 140          
+ 141              _COLOR_SPACE_RGB,         // b3DVIRGBYUV;
+ 142          #if(_DEF_VGA_TIMING_KEY_2_4)
+                  _M_1280x768_50,         // b1Mode768_50   // 1024x768@50 / 1280x768@50
+              #endif
+ 145          //--------------------------------------------------------
+ 146              2,                        // b3Sharpness;
+ 147          #if(_DEF_VGA_TIMING_KEY_2_4)
+                _M_1600x900_60_RB,    // b1Mode960_60   // 1600x900@60_RB / 1280x960@60
+              #endif
+ 150              _OSD_ROTATE_DEGREE_0,     // b1OsdRotate;     // liuxh b1OsdRotate
+ 151              _OSD_ROTATE_DISPLAY_KEEP_SRC_ASPECT_RATIO,     // b2DispRotationSizeType;
+ 152              _ON,                      // b1OverScan;
+ 153          //--------------------------------------------------------
+ 154              _GAMMA_OFF,               // b3Gamma;
+ 155              _ASPECT_RATIO_DEFAULT,   // b3AspectRatio;
+ 156              _DEF_DDCCIStatus,                      // b1DDCCIStatus; 
+ 157              _OFF,                       // b1OsdDcrStatus;
+ 158          #if(_DEF_VGA_TIMING_KEY_2_4)
+                _M_1600x900_60,     // b1Mode900_60   // 1600x900 / 1440x900
+                _M_1600x900_60_CVR,   // b1Mode900_60R  // 1600x900@60_CVR / 1440x900@60_RB
+                _M_1680x1050_60,    // b1Mode1050_60  // 1680x1050@60 / 1400x1050@60
+              #endif
+ 163          //--------------------------------------------------------
+ 164              _OD_GAIN_CENTER,            // ucODGain;
+ 165              _DEFAULT_HUE,               // cHue;
+ 166              _DEFAULT_SATURATION,        // ucSaturation;
+ 167              _HL_WIN_OFF,                // ucHLWinType;
+ 168          //--------------------------------------------------------
+ 169              _PCM_OSD_NATIVE,            // b3PCMStatus : 3;
+ 170              _ULTRA_VIVID_OFF,           // b2UltraVividStatus : 2;
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 4   
+
+ 171              _OFF,                       // b1VolumeMute : 1;
+ 172              _OFF,                       // b1AudioStandAloneStatus : 1;
+ 173              0,                          // b1AudioSourceStatus : 1;
+ 174          //--------------------------------------------------------
+ 175              50,                         // ucVolume;
+ 176          //--------------------------------------------------------
+ 177              _OFF,                       // b1ODStatus : 1;
+ 178              0x00,                       // b33DConvergenceMode : 3;
+ 179              _AUTO_COLOR_TYPE_EXTERNAL,  // b1FactoryAutoColorType : 1;
+ 180              _ON,                        // BYTE b1PanelUniformity : 1;
+ 181              0,                          // BYTE b1PCMSoftProftMode : 1;
+ 182          //--------------------------------------------------------
+ 183              0,                          // BYTE ucOsdInputPort;
+ 184          #if(_DP_TYPE_C_CONNECTOR_SUPPORT == _ON)
+                  _TYPE_C_U3_OFF,             // BYTE b1D0TypeCU3Mode;
+                  _TYPE_C_U3_OFF,             // BYTE b1D1TypeCU3Mode;
+                  _TYPE_C_U3_OFF,             // BYTE b1D2TypeCU3Mode;
+                  _TYPE_C_U3_OFF,             // BYTE b1D6TypeCU3Mode;
+              #if(_TYPE_C_PIN_ASSIGNMENT_E_SUPPORT_SWITCH_SUPPORT == _ON)
+                  _TYPE_C_PIN_ASSIGNMENT_E_SUPPORT_ON,            // BYTE b1D0TypeCPinAssignmentESupportSelect;
+                  _TYPE_C_PIN_ASSIGNMENT_E_SUPPORT_ON,            // BYTE b1D1TypeCPinAssignmentESupportSelect;
+                  _TYPE_C_PIN_ASSIGNMENT_E_SUPPORT_ON,            // BYTE b1D2TypeCPinAssignmentESupportSelect;
+                  _TYPE_C_PIN_ASSIGNMENT_E_SUPPORT_ON,            // BYTE b1D6TypeCPinAssignmentESupportSelect;
+              #endif
+              #endif
+ 196          //--------------------------------------------------------
+ 197              _DP_VER_1_DOT_3,            // b1OsdDpD0PortVersion : 1;
+ 198              _DP_VER_1_DOT_3,            // b1OsdDpD1PortVersion : 1;
+ 199              0,                          // b3OsdDispRotate : 3;
+ 200              0,                          // b1OsdDpVersionHotKeyDisp : 1;
+ 201          //--------------------------------------------------------
+ 202              0,                          // b1PreShowDpHotKeyVersion : 1;
+ 203              0,                          // b3PanelUniformityType : 3;
+ 204              0,                          // b1OsdDpD6PortVersion : 2;
+ 205              0,                          // b1OsdDpD2PortVersion : 2;
+ 206              DEF_FREESYNC_STATUS,                        // b1FreeSyncStatus : 1;
+ 207              _OFF,                       // b1DpAdaptiveSyncStatus : 1;
+ 208              _OFF,                       // b1OsdDpVer11Status : 1;
+ 209              _OSD_CLONE_OFF,             // b1CloneMode: 1;
+ 210          //--------------------------------------------------------
+ 211              _LATENCY_L,                // b2LatencyStatus : 2
+ 212              _OFF,                      // BYTE b1OsdDoubleSize :1;
+ 213          
+ 214          #if(_DEF_VGA_TIMING_KEY_2_4)
+                  _M_720x400_70,          // b2Mode400_70   // 720x400@70 / 640x400@70 / 640x350@70
+              #endif
+ 217          
+ 218            _OFF,           // b3OsdDpMST : 3;
+ 219          
+ 220          #if(_DEF_VGA_TIMING_KEY_2_4)
+                  _M_1680x1050_60_RB,     // b1Mode1050_60R // 1680x1050@60_RB / 1400x1050@60_RB
+                  _M_640x480_60,          // b2Mode480_60   // 640x480@60 / 640x400@60 / 720x400@70
+                  _M_1360x768_60,         // b2Mode768_60   // 1360x768 / 1280x768 / 1366x 768 / 1366x 768RB
+              #endif
+ 225          
+ 226          
+ 227          #if(_HDR10_SUPPORT == _ON)
+ 228              _HDR10_MODE_AUTO,            // BYTE ucHdrMode;
+ 229              _OFF,                       // b1DarkEnhanceStatus : 1;
+ 230              _OFF,                       // b1HdrSharpness : 1;
+ 231              0,                          // BYTE ucHdrContrast;
+ 232              0,                          // BYTE ucHdrColorEnhance;
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 5   
+
+ 233              0,                          // BYTE ucHdrLightEnhance;
+ 234          #endif
+ 235          #if(_OSD_LOCAL_DIMMING_SUPPORT == _ON)
+                  _OFF,                       // BYTE b1HdrLocalDimming : 1;
+                  50,                         // BYTE ucHdrLocalDimmingAdj;
+              #endif
+ 239          #if (_SDR_TO_HDR_SUPPORT == _ON)
+                  _OFF,                       // b1Sdr2HdrStatus : 1;
+              #endif
+ 242          
+ 243          // --------------------------------------------------------
+ 244          #if(_HDMI_MULTI_EDID_SUPPORT == _ON)
+                  _HDMI_1P4,                 // BYTE b2OsdHdmiD0PortVersion : 2;
+                  _HDMI_1P4,                 // BYTE b2OsdHdmiD1PortVersion : 2;
+                  _HDMI_1P4,                 // BYTE b2OsdHdmiD2PortVersion : 2;
+                  _HDMI_1P4,                 // BYTE b2OsdHdmiD3PortVersion : 2;
+                  _HDMI_1P4,                 // BYTE b2OsdHdmiD4PortVersion : 2;
+                  _HDMI_1P4,                 // BYTE b2OsdHdmiD5PortVersion : 2;
+              #endif
+ 252          
+ 253          #if(_USB3_RETIMER_SUPPORT == _ON)
+                  _TRUE,                     // BYTE b1OsdUsb3RetimerPDWakeUp: 1;
+                  _TRUE,                     // BYTE b1OsdUsb3RetimerPSWakeUp: 1;
+                  _HUB_UFP_TYPE_C_INPUT_PORT, // EnumHubInputPort enumHubInputPortSwitchbyUser;
+              #endif
+ 258          #if(_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+                  _OSD_MBR_USER_DISABLE,     // b2MbrStatus;
+                  _OSD_MBR_DUTY_DEFAULT,     // b7MbrDutys;
+                  _OSD_MBR_POS_DEFAULT,      // b7MbrPosition;
+              #endif
+ 263          #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+                  _ON,                       //BYTE b1TtsSupport: 1;
+                  80,                        //BYTE ucTtsTextVolume;
+                  20,                        //BYTE ucTtsAudioVolume;
+              #endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+ 268          
+ 269            _GM_OFF,          // b4GameMode
+ 270          #if(_MPRT_SUPPORT == _ON)
+                _OFF,           // bMPRTStatus
+              #endif
+ 273          
+ 274          #if(_DEF_VGA_TIMING_KEY_2_4)
+                0,            // b1Mode900_75   // (1440x900@75 / 1152x870@75)
+              #endif
+ 277          
+ 278            _ECO_DEFAULT,             // b2EcoMode
+ 279              _SleepPowerSaving_OFF,      //b3Sleep
+ 280              _OFF,                       //b1AutoPowerOff     
+ 281            #if(_DEFAULT_OSD_STYLE  == _SUMA_OSD_STYLE||_DEFAULT_OSD_STYLE  == _TRG_OSD_STYLE)
+ 282              _OFF,                         //b1ResolutionStatus
+ 283            #else
+                  _ON,                        //b1ResolutionStatus
+                 #endif
+ 286              _ON,                        //b1PowerIndicator
+ 287              0,                          //b3OsdDcrStatus 
+ 288              0,                          //b4BlackStabilization
+ 289            _DEF_FACTORY_MODE,       /* BYTE b1FACTORY_MODE:1 */
+ 290            _DEF_BURNING_MODE,       /* BYTE b1BURNING_MODE: 1*/
+ 291              _DEF_DDCCIStatus,         // b1DDCStatus
+ 292          
+ 293          //--------------------------------------------------------
+ 294              _SPACE_DEFAULT,         // b2D0ColorSpace
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 6   
+
+ 295              _RANGE_DEFAULT,     // b2D0ColorRange
+ 296              _SPACE_DEFAULT,         // b2D1ColorSpace
+ 297              _RANGE_DEFAULT,     // b2D1ColorRange
+ 298          //--------------------------------------------------------
+ 299            _SPACE_DEFAULT,     // b2D2ColorSpace
+ 300            _RANGE_DEFAULT,     // b2D2ColorRange
+ 301            _SPACE_DEFAULT,     // b2D3ColorSpace
+ 302            _RANGE_DEFAULT,     // b2D3ColorRange
+ 303          //--------------------------------------------------------
+ 304          
+ 305            _OFF,//b1A0OverScan
+ 306            _OFF,//b1D0OverScan
+ 307            _OFF,//b1D1OverScan
+ 308            _OFF,//b1D2OverScan
+ 309            _OFF,//b1D3OverScan
+ 310          //--------------------------------------------------------
+ 311            _OFF,//b2BackupODMode
+ 312              _VM_STANDARD,         // b3ViewMode
+ 313            _OSD_HOTKEY_VIEWMODE,
+ 314            _ON,          /*语言选择*/
+ 315            _ON,          /*地区选择*/
+ 316            _DEF_REGION_InitData, /*b4District */
+ 317            _ON,          /*BYTE b1PCHintStatus : 1;*/
+ 318          //--------------------------------------------------------
+ 319          
+ 320            _OFF,         // mprt
+ 321              _OFF,                   // b1OsdLockStatus
+ 322              _OFF,         // b1PowerKeyLockStatus
+ 323            _ON,          /*BYTE b1OsdMessageEanble : 1;*/
+ 324            _OFF,         /*BYTE b2FrontSight : 2;*/
+ 325            _OFF,         /*BYTE b5Message : 5;*/
+ 326            
+ 327          #if 1//(_DEF_OSD_GAMING == _ON)
+ 328            0,              /*BYTE b3Timer*/\
+ 329            0,              /*BYTE b4Crosshair*/\
+ 330            0, 
+ 331          #endif
+ 332          
+ 333          };
+ 334          
+ 335          code StructBriConDataType tBriConDefaultData[] =
+ 336          {
+ 337              {
+ 338                  _BRIGHTNESS_DEFAULT,
+ 339                  _CONTRAST_DEFAULT,
+ 340              },
+ 341          
+ 342              {
+ 343                  _BRIGHTNESS_DEFAULT,
+ 344                  _CONTRAST_DEFAULT,
+ 345              },
+ 346          
+ 347              {
+ 348                  _BRIGHTNESS_DEFAULT,
+ 349                  _CONTRAST_DEFAULT,
+ 350              },
+ 351          
+ 352              {
+ 353                  _BRIGHTNESS_DEFAULT,
+ 354                  _CONTRAST_DEFAULT,
+ 355              },
+ 356          
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 7   
+
+ 357              {
+ 358                  _BRIGHTNESS_DEFAULT,
+ 359                  _CONTRAST_DEFAULT,
+ 360              },
+ 361          
+ 362          };
+ 363          
+ 364          
+ 365          
+ 366          code StructVscSceneModeDataType tVscSceneModeDefaultData[] =
+ 367          {
+ 368          #if(_ADVANCED_IMAGE_SUPPORT == _ON)
+ 369            {// FPS1
+ 370                _BRIGHTNESS_DEFAULT,      // usBrightness
+ 371                _CONTRAST_DEFAULT,        // usContrast
+ 372                100,              // usBackLightNormal,
+ 373                _SRGB_BACKLIGHT,              // usBackLightSrgb
+ 374              //--------------------------------------------------------
+ 375              _GAMMA_24,            // b6GammaMode
+ 376              //--------------------------------------------------------
+ 377          #if(_DEF_GAMMA_TOOL_TEST)
+                  _SHARPNESS_DEFAULT,
+                  _BLK_STABLE_DEFAULT,
+              #else
+ 381                _SHARPNESS_TABLE3,    // b4Sharpness
+ 382                _BLKStable_Mode3,   // b4BlackStabilization
+ 383          #endif
+ 384          //--------------------------------------------------------
+ 385              _COLORTEMP_DEFAULT,         // b4ColorTemp
+ 386              _OFF,         // b3Unused1
+ 387              _BLUELIGHT_STATUS,      // b1BlueLightStatus
+ 388              //--------------------------------------------------------
+ 389              _BLUELIGHT_DEFAULT,     // ucBlueLightValue
+ 390              //--------------------------------------------------------
+ 391              _DCR_DEFAULT,     // b3AdvanceDCR
+ 392              _LATENCY_DEFAULT,   // b2LowLagMode
+ 393              _OD_ADVANCED,     // b2ODMode
+ 394              _OFF,         // b1SmartSync
+ 395              //--------------------------------------------------------
+ 396              _DCR_DEFAULT,     // b3BackupAdvanceDCR
+ 397              _LATENCY_DEFAULT,   // b2BackupLowLagMode
+ 398              _OD_ADVANCED,     // b2BackupODMode
+ 399              _OFF,         // b1BackupSmartSync
+ 400              //--------------------------------------------------------
+ 401              _ASPECT_RATIO_DEFAULT, // b4AspectRatio
+ 402            #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+ 403              _OFF,  // b1OverScan
+ 404            #endif
+ 405          
+ 406              #if(_SIX_COLOR_SUPPORT == _ON)
+ 407              _SIX_COLOR_HUE_R,
+ 408                _SIX_COLOR_SATURATION_R,
+ 409                _SIX_COLOR_HUE_Y,
+ 410                _SIX_COLOR_SATURATION_Y,
+ 411                _SIX_COLOR_HUE_G,
+ 412                _SIX_COLOR_SATURATION_G,
+ 413                _SIX_COLOR_HUE_C,
+ 414                _SIX_COLOR_SATURATION_C,
+ 415                _SIX_COLOR_HUE_B,
+ 416                _SIX_COLOR_SATURATION_B,
+ 417                _SIX_COLOR_HUE_M,
+ 418                _SIX_COLOR_SATURATION_M,
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 8   
+
+ 419              #endif
+ 420          
+ 421              _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+ 422          
+ 423            },
+ 424            
+ 425          #if(_DEF_VIEWMODE_RTS == _ON)
+ 426          
+ 427            {// RTS
+ 428                _BRIGHTNESS_DEFAULT,
+ 429                _CONTRAST_DEFAULT,
+ 430                100,//_BACKLIGHT_DEFAULT,
+ 431                   _SRGB_BACKLIGHT,          // usBackLightSrgb
+ 432              //--------------------------------------------------------
+ 433              _GAMMA_22,//_GAMMA_DEFAULT,     // b6GammaMode
+ 434              //--------------------------------------------------------
+ 435          #if(_DEF_GAMMA_TOOL_TEST)
+                  _SHARPNESS_DEFAULT,
+                  _BLK_STABLE_DEFAULT,
+              #else
+ 439                _SHARPNESS_MAX,     // b4Sharpness
+ 440                _BLKStable_Mode7,   // b4BlackStabilization
+ 441          #endif
+ 442              //--------------------------------------------------------
+ 443              _COLORTEMP_DEFAULT,     // b4ColorTemp
+ 444              _OFF,         // b3Unused1
+ 445              _BLUELIGHT_STATUS,      // b1BlueLightStatus
+ 446              //--------------------------------------------------------
+ 447              _BLUELIGHT_DEFAULT,     // ucBlueLightValue
+ 448              //--------------------------------------------------------
+ 449          #if(_DEF_GAMMA_TOOL_TEST)
+                  _DCR_MIN,
+              #else
+ 452              RTS_DEF_DCR,
+ 453          
+ 454          #endif
+ 455              _LATENCY_DEFAULT,   // b2LowLagMode
+ 456              _OD_DEFAULT,      // b2ODMode
+ 457              _OFF,         // b1SmartSync
+ 458              //--------------------------------------------------------
+ 459          #if(_DEF_GAMMA_TOOL_TEST)
+                  _DCR_MIN,
+              #else
+ 462              _DCR_MAX,       // b3BackupAdvanceDCR
+ 463          #endif
+ 464              _LATENCY_DEFAULT,   // b2BackupLowLagMode
+ 465              _OD_DEFAULT,      // b2BackupODMode
+ 466              _OFF,         // b1BackupSmartSync
+ 467              //--------------------------------------------------------
+ 468              _ASPECT_RATIO_DEFAULT,  // b4AspectRatio
+ 469            #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+ 470              _OFF,  // b1OverScan
+ 471            #endif
+ 472              
+ 473              #if(_SIX_COLOR_SUPPORT == _ON)
+ 474              _SIX_COLOR_HUE_R,
+ 475                _SIX_COLOR_SATURATION_R,
+ 476                _SIX_COLOR_HUE_Y,
+ 477                _SIX_COLOR_SATURATION_Y,
+ 478                _SIX_COLOR_HUE_G,
+ 479                _SIX_COLOR_SATURATION_G,
+ 480                _SIX_COLOR_HUE_C,
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 9   
+
+ 481                _SIX_COLOR_SATURATION_C,
+ 482                _SIX_COLOR_HUE_B,
+ 483                _SIX_COLOR_SATURATION_B,
+ 484                _SIX_COLOR_HUE_M,
+ 485                _SIX_COLOR_SATURATION_M,
+ 486              #endif
+ 487              _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+ 488          
+ 489            },
+ 490            
+ 491          #endif
+ 492          
+ 493          #if(_DEF_VIEWMODE_MOBA == _ON)
+ 494          
+ 495            {// MOBA
+ 496                _BRIGHTNESS_DEFAULT,
+ 497                _CONTRAST_DEFAULT,
+ 498                100,//_BACKLIGHT_DEFAULT,
+ 499                   _SRGB_BACKLIGHT,          // usBackLightSrgb
+ 500              //--------------------------------------------------------
+ 501              _GAMMA_DEFAULT,     // b6GammaMode
+ 502              //--------------------------------------------------------
+ 503          #if(_DEF_GAMMA_TOOL_TEST)
+                  _SHARPNESS_DEFAULT,
+                  _BLK_STABLE_DEFAULT,
+              #else
+ 507                _SHARPNESS_TABLE3,    // b4Sharpness
+ 508                _BLKStable_Mode6,   // b4BlackStabilization
+ 509          #endif
+ 510              //--------------------------------------------------------
+ 511              _COLORTEMP_DEFAULT,     // b4ColorTemp
+ 512              _OFF,         // b3Unused1
+ 513              _BLUELIGHT_STATUS,      // b1BlueLightStatus
+ 514              //--------------------------------------------------------
+ 515              _BLUELIGHT_DEFAULT,     // ucBlueLightValue
+ 516              //--------------------------------------------------------
+ 517          #if(_DEF_GAMMA_TOOL_TEST)
+                  _DCR_MIN,
+              #else
+ 520              MOBA_DEF_DCR,
+ 521          #endif
+ 522              _LATENCY_DEFAULT,   // b2LowLagMode
+ 523              _OD_ADVANCED,     // b2ODMode
+ 524              _OFF,         // b1SmartSync
+ 525              //--------------------------------------------------------
+ 526          #if(_DEF_GAMMA_TOOL_TEST)
+                  _DCR_MIN,
+              #else
+ 529              #if _DEFAULT_OSD_STYLE == _TRG_OSD_STYLE
+ 530                _DCR_Level_0,
+ 531              #else
+                    _DCR_Level_3,     // b3BackupAdvanceDCR
+                  #endif
+ 534          #endif
+ 535              _LATENCY_DEFAULT,   // b2BackupLowLagMode
+ 536              _OD_ADVANCED,     // b2BackupODMode
+ 537              _OFF,         // b1BackupSmartSync
+ 538              //--------------------------------------------------------
+ 539              _ASPECT_RATIO_DEFAULT,  // b4AspectRatio
+ 540            #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+ 541              _OFF,  // b1OverScan
+ 542            #endif
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 10  
+
+ 543          
+ 544              #if(_SIX_COLOR_SUPPORT == _ON)
+ 545              _SIX_COLOR_HUE_R,
+ 546                _SIX_COLOR_SATURATION_R,
+ 547                _SIX_COLOR_HUE_Y,
+ 548                _SIX_COLOR_SATURATION_Y,
+ 549                _SIX_COLOR_HUE_G,
+ 550                _SIX_COLOR_SATURATION_G,
+ 551                _SIX_COLOR_HUE_C,
+ 552                _SIX_COLOR_SATURATION_C,
+ 553                _SIX_COLOR_HUE_B,
+ 554                _SIX_COLOR_SATURATION_B,
+ 555                _SIX_COLOR_HUE_M,
+ 556                _SIX_COLOR_SATURATION_M,
+ 557              #endif
+ 558          
+ 559                _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+ 560          
+ 561            },
+ 562          
+ 563          #endif
+ 564          
+ 565            {// Gamer1
+ 566              _BRIGHTNESS_DEFAULT,
+ 567              _CONTRAST_DEFAULT,
+ 568              100,//_BACKLIGHT_DEFAULT,
+ 569              _SRGB_BACKLIGHT,          // usBackLightSrgb
+ 570              //--------------------------------------------------------
+ 571              _GAMMA_DEFAULT,     // b6GammaMode
+ 572              //--------------------------------------------------------
+ 573              _SHARPNESS_DEFAULT,   // b4Sharpness
+ 574          #if(_DEF_GAMMA_TOOL_TEST)
+                  _BLK_STABLE_DEFAULT,
+              #else
+ 577              _BLKStable_Mode4, // b4BlackStabilization
+ 578          #endif
+ 579              //--------------------------------------------------------
+ 580              _CT_USER,       // b4ColorTemp
+ 581              _OFF,         // b3Unused1
+ 582              _BLUELIGHT_STATUS,    // b1BlueLightStatus
+ 583              //--------------------------------------------------------
+ 584              _BLUELIGHT_DEFAULT,   // ucBlueLightValue
+ 585              //--------------------------------------------------------
+ 586              _DCR_DEFAULT,     // b3AdvanceDCR
+ 587              _LATENCY_DEFAULT,   // b2LowLagMode
+ 588              _OD_ULTRA_FAST,     // b2ODMode
+ 589              _OFF,         // b1SmartSync
+ 590              //--------------------------------------------------------
+ 591              _DCR_DEFAULT,     // b3BackupAdvanceDCR
+ 592              _LATENCY_DEFAULT,   // b2BackupLowLagMode
+ 593              _OD_ULTRA_FAST,     // b2BackupODMode
+ 594              _OFF,         // b1BackupSmartSync
+ 595              //--------------------------------------------------------
+ 596              _ASPECT_RATIO_DEFAULT,  // b4AspectRatio
+ 597            #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+ 598              _OFF,  // b1OverScan
+ 599            #endif
+ 600              
+ 601              //--------------------------------------------------------
+ 602              #if(_SIX_COLOR_SUPPORT == _ON)
+ 603              _SIX_COLOR_HUE_R,
+ 604              _SIX_COLOR_SATURATION_R,
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 11  
+
+ 605              _SIX_COLOR_HUE_Y,
+ 606              _SIX_COLOR_SATURATION_Y,
+ 607              _SIX_COLOR_HUE_G,
+ 608              _SIX_COLOR_SATURATION_G,
+ 609              _SIX_COLOR_HUE_C,
+ 610              _SIX_COLOR_SATURATION_C,
+ 611              _SIX_COLOR_HUE_B,
+ 612              _SIX_COLOR_SATURATION_B,
+ 613              _SIX_COLOR_HUE_M,
+ 614              _SIX_COLOR_SATURATION_M,
+ 615              #endif
+ 616          
+ 617                _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+ 618          
+ 619            },
+ 620          
+ 621            {// Standard
+ 622                _BRIGHTNESS_DEFAULT,
+ 623                _CONTRAST_DEFAULT,
+ 624                _OSD_BACKLIGHT_DEFAULE,
+ 625                   _SRGB_BACKLIGHT,          // usBackLightSrgb
+ 626              //--------------------------------------------------------
+ 627              _GAMMA_DEFAULT,     // b6GammaMode
+ 628              //--------------------------------------------------------
+ 629                _SHARPNESS_DEFAULT,   // b4Sharpness
+ 630                _BLK_STABLE_DEFAULT,  // b4BlackStabilization
+ 631              //--------------------------------------------------------
+ 632              _COLORTEMP_DEFAULT,     // b4ColorTemp
+ 633              _OFF,         // b3Unused1
+ 634              _BLUELIGHT_STATUS,      // b1BlueLightStatus
+ 635              //--------------------------------------------------------
+ 636              _BLUELIGHT_DEFAULT,     // ucBlueLightValue
+ 637              //--------------------------------------------------------
+ 638              _DCR_DEFAULT,     // b3AdvanceDCR
+ 639              _LATENCY_DEFAULT,   // b2LowLagMode
+ 640          
+ 641              _OD_DEFAULT,      // b2ODMode
+ 642          
+ 643              _OFF,         // b1SmartSync
+ 644              //--------------------------------------------------------
+ 645              _DCR_DEFAULT,     // b3BackupAdvanceDCR
+ 646              _LATENCY_DEFAULT,   // b2BackupLowLagMode
+ 647          
+ 648              _OD_DEFAULT,      // b2ODMode
+ 649          
+ 650              _OFF,         // b1BackupSmartSync
+ 651              //--------------------------------------------------------
+ 652              _ASPECT_RATIO_DEFAULT,  // b4AspectRatio
+ 653            #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+ 654              _OFF,  // b1OverScan
+ 655            #endif
+ 656          
+ 657              #if(_SIX_COLOR_SUPPORT == _ON)
+ 658              _SIX_COLOR_HUE_R,
+ 659                _SIX_COLOR_SATURATION_R,
+ 660                _SIX_COLOR_HUE_Y,
+ 661                _SIX_COLOR_SATURATION_Y,
+ 662                _SIX_COLOR_HUE_G,
+ 663                _SIX_COLOR_SATURATION_G,
+ 664                _SIX_COLOR_HUE_C,
+ 665                _SIX_COLOR_SATURATION_C,
+ 666                _SIX_COLOR_HUE_B,
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 12  
+
+ 667                _SIX_COLOR_SATURATION_B,
+ 668                _SIX_COLOR_HUE_M,
+ 669                _SIX_COLOR_SATURATION_M,
+ 670              #endif
+ 671              _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+ 672          
+ 673            },
+ 674          
+ 675            {// Movie
+ 676                _BRIGHTNESS_DEFAULT,
+ 677                _CONTRAST_DEFAULT,
+ 678              100,//_BACKLIGHT_DEFAULT,
+ 679                _SRGB_BACKLIGHT,          // usBackLightSrgb
+ 680              //--------------------------------------------------------
+ 681              _GAMMA_24,        // b6GammaMode
+ 682              //--------------------------------------------------------
+ 683                _SHARPNESS_DEFAULT,   // b4Sharpness
+ 684                _BLK_STABLE_DEFAULT,  // b4BlackStabilization
+ 685              //--------------------------------------------------------
+ 686              _COLORTEMP_DEFAULT,     // b4ColorTemp
+ 687              _OFF,         // b3Unused1
+ 688              _BLUELIGHT_STATUS,      // b1BlueLightStatus
+ 689              //--------------------------------------------------------
+ 690              _BLUELIGHT_DEFAULT,     // ucBlueLightValue
+ 691              //--------------------------------------------------------
+ 692              _DCR_DEFAULT,     // b3AdvanceDCR
+ 693              _LATENCY_DEFAULT,   // b2LowLagMode
+ 694              _OD_DEFAULT,      // b2ODMode
+ 695              _OFF,         // b1SmartSync
+ 696              //--------------------------------------------------------
+ 697              _DCR_DEFAULT,     // b3BackupAdvanceDCR
+ 698              _LATENCY_DEFAULT,   // b2BackupLowLagMode
+ 699              _OD_DEFAULT,      // b2BackupODMode
+ 700              _OFF,         // b1BackupSmartSync
+ 701              //--------------------------------------------------------
+ 702              _ASPECT_RATIO_DEFAULT,  // b4AspectRatio
+ 703            #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+ 704              _OFF,  // b1OverScan
+ 705            #endif
+ 706          
+ 707              #if(_SIX_COLOR_SUPPORT == _ON)
+ 708              _SIX_COLOR_HUE_R,
+ 709                _SIX_COLOR_SATURATION_R,
+ 710                _SIX_COLOR_HUE_Y,
+ 711                _SIX_COLOR_SATURATION_Y,
+ 712                _SIX_COLOR_HUE_G,
+ 713                _SIX_COLOR_SATURATION_G,
+ 714                _SIX_COLOR_HUE_C,
+ 715                _SIX_COLOR_SATURATION_C,
+ 716                _SIX_COLOR_HUE_B,
+ 717                _SIX_COLOR_SATURATION_B,
+ 718                _SIX_COLOR_HUE_M,
+ 719                _SIX_COLOR_SATURATION_M,
+ 720              #endif
+ 721          
+ 722              _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+ 723          
+ 724            },
+ 725          
+ 726            {// Web
+ 727                _BRIGHTNESS_DEFAULT,
+ 728                _CONTRAST_DEFAULT,
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 13  
+
+ 729                100,//_BACKLIGHT_DEFAULT,
+ 730                   _SRGB_BACKLIGHT,          // usBackLightSrgb
+ 731              //--------------------------------------------------------
+ 732              _GAMMA_28,        // b6GammaMode
+ 733              //--------------------------------------------------------
+ 734                _SHARPNESS_DEFAULT,   // b4Sharpness
+ 735                _BLK_STABLE_DEFAULT,  // b4BlackStabilization
+ 736              //--------------------------------------------------------
+ 737              _COLORTEMP_DEFAULT,     // b4ColorTemp
+ 738              _OFF,         // b3Unused1
+ 739              _BLUELIGHT_STATUS,      // b1BlueLightStatus
+ 740              //--------------------------------------------------------
+ 741              _BLUELIGHT_DEFAULT,     // ucBlueLightValue
+ 742              //--------------------------------------------------------
+ 743              _DCR_DEFAULT,     // b3AdvanceDCR
+ 744              _LATENCY_DEFAULT,   // b2LowLagMode
+ 745              _OD_DEFAULT,      // b2ODMode
+ 746              _OFF,         // b1SmartSync
+ 747              //--------------------------------------------------------
+ 748              _DCR_DEFAULT,     // b3BackupAdvanceDCR
+ 749              _LATENCY_DEFAULT,   // b2BackupLowLagMode
+ 750              _OD_DEFAULT,      // b2BackupODMode
+ 751              _OFF,         // b1BackupSmartSync
+ 752              //--------------------------------------------------------
+ 753              _ASPECT_RATIO_DEFAULT,  // b4AspectRatio
+ 754            #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+ 755              _OFF,  // b1OverScan
+ 756            #endif
+ 757          
+ 758              #if(_SIX_COLOR_SUPPORT == _ON)
+ 759              _SIX_COLOR_HUE_R,
+ 760                _SIX_COLOR_SATURATION_R,
+ 761                _SIX_COLOR_HUE_Y,
+ 762                _SIX_COLOR_SATURATION_Y,
+ 763                _SIX_COLOR_HUE_G,
+ 764                _SIX_COLOR_SATURATION_G,
+ 765                _SIX_COLOR_HUE_C,
+ 766                _SIX_COLOR_SATURATION_C,
+ 767                _SIX_COLOR_HUE_B,
+ 768                _SIX_COLOR_SATURATION_B,
+ 769                _SIX_COLOR_HUE_M,
+ 770                _SIX_COLOR_SATURATION_M,
+ 771              #endif
+ 772          
+ 773                _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+ 774          
+ 775            },
+ 776          
+ 777            {// Text
+ 778                _BRIGHTNESS_DEFAULT,
+ 779                _CONTRAST_DEFAULT,
+ 780                _SRGB_BACKLIGHT,    //_DEF_OSD_VIE_TEXT_BACK,
+ 781                _SRGB_BACKLIGHT,        // usBackLightSrgb
+ 782              //--------------------------------------------------------
+ 783              _GAMMA_24,        // b6GammaMode
+ 784              //--------------------------------------------------------
+ 785                _SHARPNESS_DEFAULT,   // b4Sharpness
+ 786                _BLK_STABLE_DEFAULT,  // b4BlackStabilization
+ 787              //--------------------------------------------------------
+ 788          #if(_DEF_GAMMA_TOOL_TEST)
+                  _CT_6500,       // b4ColorTemp
+              #else
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 14  
+
+ 791              _OSD_CT_VIE_TEXT,//_CT_6500,          // b4ColorTemp
+ 792          #endif
+ 793              _OFF,         // b3Unused1
+ 794              _ENABLE,      // b1BlueLightStatus
+ 795              //--------------------------------------------------------
+ 796          #if(_DEF_GAMMA_TOOL_TEST)
+                  _BLUELIGHT_DEFAULT,
+              #else
+ 799              _BLUELIGHT_30,      // ucBlueLightValue
+ 800          #endif
+ 801              //--------------------------------------------------------
+ 802              _DCR_DEFAULT,     // b3AdvanceDCR
+ 803              _LATENCY_DEFAULT,   // b2LowLagMode
+ 804              _OD_DEFAULT,      // b2ODMode
+ 805              _OFF,         // b1SmartSync
+ 806              //--------------------------------------------------------
+ 807              _DCR_DEFAULT,     // b3BackupAdvanceDCR
+ 808              _LATENCY_DEFAULT,   // b2BackupLowLagMode
+ 809              _OD_DEFAULT,      // b2BackupODMode
+ 810              _OFF,         // b1BackupSmartSync
+ 811              //--------------------------------------------------------
+ 812              _ASPECT_RATIO_DEFAULT,  // b4AspectRatio
+ 813            #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+ 814              _OFF,  // b1OverScan
+ 815            #endif
+ 816          
+ 817              #if(_SIX_COLOR_SUPPORT == _ON)
+ 818              _SIX_COLOR_HUE_R,
+ 819                _SIX_COLOR_SATURATION_R,
+ 820                _SIX_COLOR_HUE_Y,
+ 821                _SIX_COLOR_SATURATION_Y,
+ 822                _SIX_COLOR_HUE_G,
+ 823                _SIX_COLOR_SATURATION_G,
+ 824                _SIX_COLOR_HUE_C,
+ 825                _SIX_COLOR_SATURATION_C,
+ 826                _SIX_COLOR_HUE_B,
+ 827                _SIX_COLOR_SATURATION_B,
+ 828                _SIX_COLOR_HUE_M,
+ 829                _SIX_COLOR_SATURATION_M,
+ 830              #endif
+ 831          
+ 832                _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+ 833          
+ 834            },
+ 835          #if(_DEF_VIEWMODE_MAC)
+              
+                {// MAC
+                    _BRIGHTNESS_DEFAULT,
+                    _CONTRAST_DEFAULT,
+                  100,//_BACKLIGHT_DEFAULT,
+                     _SRGB_BACKLIGHT,          // usBackLightSrgb
+                  //--------------------------------------------------------
+                  _GAMMA_DEFAULT,     // b6GammaMode
+                  //--------------------------------------------------------
+                    _SHARPNESS_DEFAULT,   // b4Sharpness
+                  _BLK_STABLE_DEFAULT,
+                  //--------------------------------------------------------
+              #if(_DEF_GAMMA_TOOL_TEST)
+                  _CT_6500,       // b4ColorTemp
+              #elif(_PROJECT_ID ==_ID_ZQ_2775E15_BOE_ME270QHB_NF2_8BIT_QHD180_VX2756_2K_PRO_2_20250224)
+                  _CT_6500,       // b4ColorTemp
+              #elif(_DEF_CT_SRGB_SUPPIRT)
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 15  
+
+                  _CT_SRGB,         // b4ColorTemp
+              #else
+                  _CT_6500,         // b4ColorTemp
+              #endif
+                  _OFF,         // b3Unused1
+                  _BLUELIGHT_STATUS,      // b1BlueLightStatus
+                  //--------------------------------------------------------
+                  _BLUELIGHT_DEFAULT,     // ucBlueLightValue
+                  //--------------------------------------------------------
+                  _DCR_DEFAULT,     // b3AdvanceDCR
+                  _LATENCY_DEFAULT,   // b2LowLagMode
+                  _OD_DEFAULT,      // b2ODMode
+                  _OFF,         // b1SmartSync
+                  //--------------------------------------------------------
+                  _DCR_DEFAULT,     // b3BackupAdvanceDCR
+                  _LATENCY_DEFAULT,   // b2BackupLowLagMode
+                  _OD_DEFAULT,      // b2BackupODMode
+                  _OFF,         // b1BackupSmartSync
+                  //--------------------------------------------------------
+                  _ASPECT_RATIO_DEFAULT,  // b4AspectRatio
+                #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+                  _OFF,  // b1OverScan
+                #endif
+              
+                  #if(_SIX_COLOR_SUPPORT == _ON)
+                  _SIX_COLOR_HUE_R,
+                    _SIX_COLOR_SATURATION_R,
+                    _SIX_COLOR_HUE_Y,
+                    _SIX_COLOR_SATURATION_Y,
+                    _SIX_COLOR_HUE_G,
+                    _SIX_COLOR_SATURATION_G,
+                    _SIX_COLOR_HUE_C,
+                    _SIX_COLOR_SATURATION_C,
+                    _SIX_COLOR_HUE_B,
+                    _SIX_COLOR_SATURATION_B,
+                    _SIX_COLOR_HUE_M,
+                    _SIX_COLOR_SATURATION_M,
+                  #endif
+              
+                    _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+              
+                },
+                
+              #endif
+ 897          
+ 898            {// Mono
+ 899                _BRIGHTNESS_DEFAULT,
+ 900                _CONTRAST_DEFAULT,
+ 901                100,//_BACKLIGHT_DEFAULT,
+ 902                   _SRGB_BACKLIGHT,          // usBackLightSrgb
+ 903              //--------------------------------------------------------
+ 904              _GAMMA_28,        // b6GammaMode
+ 905              //--------------------------------------------------------
+ 906                _SHARPNESS_DEFAULT,   // b4Sharpness
+ 907                _BLK_STABLE_DEFAULT,  // b4BlackStabilization
+ 908              //--------------------------------------------------------
+ 909              #if _DEFAULT_OSD_STYLE==_TRG_OSD_STYLE
+ 910              _CT_9300,
+ 911              #else
+                  _CT_7500,         // b4ColorTemp
+                  #endif
+ 914              _OFF,         // b3Unused1
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 16  
+
+ 915              _BLUELIGHT_STATUS,      // b1BlueLightStatus
+ 916              //--------------------------------------------------------
+ 917              _BLUELIGHT_DEFAULT,     // ucBlueLightValue
+ 918              //--------------------------------------------------------
+ 919              _DCR_DEFAULT,     // b3AdvanceDCR
+ 920              _LATENCY_DEFAULT,   // b2LowLagMode
+ 921              _OD_DEFAULT,      // b2ODMode
+ 922              _OFF,         // b1SmartSync
+ 923              //--------------------------------------------------------
+ 924              _DCR_DEFAULT,     // b3BackupAdvanceDCR
+ 925              _LATENCY_DEFAULT,   // b2BackupLowLagMode
+ 926              _OD_DEFAULT,      // b2BackupODMode
+ 927              _OFF,         // b1BackupSmartSync
+ 928              //--------------------------------------------------------
+ 929              _ASPECT_RATIO_DEFAULT,  // b4AspectRatio
+ 930            #if(_OVERSCAN_SAVE_BY_INPUTPORT == _OFF)
+ 931              _OFF,  // b1OverScan
+ 932            #endif
+ 933              #if(_SIX_COLOR_SUPPORT == _ON)
+ 934              _SIX_COLOR_HUE_R,
+ 935                _SIX_COLOR_SATURATION_R_MONO,
+ 936                _SIX_COLOR_HUE_Y,
+ 937                _SIX_COLOR_SATURATION_Y_MONO,
+ 938                _SIX_COLOR_HUE_G,
+ 939                _SIX_COLOR_SATURATION_G_MONO,
+ 940                _SIX_COLOR_HUE_C,
+ 941                _SIX_COLOR_SATURATION_C_MONO,
+ 942                _SIX_COLOR_HUE_B,
+ 943                _SIX_COLOR_SATURATION_B_MONO,
+ 944                _SIX_COLOR_HUE_M,
+ 945                _SIX_COLOR_SATURATION_M_MONO,
+ 946              #endif
+ 947                _FREQUENCE_LIMIT_OFF, // ucFrequenceLimit     
+ 948          
+ 949            },
+ 950          #endif
+ 951          };
+ 952          
+ 953          
+ 954          
+ 955          
+ 956          code StructColorProcDataType tColorTempDefaultData[] =
+ 957          {
+ 958          #if(_DEF_CT_SRGB_SUPPIRT == _ON)
+                  {
+                      _CTSRGB_RED,
+                      _CTSRGB_GREEN,
+                      _CTSRGB_BLUE,
+                  },
+              #endif
+ 965          
+ 966              {
+ 967                  _CT9300_RED,
+ 968                  _CT9300_GREEN,
+ 969                  _CT9300_BLUE,
+ 970              },
+ 971          
+ 972              {
+ 973                  _CT7500_RED,
+ 974                  _CT7500_GREEN,
+ 975                  _CT7500_BLUE,
+ 976              },
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 17  
+
+ 977          
+ 978              {
+ 979                  _CT6500_RED,
+ 980                  _CT6500_GREEN,
+ 981                  _CT6500_BLUE,
+ 982              },
+ 983              
+ 984          #if(_DEF_CT_5800_SUPPORT == _ON)
+                  {
+                      _CT5800_RED,
+                      _CT5800_GREEN,
+                      _CT5800_BLUE,
+                  },
+              #endif
+ 991          
+ 992              {
+ 993                  _CTUSER_RED,
+ 994                  _CTUSER_GREEN,
+ 995                  _CTUSER_BLUE,
+ 996              },
+ 997          
+ 998          #if (_BLUE_LIGHT_FILTER_SUPPORT == _ON)
+ 999            {
+1000              _CT4500_RED,
+1001              _CT4500_GREEN,
+1002              _CT4500_BLUE,
+1003            },
+1004          #endif
+1005          
+1006          #if (_VIEWMODE_SUPPORT == _ON)
+1007            {
+1008              _CTGAME_RED,
+1009              _CTGAME_GREEN,
+1010              _CTGAME_BLUE,
+1011            },
+1012          
+1013            {
+1014              _CTMOVIE_RED,
+1015              _CTMOVIE_GREEN,
+1016              _CTMOVIE_BLUE,
+1017            },
+1018          
+1019            {
+1020              _CTWEB_RED,
+1021              _CTWEB_GREEN,
+1022              _CTWEB_BLUE,
+1023            },
+1024          
+1025            {
+1026              _CTTEXT_RED,
+1027              _CTTEXT_GREEN,
+1028              _CTTEXT_BLUE,
+1029            },
+1030          
+1031            {
+1032              _CTMAC_RED,
+1033              _CTMAC_GREEN,
+1034              _CTMAC_BLUE,
+1035            },
+1036          
+1037            {
+1038              _CTMONO_RED,
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 18  
+
+1039              _CTMONO_GREEN,
+1040              _CTMONO_BLUE,
+1041            },
+1042          #endif
+1043          
+1044              
+1045          };
+1046          /*
+1047          code StructSixColorDataType g_stSixColorDefaultData =
+1048          {
+1049              _SIX_COLOR_HUE_R,
+1050              _SIX_COLOR_SATURATION_R,
+1051              _SIX_COLOR_HUE_Y,
+1052              _SIX_COLOR_SATURATION_Y,
+1053              _SIX_COLOR_HUE_G,
+1054              _SIX_COLOR_SATURATION_G,
+1055              _SIX_COLOR_HUE_C,
+1056              _SIX_COLOR_SATURATION_C,
+1057              _SIX_COLOR_HUE_B,
+1058              _SIX_COLOR_SATURATION_B,
+1059              _SIX_COLOR_HUE_M,
+1060              _SIX_COLOR_SATURATION_M,
+1061          };*/
+1062          
+1063          //****************************************************************************
+1064          // VARIABLE DECLARATIONS
+1065          //****************************************************************************
+1066          // StructOsdUserDataType g_stOsdUserData;
+1067          StructColorProcDataType g_stColorProcData;
+1068          // StructOsdInputPortDataType g_pstOsdInputPortData[10];
+1069          // StructOsdRegionDataType g_pstOsdRegionData[2];
+1070          // StructOsdDisplayModeDataType g_stOsdDisplayModeData;
+1071          // StructOsdItemDataType g_stOsdItemData;
+1072          //VSCStructOsdUserDataType g_vscstOSDUserData;
+1073          
+1074          StructOsdUserDataType g_stOSDUserData;
+1075          StructVscSceneModeDataType g_stVscSceneModeData;
+1076          StructBriConDataType g_stBriConData;
+1077          //StructSixColorDataType g_stSixColorData;
+1078          StructTimeType g_stPanelTimeData;
+1079          #if(_SYSTEM_EEPROM_EMULATION_SUPPORT == _ON)
+1080          DWORD g_ulFlashMoveCount;
+1081          BYTE g_ucFlashLastPage = _SYSTEM_EEPROM_EMULATION_START_PAGE;
+1082          WORD g_pusFlashAddrArr[_END_OF_PAGEID - _START_OF_PAGEID + 1];
+1083          BYTE g_pucFlashPageArr[_END_OF_PAGEID - _START_OF_PAGEID + 1];
+1084          #endif
+1085          
+1086          //****************************************************************************
+1087          // FUNCTION DECLARATIONS
+1088          //****************************************************************************
+1089          #if(_SYSTEM_EEPROM_EMULATION_SUPPORT == _OFF)
+              void RTDEepromStartup(void);
+              void RTDEepromWholeRestore(void);
+              void RTDEepromRestoreBacklight(void);
+              void RTDEepromLoadOSDData(void);
+              void RTDEepromSaveOSDData(void);
+              void RTDEepromRestoreOSDData(void);
+              void RTDEepromLoadBriCon(BYTE ucSource);
+              void RTDEepromSaveBriCon(BYTE ucSource);
+              void RTDEepromRestoreBriCon(void);
+              void RTDEepromLoadColorSetting(BYTE ucColorTempType);
+              void RTDEepromSaveColorSetting(BYTE ucColorTempType);
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 19  
+
+              void RTDEepromRestoreColorSetting(void);
+              void RTDEepromRestoreUserColorSetting(void);
+              void RTDEepromLoadSixColorData(void);
+              void RTDEepromSaveSixColorData(void);
+              void RTDEepromRestoreSixColorData(void);
+              void RTDEepromLoadPanelUsedTimeData(void);
+              void RTDEepromSavePanelUsedTimeData(void);
+              void RTDEepromRestorePanelUsedTimeData(void);
+              
+              #else // Else of #if(_SYSTEM_EEPROM_EMULATION_SUPPORT == _OFF)
+1111          
+1112          BYTE RTDFlashGetFreePage(void);
+1113          bit RTDFlashIsPageInfoValid(BYTE ucPage);
+1114          void RTDFlashInitialDataPage(BYTE ucPageID);
+1115          WORD RTDFlashSearchPageAddr(BYTE ucPageID);
+1116          void RTDFlashInitialAddr(void);
+1117          void RTDFlashLoadChecksumVersioncode(BYTE *pucChecksum, BYTE *pucVersionCode);
+1118          void RTDFlashSaveChecksumVersionCode(BYTE ucChecksum, BYTE ucVersionCode);
+1119          bit RTDFlashMoveData(BYTE ucPageID, BYTE *pucData);
+1120          
+1121          void RTDFlashStartup(void);
+1122          void RTDFlashWholeRestore(void);
+1123          void RTDFlashRestoreBacklight(void);
+1124          void RTDFlashLoadOSDData(void);
+1125          void RTDFlashSaveOSDData(void);
+1126          void RTDFlashRestoreOSDData(void);
+1127          void RTDFlashLoadBriCon(BYTE ucSource);
+1128          void RTDFlashSaveBriCon(BYTE ucSource);
+1129          void RTDFlashRestoreBriCon(void);
+1130          void RTDFlashLoadColorSetting(BYTE ucColorTempType);
+1131          void RTDFlashSaveColorSetting(BYTE ucColorTempType);
+1132          void RTDFlashRestoreColorSetting(void);
+1133          void RTDFlashRestoreUserColorSetting(void);
+1134          /*void RTDFlashLoadSixColorData(void);
+1135          void RTDFlashSaveSixColorData(void);
+1136          void RTDFlashRestoreSixColorData(void);*/
+1137          void RTDFlashLoadPanelUsedTimeData(void);
+1138          void RTDFlashSavePanelUsedTimeData(void);
+1139          void RTDFlashRestorePanelUsedTimeData(void);
+1140          #if(_PANEL_EXIST_MULTIPANEL == _ON)
+              void RTDFlashLoadPanelIndex(void);
+              void RTDFlashSavePanelIndex(void);
+              void RTDFlashRestorePanelIndex(void);
+              #endif // End of #if(_PANEL_EXIST_MULTIPANEL == _ON)
+1145          
+1146          #endif // End of #elif(_SYSTEM_EEPROM_EMULATION_SUPPORT == _ON)
+1147          BYTE RTDNVRamTransferOsdRegionType(BYTE ucDisplayMode, BYTE ucRegion);
+1148          BYTE RTDNVRamTransferOsdRegionIndex(BYTE ucDisplayMode, BYTE ucRegion);
+1149          
+1150          #if 0//(_DEF_DDCCI_EDID_TOOL)
+              void RTDFlashGetSNData(void);
+              void RTDFlashSaveSNData(void);
+              #endif
+1154          
+1155          #if(_WRITE_EDID_TO_SYSTEM_EEPROM == _ON)
+1156          extern void UserCommonInterfaceNVRamRestoreEDID(void);
+1157          #endif
+1158          
+1159          
+1160          
+1161          #if((_D1_INPUT_PORT_TYPE!=_D1_NO_PORT)&&(_D1_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D1_E
+             -MBEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 20  
+
+1162            ((_D2_INPUT_PORT_TYPE!=_D2_NO_PORT)&&(_D2_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D2_EMB
+             -EDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+1163              ((_D3_INPUT_PORT_TYPE!=_D3_NO_PORT)&&(_D3_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D3_EM
+             -BEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+1164              ((_A0_INPUT_PORT_TYPE!=_A0_NO_PORT)&&(_A0_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_A0_EM
+             -BEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+1165              ((_D0_INPUT_PORT_TYPE!=_D0_NO_PORT)&&(_D0_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D0_EM
+             -BEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))
+1166          extern void UserCommonInterfaceNVRamSaveEDIDWhenProgramming(void);
+1167          #endif
+1168          
+1169          //****************************************************************************
+1170          // FUNCTION DEFINITIONS
+1171          //****************************************************************************
+1172          #if(_SYSTEM_EEPROM_EMULATION_SUPPORT == _OFF)
+              //--------------------------------------------------
+              // Description  : Eeprom check at firmware startup
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromStartup(void)
+              {
+                  BYTE ucCnt = 0;
+              
+                  // Check twice if VERSION CODE matches
+                  for(ucCnt = 0; ucCnt < 2; ucCnt++)
+                  {
+                      pData[0] = _CHECKSUM ^ 0xFF;
+                      pData[1] = _VERSION_CODE ^ 0xFF;
+                      UserCommonEepromRead(_EEPROM_CHECKSUM_ADDRESS, 2, pData);
+              
+                      if((pData[0] == _CHECKSUM) && (pData[1] == _VERSION_CODE))
+                      {
+                          break;
+                      }
+                  }
+              
+                  if(pData[0] != _CHECKSUM)
+                  {
+                      BYTE pucData[3] = {0};
+              
+                      // Load default value and save to EEPROM
+                      RTDEepromWholeRestore();
+              
+                      // Save VERSION CODE to EEPROM
+                      pucData[0] = _CHECKSUM;
+                      pucData[1] = _VERSION_CODE;
+                      pucData[2] = 0; // _PANEL_INDEX_ADDRESS
+              
+              #if(_PANEL_EXIST_MULTIPANEL == _ON)
+                      SET_MDOMAIN_PANEL_INDEX(0);
+              #endif
+              
+                      UserCommonEepromWrite(_EEPROM_CHECKSUM_ADDRESS, 2, pucData);
+                      UserCommonEepromWrite(_PANEL_INDEX_ADDRESS, 1, &pucData[2]);
+                  }
+                  else if(pData[1] != _VERSION_CODE)
+                  {
+                      g_stColorProcData = tColorTempDefaultData[_CT_USER];
+                      RTDEepromSaveColorSetting(_CT_USER);
+              
+                      UserCommonEepromRestoreSystemData();
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 21  
+
+                      RTDEepromRestoreOSDData();
+              
+              #if(_VGA_SUPPORT == _ON)
+                      UserCommonEepromRestoreModeUserData();
+              #endif
+              
+                      RTDEepromRestoreBriCon();
+                      RTDEepromRestoreSixColorData();
+              
+              #if(_PANEL_EXIST_MULTIPANEL == _ON)
+                      UserCommonEepromRead(_PANEL_INDEX_ADDRESS, 1, pData);
+                      SET_MDOMAIN_PANEL_INDEX(pData[0]);
+              #endif
+              
+                      pData[1] = _VERSION_CODE;
+                      UserCommonEepromWrite(_EEPROM_VERSION_CODE_ADDRESS, 1, &pData[1]);
+                  }
+                  else
+                  {
+                      UserCommonEepromLoadSystemData();
+                      RTDEepromLoadOSDData();
+                      RTDEepromLoadSixColorData();
+                      RTDEepromLoadPanelUsedTimeData();
+              
+              #if(_PANEL_EXIST_MULTIPANEL == _ON)
+                      UserCommonEepromRead(_PANEL_INDEX_ADDRESS, 1, pData);
+                      SET_MDOMAIN_PANEL_INDEX(pData[0]);
+              #endif
+              
+                      // Check PCM Flag
+                      if(GET_OSD_PCM_STATUS() > _PCM_OSD_AMOUNT)
+                      {
+                          SET_OSD_PCM_STATUS(_PCM_OSD_NATIVE);
+                          RTDEepromSaveOSDData();
+                      }
+              
+              #if(_OSD_3D_FUNCTION == _ON)
+                      if((GET_OSD_3DOSD_STATUS() == _ON) &&
+                         ((GET_OSD_ROTATE_STATUS() == _OSD_ROTATE_DEGREE_90) ||
+                          (GET_OSD_ROTATE_STATUS() == _OSD_ROTATE_DEGREE_270)))
+                      {
+                          SET_OSD_ROTATE_STATUS(_OSD_ROTATE_DEGREE_0);
+                          RTDEepromSaveOSDData();
+                      }
+              #endif
+                  }
+              
+                  // SysSourceSetScanType(_SOURCE_SWITCH_AUTO_IN_GROUP);
+                  /*
+                  if(UserCommonNVRamGetSystemData(_SOURCE_SCAN_TYPE) != SysSourceGetScanType())
+                  {
+                      UserCommonNVRamSetSystemData(_SOURCE_SCAN_TYPE, SysSourceGetScanType());
+                      SET_OSD_EVENT_MESSAGE(_OSDEVENT_SAVE_NVRAM_SYSTEMDATA_MSG);
+                  }
+                  */
+              
+                  RTDEepromLoadColorSetting(GET_COLOR_TEMP_TYPE());
+              }
+              
+              //--------------------------------------------------
+              // Description  : Load default data and save to EEPROM
+              // Input Value  : None
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 22  
+
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromWholeRestore(void)
+              {
+                  UserCommonEepromRestoreSystemData();
+                  RTDEepromRestoreOSDData();
+              
+              #if(_VGA_SUPPORT == _ON)
+                  UserCommonEepromRestoreModeUserData();
+                  UserCommonEepromRestoreADCSetting();
+              #endif
+              
+                  RTDEepromRestoreBriCon();
+                  RTDEepromRestoreColorSetting();
+                  RTDEepromRestoreUserColorSetting();
+              
+                  RTDEepromRestoreSixColorData();
+                  RTDEepromRestorePanelUsedTimeData();
+              }
+              
+              //--------------------------------------------------
+              // Description  : Restore default backlight
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromRestoreBacklight(void)
+              {
+                  SET_OSD_BACKLIGHT(g_stOSDDefaultData.usBackLight);
+                  RTDEepromSaveOSDData();
+              }
+              
+              //--------------------------------------------------
+              // Description  : Load OSD data from EEPROM
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromLoadOSDData(void)
+              {
+                  UserCommonEepromRead(_OSD_DATA_ADDRESS, sizeof(StructOsdUserDataType), (BYTE *)(&g_stOSDUserData));
+              
+              #if(_DP_MST_SUPPORT == _ON)
+                  if((GET_OSD_DP_MST() != _MST_OFF) &&
+                     (SysSourceGetScanType() != _SOURCE_SWITCH_FIXED_PORT))
+                  {
+                      SET_OSD_DP_MST(_MST_OFF);
+                  }
+              #endif
+              }
+              
+              //--------------------------------------------------
+              // Description  : Save OSD data to EEPROM
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromSaveOSDData(void)
+              {
+                  UserCommonEepromWrite(_OSD_DATA_ADDRESS, sizeof(StructOsdUserDataType), (BYTE *)(&g_stOSDUserData));
+              }
+              
+              //--------------------------------------------------
+              // Description  : Restore default OSD data
+              // Input Value  : None
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 23  
+
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromRestoreOSDData(void)
+              {
+                  g_stOSDUserData = g_stOSDDefaultData;
+                  RTDEepromSaveOSDData();
+              }
+              
+              //--------------------------------------------------
+              // Description  : Load brightness/contrast from EEPROM
+              // Input Value  : ucSource --> Source Type
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromLoadBriCon(BYTE ucSource)
+              {
+                  UserCommonEepromRead(_BRICON_DATA_ADDRESS + ucSource * sizeof(StructBriConDataType), sizeof(StructBriC
+             -onDataType), (BYTE *)(&g_stBriConData));
+              }
+              
+              //--------------------------------------------------
+              // Description  : Save brightness/contrast to EEPROM
+              // Input Value  : ucSource --> Source Type
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromSaveBriCon(BYTE ucSource)
+              {
+                  UserCommonEepromWrite(_BRICON_DATA_ADDRESS + ucSource * sizeof(StructBriConDataType), sizeof(StructBri
+             -ConDataType), (BYTE *)(&g_stBriConData));
+              }
+              
+              //--------------------------------------------------
+              // Description  : Restore default brightness/contrast
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromRestoreBriCon(void)
+              {
+                  BYTE ucTemp = 0;
+              
+                  for(ucTemp = 0; ucTemp < _SOURCE_AMOUNT; ucTemp++)
+                  {
+                      g_stBriConData = tBriConDefaultData[ucTemp];
+                      RTDEepromSaveBriCon(ucTemp);
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Load color settings from EEPROM
+              // Input Value  : ucSource --> Source Type
+              //                ucColorTempType --> Color Temp Type
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromLoadColorSetting(BYTE ucColorTempType)
+              {
+              #if(_OGC_SUPPORT == _ON)
+                  if(GET_OSD_GAMMA() != _GAMMA_OFF)
+                  {
+                      UserCommonAdjustOGCColorTempGain(ucColorTempType, (GET_OSD_GAMMA() - 1), pData, _OGC_NORMAL_TYPE);
+              
+              #if(_CTS_TYPE == _CTS_GEN_1_12BIT)
+                      g_stColorProcData.usColorTempR = PDATA_WORD(0);
+                      g_stColorProcData.usColorTempG = PDATA_WORD(1);
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 24  
+
+                      g_stColorProcData.usColorTempB = PDATA_WORD(2);
+              #elif(_CTS_TYPE == _CTS_GEN_0_8BIT)
+                      g_stColorProcData.usColorTempR = pData[0];
+                      g_stColorProcData.usColorTempG = pData[1];
+                      g_stColorProcData.usColorTempB = pData[2];
+              #endif
+                      return;
+                  }
+              #endif
+              
+              #if(_OCC_PCM_GAMMA_SUPPORT == _ON)
+                  if(GET_OSD_GAMMA() != _GAMMA_OFF)
+                  {
+                      g_stColorProcData.usColorTempR = 0x800;
+                      g_stColorProcData.usColorTempG = 0x800;
+                      g_stColorProcData.usColorTempB = 0x800;
+                      return;
+                  }
+              #endif
+              
+                  UserCommonEepromRead(_COLORTEMP_DATA_ADDRESS + (ucColorTempType) * sizeof(StructColorProcDataType), si
+             -zeof(StructColorProcDataType), (BYTE *)(&g_stColorProcData.usColorTempR));
+              
+                  /*
+                  else
+                  {
+                      g_stColorProcData.usColorTempR = 0x800;
+                      g_stColorProcData.usColorTempG = 0x800;
+                      g_stColorProcData.usColorTempB = 0x800;
+                  }
+                  */
+              }
+              
+              //--------------------------------------------------
+              // Description  : Save color settings to EEPROM
+              // Input Value  : ucSource --> Source Type
+              //                ucColorTempType --> Color Temp Type
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromSaveColorSetting(BYTE ucColorTempType)
+              {
+                  // if(ucColorTempType != _CT_OFF)
+                  {
+                      UserCommonEepromWrite(_COLORTEMP_DATA_ADDRESS + (ucColorTempType) * sizeof(StructColorProcDataType
+             -), sizeof(StructColorProcDataType), (BYTE *)(&g_stColorProcData.usColorTempR));
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Restore default color settings
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromRestoreColorSetting(void)
+              {
+                  BYTE ucTemp = 0;
+                  for(ucTemp = _CT_9300; ucTemp < _CT_USER; ucTemp++)
+                  {
+                      g_stColorProcData = tColorTempDefaultData[ucTemp];
+                      RTDEepromSaveColorSetting(ucTemp);
+                  }
+              }
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 25  
+
+              
+              //--------------------------------------------------
+              // Description  : Restore default color settings
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromRestoreUserColorSetting(void)
+              {
+                  StructColorProcDataType stUserColorTemp;
+                  BYTE ucIndex = 0;
+              
+                  for(ucIndex = _CT_9300; ucIndex <= _CT_USER; ++ucIndex)
+                  {
+                      stUserColorTemp = tColorTempDefaultData[ucIndex];
+                      UserCommonEepromWrite(_COLORTEMP_DATA_ADDRESS + (ucIndex) * sizeof(StructColorProcDataType), sizeo
+             -f(StructColorProcDataType), (BYTE *)(&stUserColorTemp));
+                  }
+              }
+              
+              /*
+              //--------------------------------------------------
+              // Description  : Load six color data from EEPROM
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromLoadSixColorData(void)
+              {
+                  UserCommonEepromRead(_SIXCOLOR_DATA_ADDRESS, sizeof(StructSixColorDataType), (BYTE *)(&g_stSixColorDat
+             -a));
+              }
+              
+              //--------------------------------------------------
+              // Description  : Save six color data from EEPROM
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromSaveSixColorData(void)
+              {
+                  UserCommonEepromWrite(_SIXCOLOR_DATA_ADDRESS, sizeof(StructSixColorDataType), (BYTE *)(&g_stSixColorDa
+             -ta));
+              }
+              
+              //--------------------------------------------------
+              // Description  : Restore default six color data
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromRestoreSixColorData(void)
+              {
+                  g_stSixColorData = g_stSixColorDefaultData;
+                  RTDEepromSaveSixColorData();
+              }
+              */
+              //--------------------------------------------------
+              // Description  : Load Panel Used Time Data from EEPROM
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromLoadPanelUsedTimeData(void)
+              {
+                  UserCommonEepromRead(_PANEL_TIME_DATA_ADDRESS, sizeof(StructTimeType), (BYTE *)(&g_stPanelTimeData));
+              }
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 26  
+
+              
+              //--------------------------------------------------
+              // Description  : Save Panel Used Time Data from EEPROM
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromSavePanelUsedTimeData(void)
+              {
+                  UserCommonEepromWrite(_PANEL_TIME_DATA_ADDRESS, sizeof(StructTimeType), (BYTE *)(&g_stPanelTimeData));
+              }
+              
+              //--------------------------------------------------
+              // Description  : Restore Panel Used Time Data from EEPROM
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDEepromRestorePanelUsedTimeData(void)
+              {
+                  SET_PANEL_TIME_HOUR(0);
+                  SET_PANEL_TIME_MIN(0);
+              
+                  SET_PANEL_BURN_TIME_HOUR(0);
+                  SET_PANEL_BURN_TIME_MIN(0);
+                  RTDEepromSavePanelUsedTimeData();
+              }
+              
+              #else // Else of #if(_SYSTEM_EEPROM_EMULATION_SUPPORT == _OFF)
+1550          
+1551          //--------------------------------------------------
+1552          // Description  : Get the free page number of flash
+1553          // Input Value  : None
+1554          // Output Value : Free page index
+1555          //--------------------------------------------------
+1556          BYTE RTDFlashGetFreePage(void)
+1557          {
+1558   1          BYTE ucPageID = _START_OF_PAGEID;
+1559   1          BYTE ucFreePage = _SYSTEM_EEPROM_EMULATION_START_PAGE;
+1560   1      
+1561   1          // If the _END_PAGE page has the biggest move count, suppose first page is free page
+1562   1          if(g_ulFlashMoveCount > 0)
+1563   1          {
+1564   2              if(g_ucFlashLastPage >= _SYSTEM_EEPROM_EMULATION_END_PAGE)
+1565   2              {
+1566   3                  ucFreePage = _SYSTEM_EEPROM_EMULATION_START_PAGE;
+1567   3              }
+1568   2              else
+1569   2              {
+1570   3                  ucFreePage = g_ucFlashLastPage + 1;
+1571   3              }
+1572   2          }
+1573   1      
+1574   1          // Check the supposed free page is actual free page which has not been used ever
+1575   1          do
+1576   1          {
+1577   2              if(ucFreePage == g_pucFlashPageArr[ucPageID])
+1578   2              {
+1579   3                  if(ucFreePage >= _SYSTEM_EEPROM_EMULATION_END_PAGE)
+1580   3                  {
+1581   4                      ucFreePage = _SYSTEM_EEPROM_EMULATION_START_PAGE;
+1582   4                  }
+1583   3                  else
+1584   3                  {
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 27  
+
+1585   4                      ucFreePage += 1;
+1586   4                  }
+1587   3      
+1588   3                  ucPageID = _START_OF_PAGEID;
+1589   3              }
+1590   2              else
+1591   2              {
+1592   3                  ucPageID++;
+1593   3              }
+1594   2          }
+1595   1          while(ucPageID <= _END_OF_PAGEID);
+1596   1      
+1597   1          return ucFreePage;
+1598   1      }
+1599          
+1600          //--------------------------------------------------
+1601          // Description  : Check the page is vaild or not
+1602          // Input Value  : ucPage: The page to be check, must between 0 and (_END_PAGE - _START_PAGE)
+1603          // Output Value : _TRUE means the page is valid, _FLASE is invalid
+1604          //--------------------------------------------------
+1605          bit RTDFlashIsPageInfoValid(BYTE ucPage)
+1606          {
+1607   1          WORD usPageInfoAddr = ucPage * _FLASH_PAGE_SIZE;
+1608   1          BYTE ucPageInfoChecksum = 0;
+1609   1          BYTE pucPageInfo[5] = {0};
+1610   1          BYTE pucPageInfoTemp[4] = {0};
+1611   1      
+1612   1          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usPageInfoAddr + _PAGEINFO_CHECKSUM_ADDR, 5, 
+             -pucPageInfo);
+1613   1          pucPageInfoTemp[0] = pucPageInfo[1];
+1614   1          pucPageInfoTemp[1] = pucPageInfo[2];
+1615   1          pucPageInfoTemp[2] = pucPageInfo[3];
+1616   1          pucPageInfoTemp[3] = pucPageInfo[4];
+1617   1          ucPageInfoChecksum = UserCommonFlashCalculateCheckSumData(pucPageInfoTemp, 4);
+1618   1          ucPageInfoChecksum = (ucPageInfoChecksum & 0x7F);
+1619   1      
+1620   1          if(ucPageInfoChecksum == pucPageInfo[0])
+1621   1          {
+1622   2              return _TRUE;
+1623   2          }
+1624   1      
+1625   1          return _FALSE;
+1626   1      }
+1627          
+1628          //--------------------------------------------------
+1629          // Description  : Initial data page
+1630          // Input Value  : None
+1631          // Output Value : None
+1632          //--------------------------------------------------
+1633          void RTDFlashInitialDataPage(BYTE ucPageID)
+1634          {
+1635   1          WORD usAddr = _SYSTEM_EEPROM_EMULATION_START_PAGE * _FLASH_PAGE_SIZE;
+1636   1          BYTE ucFreePage = _SYSTEM_EEPROM_EMULATION_START_PAGE;
+1637   1         // BYTE ucVersionCode = 0;
+1638   1         // BYTE ucChecksum = 0;
+1639   1      
+1640   1          ucFreePage = RTDFlashGetFreePage();
+1641   1          // Initial page index
+1642   1          g_pucFlashPageArr[ucPageID] = ucFreePage;
+1643   1          // Initial address
+1644   1          g_pusFlashAddrArr[ucPageID] = 0;
+1645   1          // Initial move count
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 28  
+
+1646   1          if(g_ulFlashMoveCount == 0xFFFFFF)
+1647   1          {
+1648   2              g_ulFlashMoveCount = 0x01;
+1649   2          }
+1650   1          else
+1651   1          {
+1652   2              g_ulFlashMoveCount++;
+1653   2          }
+1654   1      
+1655   1          g_ucFlashLastPage = ucFreePage;
+1656   1      
+1657   1          usAddr = g_pucFlashPageArr[ucPageID] * _FLASH_PAGE_SIZE;
+1658   1          UserCommonFlashErasePage(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[ucPageID]);
+1659   1      
+1660   1          {
+1661   2              BYTE pucBuffer[5] = {0};
+1662   2      
+1663   2              pucBuffer[0] = ucPageID;
+1664   2              pucBuffer[1] = (BYTE)(g_ulFlashMoveCount >> 16);
+1665   2              pucBuffer[2] = (BYTE)(g_ulFlashMoveCount >> 8);
+1666   2              pucBuffer[3] = (BYTE)g_ulFlashMoveCount;
+1667   2              pucBuffer[4] = UserCommonFlashCalculateCheckSumData(pucBuffer, 4);
+1668   2              pucBuffer[4] = (pucBuffer[4] & 0x7F);
+1669   2      
+1670   2              //ucVersionCode = _VERSION_CODE;
+1671   2              //ucChecksum = _CHECKSUM;
+1672   2      
+1673   2              //UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCOD
+             -E_ID] * _FLASH_PAGE_SIZE + _FLASH_FW_VERSIONCODE_ADDR, 1, &ucVersionCode);
+1674   2              //UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCOD
+             -E_ID] * _FLASH_PAGE_SIZE + _FLASH_FW_CHECKSUM_ADDR, 1, &ucChecksum);
+1675   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usAddr + _PAGEINFO_PAGEID_ADDR, 4, pucBu
+             -ffer);
+1676   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usAddr + _PAGEINFO_CHECKSUM_ADDR, 1, &pu
+             -cBuffer[4]);
+1677   2          }
+1678   1      }
+1679          
+1680          //--------------------------------------------------
+1681          // Description  : Search the last saved item address, and next new item position
+1682          // Input Value  :
+1683          // Output Value :
+1684          //--------------------------------------------------
+1685          WORD RTDFlashSearchPageAddr(BYTE ucPageID)
+1686          {
+1687   1          WORD usItemAddr = 0;
+1688   1          WORD usPageAddr = 0;
+1689   1      
+1690   1          usPageAddr = g_pucFlashPageArr[ucPageID] * _FLASH_PAGE_SIZE;
+1691   1      
+1692   1          // Find the last data item address
+1693   1          for(usItemAddr = ((_FLASH_PAGE_SIZE - _PAGE_INFO_LENGTH) / _DATA_ITEM_LENGTH); usItemAddr > 0; usItemA
+             -ddr--)
+1694   1          {
+1695   2              UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usPageAddr + (usItemAddr - 1) * _DATA_ITE
+             -M_LENGTH, 1, pData);
+1696   2              if(pData[0] != 0xFF)
+1697   2              {
+1698   3                  return usItemAddr;
+1699   3              }
+1700   2          }
+1701   1      
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 29  
+
+1702   1          return 0;
+1703   1      }
+1704          
+1705          //--------------------------------------------------
+1706          // Description  : Flash address initial
+1707          // Input Value  : None
+1708          // Output Value : None
+1709          //--------------------------------------------------
+1710          void RTDFlashInitialAddr(void)
+1711          {
+1712   1          BYTE ucCnt = 0;
+1713   1          WORD usAddr = 0;
+1714   1          DWORD ulMoveCount = 0;
+1715   1          BYTE ucPageID = 0;
+1716   1          BYTE pucData[4] = {0};
+1717   1          DWORD ulMoveCountTemp = 0;
+1718   1      
+1719   1          g_ulFlashMoveCount = 0;
+1720   1          g_ucFlashLastPage = _SYSTEM_EEPROM_EMULATION_START_PAGE;
+1721   1      
+1722   1          for(ucPageID = _START_OF_PAGEID; ucPageID <= _END_OF_PAGEID; ucPageID++)
+1723   1          {
+1724   2              g_pucFlashPageArr[ucPageID] = 0xFF;
+1725   2          }
+1726   1      
+1727   1          // Find the page whose move count is the biggest and get the max move count
+1728   1          for(ucCnt = _SYSTEM_EEPROM_EMULATION_START_PAGE; ucCnt < (_SYSTEM_EEPROM_EMULATION_END_PAGE + 1); ucCn
+             -t++)
+1729   1          {
+1730   2              // Check the page is valid or not
+1731   2              if(RTDFlashIsPageInfoValid(ucCnt) == _TRUE)
+1732   2              {
+1733   3                  usAddr = ucCnt * _FLASH_PAGE_SIZE + _PAGEINFO_PAGEID_ADDR;
+1734   3      
+1735   3                  // Get the move count of current page
+1736   3                  UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usAddr, 4, pucData);
+1737   3                  ulMoveCount = ((DWORD)(pucData[1]) << 16) | ((DWORD)(pucData[2]) << 8) | ((DWORD)(pucData[3]))
+             -;
+1738   3      
+1739   3                  // Get the max move count and its page index, ulMoveCount Only 3 Bytes, extra Judge 0xFFFFFF <
+             - 0x000001 Case
+1740   3                  if(((ulMoveCount >= g_ulFlashMoveCount) && (!((ulMoveCount == 0xFFFFFF) && (g_ulFlashMoveCount
+             - == 0x01)))) ||\
+1741   3                     ((ulMoveCount < g_ulFlashMoveCount) && ((ulMoveCount == 0x01) && (g_ulFlashMoveCount == 0xF
+             -FFFFF))))
+1742   3                  {
+1743   4                      g_pucFlashPageArr[pucData[0]] = ucCnt;
+1744   4                      g_ulFlashMoveCount = ulMoveCount;
+1745   4                      g_ucFlashLastPage = ucCnt;
+1746   4                  }
+1747   3                  // Check Other vaild page index
+1748   3                  else
+1749   3                  {
+1750   4                      if(g_pucFlashPageArr[pucData[0]] == 0xFF)
+1751   4                      {
+1752   5                          g_pucFlashPageArr[pucData[0]] = ucCnt;
+1753   5                      }
+1754   4                      else // Check which page have begger Movecount
+1755   4                      {
+1756   5                          usAddr = g_pucFlashPageArr[pucData[0]] * _FLASH_PAGE_SIZE + _PAGEINFO_MOVECOUNT_ADDR;
+1757   5                          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usAddr, 3, &pucData[1]);
+1758   5                          ulMoveCountTemp = (((DWORD)(pucData[1]) << 16) | ((DWORD)(pucData[2]) << 8) | ((DWORD)
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 30  
+
+             -(pucData[3])));
+1759   5                          if(((ulMoveCount >= ulMoveCountTemp) && (!((ulMoveCount == 0xFFFFFF) && (ulMoveCountTe
+             -mp == 0x01)))) ||\
+1760   5                             ((ulMoveCount < ulMoveCountTemp) && ((ulMoveCount == 0x01) && (ulMoveCountTemp == 0
+             -xFFFFFF))))
+1761   5                          {
+1762   6                              g_pucFlashPageArr[pucData[0]] = ucCnt;
+1763   6                          }
+1764   5                      }
+1765   4                  }
+1766   3              }
+1767   2          }
+1768   1      
+1769   1          // If this page is missing, intial this single page
+1770   1          for(ucPageID = _START_OF_PAGEID; ucPageID <= _END_OF_PAGEID; ucPageID++)
+1771   1          {
+1772   2              if(g_pucFlashPageArr[ucPageID] == 0xFF)
+1773   2              {
+1774   3                  // This function will increase g_ulFlashMovePage,and now g_ucFlashLastPage is the page index w
+             -hich has the biggest move count value
+1775   3                  RTDFlashInitialDataPage(ucPageID);
+1776   3                  //RTDFlashSaveChecksumVersionCode(_CHECKSUM, _VERSION_CODE);
+1777   3              }
+1778   2              else
+1779   2              {
+1780   3                  // Initial g_pusFlashAddrArr
+1781   3                  g_pusFlashAddrArr[ucPageID] = RTDFlashSearchPageAddr(ucPageID);
+1782   3              }
+1783   2          }
+1784   1      }
+1785          
+1786          //--------------------------------------------------
+1787          // Description  : Get the checksum and version code from flash
+1788          // Input Value  : pucChecksum: the checksum get from flash
+1789          //                pucVersionCode: the version code get from flash
+1790          // Output Value : None
+1791          //--------------------------------------------------
+1792          void RTDFlashLoadChecksumVersioncode(BYTE *pucChecksum, BYTE *pucVersionCode)
+1793          {
+1794   1          // Get the checksum and version code
+1795   1          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_ID] *
+             - _FLASH_PAGE_SIZE + _FLASH_FW_CHECKSUM_ADDR, 1, pucChecksum);
+1796   1          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_ID] *
+             - _FLASH_PAGE_SIZE + _FLASH_FW_VERSIONCODE_ADDR, 1, pucVersionCode);
+1797   1      }
+1798          
+1799          #if(_WRITE_HDCP_TO_SYSTEM_EEPROM == _ON)
+1800          extern void UserCommonInterfaceNVRamRestoreHDCP(void);
+1801          #endif
+1802          
+1803          //--------------------------------------------------
+1804          // Description  : Save the checksum & version code to flash
+1805          // Input Value  : ucChecksum, checksum value
+1806          //                ucVersionCode, version code value
+1807          // Output Value : None
+1808          //--------------------------------------------------
+1809          void RTDFlashSaveChecksumVersionCode(BYTE ucChecksum, BYTE ucVersionCode)
+1810          {
+1811   1          BYTE ucVersionCodeRead = 0;
+1812   1          BYTE ucChecksumRead = 0;
+1813   1      
+1814   1      #if(_WRITE_EDID_TO_SYSTEM_EEPROM == _ON)
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 31  
+
+1815   1        UserCommonInterfaceNVRamRestoreEDID();
+1816   1      #endif
+1817   1      
+1818   1      #if((_D1_INPUT_PORT_TYPE!=_D1_NO_PORT)&&(_D1_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D1_E
+             -MBEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+1819   1            ((_D2_INPUT_PORT_TYPE!=_D2_NO_PORT)&&(_D2_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D2_E
+             -MBEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+1820   1              ((_D3_INPUT_PORT_TYPE!=_D3_NO_PORT)&&(_D3_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D3_
+             -EMBEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+1821   1              ((_A0_INPUT_PORT_TYPE!=_A0_NO_PORT)&&(_A0_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_A0_
+             -EMBEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+1822   1              ((_D0_INPUT_PORT_TYPE!=_D0_NO_PORT)&&(_D0_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D0_
+             -EMBEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))
+1823   1              
+1824   1              UserCommonInterfaceNVRamSaveEDIDWhenProgramming();
+1825   1      #endif
+1826   1      
+1827   1              // HDCP Initial
+1828   1      #if(_WRITE_HDCP_TO_SYSTEM_EEPROM == _ON)
+1829   1          //UserCommonInterfaceNVRamRestoreHDCP();
+1830   1      #endif // End of #if(_WRITE_HDCP_TO_SYSTEM_EEPROM == _ON)
+1831   1            
+1832   1      
+1833   1      
+1834   1          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_ID] *
+             - _FLASH_PAGE_SIZE + _FLASH_FW_VERSIONCODE_ADDR, 1, &ucVersionCodeRead);
+1835   1          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_ID] *
+             - _FLASH_PAGE_SIZE + _FLASH_FW_CHECKSUM_ADDR, 1, &ucChecksumRead);
+1836   1      
+1837   1          // Do not need save checksum or version code
+1838   1          if((ucVersionCode == ucVersionCodeRead) && (ucChecksum == ucChecksumRead))
+1839   1          {
+1840   2              return;
+1841   2          }
+1842   1          // Need to save version code and checksum in current page
+1843   1          else if((ucVersionCode != ucVersionCodeRead) && (ucVersionCodeRead == 0xFF) && (ucChecksum != ucChecks
+             -umRead) && (ucChecksumRead == 0xFF))
+1844   1          {
+1845   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_
+             -ID] * _FLASH_PAGE_SIZE + _FLASH_FW_VERSIONCODE_ADDR, 1, &ucVersionCode);
+1846   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_
+             -ID] * _FLASH_PAGE_SIZE + _FLASH_FW_CHECKSUM_ADDR, 1, &ucChecksum);
+1847   2          }
+1848   1          // Need to save version code in current page
+1849   1          else if((ucVersionCode != ucVersionCodeRead) && (ucVersionCodeRead == 0xFF) && (ucChecksum == ucChecks
+             -umRead))
+1850   1          {
+1851   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_
+             -ID] * _FLASH_PAGE_SIZE + _FLASH_FW_VERSIONCODE_ADDR, 1, &ucVersionCode);
+1852   2          }
+1853   1          // Need to save checksum in current page
+1854   1          else if((ucChecksum != ucChecksumRead) && (ucChecksumRead == 0xFF) && (ucVersionCode == ucVersionCodeR
+             -ead))
+1855   1          {
+1856   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_
+             -ID] * _FLASH_PAGE_SIZE + _FLASH_FW_CHECKSUM_ADDR, 1, &ucChecksum);
+1857   2          }
+1858   1          // Need to save checksum and version code to free page
+1859   1          else
+1860   1          {
+1861   2              memset(pData, 0xFF, _DATA_ITEM_LENGTH);
+1862   2              RTDFlashMoveData(_CHECKSUM_VERSIONCODE_ID, pData);
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 32  
+
+1863   2      
+1864   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_
+             -ID] * _FLASH_PAGE_SIZE + _FLASH_FW_VERSIONCODE_ADDR, 1, &ucVersionCode);
+1865   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[_CHECKSUM_VERSIONCODE_
+             -ID] * _FLASH_PAGE_SIZE + _FLASH_FW_CHECKSUM_ADDR, 1, &ucChecksum);
+1866   2          }
+1867   1      }
+1868          
+1869          //--------------------------------------------------
+1870          // Description  : Move data to another page of flash
+1871          // Input Value  : None
+1872          // Output Value : None
+1873          //--------------------------------------------------
+1874          bit RTDFlashMoveData(BYTE ucPageID, BYTE *pucData)
+1875          {
+1876   1          BYTE ucPrevPage = g_pucFlashPageArr[ucPageID];
+1877   1          BYTE ucFreePage = _SYSTEM_EEPROM_EMULATION_START_PAGE;
+1878   1          BYTE ucItemIndex = 0;
+1879   1          WORD usAddrIndex = 0;
+1880   1          WORD usMovedItemCount = 0;
+1881   1          BYTE ucChecksum = 0xFF;
+1882   1          BYTE ucVersioncode = 0xFF;
+1883   1      
+1884   1          // Load checksum and version code
+1885   1          if(pucData[0] != 0xFF)
+1886   1          {
+1887   2              RTDFlashLoadChecksumVersioncode(&ucChecksum, &ucVersioncode);
+1888   2          }
+1889   1      
+1890   1          // Get free page data will move to
+1891   1          ucFreePage = RTDFlashGetFreePage();
+1892   1      
+1893   1          // First sector erase the free page specified by g_ucFlashFreePage
+1894   1          if(UserCommonFlashErasePage(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, ucFreePage) == _FALSE)
+1895   1          {
+1896   2              return _FALSE;
+1897   2          }
+1898   1      
+1899   1          // Save the latest data item to the new page if need, when save checksum and version, it is not necess
+             -ary
+1900   1          // We do not save the item id at last because page info has not been saved
+1901   1          if(pucData[0] != 0xFF)
+1902   1          {
+1903   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, ucFreePage * _FLASH_PAGE_SIZE + ucItemIn
+             -dex, _DATA_ITEM_LENGTH, pucData);
+1904   2      
+1905   2              // Clear Buffer
+1906   2              memset(pucData, 0xFF, _DATA_ITEM_LENGTH);
+1907   2      
+1908   2              // And then load the latest data items which saved in the old full page to the new page from botto
+             -m to top
+1909   2              usMovedItemCount = 1;
+1910   2          }
+1911   1          else
+1912   1          {
+1913   2              usMovedItemCount = 0;
+1914   2          }
+1915   1      
+1916   1          // Update ucFlashPage
+1917   1          g_pucFlashPageArr[ucPageID] = ucFreePage;
+1918   1          // Update move count value
+1919   1          if(g_ulFlashMoveCount == 0xFFFFFF)
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 33  
+
+1920   1          {
+1921   2              g_ulFlashMoveCount = 0x01;
+1922   2          }
+1923   1          else
+1924   1          {
+1925   2              g_ulFlashMoveCount++;
+1926   2          }
+1927   1      
+1928   1          g_ucFlashLastPage = ucFreePage;
+1929   1      
+1930   1          {
+1931   2              WORD usPrevPageAddr = ucPrevPage * _FLASH_PAGE_SIZE;
+1932   2              WORD usPageAddr = g_pucFlashPageArr[ucPageID] * _FLASH_PAGE_SIZE;
+1933   2      
+1934   2              // Find the valid item and move to new free page
+1935   2              for(usAddrIndex = ((_FLASH_PAGE_SIZE - _PAGE_INFO_LENGTH) / _DATA_ITEM_LENGTH); usAddrIndex > 0; u
+             -sAddrIndex--)
+1936   2              {
+1937   3                  BYTE ucItemID = 0;
+1938   3      
+1939   3                  UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usPrevPageAddr + (usAddrIndex - 1) * 
+             -_DATA_ITEM_LENGTH, 1, &ucItemID);
+1940   3      
+1941   3                  if(ucItemID != 0xFF)
+1942   3                  {
+1943   4                      WORD usMovedAddrIndex = 0;
+1944   4      
+1945   4                      // Check the item has been moved or not by item ID
+1946   4                      for(usMovedAddrIndex = 0; usMovedAddrIndex < usMovedItemCount; usMovedAddrIndex++)
+1947   4                      {
+1948   5                          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usPageAddr + usMovedAddrIndex
+             - * _DATA_ITEM_LENGTH, 1, pData);
+1949   5                          if(pData[0] == ucItemID)
+1950   5                          {
+1951   6                              break;
+1952   6                          }
+1953   5                      }
+1954   4      
+1955   4                      if(usMovedAddrIndex >= usMovedItemCount)
+1956   4                      {
+1957   5                          // The item has not been moved, then check the item is valid or not
+1958   5                          pucData[15] = 0;
+1959   5                          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usPrevPageAddr + (usAddrIndex
+             - - 1) * _DATA_ITEM_LENGTH, _DATA_ITEM_LENGTH - 1, pData);
+1960   5                          pucData[15] = UserCommonFlashCalculateCheckSumData(pData, (_DATA_ITEM_LENGTH - 1));
+1961   5                          pucData[15] = (pucData[15] & 0x7F);
+1962   5      
+1963   5                          // Check the checksum
+1964   5                          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usPrevPageAddr + usAddrIndex 
+             -* _DATA_ITEM_LENGTH - 1, 1, pData);
+1965   5                          if(pucData[15] != pData[0])
+1966   5                          {
+1967   6                              // Checksum check fail, the item is invalid
+1968   6                              continue;
+1969   6                          }
+1970   5      
+1971   5                          // Move the item to new free page
+1972   5                          UserCommonFlashRead(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usPrevPageAddr + (usAddrIndex
+             - - 1) * _DATA_ITEM_LENGTH + ucItemIndex, _DATA_ITEM_LENGTH, pData);
+1973   5                          UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, usPageAddr + usMovedItemCoun
+             -t * _DATA_ITEM_LENGTH + ucItemIndex, _DATA_ITEM_LENGTH, pData);
+1974   5      
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 34  
+
+1975   5                          usMovedItemCount++;
+1976   5                      }
+1977   4                  }
+1978   3              }
+1979   2          }
+1980   1      
+1981   1          // Update the data item address in the new page
+1982   1          g_pusFlashAddrArr[ucPageID] = usMovedItemCount;
+1983   1      
+1984   1          // Last update the new moved page info fields
+1985   1          // Save checksum & version code
+1986   1          if(ucPageID == _CHECKSUM_VERSIONCODE_ID)
+1987   1          {
+1988   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[ucPageID] * _FLASH_PAG
+             -E_SIZE + _FLASH_FW_VERSIONCODE_ADDR, 1, &ucVersioncode);
+1989   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[ucPageID] * _FLASH_PAG
+             -E_SIZE + _FLASH_FW_CHECKSUM_ADDR, 1, &ucChecksum);
+1990   2          }
+1991   1      
+1992   1          // Save page info
+1993   1          {
+1994   2              BYTE pucBuffer[5] = {0};
+1995   2      
+1996   2              pucBuffer[0] = ucPageID;
+1997   2              pucBuffer[1] = (BYTE)(g_ulFlashMoveCount >> 16);
+1998   2              pucBuffer[2] = (BYTE)(g_ulFlashMoveCount >> 8);
+1999   2              pucBuffer[3] = (BYTE)g_ulFlashMoveCount;
+2000   2              pucBuffer[4] = UserCommonFlashCalculateCheckSumData(pucBuffer, 4);
+2001   2              pucBuffer[4] = (pucBuffer[4] & 0x7F);
+2002   2      
+2003   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[ucPageID] * _FLASH_PAG
+             -E_SIZE + _PAGEINFO_PAGEID_ADDR, 4, pucBuffer);
+2004   2              UserCommonFlashWrite(_SYSTEM_EEPROM_EMULATION_FLASH_BANK, g_pucFlashPageArr[ucPageID] * _FLASH_PAG
+             -E_SIZE + _PAGEINFO_CHECKSUM_ADDR, 1, &pucBuffer[4]);
+2005   2          }
+2006   1      
+2007   1          return _TRUE;
+2008   1      }
+2009          
+2010          //--------------------------------------------------
+2011          // Description  : Flash check at firmware startup
+2012          // Input Value  : None
+2013          // Output Value : None
+2014          //--------------------------------------------------
+2015          void RTDFlashStartup(void)
+2016          {
+2017   1          BYTE ucChecksum = 0;
+2018   1          BYTE ucVersionCode = 0;
+2019   1          BYTE ucPageID = 0;
+2020   1      
+2021   1          RTDFlashInitialAddr();
+2022   1      
+2023   1          // Get FW checksum and version code
+2024   1          RTDFlashLoadChecksumVersioncode(&ucChecksum, &ucVersionCode);
+2025   1      
+2026   1        //UserCommonInterfaceNVRamSaveEDIDWhenProgramming();
+2027   1      
+2028   1          if(ucChecksum != _CHECKSUM) // 外烧key跟外烧EDID有概率这里没进来
+2029   1          {
+2030   2              // Checksum is changed, load default value and save to flash
+2031   2              for(ucPageID = _START_OF_PAGEID; ucPageID <= _END_OF_PAGEID; ucPageID++)
+2032   2              {
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 35  
+
+2033   3                  RTDFlashInitialDataPage(ucPageID);
+2034   3              }
+2035   2      
+2036   2              RTDFlashWholeRestore();
+2037   2      
+2038   2      #if(_PANEL_EXIST_MULTIPANEL == _ON)
+                      RTDFlashRestorePanelIndex();
+              #endif
+2041   2      
+2042   2              RTDFlashSaveChecksumVersionCode(_CHECKSUM, _VERSION_CODE);
+2043   2          }
+2044   1          else if(ucVersionCode != _VERSION_CODE)
+2045   1          {
+2046   2              // Restore CT User color setting
+2047   2              g_stColorProcData = tColorTempDefaultData[_CT_USER];
+2048   2              if(UserCommonFlashLoadItem(_FLASH_ITEMID_COLORPROC_START + _CT_USER, pData, 1) == _TRUE)
+2049   2              {
+2050   3                  RTDFlashSaveColorSetting(_CT_USER);
+2051   3              }
+2052   2      
+2053   2              UserCommonFlashRestoreSystemData();
+2054   2              RTDFlashRestoreOSDData();
+2055   2      
+2056   2      #if(_VGA_SUPPORT == _ON)
+                      UserCommonFlashRestoreModeUserData();
+              #endif
+2059   2      
+2060   2              RTDFlashRestoreBriCon();
+2061   2              //RTDFlashRestoreSixColorData();
+2062   2      
+2063   2      #if(_PANEL_EXIST_MULTIPANEL == _ON)
+                      RTDFlashLoadPanelIndex();
+              #endif
+2066   2      
+2067   2              RTDFlashSaveChecksumVersionCode(_CHECKSUM, _VERSION_CODE);
+2068   2          }
+2069   1          else
+2070   1          {
+2071   2              UserCommonFlashLoadSystemData();
+2072   2              RTDFlashLoadOSDData();
+2073   2              //RTDFlashLoadSixColorData();
+2074   2              RTDFlashLoadPanelUsedTimeData();
+2075   2      
+2076   2      #if(_PANEL_EXIST_MULTIPANEL == _ON)
+                      RTDFlashLoadPanelIndex();
+              #endif
+2079   2      
+2080   2              // Check PCM Flag
+2081   2              if(GET_OSD_PCM_STATUS() > _PCM_OSD_AMOUNT)
+2082   2              {
+2083   3                  SET_OSD_PCM_STATUS(_PCM_OSD_NATIVE);
+2084   3                  RTDFlashSaveOSDData();
+2085   3              }
+2086   2      
+2087   2      #if(_OSD_3D_FUNCTION == _ON)
+                      if((GET_OSD_3DOSD_STATUS() == _ON) &&
+                         ((GET_OSD_ROTATE_STATUS() == _OSD_ROTATE_DEGREE_90) ||
+                          (GET_OSD_ROTATE_STATUS() == _OSD_ROTATE_DEGREE_270)))
+                      {
+                          SET_OSD_ROTATE_STATUS(_OSD_ROTATE_DEGREE_0);
+                          RTDFlashSaveOSDData();
+                      }
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 36  
+
+              #endif
+2096   2          }
+2097   1          TPVNVRamLoadFactoryDate();
+2098   1      
+2099   1        
+2100   1        //SET_AUTO_SLEEP_STATUS(_SleepPowerSaving_OFF);
+2101   1      
+2102   1      
+2103   1        RTDFlashLoadSceneModeData(GET_OSD_GAME_MODE());
+2104   1      
+2105   1      
+2106   1          RTDFlashLoadColorSetting(GET_COLOR_TEMP_TYPE());
+2107   1      
+2108   1        #if 0//_GSYNC_TEST
+                  if(GET_OSD_FREE_SYNC_STATUS())
+                      SET_OSD_PRE_GAME_FPS(_ON);
+                  else
+                    SET_OSD_PRE_GAME_FPS(_OFF);
+                #endif
+2114   1      }
+2115          
+2116          //--------------------------------------------------
+2117          // Description  : Load default data and save to Flash
+2118          // Input Value  : None
+2119          // Output Value : None
+2120          //--------------------------------------------------
+2121          void RTDFlashWholeRestore(void)
+2122          {
+2123   1      
+2124   1      #if(_WRITE_EDID_TO_SYSTEM_EEPROM == _ON)
+2125   1          //UserCommonInterfaceNVRamRestoreEDID();
+2126   1      #endif
+2127   1      
+2128   1      #if((_D1_INPUT_PORT_TYPE!=_D1_NO_PORT)&&(_D1_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D1_E
+             -MBEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+2129   1        ((_D2_INPUT_PORT_TYPE!=_D2_NO_PORT)&&(_D2_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D2_EMB
+             -EDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+2130   1          ((_D3_INPUT_PORT_TYPE!=_D3_NO_PORT)&&(_D3_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D3_EM
+             -BEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+2131   1          ((_A0_INPUT_PORT_TYPE!=_A0_NO_PORT)&&(_A0_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_A0_EM
+             -BEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))||\
+2132   1          ((_D0_INPUT_PORT_TYPE!=_D0_NO_PORT)&&(_D0_EMBEDDED_DDCRAM_LOCATION ==_EDID_TABLE_LOCATION_USER)&&(_D0_EM
+             -BEDDED_DDCRAM_MAX_SIZE == _EDID_SIZE_NONE))
+2133   1      
+2134   1          //UserCommonInterfaceNVRamSaveEDIDWhenProgramming();
+2135   1      #endif
+2136   1          UserCommonFlashRestoreSystemData();
+2137   1          RTDFlashRestoreOSDData();
+2138   1      
+2139   1      
+2140   1      #if(_VGA_SUPPORT == _ON)
+                  UserCommonFlashRestoreModeUserData();
+                  UserCommonFlashRestoreADCSetting();
+              #endif
+2144   1      
+2145   1          RTDFlashRestoreBriCon();
+2146   1          RTDFlashRestoreColorSetting();
+2147   1          //RTDFlashRestoreSixColorData();
+2148   1          RTDFlashRestorePanelUsedTimeData();
+2149   1      
+2150   1        
+2151   1        //RTDFlashRestoreViewModeParameters();
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 37  
+
+2152   1      }
+2153          
+2154          //--------------------------------------------------
+2155          // Description  : Restore default backlight
+2156          // Input Value  : None
+2157          // Output Value : None
+2158          //--------------------------------------------------
+2159          void RTDFlashRestoreBacklight(void)
+2160          {
+2161   1          BYTE ucItemOffset = 0;
+2162   1      
+2163   1          SET_OSD_BACKLIGHT(g_stOSDDefaultData.usBackLight);
+2164   1      
+2165   1          for(ucItemOffset = 0; ucItemOffset < ((sizeof(StructOsdUserDataType) + (_DATA_ITEM_LENGTH - 2) - 1) / 
+             -(_DATA_ITEM_LENGTH - 2)); ucItemOffset++)
+2166   1          {
+2167   2              // Here we check the total item number, it could not be smaller than the osd structure
+2168   2              if(ucItemOffset > (_FLASH_ITEMID_OSD_DATA_END - _FLASH_ITEMID_OSD_DATA_START + 1))
+2169   2              {
+2170   3                  break;
+2171   3              }
+2172   2      
+2173   2              if(UserCommonFlashLoadItem((_FLASH_ITEMID_OSD_DATA_START + ucItemOffset), pData, 1) == _FALSE)
+2174   2              {
+2175   3                  return;
+2176   3              }
+2177   2          }
+2178   1      
+2179   1          RTDFlashSaveOSDData();
+2180   1      }
+2181          
+2182          //--------------------------------------------------
+2183          // Description  : Load OSD data from Flash
+2184          // Input Value  : None
+2185          // Output Value : None
+2186          //--------------------------------------------------
+2187          void RTDFlashLoadOSDData(void)
+2188          {
+2189   1          BYTE ucItemOffset = 0;
+2190   1          BYTE ucStructLen = sizeof(StructOsdUserDataType);
+2191   1      
+2192   1          for(ucItemOffset = 0; ucItemOffset < ((sizeof(StructOsdUserDataType) + (_DATA_ITEM_LENGTH - 2) - 1) / 
+             -(_DATA_ITEM_LENGTH - 2)); ucItemOffset++)
+2193   1          {
+2194   2              // Here we check the total item number, it could not be smaller than the osd structure
+2195   2              if(ucItemOffset > (_FLASH_ITEMID_OSD_DATA_END - _FLASH_ITEMID_OSD_DATA_START + 1))
+2196   2              {
+2197   3                  break;
+2198   3              }
+2199   2      
+2200   2              if(UserCommonFlashLoadItem((_FLASH_ITEMID_OSD_DATA_START + ucItemOffset), pData, _DATA_ITEM_LENGTH
+             - - 2) == _FALSE)
+2201   2              {
+2202   3                  g_stOSDUserData = g_stOSDDefaultData;
+2203   3                  return;
+2204   3              }
+2205   2      
+2206   2              if(ucStructLen > (_DATA_ITEM_LENGTH - 2))
+2207   2              {
+2208   3                  memcpy((((BYTE *)(&g_stOSDUserData)) + (ucItemOffset * (_DATA_ITEM_LENGTH - 2))), pData, (_DAT
+             -A_ITEM_LENGTH - 2));
+2209   3                  ucStructLen = ucStructLen - (_DATA_ITEM_LENGTH - 2);
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 38  
+
+2210   3              }
+2211   2              else
+2212   2              {
+2213   3                  memcpy((((BYTE *)(&g_stOSDUserData)) + (ucItemOffset * (_DATA_ITEM_LENGTH - 2))), pData, ucStr
+             -uctLen);
+2214   3                  break;
+2215   3              }
+2216   2          }
+2217   1      
+2218   1      #if(_DP_MST_SUPPORT == _ON)
+                  if((GET_OSD_DP_MST() != _MST_OFF) && (SysSourceGetScanType() != _SOURCE_SWITCH_FIXED_PORT))
+                  {
+                      SET_OSD_DP_MST(_MST_OFF);
+                  }
+              #endif
+2224   1      }
+2225          
+2226          
+2227          //--------------------------------------------------
+2228          // Description  : Save OSD data to Flash
+2229          // Input Value  : None
+2230          // Output Value : None
+2231          //--------------------------------------------------
+2232          void RTDFlashSaveOSDData(void)
+2233          {
+2234   1          BYTE ucItemOffset = 0;
+2235   1          BYTE ucStructLen = sizeof(StructOsdUserDataType);
+2236   1      
+2237   1          for(ucItemOffset = 0; ucItemOffset < ((sizeof(StructOsdUserDataType) + (_DATA_ITEM_LENGTH - 2) - 1) / 
+             -(_DATA_ITEM_LENGTH - 2)); ucItemOffset++)
+2238   1          {
+2239   2              // Here we check the total item number, it could not be smaller than the osd structure
+2240   2              if(ucItemOffset > (_FLASH_ITEMID_OSD_DATA_END - _FLASH_ITEMID_OSD_DATA_START + 1))
+2241   2              {
+2242   3                  break;
+2243   3              }
+2244   2      
+2245   2              if(ucStructLen > (_DATA_ITEM_LENGTH - 2))
+2246   2              {
+2247   3                  UserCommonFlashSaveItem((_FLASH_ITEMID_OSD_DATA_START + ucItemOffset), (((BYTE *)(&g_stOSDUser
+             -Data)) + ucItemOffset * (_DATA_ITEM_LENGTH - 2)), _DATA_ITEM_LENGTH - 2);
+2248   3                  ucStructLen -= (_DATA_ITEM_LENGTH - 2);
+2249   3              }
+2250   2              else
+2251   2              {
+2252   3                  UserCommonFlashSaveItem((_FLASH_ITEMID_OSD_DATA_START + ucItemOffset), (((BYTE *)(&g_stOSDUser
+             -Data)) + ucItemOffset * (_DATA_ITEM_LENGTH - 2)), ucStructLen);
+2253   3                  break;
+2254   3              }
+2255   2          }
+2256   1      }
+2257          
+2258          //--------------------------------------------------
+2259          // Description  : Restore default OSD data
+2260          // Input Value  : None
+2261          // Output Value : None
+2262          //--------------------------------------------------
+2263          void RTDFlashRestoreOSDData(void)
+2264          {
+2265   1          BYTE ucItemOffset = 0;
+2266   1      
+2267   1          g_stOSDUserData = g_stOSDDefaultData;
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 39  
+
+2268   1      
+2269   1          for(ucItemOffset = 0; ucItemOffset < ((sizeof(StructOsdUserDataType) + (_DATA_ITEM_LENGTH - 2) - 1) / 
+             -(_DATA_ITEM_LENGTH - 2)); ucItemOffset++)
+2270   1          {
+2271   2              // Here we check the total item number, it could not be smaller than the osd structure
+2272   2              if(ucItemOffset > (_FLASH_ITEMID_OSD_DATA_END - _FLASH_ITEMID_OSD_DATA_START + 1))
+2273   2              {
+2274   3                  break;
+2275   3              }
+2276   2      
+2277   2              if(UserCommonFlashLoadItem((_FLASH_ITEMID_OSD_DATA_START + ucItemOffset), pData, 1) == _FALSE)
+2278   2              {
+2279   3                  return;
+2280   3              }
+2281   2          }
+2282   1      
+2283   1          RTDFlashSaveOSDData();
+2284   1      }
+2285          
+2286          //--------------------------------------------------
+2287          // Description  : Load brightness/contrast from Flash
+2288          // Input Value  : ucSource --> Source Type
+2289          // Output Value : None
+2290          //--------------------------------------------------
+2291          void RTDFlashLoadBriCon(BYTE ucSource)
+2292          {
+2293   1          if(ucSource >= _SOURCE_AMOUNT)
+2294   1          {
+2295   2              return;
+2296   2          }
+2297   1      
+2298   1          if(UserCommonFlashLoadItem(_FLASH_ITEMID_BRICON_SRC0_VGA + ucSource, pData, sizeof(StructBriConDataTyp
+             -e)) == _TRUE)
+2299   1          {
+2300   2              memcpy(&g_stBriConData, pData, sizeof(StructBriConDataType));
+2301   2          }
+2302   1          else
+2303   1          {
+2304   2              g_stBriConData = tBriConDefaultData[ucSource];
+2305   2          }
+2306   1      }
+2307          
+2308          //--------------------------------------------------
+2309          // Description  : Save brightness/contrast to Flash
+2310          // Input Value  : ucSource --> Source Type
+2311          // Output Value : None
+2312          //--------------------------------------------------
+2313          void RTDFlashSaveBriCon(BYTE ucSource)
+2314          {
+2315   1          UserCommonFlashSaveItem(_FLASH_ITEMID_BRICON_SRC0_VGA + ucSource, (BYTE *)(&g_stBriConData), sizeof(St
+             -ructBriConDataType));
+2316   1      }
+2317          
+2318          //--------------------------------------------------
+2319          // Description  : Restore default brightness/contrast
+2320          // Input Value  : None
+2321          // Output Value : None
+2322          //--------------------------------------------------
+2323          void RTDFlashRestoreBriCon(void)
+2324          {
+2325   1          BYTE ucSourceIndex = 0;
+2326   1      
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 40  
+
+2327   1          for(ucSourceIndex = 0; ucSourceIndex < _SOURCE_AMOUNT; ucSourceIndex++)
+2328   1          {
+2329   2              g_stBriConData = tBriConDefaultData[ucSourceIndex];
+2330   2      
+2331   2              if(UserCommonFlashLoadItem(_FLASH_ITEMID_BRICON_SRC0_VGA + ucSourceIndex, pData, 1) == _TRUE)
+2332   2              {
+2333   3                  RTDFlashSaveBriCon(ucSourceIndex);
+2334   3              }
+2335   2          }
+2336   1      }
+2337          
+2338          
+2339          
+2340          //--------------------------------------------------
+2341          // Description  : Load SceneMode Data from Flash
+2342          // Input Value  : ucSource --> Source Type
+2343          // Output Value : None
+2344          //--------------------------------------------------
+2345          void RTDFlashLoadVMData(BYTE ucGameMode)
+2346          {
+2347   1          BYTE ucItemOffset = 0;
+2348   1          BYTE ucStructLen = sizeof(StructVscSceneModeDataType);
+2349   1        
+2350   1          for(ucItemOffset = 0; ucItemOffset < ((sizeof(StructVscSceneModeDataType) + (_DATA_ITEM_LENGTH - 2) - 
+             -1) / (_DATA_ITEM_LENGTH - 2)); ucItemOffset++)
+2351   1          {
+2352   2              // Here we check the total item number, it could not be smaller than the osd structure
+2353   2              if(ucItemOffset > (_FLASH_ITEMID_SCENEMODE0_END - _FLASH_ITEMID_SCENEMODE0_START + 1))
+2354   2              {
+2355   3                  break;
+2356   3              }
+2357   2      
+2358   2              if(UserCommonFlashLoadItem((_FLASH_ITEMID_SCENEMODE0_START + ((_FLASH_ITEMID_SCENEMODE0_END - _FLA
+             -SH_ITEMID_SCENEMODE0_START + 1) * ucGameMode) + ucItemOffset), pData, _DATA_ITEM_LENGTH - 2) == _FALSE)
+2359   2              {
+2360   3                  g_stVscSceneModeData = tVscSceneModeDefaultData[ucGameMode];//_GM_OFF];
+2361   3                  return;
+2362   3              }
+2363   2      
+2364   2              if(ucStructLen > (_DATA_ITEM_LENGTH - 2))
+2365   2              {
+2366   3                  memcpy((((BYTE*)(&g_stVscSceneModeData)) + (ucItemOffset * (_DATA_ITEM_LENGTH - 2))), pData, (
+             -_DATA_ITEM_LENGTH - 2));
+2367   3                  ucStructLen = ucStructLen - (_DATA_ITEM_LENGTH - 2);
+2368   3              }
+2369   2              else
+2370   2              {
+2371   3                  memcpy((((BYTE*)(&g_stVscSceneModeData)) + (ucItemOffset * (_DATA_ITEM_LENGTH - 2))), pData, u
+             -cStructLen);
+2372   3                  break;
+2373   3              }
+2374   2          }
+2375   1      
+2376   1      }
+2377          
+2378          
+2379          
+2380          //--------------------------------------------------
+2381          // Description  : Load SceneMode Data from Flash
+2382          // Input Value  : ucSource --> Source Type
+2383          // Output Value : None
+2384          //--------------------------------------------------
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 41  
+
+2385          void RTDFlashLoadSceneModeData(BYTE ucGameMode)
+2386          { 
+2387   1          if((ucGameMode == _GM_OFF) && (GET_OSD_VIEWMODE_TYPE() != _VM_STANDARD))
+2388   1          {
+2389   2              ucGameMode = _GM_OFF + (GET_OSD_VIEWMODE_TYPE() - 1);
+2390   2          }
+2391   1        //DebugMessageOsd("2.LOAD_ucGameMode",ucGameMode);
+2392   1      
+2393   1          RTDFlashLoadVMData(ucGameMode);
+2394   1        
+2395   1      }
+2396          
+2397          
+2398          //--------------------------------------------------
+2399          // Description  : Save SceneMode Data to Flash
+2400          // Input Value  : ucSource --> Source Type
+2401          // Output Value : None
+2402          //--------------------------------------------------
+2403          void RTDFlashSaveVMData(BYTE ucGameMode)
+2404          {
+2405   1          BYTE ucItemOffset = 0;
+2406   1          BYTE ucStructLen = sizeof(StructVscSceneModeDataType);
+2407   1        //DebugMessageOsd("1.SAVE_ucGameMode",ucGameMode);
+2408   1          for(ucItemOffset = 0; ucItemOffset < ((sizeof(StructVscSceneModeDataType) + (_DATA_ITEM_LENGTH - 2) - 
+             -1) / (_DATA_ITEM_LENGTH - 2)); ucItemOffset++)
+2409   1          {
+2410   2              // Here we check the total item number, it could not be smaller than the osd structure
+2411   2              if(ucItemOffset > (_FLASH_ITEMID_SCENEMODE0_END - _FLASH_ITEMID_SCENEMODE0_START + 1))
+2412   2              {
+2413   3                  break;
+2414   3              }
+2415   2      
+2416   2              if(ucStructLen > (_DATA_ITEM_LENGTH - 2))
+2417   2              {
+2418   3                  UserCommonFlashSaveItem((_FLASH_ITEMID_SCENEMODE0_START + ((_FLASH_ITEMID_SCENEMODE0_END - _FL
+             -ASH_ITEMID_SCENEMODE0_START + 1) * ucGameMode) + ucItemOffset), (((BYTE*)(&g_stVscSceneModeData)) + ucItemOffset * (_DAT
+             -A_ITEM_LENGTH - 2)), _DATA_ITEM_LENGTH - 2);
+2419   3                  ucStructLen -= (_DATA_ITEM_LENGTH - 2);
+2420   3              }
+2421   2              else
+2422   2              {
+2423   3                  UserCommonFlashSaveItem((_FLASH_ITEMID_SCENEMODE0_START + ((_FLASH_ITEMID_SCENEMODE0_END - _FL
+             -ASH_ITEMID_SCENEMODE0_START + 1) * ucGameMode)+ ucItemOffset), (((BYTE*)(&g_stVscSceneModeData)) + ucItemOffset * (_DATA
+             -_ITEM_LENGTH - 2)), ucStructLen);
+2424   3                  break;
+2425   3              }
+2426   2          }
+2427   1      }
+2428          
+2429          
+2430          
+2431          //--------------------------------------------------
+2432          // Description  : Save SceneMode Data to Flash
+2433          // Input Value  : ucSource --> Source Type
+2434          // Output Value : None
+2435          //--------------------------------------------------
+2436          void RTDFlashSaveSceneModeData(BYTE ucGameMode)
+2437          {
+2438   1      
+2439   1          if((ucGameMode == _GM_OFF) && (GET_OSD_VIEWMODE_TYPE() != _VM_STANDARD))
+2440   1          {
+2441   2              ucGameMode = _GM_OFF + (GET_OSD_VIEWMODE_TYPE() - 1);
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 42  
+
+2442   2          }
+2443   1      
+2444   1          RTDFlashSaveVMData(ucGameMode);
+2445   1      }
+2446          
+2447          //--------------------------------------------------
+2448          // Description  : Restore default
+2449          // Input Value  : None
+2450          // Output Value : None
+2451          //--------------------------------------------------
+2452          void RTDFlashRestoreViewModeParameters(void)
+2453          { 
+2454   1      #if 0
+                g_stVscSceneModeData = tVscSceneModeDefaultData[GET_OSD_GAME_MODE()];
+                RTDFlashSaveSceneModeData(GET_OSD_GAME_MODE());
+              #else
+2458   1        BYTE ucViewMode;
+2459   1        for(ucViewMode=0; ucViewMode < (_VIEWMODE_AMOUNT+3); ucViewMode++)
+2460   1        {
+2461   2          g_stVscSceneModeData = tVscSceneModeDefaultData[ucViewMode];
+2462   2          //RTDFlashSaveSceneModeData(ucViewMode);
+2463   2      
+2464   2          g_stVscSceneModeData.usBackLightSrgb = GET_OSD_BACKLIGHT_SRGB();
+2465   2              if(ucViewMode == _VM_TEXT + 3)
+2466   2              {
+2467   3            g_stVscSceneModeData.usBackLightNormal = GET_OSD_BACKLIGHT_SRGB();
+2468   3              }
+2469   2      
+2470   2          RTDFlashSaveVMData(ucViewMode);
+2471   2      
+2472   2        }
+2473   1        
+2474   1        g_stVscSceneModeData = tVscSceneModeDefaultData[_GM_OFF]; //还原成标准模式的数值  xwei_i
+2475   1        g_stVscSceneModeData.usBackLightSrgb = GET_OSD_BACKLIGHT_SRGB();
+2476   1      #endif
+2477   1      }
+2478          
+2479          void RTDFlashRestoreBriConOnly(void)
+2480          {
+2481   1          BYTE ucGameMode = 0;
+2482   1        ucGameMode = GET_OSD_GAME_MODE();
+2483   1        
+2484   1          if((ucGameMode == _GM_OFF) && (GET_OSD_VIEWMODE_TYPE() != _VM_STANDARD))
+2485   1          {
+2486   2              ucGameMode = _GM_OFF + (GET_OSD_VIEWMODE_TYPE() - 1);
+2487   2          }
+2488   1      
+2489   1          g_stVscSceneModeData.usBackLightNormal = tVscSceneModeDefaultData[ucGameMode].usBackLightNormal;
+2490   1          g_stVscSceneModeData.usContrast = tVscSceneModeDefaultData[ucGameMode].usContrast;
+2491   1          g_stVscSceneModeData.usBackLightSrgb = tVscSceneModeDefaultData[ucGameMode].usBackLightSrgb;
+2492   1      }
+2493          //--------------------------------------------------
+2494          // Description  : Load color settings from Flash
+2495          // Input Value  : ucSource --> Source Type
+2496          //                ucColorTempType --> Color Temp Type
+2497          // Output Value : None
+2498          //--------------------------------------------------
+2499          void RTDFlashLoadColorSetting(BYTE ucColorTempType)
+2500          {
+2501   1      #if 0//(_OGC_SUPPORT == _ON)
+                  if(GET_OSD_GAMMA() != _GAMMA_OFF)
+                  {
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 43  
+
+                      UserCommonAdjustOGCColorTempGain(ucColorTempType, (GET_OSD_GAMMA() - 1), pData, _OGC_NORMAL_TYPE);
+              
+              #if(_CTS_TYPE == _CTS_GEN_1_12BIT)
+                      g_stColorProcData.usColorTempR = PDATA_WORD(0);
+                      g_stColorProcData.usColorTempG = PDATA_WORD(1);
+                      g_stColorProcData.usColorTempB = PDATA_WORD(2);
+              #elif(_CTS_TYPE == _CTS_GEN_0_8BIT)
+                      g_stColorProcData.usColorTempR = pData[0];
+                      g_stColorProcData.usColorTempG = pData[1];
+                      g_stColorProcData.usColorTempB = pData[2];
+              #endif
+                      return;
+                  }
+              #endif
+2518   1      
+2519   1      #if(_OCC_PCM_GAMMA_SUPPORT == _ON)
+                  if(GET_OSD_GAMMA(ucRegion) != _GAMMA_OFF)
+                  {
+                      g_stColorProcData.usColorTempR = 0x800;
+                      g_stColorProcData.usColorTempG = 0x800;
+                      g_stColorProcData.usColorTempB = 0x800;
+                      return;
+                  }
+              #endif
+2528   1      
+2529   1        //DebugMessageOsd("1.ucColorTempType",ucColorTempType);
+2530   1          if(UserCommonFlashLoadItem(_FLASH_ITEMID_COLORPROC_START + ucColorTempType, pData, sizeof(StructColorP
+             -rocDataType)) == _TRUE)
+2531   1          {
+2532   2              memcpy(&g_stColorProcData, pData, sizeof(StructColorProcDataType));
+2533   2          }
+2534   1          else
+2535   1          {
+2536   2              g_stColorProcData = tColorTempDefaultData[ucColorTempType];
+2537   2          }
+2538   1      }
+2539          
+2540          
+2541          //--------------------------------------------------
+2542          // Description  : Save color settings to Flash
+2543          // Input Value  : ucSource --> Source Type
+2544          //                ucColorTempType --> Color Temp Type
+2545          // Output Value : None
+2546          //--------------------------------------------------
+2547          void RTDFlashSaveColorSetting(BYTE ucColorTempType)
+2548          {
+2549   1          //UserInterfaceGetNVRamDataStatus(_CHECK_USER_COLOR_DATA);
+2550   1          UserCommonFlashSaveItem(_FLASH_ITEMID_COLORPROC_START + ucColorTempType, (BYTE *)(&g_stColorProcData),
+             - sizeof(StructColorProcDataType));
+2551   1      }
+2552          
+2553          //--------------------------------------------------
+2554          // Description  : Restore default color settings
+2555          // Input Value  : None
+2556          // Output Value : None
+2557          //--------------------------------------------------
+2558          void RTDFlashRestoreColorSetting(void)
+2559          {
+2560   1          BYTE ucColorTempIndex = 0;
+2561   1      
+2562   1          for(ucColorTempIndex = 0; ucColorTempIndex < (_CT_COLORTEMP_AMOUNT+8); ucColorTempIndex++)
+2563   1          {
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 44  
+
+2564   2              g_stColorProcData = tColorTempDefaultData[ucColorTempIndex];
+2565   2      
+2566   2              if(UserCommonFlashLoadItem(_FLASH_ITEMID_COLORPROC_START + ucColorTempIndex, pData, 1) == _TRUE)
+2567   2              {
+2568   3                  RTDFlashSaveColorSetting(ucColorTempIndex);
+2569   3              }
+2570   2          }
+2571   1      }
+2572          
+2573          //--------------------------------------------------
+2574          // Description  : Restore default color settings
+2575          // Input Value  : None
+2576          // Output Value : None
+2577          //--------------------------------------------------
+2578          void RTDFlashRestoreUserColorSetting(void)
+2579          {
+2580   1        g_stColorProcData = tColorTempDefaultData[_CT_USER];
+2581   1        RTDFlashSaveColorSetting(_CT_USER);
+2582   1      
+2583   1      /*
+2584   1          StructColorProcDataType stUserColorTemp = {0};
+2585   1      
+2586   1          if(UserCommonFlashLoadItem(_FLASH_ITEMID_COLORPROC5_USER, pData, 1) == _TRUE)
+2587   1          {
+2588   1              stUserColorTemp = g_stColorProcData;
+2589   1              g_stColorProcData = tColorTempDefaultData[_CT_USER];
+2590   1              RTDFlashSaveColorSetting(_CT_USER);
+2591   1              g_stColorProcData = stUserColorTemp;
+2592   1          }
+2593   1          */
+2594   1      }
+2595          /*
+2596          //--------------------------------------------------
+2597          // Description  : Load six color data from Flash
+2598          // Input Value  : None
+2599          // Output Value : None
+2600          //--------------------------------------------------
+2601          void RTDFlashLoadSixColorData(void)
+2602          {
+2603              if(UserCommonFlashLoadItem(_FLASH_ITEMID_SIXCOLOR_DATA, pData, sizeof(StructSixColorDataType)) == _TRU
+             -E)
+2604              {
+2605                  memcpy((BYTE *)(&g_stSixColorData), pData, sizeof(StructSixColorDataType));
+2606              }
+2607              else
+2608              {
+2609                  g_stSixColorData = g_stSixColorDefaultData;
+2610              }
+2611          }
+2612          
+2613          //--------------------------------------------------
+2614          // Description  : Save six color data from Flash
+2615          // Input Value  : None
+2616          // Output Value : None
+2617          //--------------------------------------------------
+2618          void RTDFlashSaveSixColorData(void)
+2619          {
+2620              UserCommonFlashSaveItem(_FLASH_ITEMID_SIXCOLOR_DATA, (BYTE *)(&g_stSixColorData), sizeof(StructSixColo
+             -rDataType));
+2621          }
+2622          
+2623          //--------------------------------------------------
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 45  
+
+2624          // Description  : Restore default six color data
+2625          // Input Value  : None
+2626          // Output Value : None
+2627          //--------------------------------------------------
+2628          void RTDFlashRestoreSixColorData(void)
+2629          {
+2630              g_stSixColorData = g_stSixColorDefaultData;
+2631          
+2632              if(UserCommonFlashLoadItem(_FLASH_ITEMID_SIXCOLOR_DATA, pData, 1) == _TRUE)
+2633              {
+2634                  RTDFlashSaveSixColorData();
+2635              }
+2636          }*/
+2637          
+2638          
+2639          #if(_DEF_DDCCI_EDID_TOOL)
+2640          /*
+2641          void RTDFlashGetSNData(void)
+2642          {
+2643          #if(_PROJECT_ID==_ID_JS_2313E01BR_BOE_MV238FHB_NY1_8BIT_FHD120_VA240A_H_20240812)
+2644            BYTE g_FlashSNData[_SN_NUMBER_AMOUNT+1]="XZ0123456789";
+2645          #elif(_PROJECT_ID ==_ID_JS_2313E01BR_BOE_MV238FHB_NY1_8BIT_FHD144_VA24G25_20241213)
+2646            BYTE g_FlashSNData[_SN_NUMBER_AMOUNT+1]="XZ0123456789";
+2647          #elif(_PROJECT_ID ==_ID_ZQ_2775E15_INNOLUX_MV270KCA_D8B_8BIT_QHD180_VX2758A_2K_PRO_20241223)
+2648            BYTE g_FlashSNData[_SN_NUMBER_AMOUNT+1]="XLK230100001";
+2649          #else
+2650            BYTE g_FlashSNData[_SN_NUMBER_AMOUNT+1]="XZ1123456789";
+2651          #endif
+2652              BYTE ucItemOffset = 0;
+2653            BYTE NavData[28] = {0};
+2654              BYTE ucStructLen = sizeof(g_stSNData);
+2655          
+2656          
+2657              for(ucItemOffset = 0; ucItemOffset < ((sizeof(g_stSNData) + (_DATA_ITEM_LENGTH - 2) - 1) / (_DATA_ITEM
+             -_LENGTH - 2)); ucItemOffset++)
+2658              {
+2659                  // Here we check the total item number, it could not be smaller than the osd structure
+2660                  if(ucItemOffset > (_FLASH_ITEMID_SN_1 - _FLASH_ITEMID_SN_0 + 1))
+2661                  {
+2662                      break;
+2663                  }
+2664          
+2665                  if(UserCommonFlashLoadItem((_FLASH_ITEMID_SN_0 + ucItemOffset), NavData, _DATA_ITEM_LENGTH - 2) ==
+             - _FALSE)
+2666                  {
+2667                      memcpy(g_stSNData, g_FlashSNData , _SN_NUMBER_AMOUNT); 
+2668                      return;
+2669                  }
+2670          
+2671                  if(ucStructLen > (_DATA_ITEM_LENGTH - 2))
+2672                  {
+2673                      memcpy((((BYTE *)(&g_stSNData)) + (ucItemOffset * (_DATA_ITEM_LENGTH - 2))), NavData, (_DATA_I
+             -TEM_LENGTH - 2));
+2674                      ucStructLen = ucStructLen - (_DATA_ITEM_LENGTH - 2);
+2675                  }
+2676                  else
+2677                  {
+2678                      memcpy((((BYTE *)(&g_stSNData)) + (ucItemOffset * (_DATA_ITEM_LENGTH - 2))), NavData, ucStruct
+             -Len);
+2679                      break;
+2680                  }
+2681              
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 46  
+
+2682            }
+2683          }
+2684          
+2685          //--------------------------------------------------
+2686          // Description      : Write serial number
+2687          // Input Value      : None
+2688          // Output Value     : SN data address
+2689          //--------------------------------------------------
+2690          void RTDFlashSaveSNData(void)
+2691          {
+2692          
+2693              //UserCommonFlashSaveItem(_FLASH_ITEMID_SN, NavData, _SN_NUMBER_AMOUNT);
+2694              BYTE ucItemOffset = 0;
+2695              BYTE ucStructLen = sizeof(g_stSNData);
+2696            
+2697              for(ucItemOffset = 0; ucItemOffset < ((sizeof(g_stSNData) + (_DATA_ITEM_LENGTH - 2) - 1) / (_DATA_ITEM_L
+             -ENGTH - 2)); ucItemOffset++)
+2698              {
+2699                // Here we check the total item number, it could not be smaller than the osd structure
+2700                if(ucItemOffset > (_FLASH_ITEMID_SN_1 - _FLASH_ITEMID_SN_0 + 1))
+2701                {
+2702                  break;
+2703                }
+2704            
+2705                if(ucStructLen > (_DATA_ITEM_LENGTH - 2))
+2706                {
+2707                  UserCommonFlashSaveItem((_FLASH_ITEMID_SN_0 + ucItemOffset), (((BYTE *)(&g_stSNData)) + ucItemOffset *
+             - (_DATA_ITEM_LENGTH - 2)), _DATA_ITEM_LENGTH - 2);
+2708                  ucStructLen -= (_DATA_ITEM_LENGTH - 2);
+2709                }
+2710                else
+2711                {
+2712                  UserCommonFlashSaveItem((_FLASH_ITEMID_SN_0 + ucItemOffset), (((BYTE *)(&g_stSNData)) + ucItemOffset *
+             - (_DATA_ITEM_LENGTH - 2)), ucStructLen);
+2713                  break;
+2714                }
+2715              }
+2716          
+2717          }
+2718          */
+2719          #endif
+2720          
+2721          
+2722          
+2723          //--------------------------------------------------
+2724          // Description  : Load Panel Used Time Data from Flash
+2725          // Input Value  : None
+2726          // Output Value : None
+2727          //--------------------------------------------------
+2728          void RTDFlashLoadPanelUsedTimeData(void)
+2729          {
+2730   1          if(UserCommonFlashLoadItem(_FLASH_ITEMID_PANEL_DATA, pData, sizeof(StructTimeType)) == _TRUE)
+2731   1          {
+2732   2              memcpy((BYTE *)(&g_stPanelTimeData), pData, sizeof(StructTimeType));
+2733   2          }
+2734   1          else
+2735   1          {
+2736   2              SET_PANEL_TIME_HOUR(0);
+2737   2              SET_PANEL_TIME_MIN(0);
+2738   2      
+2739   2              SET_PANEL_BURN_TIME_HOUR(0);
+2740   2              SET_PANEL_BURN_TIME_MIN(0);
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 47  
+
+2741   2          }
+2742   1      }
+2743          
+2744          //--------------------------------------------------
+2745          // Description  : Save Panel Used Time Data from Flash
+2746          // Input Value  : None
+2747          // Output Value : None
+2748          //--------------------------------------------------
+2749          void RTDFlashSavePanelUsedTimeData(void)
+2750          {
+2751   1          UserCommonFlashSaveItem(_FLASH_ITEMID_PANEL_DATA, (BYTE *)(&g_stPanelTimeData), sizeof(StructTimeType)
+             -);
+2752   1      }
+2753          
+2754          //--------------------------------------------------
+2755          // Description  : Restore Panel Used Time Data from Flash
+2756          // Input Value  : None
+2757          // Output Value : None
+2758          //--------------------------------------------------
+2759          
+2760          
+2761          
+2762          void RTDFlashRestorePanelUsedTimeData(void)
+2763          {
+2764   1          SET_PANEL_TIME_HOUR(0);
+2765   1          SET_PANEL_TIME_MIN(0);
+2766   1          SET_PANEL_BURN_TIME_HOUR(0);
+2767   1          SET_PANEL_BURN_TIME_MIN(0);
+2768   1      
+2769   1          if(UserCommonFlashLoadItem(_FLASH_ITEMID_PANEL_DATA, pData, 1) == _TRUE)
+2770   1          {
+2771   2              RTDFlashSavePanelUsedTimeData();
+2772   2          }
+2773   1      }
+2774          
+2775          #if(_PANEL_EXIST_MULTIPANEL == _ON)
+              //--------------------------------------------------
+              // Description  : Load panel index from flash
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDFlashLoadPanelIndex(void)
+              {
+                  if(UserCommonFlashLoadItem(_FLASH_ITEMID_PANEL_INDEX, pData, 1) == _TRUE)
+                  {
+                      SET_MDOMAIN_PANEL_INDEX(pData[0]);
+                  }
+                  else
+                  {
+                      SET_MDOMAIN_PANEL_INDEX(0);
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Save panel index to flash
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDFlashSavePanelIndex(void)
+              {
+                  BYTE ucPanelIndex = 0;
+              
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 48  
+
+                  ucPanelIndex = GET_MDOMAIN_PANEL_INDEX();
+              
+                  UserCommonFlashSaveItem(_FLASH_ITEMID_PANEL_INDEX, &ucPanelIndex, 1);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Restore panel index
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void RTDFlashRestorePanelIndex(void)
+              {
+                  SET_MDOMAIN_PANEL_INDEX(0);
+              
+                  if(UserCommonFlashLoadItem(_FLASH_ITEMID_PANEL_INDEX, pData, 1) == _TRUE)
+                  {
+                      RTDFlashSavePanelIndex();
+                  }
+              }
+              #endif // End of #if(_PANEL_EXIST_MULTIPANEL == _ON)
+2822          
+2823          #endif // End of #elif(_SYSTEM_EEPROM_EMULATION_SUPPORT == _ON)
+2824          // //--------------------------------------------------
+2825          // // Description  : Transfer Osd Region Type
+2826          // // Input Value  : ucDisplayMode --> Display mode
+2827          // //                     ucRegion --> Display region
+2828          // // Output Value : _INSIDE / _OUTSIDE
+2829          // //--------------------------------------------------
+2830          // BYTE RTDNVRamTransferOsdRegionType(BYTE ucDisplayMode, BYTE ucRegion)
+2831          // {
+2832          //     BYTE ucType = 0;
+2833          
+2834          //     if(GET_OSD_HLWIN_TYPE() != _HL_WIN_OFF)
+2835          //     {
+2836          //         ucType = ucRegion % 2;
+2837          //     }
+2838          //     else
+2839          //     {
+2840          //         switch(ucDisplayMode)
+2841          //         {
+2842          //             case _OSD_DM_1P:
+2843          //                 ucType = _INSIDE;
+2844          //                 break;
+2845          
+2846          //             case _OSD_DM_2P_LR:
+2847          //                 if(ucRegion == _OSD_SR_2P_LR_R)
+2848          //                 {
+2849          //                     ucType = _INSIDE;
+2850          //                 }
+2851          //                 else
+2852          //                 {
+2853          //                     ucType = _OUTSIDE;
+2854          //                 }
+2855          //                 break;
+2856          
+2857          //             case _OSD_DM_2P_TB:
+2858          //                 if(ucRegion == _OSD_SR_2P_TB_B)
+2859          //                 {
+2860          //                     ucType = _INSIDE;
+2861          //                 }
+2862          //                 else
+2863          //                 {
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 49  
+
+2864          //                     ucType = _OUTSIDE;
+2865          //                 }
+2866          //                 break;
+2867          
+2868          //             case _OSD_DM_2P_PIP:
+2869          //                 if(ucRegion == _OSD_SR_2P_PIP_SUB)
+2870          //                 {
+2871          //                     ucType = _INSIDE;
+2872          //                 }
+2873          //                 else
+2874          //                 {
+2875          //                     ucType = _OUTSIDE;
+2876          //                 }
+2877          //                 break;
+2878          
+2879          //             case _OSD_DM_3P_FLAG:
+2880          //                 switch(ucRegion)
+2881          //                 {
+2882          //                     case _OSD_SR_3P_FLAG_MAIN:
+2883          //                     case _OSD_SR_3P_FLAG_L:
+2884          //                     case _OSD_SR_3P_FLAG_R:
+2885          //                         ucType = _INSIDE;
+2886          //                         break;
+2887          
+2888          //                     default:
+2889          //                         ucType = _OUTSIDE;
+2890          //                         break;
+2891          //                 }
+2892          //                 break;
+2893          
+2894          //             case _OSD_DM_3P_SKEW_L:
+2895          //                 switch(ucRegion)
+2896          //                 {
+2897          //                     case _OSD_SR_3P_SKEW_L_MAIN:
+2898          //                     case _OSD_SR_3P_SKEW_L_UP:
+2899          //                     case _OSD_SR_3P_SKEW_L_DOWN:
+2900          //                         ucType = _INSIDE;
+2901          //                         break;
+2902          
+2903          //                     default:
+2904          //                         ucType = _OUTSIDE;
+2905          //                         break;
+2906          //                 }
+2907          //                 break;
+2908          
+2909          //             case _OSD_DM_3P_SKEW_R:
+2910          //                 switch(ucRegion)
+2911          //                 {
+2912          //                     case _OSD_SR_3P_SKEW_R_MAIN:
+2913          //                     case _OSD_SR_3P_SKEW_R_UP:
+2914          //                     case _OSD_SR_3P_SKEW_R_DOWN:
+2915          //                         ucType = _INSIDE;
+2916          //                         break;
+2917          
+2918          //                     default:
+2919          //                         ucType = _OUTSIDE;
+2920          //                         break;
+2921          //                 }
+2922          //                 break;
+2923          //             case _OSD_DM_3P_SKEW_T:
+2924          //                 switch(ucRegion)
+2925          //                 {
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 50  
+
+2926          //                     case _OSD_SR_3P_SKEW_T_MAIN:
+2927          //                     case _OSD_SR_3P_SKEW_T_LEFT:
+2928          //                     case _OSD_SR_3P_SKEW_T_RIGHT:
+2929          //                         ucType = _INSIDE;
+2930          //                         break;
+2931          
+2932          //                     default:
+2933          //                         ucType = _OUTSIDE;
+2934          //                         break;
+2935          //                 }
+2936          //                 break;
+2937          //             case _OSD_DM_3P_SKEW_B:
+2938          //                 switch(ucRegion)
+2939          //                 {
+2940          //                     case _OSD_SR_3P_SKEW_B_MAIN:
+2941          //                     case _OSD_SR_3P_SKEW_B_LEFT:
+2942          //                     case _OSD_SR_3P_SKEW_B_RIGHT:
+2943          //                         ucType = _INSIDE;
+2944          //                         break;
+2945          
+2946          //                     default:
+2947          //                         ucType = _OUTSIDE;
+2948          //                         break;
+2949          //                 }
+2950          //                 break;
+2951          //             case _OSD_DM_4P:
+2952          //                 switch(ucRegion)
+2953          //                 {
+2954          //                     case _OSD_SR_4P_LT_INSIDE:
+2955          //                     case _OSD_SR_4P_LB_INSIDE:
+2956          //                     case _OSD_SR_4P_RT_INSIDE:
+2957          //                     case _OSD_SR_4P_RB_INSIDE:
+2958          //                         ucType = _INSIDE;
+2959          //                         break;
+2960          
+2961          //                     default:
+2962          //                         ucType = _OUTSIDE;
+2963          //                         break;
+2964          //                 }
+2965          //                 break;
+2966          
+2967          //             default:
+2968          //                 break;
+2969          //         }
+2970          //     }
+2971          
+2972          //     return ucType;
+2973          // }
+2974          
+2975          // //--------------------------------------------------
+2976          // // Description  : Transfer Osd Region index
+2977          // // Input Value  : ucDisplayMode --> Display mode
+2978          // //                     ucRegion --> Display region
+2979          // // Output Value : _INSIDE / _OUTSIDE
+2980          // //--------------------------------------------------
+2981          // BYTE RTDNVRamTransferOsdRegionIndex(BYTE ucDisplayMode, BYTE ucRegion)
+2982          // {
+2983          //     BYTE ucIndex = 0;
+2984          
+2985          //     switch(ucDisplayMode)
+2986          //     {
+2987          //         case _OSD_DM_1P:
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 51  
+
+2988          //             ucIndex = 0;
+2989          //             break;
+2990          
+2991          //         case _OSD_DM_2P_LR:
+2992          //             if(ucRegion >= _OSD_SR_2P_LR_FULL)
+2993          //             {
+2994          //                 ucRegion = _OSD_SR_2P_LR_L;
+2995          //             }
+2996          //             ucIndex = 2 + ucRegion;
+2997          //             break;
+2998          
+2999          //         case _OSD_DM_2P_TB:
+3000          //             if(ucRegion >= _OSD_SR_2P_TB_FULL)
+3001          //             {
+3002          //                 ucRegion = _OSD_SR_2P_TB_T;
+3003          //             }
+3004          //             ucIndex = 4 + ucRegion;
+3005          //             break;
+3006          
+3007          //         case _OSD_DM_2P_PIP:
+3008          //             if(ucRegion >= _OSD_SR_2P_PIP_FULL)
+3009          //             {
+3010          //                 ucRegion = _OSD_SR_2P_PIP_MAIN;
+3011          //             }
+3012          //             ucIndex = 6 + ucRegion;
+3013          //             break;
+3014          
+3015          //         case _OSD_DM_3P_FLAG:
+3016          //             if(ucRegion >= _OSD_SR_3P_FLAG_FULL)
+3017          //             {
+3018          //                 ucRegion = _OSD_SR_3P_FLAG_MAIN;
+3019          //             }
+3020          //             ucIndex = 8 + (ucRegion % 2);
+3021          //             break;
+3022          
+3023          //         case _OSD_DM_3P_SKEW_L:
+3024          //             if(ucRegion >= _OSD_SR_3P_SKEW_L_FULL)
+3025          //             {
+3026          //                 ucRegion = _OSD_SR_3P_SKEW_L_MAIN;
+3027          //             }
+3028          //             ucIndex = 10 + (ucRegion % 2);
+3029          //             break;
+3030          
+3031          //         case _OSD_DM_3P_SKEW_R:
+3032          //             if(ucRegion >= _OSD_SR_3P_SKEW_R_FULL)
+3033          //             {
+3034          //                 ucRegion = _OSD_SR_3P_SKEW_R_MAIN;
+3035          //             }
+3036          //             ucIndex = 12 + (ucRegion % 2);
+3037          //             break;
+3038          //         case _OSD_DM_3P_SKEW_T:
+3039          //             if(ucRegion >= _OSD_SR_3P_SKEW_T_FULL)
+3040          //             {
+3041          //                 ucRegion = _OSD_SR_3P_SKEW_T_MAIN;
+3042          //             }
+3043          //             ucIndex = 14 + (ucRegion % 2);
+3044          //             break;
+3045          //         case _OSD_DM_3P_SKEW_B:
+3046          //             if(ucRegion >= _OSD_SR_3P_SKEW_B_FULL)
+3047          //             {
+3048          //                 ucRegion = _OSD_SR_3P_SKEW_B_MAIN;
+3049          //             }
+C51 COMPILER V9.60.0.0   RTD2014NVRAMOSD                                                   08/27/2025 11:02:12 PAGE 52  
+
+3050          //             ucIndex = 16 + (ucRegion % 2);
+3051          //             break;
+3052          //         case _OSD_DM_4P:
+3053          //             if(ucRegion >= _OSD_SR_4P_FULL)
+3054          //             {
+3055          //                 ucRegion = _OSD_SR_4P_LT_OUTSIDE;
+3056          //             }
+3057          //             ucIndex = 18 + (ucRegion % 2);
+3058          //             break;
+3059          
+3060          //         default:
+3061          //             break;
+3062          //     }
+3063          
+3064          //     return ucIndex;
+3065          // }
+3066          
+3067          #endif // #if(_OSD_TYPE == _REALTEK_2014_OSD)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   4151    ----
+   CONSTANT SIZE    =    461    ----
+   XDATA SIZE       =    107      92
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

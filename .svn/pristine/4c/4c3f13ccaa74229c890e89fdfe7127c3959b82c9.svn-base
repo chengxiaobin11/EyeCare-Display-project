@@ -1,0 +1,116 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORPANELUNIFORMITYADJUST                              03/11/2025 19:56:07 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORPANELUNIFORMITYADJUST
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorPanelUniformityAdjust.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorPanelUniformityAdjust.c LARGE O
+                    -PTIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;.
+                    -.\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL644
+                    -9_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\R
+                    -L6449_Series_ColorPanelUniformityAdjust.lst) OBJECT(.\Output\RL6449_Series_ColorPanelUniformityAdjust.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorPanelUniformityAdjust.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerColorPanelUniformityAdjust(BYTE *pucUNILUT, WORD usUNILUTSize, BYTE ucBankNum, EnumUniformityMo
+             -deSelect enumUniformityMode, EnumUniformityLevelSelect enumUniformityLevel);
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Description  : Load Panel Uniformity LUT
+  49          // Input Value  : LUT, Bank number, EnumUniformityModeSelect
+  50          // Output Value : None
+C51 COMPILER V8.12   RL6449_SERIES_COLORPANELUNIFORMITYADJUST                              03/11/2025 19:56:07 PAGE 2   
+
+  51          //--------------------------------------------------
+  52          void ScalerColorPanelUniformityAdjust(BYTE *pucUNILUT, WORD usUNILUTSize, BYTE ucBankNum, EnumUniformityMo
+             -deSelect enumUniformityMode, EnumUniformityLevelSelect enumUniformityLevel)
+  53          {
+  54   1          BYTE ucMultiLUTMode = 0;
+  55   1      
+  56   1          switch(enumUniformityLevel)
+  57   1          {
+  58   2              default:
+  59   2                  break;
+  60   2      
+  61   2              case _UNIFORMITY_1LEVEL_MODE:
+  62   2      
+  63   2                  ucMultiLUTMode = 0;
+  64   2                  break;
+  65   2      
+  66   2              case _UNIFORMITY_4LEVEL_MODE:
+  67   2      
+  68   2                  ucMultiLUTMode = 2;
+  69   2                  break;
+  70   2          }
+  71   1          ScalerSetBit(P34_01_UN_MULTI_LUT_CTRL, ~(_BIT1 | _BIT0), (ucMultiLUTMode & 0x03));
+  72   1          // Set uniformity mode
+  73   1          ScalerSetBit(P34_00_UN_GLOBAL_CTRL, ~_BIT1, (enumUniformityMode << 1));
+  74   1      
+  75   1          // Enable uniformity access
+  76   1          ScalerSetBit(P34_00_UN_GLOBAL_CTRL, ~_BIT2, _BIT2);
+  77   1      
+  78   1          // Load uniformity gain LUT
+  79   1          ScalerBurstWrite(pucUNILUT, usUNILUTSize, ucBankNum, P34_08_UN_GAIN_LUT_ACCESS_PORT, _BURSTWRITE_DATA_
+             -COMMON, _BURSTWRITE_FROM_FLASH);
+  80   1      
+  81   1          // Disable uniformity access
+  82   1          ScalerSetBit(P34_00_UN_GLOBAL_CTRL, ~_BIT2, 0x00);
+  83   1      }
+  84          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    100    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,212 @@
+C51 COMPILER V8.12   RL6463_SERIES_PC99EDID                                                03/10/2025 13:50:47 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_PC99EDID
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_PC99EDID.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_PC99EDID.c LAR
+                    -GE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kern
+                    -el\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\Scale
+                    -rFunction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kerne
+                    -l\Scaler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.
+                    -\User\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\N
+                    -oneOsd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEN
+                    -D PRINT(.\Output\RL6463\RL6463_Series_PC99EDID.lst) OBJECT(.\Output\RL6463\RL6463_Series_PC99EDID.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_PC99EDID.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          #if(_HW_PC99_SUPPORT == _ON)
+  20          //****************************************************************************
+  21          // DEFINITIONS / MACROS
+  22          //****************************************************************************
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          #if((_DUAL_BANK_SUPPORT == _OFF) || ((_DUAL_BANK_FLASH_PARTITION_SUPPORT == _ON) && ((_DUAL_BANK_FLASH_PAR
+             -TITION_BOOT_USER_SEL == _DUAL_BANK_FLASH_PARTITION_BOOT) || (_DUAL_BANK_FLASH_PARTITION_BOOT_USER_SEL == _DUAL_BANK_FLAS
+             -H_PARTITION_BOTH))))
+  32          BYTE code tPC99EDID[] =
+  33          {
+  34          #if((_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) || (_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_
+             -TABLE_LOCATION_PC99) || (_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99))
+              #include "./EDID/EdidTableDummy3440.h"
+              #endif
+  37          
+  38          // Command Data PC99 EDID
+  39          #include "./Pc99CommandTable.h"
+  40          
+  41          // A0 Port PC99 EDID
+  42          #include _A0_PC99_EMBEDDED_EDID_CODE_TABLE
+  43          
+  44          // D0 Port PC99 EDID
+  45          #include _D0_PC99_EMBEDDED_EDID_CODE_TABLE
+C51 COMPILER V8.12   RL6463_SERIES_PC99EDID                                                03/10/2025 13:50:47 PAGE 2   
+
+  46          #if((_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D0_EMBEDDED_DDCRAM_MAX_SIZE == _EDID_
+             -SIZE_128))
+              #include "./EDID/EdidTableDummy128.h"
+              #endif
+  49          
+  50          // D1 Port PC99 EDID
+  51          #include _D1_PC99_EMBEDDED_EDID_CODE_TABLE
+  52          #if((_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D1_EMBEDDED_DDCRAM_MAX_SIZE == _EDID_
+             -SIZE_128))
+              #include "./EDID/EdidTableDummy128.h"
+              #endif
+  55          };
+  56          #endif
+  57          
+  58          //****************************************************************************
+  59          // VARIABLE DECLARATIONS
+  60          //****************************************************************************
+  61          
+  62          //****************************************************************************
+  63          // FUNCTION DECLARATIONS
+  64          //****************************************************************************
+  65          void ScalerPC99EDIDInitialControl(void);
+  66          bit ScalerPC99EDIDCheckFinish(void);
+  67          
+  68          //****************************************************************************
+  69          // FUNCTION DEFINITIONS
+  70          //****************************************************************************
+  71          //--------------------------------------------------
+  72          // Description  : PC99 Function Initial
+  73          // Input Value  : None
+  74          // Output Value : _TRUE/_FALSE
+  75          //--------------------------------------------------
+  76          void ScalerPC99EDIDInitialControl(void)
+  77          {
+  78   1      #if((_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) ||\
+  79   1          (_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) ||\
+  80   1          (_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99))
+              
+                  // Turn On 5V to 3.3V LDO
+                  ScalerSetBit(P2F_A1_REG_EN_SYSTEM, ~_BIT0, _BIT0);
+              
+                  // Set PC99 LDO voltage to 3.31V
+                  ScalerSetBit(P2F_A4_REG_OUTPUT_FINE_TUNING, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (_BIT1 | _BIT0));
+              
+                  // Set PC99 1.0V reference from sys LDOD
+                  ScalerSetBit(P2F_A9_REG_VREF_SOURCE_SEL, ~(_BIT1 | _BIT0), _BIT1);
+              
+                  if(ScalerPC99EDIDCheckFinish() == _FALSE)
+                  {
+              #if(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99)
+              
+                      // ADC_DDC Force Nack
+                      MCU_FFE7_VGA_EDID_IRQ |= _BIT5;
+              
+                      // ADC_DDC2 Force Nack
+                      MCU_FD37_ADC_DDC2_EDID_IRQ |= _BIT5;
+              #endif
+              
+              #if(((_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D0_DDC_CHANNEL_SEL == _DDC0)) ||\
+                  ((_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D1_DDC_CHANNEL_SEL == _DDC0)))
+              
+                      // D0_DDC Force Nack
+C51 COMPILER V8.12   RL6463_SERIES_PC99EDID                                                03/10/2025 13:50:47 PAGE 3   
+
+                      MCU_FFE4_DDC0_EDID_IRQ |= _BIT5;
+              #endif
+              
+              #if(((_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D0_DDC_CHANNEL_SEL == _DDC1)) ||\
+                  ((_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D1_DDC_CHANNEL_SEL == _DDC1)))
+                      // D1_DDC Force Nack
+                      MCU_FFE5_DDC1_EDID_IRQ |= _BIT5;
+              #endif
+                  }
+              
+              #else
+ 117   1      
+ 118   1          // A Version Bug 1.0V LDO must turn off for 3.3V LDO turn off
+ 119   1          if(ScalerGlobalGetIDCode() == _RL6463_VER_A_ID_CODE)
+ 120   1          {
+ 121   2              ScalerSetBit(P2F_A5_REG_POWLDO_PC99, ~_BIT0, 0x00);
+ 122   2          }
+ 123   1      
+ 124   1          // Turn Off 5V to 3.3V LDO
+ 125   1          ScalerSetBit(P2F_A1_REG_EN_SYSTEM, ~_BIT0, 0x00);
+ 126   1      
+ 127   1      #endif
+ 128   1      }
+ 129          
+ 130          #if((_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) ||\
+ 131              (_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) ||\
+ 132              (_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99))
+              //--------------------------------------------------
+              // Description  : PC99 EDID Check Finish
+              // Input Value  : None
+              // Output Value : _TRUE/_FALSE
+              //--------------------------------------------------
+              bit ScalerPC99EDIDCheckFinish(void)
+              {
+              #if(_A0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99)
+              
+                  if(MCU_FD0E_ADC_DDC2_EDID_CHECKSUM != MCU_FD0F_ADC_DDC2_FINAL_CHECKSUM_RESULT)
+                  {
+                      return _FALSE;
+                  }
+              #endif
+              
+              #if(((_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D0_DDC_CHANNEL_SEL == _DDC0)) ||\
+                  ((_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D1_DDC_CHANNEL_SEL == _DDC0)))
+              
+                  if((MCU_FD11_D0_EDID_CHECKSUM_0 != MCU_FD12_D0_FINAL_CHECKSUM_RESULT_0) ||
+                     (MCU_FD13_D0_EDID_CHECKSUM_1 != MCU_FD14_D0_FINAL_CHECKSUM_RESULT_1))
+                  {
+                      return _FALSE;
+                  }
+              #endif
+              
+              #if(((_D0_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D0_DDC_CHANNEL_SEL == _DDC1)) ||\
+                  ((_D1_EMBEDDED_DDCRAM_LOCATION == _EDID_TABLE_LOCATION_PC99) && (_D1_DDC_CHANNEL_SEL == _DDC1)))
+              
+                  if((MCU_FD16_D1_EDID_CHECKSUM_0 != MCU_FD17_D1_FINAL_CHECKSUM_RESULT_0) ||
+                     (MCU_FD18_D1_EDID_CHECKSUM_1 != MCU_FD19_D1_FINAL_CHECKSUM_RESULT_1))
+                  {
+                      return _FALSE;
+                  }
+              #endif
+              
+C51 COMPILER V8.12   RL6463_SERIES_PC99EDID                                                03/10/2025 13:50:47 PAGE 4   
+
+                  return _TRUE;
+              }
+              #endif
+ 171          #endif // End #if(_HW_PC99_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     21    ----
+   CONSTANT SIZE    =    656    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

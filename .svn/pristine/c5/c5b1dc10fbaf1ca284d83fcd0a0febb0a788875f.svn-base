@@ -1,0 +1,136 @@
+C51 COMPILER V8.12   RL6463_SERIES_EFUSE                                                   03/10/2025 13:50:44 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_EFUSE
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_Efuse.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_Efuse.c LARGE 
+                    -OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\
+                    -System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFu
+                    -nction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\S
+                    -caler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\Us
+                    -er\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\None
+                    -Osd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND P
+                    -RINT(.\Output\RL6463\RL6463_Series_Efuse.lst) OBJECT(.\Output\RL6463\RL6463_Series_Efuse.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_Efuse.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          #define _EFUSE_INITIAL_ADDRESS                 (0xA6)
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          //****************************************************************************
+  33          // VARIABLE DECLARATIONS
+  34          //****************************************************************************
+  35          
+  36          //****************************************************************************
+  37          // FUNCTION DECLARATIONS
+  38          //****************************************************************************
+  39          void ScalerEfuseGetData(EnumEfuseDataState enumEfuseDataState, BYTE ucEfuseLength, BYTE *pucEfuseData);
+  40          
+  41          //****************************************************************************
+  42          // FUNCTION DEFINITIONS
+  43          //****************************************************************************
+  44          
+  45          //--------------------------------------------------
+  46          // Description  : M2PLL Power COntrol.
+  47          // Input Value  : enumEfuseDataState, pucEfuseData
+  48          // Output Value : None
+C51 COMPILER V8.12   RL6463_SERIES_EFUSE                                                   03/10/2025 13:50:44 PAGE 2   
+
+  49          //--------------------------------------------------
+  50          void ScalerEfuseGetData(EnumEfuseDataState enumEfuseDataState, BYTE ucEfuseLength, BYTE *pucEfuseData)
+  51          {
+  52   1          BYTE ucEfuseAddress = 0;
+  53   1      
+  54   1          switch(enumEfuseDataState)
+  55   1          {
+  56   2              case _EFUSE_LC_TANK_CURRENT:
+  57   2                  ucEfuseAddress = 0xA6;
+  58   2                  break;
+  59   2      
+  60   2              case _EFUSE_M2PLL_N_F_CODE:
+  61   2                  ucEfuseAddress = 0xA7;
+  62   2                  break;
+  63   2      
+  64   2              case _EFUSE_THERMAL_SENSOR:
+  65   2                  ucEfuseAddress = 0xAB;
+  66   2                  break;
+  67   2      
+  68   2              case _EFUSE_LVDS_DRIV:
+  69   2                  ucEfuseAddress = 0xAF;
+  70   2                  break;
+  71   2      
+  72   2              case _EFUSE_LC_TANK_FREQ_FOR_APLL:
+  73   2                  ucEfuseAddress = 0xB0;
+  74   2                  break;
+  75   2      
+  76   2              case _EFUSE_CP_WAFER_INFO:
+  77   2                  ucEfuseAddress = 0xB3;
+  78   2                  break;
+  79   2      
+  80   2              default:
+  81   2                  return;
+  82   2          }
+  83   1      
+  84   1          // Enable eFuse Module Clk
+  85   1          ScalerSetBit(P24_A3_EFUSE_CTRL_0, ~_BIT0, 0x00);
+  86   1      
+  87   1          // Set eFuse Read Start Address
+  88   1          ScalerSetByte(P24_A1_EFUSE_BURN_IN_1, (ucEfuseAddress - _EFUSE_INITIAL_ADDRESS));
+  89   1      
+  90   1          // Enable Read eFuse
+  91   1          ScalerSetBit(P24_A3_EFUSE_CTRL_0, ~(_BIT7 | _BIT6 | _BIT5), _BIT6);
+  92   1      
+  93   1          // Delay Time us [10,x] for eFuse ready
+  94   1          DELAY_10US();
+  95   1      
+  96   1          // Load eFuse data
+  97   1          memcpy(pucEfuseData, (volatile BYTE xdata *)P24_A6_EFUSE_DATA0, ucEfuseLength);
+  98   1      
+  99   1          // Disable eFuse Module Clk
+ 100   1          ScalerSetBit(P24_A3_EFUSE_CTRL_0, ~_BIT0, _BIT0);
+ 101   1      }
+ 102          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    131    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       4
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+C51 COMPILER V8.12   RL6463_SERIES_EFUSE                                                   03/10/2025 13:50:44 PAGE 3   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

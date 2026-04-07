@@ -1,0 +1,174 @@
+C51 COMPILER V8.12   SCALERCOLORDIGITALFILTERENHANCEPHASEADJUS                             03/11/2025 19:55:42 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE SCALERCOLORDIGITALFILTERENHANCEPHASEADJUS
+OBJECT MODULE PLACED IN .\Output\ScalerColorDigitalFilterEnhancePhaseAdjust.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE ..\..\ScalerFunction\Lib\Code\ScalerColor\ScalerColorDigitalFilterEnhancePh
+                    -aseAdjust.c LARGE OPTIMIZE(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\Scal
+                    -erFunction\Header;..\..\ScalerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib
+                    -\Header;..\..\RL6449_Series_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTE
+                    -ND PRINT(.\Output\ScalerColorDigitalFilterEnhancePhaseAdjust.lst) OBJECT(.\Output\ScalerColorDigitalFilterEnhancePhaseAd
+                    -just.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : ScalerColorDigitalFilterEnhancePhaseAdjust.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "ScalerColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          #define _DIG_FILTER_BGAIN                   0
+  22          #define _DIG_FILTER_GGAIN                   1
+  23          #define _DIG_FILTER_RGAIN                   2
+  24          #define _DIG_FILTER_RGB_CHANNEL             3
+  25          
+  26          #define _DIG_FILTER_THRESHOLD1              30
+  27          #define _DIG_FILTER_OFFSET                  5
+  28          #define _DIG_FILTER_DELTA                   5
+  29          
+  30          //****************************************************************************
+  31          // STRUCT / TYPE / ENUM DEFINITTIONS
+  32          //****************************************************************************
+  33          
+  34          
+  35          //****************************************************************************
+  36          // CODE TABLES
+  37          //****************************************************************************
+  38          
+  39          
+  40          //****************************************************************************
+  41          // VARIABLE DECLARATIONS
+  42          //****************************************************************************
+  43          
+  44          
+  45          //****************************************************************************
+  46          // FUNCTION DECLARATIONS
+  47          //****************************************************************************
+  48          void ScalerColorDigitalFilterEnhancePhaseAdjust(BYTE *pucBGRGain);
+  49          
+  50          
+C51 COMPILER V8.12   SCALERCOLORDIGITALFILTERENHANCEPHASEADJUS                             03/11/2025 19:55:42 PAGE 2   
+
+  51          //****************************************************************************
+  52          // FUNCTION DEFINITIONS
+  53          //****************************************************************************
+  54          //--------------------------------------------------
+  55          // Description  : Set New Phase
+  56          // Input Value  : BGR Gain
+  57          // Output Value : None
+  58          //--------------------------------------------------
+  59          void ScalerColorDigitalFilterEnhancePhaseAdjust(BYTE *pucBGRGain)
+  60          {
+  61   1          BYTE ucI = 0;
+  62   1          BYTE ucTHD1 = 0;
+  63   1          WORD usTHD2 = 0;
+  64   1      
+  65   1          for(ucI = _DIG_FILTER_BGAIN; ucI < _DIG_FILTER_RGB_CHANNEL; ucI++)
+  66   1          {
+  67   2              if(pucBGRGain[ucI] < _DIG_FILTER_DELTA)
+  68   2              {
+  69   3                  pucBGRGain[ucI] = 0;
+  70   3                  ucTHD1 = 0xDF;
+  71   3              }
+  72   2              else
+  73   2              {
+  74   3                  usTHD2 = (WORD)(_DIG_FILTER_DELTA) * 512 / pucBGRGain[ucI];
+  75   3      
+  76   3                  if(usTHD2 > 250)
+  77   3                  {
+  78   4                      pucBGRGain[ucI] = 0;
+  79   4                      ucTHD1 = 0xDF;
+  80   4                  }
+  81   3                  else if(usTHD2 > (_DIG_FILTER_THRESHOLD1 + 32))
+  82   3                  {
+  83   4                      ucTHD1 = usTHD2 - 32;
+  84   4                  }
+  85   3                  else
+  86   3                  {
+  87   4                      ucTHD1 = _DIG_FILTER_THRESHOLD1;
+  88   4                  }
+  89   3              }
+  90   2      
+  91   2              // Enable Port Access
+  92   2              switch(ucI)
+  93   2              {
+  94   3                  case _DIG_FILTER_BGAIN:
+  95   3      
+  96   3                      ScalerSetBit(P0_98_DIGITAL_FILTER_CTRL, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT0), (_BIT7 |
+             - _BIT0));
+  97   3      
+  98   3                      break;
+  99   3      
+ 100   3                  case _DIG_FILTER_GGAIN:
+ 101   3      
+ 102   3                      ScalerSetBit(P0_98_DIGITAL_FILTER_CTRL, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT0), (_BIT6 |
+             - _BIT4 | _BIT0));
+ 103   3      
+ 104   3                      break;
+ 105   3      
+ 106   3                  case _DIG_FILTER_RGAIN:
+ 107   3      
+ 108   3                      ScalerSetBit(P0_98_DIGITAL_FILTER_CTRL, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT0), (_BIT5 |
+             - _BIT0));
+ 109   3      
+C51 COMPILER V8.12   SCALERCOLORDIGITALFILTERENHANCEPHASEADJUS                             03/11/2025 19:55:42 PAGE 3   
+
+ 110   3                      break;
+ 111   3      
+ 112   3                  default:
+ 113   3      
+ 114   3                      break;
+ 115   3              }
+ 116   2      
+ 117   2              // Set Threshold1
+ 118   2              ScalerSetByte(P0_99_DIGITAL_FILTER_PORT, ucTHD1);
+ 119   2      
+ 120   2              // Set Offset for Threshold2
+ 121   2              ScalerSetByte(P0_99_DIGITAL_FILTER_PORT, _DIG_FILTER_OFFSET);
+ 122   2      
+ 123   2              // Set Gain2
+ 124   2              ScalerSetByte(P0_99_DIGITAL_FILTER_PORT, pucBGRGain[ucI]);
+ 125   2      
+ 126   2              // Disable Port Access
+ 127   2              ScalerSetBit(P0_98_DIGITAL_FILTER_CTRL, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT0), 0x00);
+ 128   2          }
+ 129   1      
+ 130   1          // Enable Phase Mode
+ 131   1          ScalerSetBit(P0_98_DIGITAL_FILTER_CTRL, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT0), _BIT4);
+ 132   1          ScalerSetByte(P0_99_DIGITAL_FILTER_PORT, 0x80);
+ 133   1      
+ 134   1          // Select New Phase Mode
+ 135   1          ScalerSetBit(P0_98_DIGITAL_FILTER_CTRL, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT0), (_BIT4 | _BIT0));
+ 136   1          ScalerSetByte(P0_99_DIGITAL_FILTER_PORT, 0x80);
+ 137   1          ScalerSetBit(P0_98_DIGITAL_FILTER_CTRL, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4 | _BIT0), 0x00);
+ 138   1      }
+ 139          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    242    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       5
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,825 @@
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_SCALING
+OBJECT MODULE PLACED IN .\Output\RL6449_Projecr\RL6449_Series_Scaling.obj
+COMPILER INVOKED BY: D:\ToolSort\KeilC51V812_\C51\BIN\C51.EXE Kernel\Scaler\RL6449_Series_Scaler\Code\RL6449_Series_Scal
+                    -ing.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6449;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Comm
+                    -on;.\Kernel\System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Sca
+                    -ler\ScalerFunction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6449_Series_Scaler\Heade
+                    -r;.\Kernel\Scaler\RL6449_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6449_Series_Common\Header;.\Kernel\Scaler\RL6449_Ser
+                    -ies_Common\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RT
+                    -D2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\Use
+                    -r\None Factory\Header) DEFINE(_PROJECT=_RL6449_PROJECT,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL
+                    -6449_Projecr\RL6449_Series_Scaling.lst) OBJECT(.\Output\RL6449_Projecr\RL6449_Series_Scaling.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_Scaling.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #define __6193_SERIES_SCALING__
+  17          
+  18          #include "ScalerFunctionInclude.h"
+  19          
+  20          //****************************************************************************
+  21          // DEFINITIONS / MACROS
+  22          //****************************************************************************
+  23          #define _HSD_TABLE_SIZE                                   128
+  24          #define _VSD_TABLE_SIZE                                   64
+  25          
+  26          #if(_SHARPNESS_SUPPORT == _OFF)
+              #define _HSU_TABLE_SIZE                                   128
+              #define _VSU_TABLE_SIZE                                   128
+              #endif
+  30          
+  31          //****************************************************************************
+  32          // STRUCT / TYPE / ENUM DEFINITTIONS
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // CODE TABLES
+  37          //****************************************************************************
+  38          //----------------------------------------------------------------------------------------------------
+  39          // 128 taps Coefficient Table (Sharpness)
+  40          //----------------------------------------------------------------------------------------------------
+  41          BYTE code tSD_H_COEF_128_TAPS[] =
+  42          {
+  43              0xFB, 0x0F, 0xFE, 0x0F, 0xFD, 0x0F, 0xFC, 0x0F, 0xFB, 0x0F, 0xFA, 0x0F, 0xF7, 0x0F, 0xF5, 0x0F,
+  44              0xF1, 0x0F, 0xED, 0x0F, 0xE9, 0x0F, 0xE4, 0x0F, 0xDE, 0x0F, 0xD9, 0x0F, 0xD3, 0x0F, 0xCD, 0x0F,
+  45              0xC7, 0x0F, 0xDB, 0x0F, 0xF0, 0x0F, 0x0C, 0x00, 0x27, 0x00, 0x49, 0x00, 0x6B, 0x00, 0x93, 0x00,
+  46              0xBC, 0x00, 0xEA, 0x00, 0x16, 0x01, 0x49, 0x01, 0x7A, 0x01, 0xB0, 0x01, 0xE3, 0x01, 0x1C, 0x02,
+  47              0x84, 0x04, 0x78, 0x04, 0x6C, 0x04, 0x57, 0x04, 0x42, 0x04, 0x23, 0x04, 0x04, 0x04, 0xDC, 0x03,
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 2   
+
+  48              0xB4, 0x03, 0x86, 0x03, 0x59, 0x03, 0x26, 0x03, 0xF4, 0x02, 0xBD, 0x02, 0x89, 0x02, 0x50, 0x02,
+  49              0xBA, 0x0F, 0xAF, 0x0F, 0xA7, 0x0F, 0xA1, 0x0F, 0x9C, 0x0F, 0x9A, 0x0F, 0x9A, 0x0F, 0x9C, 0x0F,
+  50              0x9F, 0x0F, 0xA3, 0x0F, 0xA8, 0x0F, 0xAD, 0x0F, 0xB4, 0x0F, 0xBA, 0x0F, 0xC1, 0x0F, 0xC7, 0x0F,
+  51          };
+  52          
+  53          //----------------------------------------------------------------------------------------------------
+  54          // 64 taps Coefficient Table (Sharpness)
+  55          //----------------------------------------------------------------------------------------------------
+  56          BYTE code tSD_V_COEF_64_TAPS[] =
+  57          {
+  58              0x82, 0x0F, 0x97, 0x0F, 0xA4, 0x0F, 0xCE, 0x0F, 0xE8, 0x0F, 0x1A, 0x00, 0x3B, 0x00, 0x73, 0x00,
+  59              0x98, 0x00, 0xD2, 0x00, 0xF8, 0x00, 0x32, 0x01, 0x58, 0x01, 0x91, 0x01, 0xB5, 0x01, 0xEE, 0x01,
+  60              0x7E, 0x04, 0x69, 0x04, 0x5C, 0x04, 0x32, 0x04, 0x18, 0x04, 0xE6, 0x03, 0xC5, 0x03, 0x8D, 0x03,
+  61              0x68, 0x03, 0x2E, 0x03, 0x08, 0x03, 0xCE, 0x02, 0xA8, 0x02, 0x6F, 0x02, 0x4B, 0x02, 0x12, 0x02,
+  62          };
+  63          
+  64          #if(_SHARPNESS_SUPPORT == _OFF)
+              //----------------------------------------------------------------------------------------------------
+              // 128 taps Coefficient Table (Sharpness)
+              //----------------------------------------------------------------------------------------------------
+              BYTE code tSD_SU_COEF_128_TAPS[] =
+              {
+                  0xFB, 0x0F, 0xFE, 0x0F, 0xFD, 0x0F, 0xFC, 0x0F, 0xFB, 0x0F, 0xFA, 0x0F, 0xF7, 0x0F, 0xF5, 0x0F,
+                  0xF1, 0x0F, 0xED, 0x0F, 0xE9, 0x0F, 0xE4, 0x0F, 0xDE, 0x0F, 0xD9, 0x0F, 0xD3, 0x0F, 0xCD, 0x0F,
+                  0xC7, 0x0F, 0xDB, 0x0F, 0xF0, 0x0F, 0x0C, 0x00, 0x27, 0x00, 0x49, 0x00, 0x6B, 0x00, 0x93, 0x00,
+                  0xBC, 0x00, 0xEA, 0x00, 0x16, 0x01, 0x49, 0x01, 0x7A, 0x01, 0xB0, 0x01, 0xE3, 0x01, 0x1C, 0x02,
+                  0x84, 0x04, 0x78, 0x04, 0x6C, 0x04, 0x57, 0x04, 0x42, 0x04, 0x23, 0x04, 0x04, 0x04, 0xDC, 0x03,
+                  0xB4, 0x03, 0x86, 0x03, 0x59, 0x03, 0x26, 0x03, 0xF4, 0x02, 0xBD, 0x02, 0x89, 0x02, 0x50, 0x02,
+                  0xBA, 0x0F, 0xAF, 0x0F, 0xA7, 0x0F, 0xA1, 0x0F, 0x9C, 0x0F, 0x9A, 0x0F, 0x9A, 0x0F, 0x9C, 0x0F,
+                  0x9F, 0x0F, 0xA3, 0x0F, 0xA8, 0x0F, 0xAD, 0x0F, 0xB4, 0x0F, 0xBA, 0x0F, 0xC1, 0x0F, 0xC7, 0x0F,
+              };
+              #endif
+  80          
+  81          #if(_FREESYNC_SUPPORT == _ON)
+  82          //----------------------------------------------------------------------------------------------------
+  83          // 64 taps bypass Coefficient Table (Sharpness)
+  84          //----------------------------------------------------------------------------------------------------
+  85          BYTE code tSD_V_COEF_64_TAPS_BYPASS[] =
+  86          {
+  87              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  88              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  89              0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04,
+  90              0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04, 0x00, 0x04,
+  91          };
+  92          #endif
+  93          //****************************************************************************
+  94          // VARIABLE DECLARATIONS
+  95          //****************************************************************************
+  96          
+  97          //****************************************************************************
+  98          // FUNCTION DECLARATIONS
+  99          //****************************************************************************
+ 100          void ScalerScalingSetScalingUp(const StructSDRAMDataInfo *pstFIFOScaling);
+ 101          void ScalerScalingSetScalingDownCoef(void);
+ 102          void ScalerScalingSetScalingDown(const StructSDRAMDataInfo *pstFIFOScaling);
+ 103          
+ 104          #if(_SHARPNESS_SUPPORT == _ON)
+ 105          EnumVSUCoefType ScalerScalingGetScalingUpType(void);
+ 106          #else
+              void ScalerScalingSetScalingUpCoef(void);
+              #endif
+ 109          
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 3   
+
+ 110          void ScalerScalingUpdateFIFOScalingSize(StructSDRAMDataInfo *pstData);
+ 111          void ScalerScalingGetFIFOScalingSize(StructSDRAMDataInfo *pstData);
+ 112          
+ 113          //****************************************************************************
+ 114          // FUNCTION DEFINITIONS
+ 115          //****************************************************************************
+ 116          //--------------------------------------------------
+ 117          // Description  : Decide which scaling up function should be performed
+ 118          // Input Value  : Input/Output H/V Active Region
+ 119          // Output Value : None
+ 120          //--------------------------------------------------
+ 121          void ScalerScalingSetScalingUp(const StructSDRAMDataInfo *pstFIFOScaling)
+ 122          {
+ 123   1          CLR_V_SCALE_UP();
+ 124   1          CLR_H_SCALE_UP();
+ 125   1      
+ 126   1          // Disable Scale Up
+ 127   1          ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~(_BIT1 | _BIT0), 0x00);
+ 128   1      
+ 129   1      #if(_SHARPNESS_SUPPORT == _OFF)
+                  // Disable Scale Up FixCoef
+                  ScalerSetBit(P0_37_SCALE_UP_FOR_LINE_INTERLEAVE, ~(_BIT5 | _BIT4), 0x00);
+              #endif
+ 133   1      
+ 134   1          //===============================
+ 135   1          // Decide V direction scaling up
+ 136   1          //===============================
+ 137   1          // Set V Scaling Up Factor
+ 138   1          if(pstFIFOScaling->usOutputVHeight < g_stMDomainOutputData.usVHeight)
+ 139   1          {
+ 140   2              SET_V_SCALE_UP();
+ 141   2      
+ 142   2              // Calculate Scaling Factor
+ 143   2              PDATA_DWORD(0) = GET_DWORD_MUL_DIV((1UL << (_VSU_FACTOR_BIT + 1)), pstFIFOScaling->usOutputVHeight
+             -, g_stMDomainOutputData.usVHeight);
+ 144   2              PDATA_DWORD(0) = (PDATA_DWORD(0) + 1) >> 1;
+ 145   2      
+ 146   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_03_VER_SCALE_FACTOR_H, ((PDATA_DWORD(0) >> 16)
+             - & 0x0F));
+ 147   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_04_VER_SCALE_FACTOR_M, ((PDATA_DWORD(0) >> 8) 
+             -& 0xFF));
+ 148   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_05_VER_SCALE_FACTOR_L, (PDATA_DWORD(0) & 0xFF)
+             -);
+ 149   2      
+ 150   2              // Set V Initial Phase
+ 151   2              // R = Input Height /Output Height
+ 152   2              // ideal initial phase: for 4line SU = (1+R)*16*8
+ 153   2              PDATA_DWORD(0) = (DWORD)(pstFIFOScaling->usOutputVHeight + g_stMDomainOutputData.usVHeight) * 16 *
+             - 8 / g_stMDomainOutputData.usVHeight;
+ 154   2      
+ 155   2              // Check for enabling video compensation
+ 156   2              if((GET_INTERLACED_MODE() == _FALSE) ||
+ 157   2      #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+ 158   2                 ((GET_ROT_TYPE() == _ROT_CW90) || (GET_ROT_TYPE() == _ROT_CW270)) ||
+ 159   2      #endif
+ 160   2                 (ScalerFmtCnvGetSourceType() == _FC_SOURCE_ADC) ||
+ 161   2                 (BYPASS_VIDEO_COMPENSATION(pstFIFOScaling->usOutputVHeight, g_stMDomainOutputData.usVHeight) ==
+             - _TRUE))
+ 162   2              {
+ 163   3                  ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_11_VER_FILTER_COEF_INI, pData[3]);
+ 164   3              }
+ 165   2              else
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 4   
+
+ 166   2              {
+ 167   3                  if(pData[3] > 0xBF)
+ 168   3                  {
+ 169   4                      pData[3] = 0xFF;
+ 170   4                  }
+ 171   3                  else
+ 172   3                  {
+ 173   4                      pData[3] = pData[3] + 0x40;
+ 174   4                  }
+ 175   3      
+ 176   3                  ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_11_VER_FILTER_COEF_INI, pData[3]);
+ 177   3              }
+ 178   2          }
+ 179   1          else
+ 180   1          {
+ 181   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_03_VER_SCALE_FACTOR_H, 0x0F);
+ 182   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_04_VER_SCALE_FACTOR_M, 0xFF);
+ 183   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_05_VER_SCALE_FACTOR_L, 0xFF);
+ 184   2      
+ 185   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_11_VER_FILTER_COEF_INI, 0xFF);
+ 186   2      
+ 187   2      #if(_SHARPNESS_SUPPORT == _OFF)
+                      // Enable V Scale Up FixCoef
+                      ScalerSetBit(P0_37_SCALE_UP_FOR_LINE_INTERLEAVE, ~_BIT4, _BIT4);
+              #endif
+ 191   2          }
+ 192   1      
+ 193   1          if(GET_V_SCALE_UP() == _TRUE)
+ 194   1          {
+ 195   2              // Enable V Scale Up
+ 196   2              ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT1, _BIT1);
+ 197   2      
+ 198   2              if(GET_INTERLACED_MODE() == _TRUE)
+ 199   2              {
+ 200   3                  // VGA Input or Prefered Timing
+ 201   3                  if((ScalerFmtCnvGetSourceType() == _FC_SOURCE_ADC) ||
+ 202   3      #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+ 203   3                     ((GET_ROT_TYPE() == _ROT_CW90) || (GET_ROT_TYPE() == _ROT_CW270)) ||
+ 204   3      #endif
+ 205   3                     (BYPASS_VIDEO_COMPENSATION(pstFIFOScaling->usOutputVHeight, g_stMDomainOutputData.usVHeight
+             -) == _TRUE))
+ 206   3                  {
+ 207   4                      // Disable Video Compensation
+ 208   4                      ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT7, 0x00);
+ 209   4                  }
+ 210   3                  else
+ 211   3                  {
+ 212   4                      // Enable Video Compensation According to Odd Field Delay One Line
+ 213   4                      ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT7, _BIT7);
+ 214   4      
+ 215   4      #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+ 216   4                      // Check video compensation polarity for rotation
+ 217   4                      ScalerRotationCheckVideoCompensation();
+ 218   4      #endif
+ 219   4                  }
+ 220   3              }
+ 221   2              else
+ 222   2              {
+ 223   3                  // Disable Video Compensation
+ 224   3                  ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT7, 0x00);
+ 225   3              }
+ 226   2          }
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 5   
+
+ 227   1          else
+ 228   1          {
+ 229   2              // Disable Video Compensation
+ 230   2              ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT7, 0x00);
+ 231   2          }
+ 232   1      
+ 233   1          //===============================
+ 234   1          // Decide H direction scaling up
+ 235   1          //===============================
+ 236   1          // Set H Scaling Up Factor
+ 237   1          SET_H_SCALE_UP();
+ 238   1      
+ 239   1          if(pstFIFOScaling->usOutputHWidth < g_stMDomainOutputData.usHWidth)
+ 240   1          {
+ 241   2              SET_H_SCALE_UP();
+ 242   2      
+ 243   2              // Calculate Scaling Factor
+ 244   2              PDATA_DWORD(0) = GET_DWORD_MUL_DIV((1UL << (_HSU_FACTOR_BIT + 1)), pstFIFOScaling->usOutputHWidth,
+             - g_stMDomainOutputData.usHWidth);
+ 245   2              PDATA_DWORD(0) = (PDATA_DWORD(0) + 1) >> 1;
+ 246   2      
+ 247   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_00_HOR_SCALE_FACTOR_H, ((PDATA_DWORD(0) >> 16)
+             - & 0x0F));
+ 248   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_01_HOR_SCALE_FACTOR_M, ((PDATA_DWORD(0) >> 8) 
+             -& 0xFF));
+ 249   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_02_HOR_SCALE_FACTOR_L, (PDATA_DWORD(0) & 0xFF)
+             -);
+ 250   2      
+ 251   2              // Set H Initial Phase
+ 252   2              // R = Input width /Output width
+ 253   2              // ideal initial phase = (1+R)*16*8
+ 254   2              PDATA_DWORD(0) = (DWORD)(pstFIFOScaling->usOutputHWidth + g_stMDomainOutputData.usHWidth) * 16 * 8
+             - / g_stMDomainOutputData.usHWidth;
+ 255   2      
+ 256   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_10_HOR_FILTER_COEF_INI, pData[3]);
+ 257   2          }
+ 258   1          else
+ 259   1          {
+ 260   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_00_HOR_SCALE_FACTOR_H, 0x0F);
+ 261   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_01_HOR_SCALE_FACTOR_M, 0xFF);
+ 262   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_02_HOR_SCALE_FACTOR_L, 0xFF);
+ 263   2      
+ 264   2              ScalerSetDataPortByte(P0_33_SF_ADDR_PORT, _P0_34_PT_10_HOR_FILTER_COEF_INI, 0xFF);
+ 265   2      
+ 266   2      #if(_SHARPNESS_SUPPORT == _OFF)
+                      // Enable H Scale Up FixCoef
+                      ScalerSetBit(P0_37_SCALE_UP_FOR_LINE_INTERLEAVE, ~_BIT5, _BIT5);
+              #endif
+ 270   2          }
+ 271   1      
+ 272   1          //===============================
+ 273   1          // Set H direction scaling up
+ 274   1          //===============================
+ 275   1          if(GET_H_SCALE_UP() == _TRUE)
+ 276   1          {
+ 277   2              // Enable H Scale Up
+ 278   2              ScalerSetBit(P0_32_SCALE_CONTROL_REG, ~_BIT0, _BIT0);
+ 279   2          }
+ 280   1      }
+ 281          
+ 282          //--------------------------------------------------
+ 283          // Description  : Set Scale Down Coef
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 6   
+
+ 284          // Input Value  : none
+ 285          // Output Value : none
+ 286          //--------------------------------------------------
+ 287          void ScalerScalingSetScalingDownCoef(void)
+ 288          {
+ 289   1          // M1
+ 290   1          // Set Coefficient table 1
+ 291   1          ScalerSetBit(P0_26_SD_FILTER_CONTROL_REG_M1, ~(_BIT7 | _BIT6), _BIT7);
+ 292   1          ScalerBurstWrite(tSD_H_COEF_128_TAPS, _HSD_TABLE_SIZE, GET_CURRENT_BANK_NUMBER(), P0_27_SD_USER_FILTER
+             -_ACCESS_PORT_M1, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+ 293   1          // Set Coefficient table 2
+ 294   1          ScalerSetBit(P0_26_SD_FILTER_CONTROL_REG_M1, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 295   1          ScalerBurstWrite(tSD_V_COEF_64_TAPS, _VSD_TABLE_SIZE, GET_CURRENT_BANK_NUMBER(), P0_27_SD_USER_FILTER_
+             -ACCESS_PORT_M1, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+ 296   1      
+ 297   1          // M2
+ 298   1          // Set Coefficient table 1
+ 299   1          ScalerSetBit(P40_26_SD_FILTER_CONTROL_REG_M2, ~(_BIT7 | _BIT6), _BIT7);
+ 300   1          ScalerBurstWrite(tSD_H_COEF_128_TAPS, _HSD_TABLE_SIZE, GET_CURRENT_BANK_NUMBER(), P40_27_SD_USER_FILTE
+             -R_ACCESS_PORT_M2, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+ 301   1          // Set Coefficient table 2
+ 302   1          ScalerSetBit(P40_26_SD_FILTER_CONTROL_REG_M2, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+ 303   1          ScalerBurstWrite(tSD_V_COEF_64_TAPS, _VSD_TABLE_SIZE, GET_CURRENT_BANK_NUMBER(), P40_27_SD_USER_FILTER
+             -_ACCESS_PORT_M2, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+ 304   1      }
+ 305          
+ 306          //--------------------------------------------------
+ 307          // Description  : Decide which scaling down function should be performed
+ 308          // Input Value  : Input/Output H/V Active Region
+ 309          // Output Value : None
+ 310          //--------------------------------------------------
+ 311          void ScalerScalingSetScalingDown(const StructSDRAMDataInfo *pstFIFOScaling)
+ 312          {
+ 313   1          CLR_V_SCALE_DOWN();
+ 314   1          CLR_H_SCALE_DOWN();
+ 315   1      
+ 316   1          // Disable Scale Down
+ 317   1          // M1
+ 318   1          ScalerSetBit(P0_23_SCALE_DOWN_CTRL_M1, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+ 319   1          // M2
+ 320   1          ScalerSetBit(P40_23_SCALE_DOWN_CTRL_M2, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), 0x00);
+ 321   1      
+ 322   1          //===============================
+ 323   1          // Decide H direction scaling down
+ 324   1          //===============================
+ 325   1          // Set H Scaling Down Factor
+ 326   1          if(g_stMDomainInputData.usHWidth > pstFIFOScaling->usInputHWidth)
+ 327   1          {
+ 328   2              SET_H_SCALE_DOWN();
+ 329   2      
+ 330   2              // Calculate Scaling Factor
+ 331   2              PDATA_DWORD(0) = GET_DWORD_MUL_DIV((1UL << (_HSD_FACTOR_BIT)), g_stMDomainInputData.usHWidth, pstF
+             -IFOScaling->usInputHWidth);
+ 332   2      
+ 333   2              // The rounding of hsd factor may cause frame sync line buffer error under specific resolution
+ 334   2              if(((((1UL << _HSD_FACTOR_BIT) % pstFIFOScaling->usInputHWidth) *
+ 335   2                   (g_stMDomainInputData.usHWidth % pstFIFOScaling->usInputHWidth)) % pstFIFOScaling->usInputHWi
+             -dth) != 0)
+ 336   2              {
+ 337   3                  PDATA_DWORD(0) += 1;
+ 338   3              }
+ 339   2      
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 7   
+
+ 340   2              // M1
+ 341   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_05_H_SD_FACTOR_H_M1, ((PDATA_DWORD(0) >>
+             - 16) & 0xFF));
+ 342   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_06_H_SD_FACTOR_M_M1, ((PDATA_DWORD(0) >>
+             - 8) & 0xFF));
+ 343   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_07_H_SD_FACTOR_L_M1, (PDATA_DWORD(0) & 0
+             -xFF));
+ 344   2      
+ 345   2              // M2
+ 346   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_05_H_SD_FACTOR_H_M2, ((PDATA_DWORD(0) 
+             ->> 16) & 0xFF));
+ 347   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_06_H_SD_FACTOR_M_M2, ((PDATA_DWORD(0) 
+             ->> 8) & 0xFF));
+ 348   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_07_H_SD_FACTOR_L_M2, (PDATA_DWORD(0) &
+             - 0xFF));
+ 349   2      
+ 350   2              // Calculate Initial Phase
+ 351   2              // (factor - 1) / 2  // 1.6
+ 352   2              PDATA_DWORD(0) = (PDATA_DWORD(0) >> 15) - 32;
+ 353   2      
+ 354   2              if(PDATA_DWORD(0) > 0x7F)
+ 355   2              {
+ 356   3                  PDATA_DWORD(0) = 0x7F;
+ 357   3              }
+ 358   2              // M1
+ 359   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_04_H_SD_INIT_M1, PDATA_DWORD(0));
+ 360   2              // M2
+ 361   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_04_H_SD_INIT_M2, PDATA_DWORD(0));
+ 362   2          }
+ 363   1          else
+ 364   1          {
+ 365   2              // M1
+ 366   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_04_H_SD_INIT_M1, 0x00);
+ 367   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_05_H_SD_FACTOR_H_M1, 0x10);
+ 368   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_06_H_SD_FACTOR_M_M1, 0x00);
+ 369   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_07_H_SD_FACTOR_L_M1, 0x00);
+ 370   2              // M2
+ 371   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_04_H_SD_INIT_M2, 0x00);
+ 372   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_05_H_SD_FACTOR_H_M2, 0x10);
+ 373   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_06_H_SD_FACTOR_M_M2, 0x00);
+ 374   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_07_H_SD_FACTOR_L_M2, 0x00);
+ 375   2          }
+ 376   1      
+ 377   1          if(GET_H_SCALE_DOWN() == _TRUE)
+ 378   1          {
+ 379   2              // Enable H Scale Down
+ 380   2              // M1
+ 381   2              ScalerSetBit(P0_23_SCALE_DOWN_CTRL_M1, ~(_BIT3 | _BIT1), _BIT1);
+ 382   2              // M2
+ 383   2              ScalerSetBit(P40_23_SCALE_DOWN_CTRL_M2, ~(_BIT3 | _BIT1), _BIT1);
+ 384   2          }
+ 385   1      
+ 386   1          //===============================
+ 387   1          // Decide V direction scaling down
+ 388   1          //===============================
+ 389   1          // Set V Scaling Down Factor
+ 390   1          if((g_stMDomainInputData.usVHeight) > pstFIFOScaling->usInputVHeight)
+ 391   1          {
+ 392   2              SET_V_SCALE_DOWN();
+ 393   2      
+ 394   2              // Calculate Scaling Factor
+ 395   2              PDATA_DWORD(0) = GET_DWORD_MUL_DIV((1UL << (_VSD_FACTOR_BIT + 1)), g_stMDomainInputData.usVHeight,
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 8   
+
+             - pstFIFOScaling->usInputVHeight);
+ 396   2              PDATA_DWORD(0) = (PDATA_DWORD(0) + 1) >> 1;
+ 397   2      
+ 398   2              // M1
+ 399   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_01_V_SD_FACTOR_H_M1, ((PDATA_DWORD(0) >>
+             - 19) & 0x0F));
+ 400   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_02_V_SD_FACTOR_M_M1, ((PDATA_DWORD(0) >>
+             - 11) & 0xFF));
+ 401   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_03_V_SD_FACTOR_L_M1, ((PDATA_DWORD(0) >>
+             - 3) & 0xFF));
+ 402   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_42_V_SD_FACTOR_L1_M1, (((PDATA_DWORD(0) 
+             -& 0x07) << 5) & 0xE0));
+ 403   2              // M2
+ 404   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_01_V_SD_FACTOR_H_M2, ((PDATA_DWORD(0) 
+             ->> 19) & 0x0F));
+ 405   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_02_V_SD_FACTOR_M_M2, ((PDATA_DWORD(0) 
+             ->> 11) & 0xFF));
+ 406   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_03_V_SD_FACTOR_L_M2, ((PDATA_DWORD(0) 
+             ->> 3) & 0xFF));
+ 407   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_42_V_SD_FACTOR_L1_M2, (((PDATA_DWORD(0
+             -) & 0x07) << 5) & 0xE0));
+ 408   2      
+ 409   2              // Calculate Initial Phase
+ 410   2              PDATA_DWORD(0) = (PDATA_DWORD(0) >> 15) - 32;
+ 411   2      
+ 412   2              if(PDATA_DWORD(0) > 0x7F)
+ 413   2              {
+ 414   3                  PDATA_DWORD(0) = 0x7F;
+ 415   3              }
+ 416   2              // M1
+ 417   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_00_V_SD_INIT_M1, PDATA_DWORD(0));
+ 418   2              // M2
+ 419   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_00_V_SD_INIT_M2, PDATA_DWORD(0));
+ 420   2          }
+ 421   1          else
+ 422   1          {
+ 423   2              // M1
+ 424   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_00_V_SD_INIT_M1, 0x00);
+ 425   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_01_V_SD_FACTOR_H_M1, 0x02);
+ 426   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_02_V_SD_FACTOR_M_M1, 0x00);
+ 427   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_03_V_SD_FACTOR_L_M1, 0x00);
+ 428   2              ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_42_V_SD_FACTOR_L1_M1, 0x00);
+ 429   2              // M2
+ 430   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_00_V_SD_INIT_M2, 0x00);
+ 431   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_01_V_SD_FACTOR_H_M2, 0x02);
+ 432   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_02_V_SD_FACTOR_M_M2, 0x00);
+ 433   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_03_V_SD_FACTOR_L_M2, 0x00);
+ 434   2              ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_42_V_SD_FACTOR_L1_M2, 0x00);
+ 435   2          }
+ 436   1      
+ 437   1          if(GET_V_SCALE_DOWN() == _TRUE)
+ 438   1          {
+ 439   2              // Enable V Scale Down
+ 440   2              // M1
+ 441   2              ScalerSetBit(P0_23_SCALE_DOWN_CTRL_M1, ~_BIT0, _BIT0);
+ 442   2              // M2
+ 443   2              ScalerSetBit(P40_23_SCALE_DOWN_CTRL_M2, ~_BIT0, _BIT0);
+ 444   2      
+ 445   2              // if VSD is on, then LSR shold be off.
+ 446   2              ScalerSetBit(P14_C0_LSR_CTRL, ~_BIT7, 0x00);
+ 447   2          }
+ 448   1      
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 9   
+
+ 449   1          // Interlaced mode, Idomain Single Mode
+ 450   1          PDATA_WORD(0) = pstFIFOScaling->usInputVHeight >> 1;
+ 451   1      
+ 452   1          // Enable SD Out Window Set
+ 453   1          // M1
+ 454   1          ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_36_SD_OUT_WID_M_M1, ((pstFIFOScaling->usInpu
+             -tHWidth >> 8) & 0x0F));
+ 455   1          ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_37_SD_OUT_WID_L_M1, pstFIFOScaling->usInputH
+             -Width);
+ 456   1      
+ 457   1          ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_38_SD_OUT_LEN_M_M1, (pData[0] & 0x0F));
+ 458   1          ScalerSetDataPortByte(P0_24_SD_ADDRESS_PORT_M1, _P0_25_PT_39_SD_OUT_LEN_L_M1, pData[1]);
+ 459   1      
+ 460   1          ScalerSetBit(P0_23_SCALE_DOWN_CTRL_M1, ~_BIT3, 0x00);
+ 461   1      
+ 462   1          // M2
+ 463   1          ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_36_SD_OUT_WID_M_M2, ((pstFIFOScaling->usIn
+             -putHWidth >> 8) & 0x0F));
+ 464   1          ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_37_SD_OUT_WID_L_M2, pstFIFOScaling->usInpu
+             -tHWidth);
+ 465   1      
+ 466   1          ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_38_SD_OUT_LEN_M_M2, (pData[0] & 0x0F));
+ 467   1          ScalerSetDataPortByte(P40_24_SD_ADDRESS_PORT_M2, _P40_25_PT_39_SD_OUT_LEN_L_M2, pData[1]);
+ 468   1      
+ 469   1          ScalerSetBit(P40_23_SCALE_DOWN_CTRL_M2, ~_BIT3, 0x00);
+ 470   1      }
+ 471          
+ 472          #if(_SHARPNESS_SUPPORT == _ON)
+ 473          //--------------------------------------------------
+ 474          // Description  : Get 3D ScalingUp Type
+ 475          // Input Value  : none
+ 476          // Output Value : 0: no 3D ScaleUp,  1: 3D 3Line V ScaleUp,  2:3D 2Line V ScaleUp,
+ 477          //--------------------------------------------------
+ 478          EnumVSUCoefType ScalerScalingGetScalingUpType(void)
+ 479          {
+ 480   1          return _VSU_2D_4LINE_COEF;
+ 481   1      }
+ 482          #else
+              //--------------------------------------------------
+              // Description  : Set ScaleUp Coef
+              // Input Value  : none
+              // Output Value : none
+              //--------------------------------------------------
+              void ScalerScalingSetScalingUpCoef(void)
+              {
+                  // Set Coefficient table 1
+                  ScalerSetBit(P0_35_FILTER_CONTROL_REG, ~(_BIT7 | _BIT6), _BIT7);
+                  ScalerBurstWrite(tSD_SU_COEF_128_TAPS, _HSU_TABLE_SIZE, GET_CURRENT_BANK_NUMBER(), P0_36_USER_DEF_FILT
+             -ER_ACCESS_PORT, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+                  // Set Coefficient table 2
+                  ScalerSetBit(P0_35_FILTER_CONTROL_REG, ~(_BIT7 | _BIT6), (_BIT7 | _BIT6));
+                  ScalerBurstWrite(tSD_SU_COEF_128_TAPS, _VSU_TABLE_SIZE, GET_CURRENT_BANK_NUMBER(), P0_36_USER_DEF_FILT
+             -ER_ACCESS_PORT, _BURSTWRITE_DATA_COMMON, _BURSTWRITE_FROM_FLASH);
+              
+                  // Disable Coefficient Access, Set HSU to use coefficient table 1 & set VSU to use coefficient table 2
+                  ScalerSetBit(P0_35_FILTER_CONTROL_REG, ~(_BIT7 | _BIT6 | _BIT5 | _BIT4), _BIT4);
+              }
+              #endif
+ 501          
+ 502          //--------------------------------------------------
+ 503          // Description  : Decide which scaling size
+ 504          // Input Value  : Input/Output H/V Active Region
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 10  
+
+ 505          // Output Value : None
+ 506          //--------------------------------------------------
+ 507          void ScalerScalingUpdateFIFOScalingSize(StructSDRAMDataInfo *pstData)
+ 508          {
+ 509   1      #if(_FRC_SUPPORT == _ON)
+ 510   1          DWORD ulHSDSpace = 0;
+ 511   1          DWORD ulHSDBW = 0;
+ 512   1      #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+ 513   1          WORD usPreReadLine = 0;
+ 514   1          DWORD ulDclk = 0;
+ 515   1      #endif
+ 516   1      
+ 517   1          SET_MEMORY_FRAME_BUFFER(_MEMORY_1_FRAME_BUFFER);
+ 518   1      #endif // End of #if(_FRC_SUPPORT == _ON)
+ 519   1      
+ 520   1          //-----------------------------------------------
+ 521   1          // Consider FIFO Input / Output H width
+ 522   1          //-----------------------------------------------
+ 523   1          if(g_stMDomainInputData.usHWidth > g_stMDomainOutputData.usHWidth)
+ 524   1          {
+ 525   2              pstData->usInputHWidth = g_stMDomainOutputData.usHWidth;
+ 526   2              pstData->usOutputHWidth = g_stMDomainOutputData.usHWidth;
+ 527   2          }
+ 528   1          else
+ 529   1          {
+ 530   2              pstData->usInputHWidth = g_stMDomainInputData.usHWidth;
+ 531   2              pstData->usOutputHWidth = g_stMDomainInputData.usHWidth;
+ 532   2          }
+ 533   1      
+ 534   1          //-----------------------------------------------
+ 535   1          // Consider FIFO Input / Output V Height
+ 536   1          //-----------------------------------------------
+ 537   1          if(g_stMDomainInputData.usVHeight > g_stMDomainOutputData.usVHeight)
+ 538   1          {
+ 539   2              pstData->usInputVHeight = g_stMDomainOutputData.usVHeight;
+ 540   2              pstData->usOutputVHeight = g_stMDomainOutputData.usVHeight;
+ 541   2          }
+ 542   1          else
+ 543   1          {
+ 544   2              pstData->usInputVHeight = g_stMDomainInputData.usVHeight;
+ 545   2              pstData->usOutputVHeight = g_stMDomainInputData.usVHeight;
+ 546   2          }
+ 547   1      
+ 548   1      #if(_FRC_SUPPORT == _ON)
+ 549   1          //-----------------------------------------------
+ 550   1          // Consider FIFO Input / Output H width in FRC
+ 551   1          //-----------------------------------------------
+ 552   1          if(GET_MEMORY_CONFIG() == _MEMORY_WORK_MODE)
+ 553   1          {
+ 554   2      #if(_DP_FREESYNC_SUPPORT == _ON)
+ 555   2              if((GET_DP_FREESYNC_ENABLED() == _TRUE) && (GET_FREESYNC_SPD_INFO_FRAME_RECEIVED() == _FALSE))
+ 556   2              {
+ 557   3                  ulHSDBW = (DWORD)_MEMORY_TOTAL_BW * 100000 / GET_MEMORY_DATA_BIT() * _MEMORY_BUS_WIDTH /
+ 558   3                            ((((DWORD)g_stMDomainInputData.usHFreq * 1000) +
+ 559   3                              ((DWORD)g_stMDomainOutputData.usVTotal * g_usDVFreq) +
+ 560   3                              ((DWORD)g_stMDomainOutputData.usVTotal * g_usDVFreq * ((_DCLK_SPREAD_RANGE / _DPLL
+             -_SSCG_DIV_MODE) + _DCLK_SPREAD_RANGE_MARGIN) / 4 / 100)) / 10 + 1);
+ 561   3              }
+ 562   2              else
+ 563   2      #endif
+ 564   2              {
+ 565   3                  ulHSDBW = (DWORD)_MEMORY_TOTAL_BW * 100000 / GET_MEMORY_DATA_BIT() * _MEMORY_BUS_WIDTH /
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 11  
+
+ 566   3                            ((((DWORD)g_stMDomainInputData.usVTotal * g_stMDomainInputData.usVFreq) +
+ 567   3                              ((DWORD)g_stMDomainOutputData.usVTotal * g_usDVFreq) +
+ 568   3                              ((DWORD)g_stMDomainOutputData.usVTotal * g_usDVFreq * ((_DCLK_SPREAD_RANGE / _DPLL
+             -_SSCG_DIV_MODE) + _DCLK_SPREAD_RANGE_MARGIN) / 4 / 100)) / 10 + 1);
+ 569   3              }
+ 570   2      
+ 571   2              ulHSDSpace = ScalerComputeDwordMulDiv(((DWORD)_MEMORY_ROW * _MEMORY_BANK), ((DWORD)_MEMORY_COL_PER
+             -_BANK * _MEMORY_BIT_NUM), ((DWORD)GET_MEMORY_DATA_BIT() * pstData->usInputVHeight));
+ 572   2      
+ 573   2      #if(_DISPLAY_ROTATION_SUPPORT == _ON)
+ 574   2              if(((GET_ROT_TYPE() == _ROT_CW180) || (GET_ROT_TYPE() == _ROT_VER_MIRROR)) &&
+ 575   2                 (GET_MEMORY_DVF_SELECT() != _1_IVF))
+ 576   2              {
+ 577   3      #if(_FORCE_TO_FREE_RUN_SUPPORT == _ON)
+                          if((GET_MEMORY_DVF_SELECT() == _PANEL_TYP_FRAME_RATE_FREE_RUN) &&
+                             (g_stMDomainInputData.usVFreq <= (g_usDVFreq + (g_usDVFreq / 10))) &&
+                             (g_stMDomainInputData.usVFreq >= (g_usDVFreq - (g_usDVFreq / 10))))
+                          {
+                              ulHSDSpace /= 3;
+                              SET_MEMORY_FRAME_BUFFER(_MEMORY_3_FRAME_BUFFER);
+                              // set to default value
+                              ScalerRotationSetRotInputSlowerFasterStyle(_FALSE);
+                          }
+                          else
+              #endif
+ 589   3                  {
+ 590   4                      // Calculate Pre-read
+ 591   4                      usPreReadLine = ScalerFRCCalculatePreReadLine(pstData->usOutputVHeight);
+ 592   4      
+ 593   4                      DebugMessageFRC("ulHSDSpace", ulHSDSpace);
+ 594   4                      DebugMessageFRC("ulHSDBW", ulHSDBW);
+ 595   4      
+ 596   4                      // IDEN Period = IVH / IHF
+ 597   4                      PDATA_WORD(0) = ((DWORD)GET_INPUT_TIMING_VHEIGHT() * 100 / g_stMDomainInputData.usHFreq);
+ 598   4      
+ 599   4                      // Free run Dclk
+ 600   4                      ulDclk = ((DWORD)GET_MDOMAIN_OUTPUT_HTOTAL() * _PANEL_DV_TOTAL / 10 * g_usDVFreq / 1000);
+ 601   4      
+ 602   4                      // DDEN Period = (DVH + Pre-read line) / DHF
+ 603   4                      PDATA_WORD(1) = ((DWORD)(g_stMDomainOutputData.usVHeight + usPreReadLine) * 100 / ((DWORD)
+             -ulDclk * 10 / g_stMDomainOutputData.usHTotal));
+ 604   4      
+ 605   4                      DebugMessageFRC("IDEN", PDATA_WORD(0));
+ 606   4                      DebugMessageFRC("DDEN", PDATA_WORD(1));
+ 607   4      
+ 608   4      #if(_DISPLAY_ROTATION_FORCE_3_BUFFER == _ON)
+                              ulHSDSpace /= 3;
+                              SET_MEMORY_FRAME_BUFFER(_MEMORY_3_FRAME_BUFFER);
+                              // set to default value
+                              ScalerRotationSetRotInputSlowerFasterStyle(_FALSE);
+              #else
+ 614   4                      // Consider Input Faster Case
+ 615   4                      if(PDATA_WORD(0) < PDATA_WORD(1))
+ 616   4                      {
+ 617   5                          // IVTotal Period = IVTotal / IHF
+ 618   5                          PDATA_WORD(4) = ((DWORD)g_stMDomainInputData.usVTotal * 100 / g_stMDomainInputData.usH
+             -Freq);
+ 619   5                          // DDEN Period = (DVH + Pre-read line) / DHF
+ 620   5                          PDATA_WORD(5) = ((DWORD)(g_stMDomainOutputData.usVHeight + usPreReadLine) * 100 / ((DW
+             -ORD)ulDclk * 10 / g_stMDomainOutputData.usHTotal));
+ 621   5                          // IVTotal Period < DDEN Period: 3 frame buffer, and there is a bug in verA when IVtot
+             -al period > DDEN period
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 12  
+
+ 622   5                          DebugMessageFRC("IVSync Period", PDATA_WORD(4));
+ 623   5                          DebugMessageFRC("DDEN Period", PDATA_WORD(5));
+ 624   5      
+ 625   5                          if(PDATA_WORD(4) > PDATA_WORD(5))
+ 626   5                          {
+ 627   6                              ulHSDSpace /= 2;
+ 628   6                              SET_MEMORY_FRAME_BUFFER(_MEMORY_2_FRAME_BUFFER);
+ 629   6                              ScalerRotationSetRotInputSlowerFasterStyle(_TRUE);
+ 630   6                          }
+ 631   5                          else
+ 632   5                          {
+ 633   6                              ulHSDSpace /= 3;
+ 634   6                              SET_MEMORY_FRAME_BUFFER(_MEMORY_3_FRAME_BUFFER);
+ 635   6                              // set to default value
+ 636   6                              ScalerRotationSetRotInputSlowerFasterStyle(_FALSE);
+ 637   6                          }
+ 638   5                      }
+ 639   4                      else
+ 640   4                      {
+ 641   5                          ulHSDSpace /= 2;
+ 642   5                          SET_MEMORY_FRAME_BUFFER(_MEMORY_2_FRAME_BUFFER);
+ 643   5                          ScalerRotationSetRotInputSlowerFasterStyle(_FALSE);
+ 644   5                      }
+ 645   4      #endif
+ 646   4                  }
+ 647   3      
+ 648   3      
+ 649   3      
+ 650   3                  ulHSDSpace = ((ulHSDSpace > ulHSDBW) ? (ulHSDBW) : (ulHSDSpace));
+ 651   3                  ulHSDSpace -= ulHSDSpace % 64;
+ 652   3      
+ 653   3                  if(pstData->usInputHWidth > ulHSDSpace)
+ 654   3                  {
+ 655   4                      pstData->usInputHWidth = ulHSDSpace;
+ 656   4                  }
+ 657   3              }
+ 658   2              else
+ 659   2      #endif
+ 660   2              {
+ 661   3      #if(_RTK_ADVANCED_MOTION_BLUR_REDUCTION_SUPPORT == _ON)
+                          ScalerMbrUpdateRtkAdvMbrMDomainInfo(&ulHSDSpace, &g_stMDomainInfo);
+              #endif
+ 664   3      
+ 665   3                  ulHSDSpace = ((ulHSDSpace > ulHSDBW) ? (ulHSDBW) : (ulHSDSpace));
+ 666   3      
+ 667   3                  if(pstData->usInputHWidth > ulHSDSpace)
+ 668   3                  {
+ 669   4                      pstData->usInputHWidth = ulHSDSpace;
+ 670   4                  }
+ 671   3      
+ 672   3                  if((GET_MEMORY_SELECT() != _FRAME_SYNC_MEMORY) && (ScalerFRCCheckDoubleFrameBuffer(pstData->us
+             -InputHWidth, pstData->usInputVHeight) == _TRUE))
+ 673   3                  {
+ 674   4                      SET_MEMORY_FRAME_BUFFER(_MEMORY_2_FRAME_BUFFER);
+ 675   4      
+ 676   4                      ulHSDSpace = ScalerComputeDwordMulDiv(((DWORD)_MEMORY_ROW * _MEMORY_BANK), ((DWORD)_MEMORY
+             -_COL_PER_BANK * _MEMORY_BIT_NUM), ((DWORD)2 * GET_MEMORY_DATA_BIT() * pstData->usInputVHeight));
+ 677   4      
+ 678   4                      if(pstData->usInputHWidth > ulHSDSpace)
+ 679   4                      {
+ 680   5                          pstData->usInputHWidth = ulHSDSpace;
+ 681   5                      }
+C51 COMPILER V8.12   RL6449_SERIES_SCALING                                                 01/02/2025 16:31:52 PAGE 13  
+
+ 682   4                  }
+ 683   3              }
+ 684   2          } // End of if(GET_MEMORY_CONFIG() == _MEMORY_WORK_MODE)
+ 685   1      
+ 686   1          // Let HWidth be multiple of 2.
+ 687   1          pstData->usInputHWidth -= (pstData->usInputHWidth % 2);
+ 688   1          pstData->usOutputHWidth = pstData->usInputHWidth;
+ 689   1      
+ 690   1      #endif // End of #if(_FRC_SUPPORT == _ON)
+ 691   1      }
+ 692          
+ 693          //--------------------------------------------------
+ 694          // Description  : Decide which scaling size
+ 695          // Input Value  : Input/Output H/V Active Region
+ 696          // Output Value : None
+ 697          //--------------------------------------------------
+ 698          void ScalerScalingGetFIFOScalingSize(StructSDRAMDataInfo *pstData)
+ 699          {
+ 700   1          // Update fifo scaling size
+ 701   1          ScalerScalingUpdateFIFOScalingSize(pstData);
+ 702   1      
+ 703   1      #if(_FRC_SUPPORT == _ON)
+ 704   1          // Check when SD/SU happened simultaneously due to BW/memory space limititation
+ 705   1          if(((g_stMDomainInputData.usHWidth > pstData->usInputHWidth) &&
+ 706   1              (g_stMDomainOutputData.usHWidth > pstData->usInputHWidth)) ||
+ 707   1             (g_stDisplayCustomizedData.stCustomizedMdomain.enumMemoryBitSelect == _MEMORY_FORCE_8_BIT))
+ 708   1          {
+ 709   2              if(GET_MEMORY_DATA_BIT() >= (_COLOR_DEPTH_10_BITS * 3))
+ 710   2              {
+ 711   3                  DebugMessageFRC("4. FRC truncate color bit", GET_MEMORY_DATA_BIT());
+ 712   3      
+ 713   3                  // Truncate color depth to 8 bit
+ 714   3                  ScalerMDomainSetMemoryDataBit(_COLOR_DEPTH_8_BITS);
+ 715   3      
+ 716   3                  // Update fifo scaling size
+ 717   3                  ScalerScalingUpdateFIFOScalingSize(pstData);
+ 718   3              }
+ 719   2          }
+ 720   1      #endif
+ 721   1      }
+ 722          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3212    ----
+   CONSTANT SIZE    =    256    ----
+   XDATA SIZE       =   ----      26
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

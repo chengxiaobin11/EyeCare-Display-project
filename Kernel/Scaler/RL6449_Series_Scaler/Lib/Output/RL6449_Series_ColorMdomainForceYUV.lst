@@ -1,0 +1,122 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORMDOMAINFORCEYUV                                    03/11/2025 19:56:16 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORMDOMAINFORCEYUV
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorMdomainForceYUV.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorMdomainForceYUV.c LARGE OPTIMIZ
+                    -E(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\S
+                    -calerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Seri
+                    -es_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_
+                    -Series_ColorMdomainForceYUV.lst) OBJECT(.\Output\RL6449_Series_ColorMdomainForceYUV.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorMdomainForceYUV.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerColorMdomainForceYUV(EnumColorSpace enumColorSpace, EnumDBApply enumDBApply);
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          //--------------------------------------------------
+  48          // Description  : Force YUV Color Format to M-domain
+  49          // Input Value  : Input Color Space, EnumDBApply
+  50          // Output Value : None
+  51          //--------------------------------------------------
+C51 COMPILER V8.12   RL6449_SERIES_COLORMDOMAINFORCEYUV                                    03/11/2025 19:56:16 PAGE 2   
+
+  52          void ScalerColorMdomainForceYUV(EnumColorSpace enumColorSpace, EnumDBApply enumDBApply)
+  53          {
+  54   1          //////////////////////////////
+  55   1          // I-Domain Color Conversion//
+  56   1          //////////////////////////////
+  57   1          if(GET_COLOR_SPACE_RGB(enumColorSpace) == _TRUE)
+  58   1          {
+  59   2              // Enable I-Domain RGB2YUV
+  60   2              ScalerSetBit(P0_9C_RGB2YCC_CTRL, ~(_BIT4 | _BIT0), (_BIT4 | _BIT0));
+  61   2          }
+  62   1          else
+  63   1          {
+  64   2              // Disable I-Domain RGB2YUV
+  65   2              ScalerSetBit(P0_9C_RGB2YCC_CTRL, ~(_BIT4 | _BIT0), 0x00);
+  66   2          }
+  67   1      
+  68   1          //////////////////////////////
+  69   1          // D-Domain Color Conversion//
+  70   1          //////////////////////////////
+  71   1      
+  72   1          // Load D-Domain YUV2RGB Table
+  73   1          ScalerColorSpaceLoadYuv2RgbTable(enumColorSpace, _OFF);
+  74   1      
+  75   1          // Enable D-Domain YUV2RGB
+  76   1          ScalerSetBit(P14_A1_SR_YCC2RGB_CTRL, ~(_BIT5 | _BIT4 | _BIT0), _BIT0);
+  77   1      
+  78   1          if(GET_INTERLACED_MODE() == _TRUE)
+  79   1          {
+  80   2              ScalerGlobalIDomainDBApply(enumDBApply);
+  81   2              ScalerGlobalDDomainDBApply(enumDBApply);
+  82   2          }
+  83   1          else
+  84   1          {
+  85   2              if(enumDBApply == _DB_APPLY_NO_POLLING)
+  86   2              {
+  87   3                  enumDBApply = _DB_APPLY_POLLING;
+  88   3              }
+  89   2      
+  90   2              ScalerGlobalIDDomainDBApply(enumDBApply);
+  91   2          }
+  92   1      }
+  93          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    107    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

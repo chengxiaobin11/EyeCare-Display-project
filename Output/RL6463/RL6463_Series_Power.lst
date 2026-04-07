@@ -1,0 +1,593 @@
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_POWER
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_Power.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_Power.c LARGE 
+                    -OPTIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\
+                    -System\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFu
+                    -nction\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\S
+                    -caler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\Us
+                    -er\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\None
+                    -Osd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND P
+                    -RINT(.\Output\RL6463\RL6463_Series_Power.lst) OBJECT(.\Output\RL6463\RL6463_Series_Power.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_Power.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #include "ScalerFunctionInclude.h"
+  18          
+  19          //****************************************************************************
+  20          // DEFINITIONS / MACROS
+  21          //****************************************************************************
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          //****************************************************************************
+  28          // CODE TABLES
+  29          //****************************************************************************
+  30          
+  31          //****************************************************************************
+  32          // VARIABLE DECLARATIONS
+  33          //****************************************************************************
+  34          
+  35          //****************************************************************************
+  36          // FUNCTION DECLARATIONS
+  37          //****************************************************************************
+  38          BYTE ScalerPowerIsolation(EnumPowerAction enumSwitch);
+  39          void ScalerPowerAllGroupPowerCutReset(BYTE ucOn);
+  40          void ScalerPowerGroupTopIsolation(BYTE ucOn);
+  41          void ScalerPowerGroupAudioIsolation(BYTE ucOn);
+  42          void ScalerPowerGroupGDIIsolation(BYTE ucOn);
+  43          void ScalerPowerGroupTopPowerCut(BYTE ucOn);
+  44          void ScalerPowerGroupAudioPowerCut(BYTE ucOn);
+  45          void ScalerPowerGroupGDIPowerCut(BYTE ucOn);
+  46          void ScalerPowerRecoverAGroupIsolationData(void);
+  47          void ScalerPowerRecoverBGroupIsolationData(void);
+  48          void ScalerPowerRecoverCGroupIsolationData(void);
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 2   
+
+  49          void ScalerPowerRecoverDGroupIsolationData(void);
+  50          void ScalerPowerRecoverEGroupIsolationData(void);
+  51          void ScalerPowerRecoverTopGroupIsolationData(void);
+  52          void ScalerPowerRecoverAudioGroupIsolationData(void);
+  53          void ScalerPowerRecoverGDIGroupIsolationData(void);
+  54          
+  55          
+  56          //****************************************************************************
+  57          // FUNCTION DEFINITIONS
+  58          //****************************************************************************
+  59          //--------------------------------------------------
+  60          // Description  : Power cut block flow
+  61          // Input Value  : enumSwitch    --> Power action description.
+  62          // Output Value : return power group enter isolation area
+  63          //--------------------------------------------------
+  64          BYTE ScalerPowerIsolation(EnumPowerAction enumSwitch)
+  65          {
+  66   1          BYTE ucPowerIsoFlg = 0x00;
+  67   1      
+  68   1          switch(enumSwitch)
+  69   1          {
+  70   2              case _POWER_ACTION_NORMAL_TO_PS:
+  71   2              case _POWER_ACTION_NORMAL_TO_OFF:
+  72   2              case _POWER_ACTION_AC_ON_TO_OFF:
+  73   2              case _POWER_ACTION_AC_ON_INITIAL:
+  74   2      
+  75   2                  // LVDS Pad Power Off
+  76   2                  ScalerDisplayLvdsPadPower(_OFF);
+  77   2      
+  78   2                  // Group Top block isolation control
+  79   2                  ScalerPowerGroupTopIsolation(_ON);
+  80   2                  ucPowerIsoFlg |= _BIT0;
+  81   2      
+  82   2                  // Group Audio block isolation control
+  83   2                  ScalerPowerGroupAudioIsolation(_ON);
+  84   2                  ucPowerIsoFlg |= _BIT1;
+  85   2      
+  86   2                  // Group GDI & GDI PHY block isolation control
+  87   2                  ScalerPowerGroupGDIIsolation(_ON);
+  88   2                  ucPowerIsoFlg |= _BIT3;
+  89   2      
+  90   2                  // Group Top block power control
+  91   2                  ScalerPowerGroupTopPowerCut(_ON);
+  92   2      
+  93   2                  // Group Audio block power control
+  94   2                  ScalerPowerGroupAudioPowerCut(_ON);
+  95   2      
+  96   2                  // Group GDI & GDI PHY block power control
+  97   2                  ScalerPowerGroupGDIPowerCut(_ON);
+  98   2      
+  99   2                  break;
+ 100   2      
+ 101   2              case _POWER_ACTION_AC_ON_TO_NORMAL:
+ 102   2              case _POWER_ACTION_OFF_TO_NORMAL:
+ 103   2              case _POWER_ACTION_PS_TO_NORMAL:
+ 104   2      
+ 105   2                  // All power group Reset
+ 106   2                  ScalerPowerAllGroupPowerCutReset(_ON);
+ 107   2      
+ 108   2                  // Group Top block power control
+ 109   2                  ScalerPowerGroupTopPowerCut(_OFF);
+ 110   2      
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 3   
+
+ 111   2                  // Group Audio block power control
+ 112   2                  ScalerPowerGroupAudioPowerCut(_OFF);
+ 113   2      
+ 114   2                  // Group GDI power block power control
+ 115   2                  ScalerPowerGroupGDIPowerCut(_OFF);
+ 116   2      
+ 117   2                  // Group Top block isolation control
+ 118   2                  ScalerPowerGroupTopIsolation(_OFF);
+ 119   2      
+ 120   2                  // Group Audio block isolationcontrol
+ 121   2                  ScalerPowerGroupAudioIsolation(_OFF);
+ 122   2      
+ 123   2                  // Group GDI & GDI PHY block isolation control
+ 124   2                  ScalerPowerGroupGDIIsolation(_OFF);
+ 125   2      
+ 126   2                  // All power group Relase
+ 127   2                  ScalerPowerAllGroupPowerCutReset(_OFF);
+ 128   2      
+ 129   2                  // LVDS Pad Power On
+ 130   2                  ScalerDisplayLvdsPadPower(_ON);
+ 131   2      
+ 132   2                  break;
+ 133   2      
+ 134   2              case _POWER_ACTION_NORMAL_TO_FAKE_PS:
+ 135   2              case _POWER_ACTION_PS_TO_OFF:
+ 136   2      
+ 137   2                  break;
+ 138   2      
+ 139   2              default:
+ 140   2                  break;
+ 141   2          }
+ 142   1      
+ 143   1          return ucPowerIsoFlg;
+ 144   1      }
+ 145          
+ 146          //--------------------------------------------------
+ 147          // Description  : All Group Power reset
+ 148          // Input Value  : ON --> Reset ; OFF --> Release
+ 149          // Output Value : None
+ 150          //--------------------------------------------------
+ 151          void ScalerPowerAllGroupPowerCutReset(BYTE ucOn)
+ 152          {
+ 153   1          if(ucOn == _ON)
+ 154   1          {
+ 155   2              // Top Power Cut block Reset
+ 156   2              ScalerSetBit(P0_09_TOP_POWER_CTRL, ~_BIT0, _BIT0);
+ 157   2      
+ 158   2              // Audio Power Cut block Reset
+ 159   2              ScalerSetBit(PC0_0A_AUDIO_POWER_CTRL, ~_BIT0, _BIT0);
+ 160   2      
+ 161   2              // GDI & GDI PHY Power Cut block Reset
+ 162   2              ScalerSetBit(P0_0A_GDI_POWER_CTRL, ~_BIT0, _BIT0);
+ 163   2          }
+ 164   1          else
+ 165   1          {
+ 166   2              // Top Power Cut block Reset
+ 167   2              ScalerSetBit(P0_09_TOP_POWER_CTRL, ~_BIT0, 0x00);
+ 168   2      
+ 169   2              // Audio Power Cut block Reset
+ 170   2              ScalerSetBit(PC0_0A_AUDIO_POWER_CTRL, ~_BIT0, 0x00);
+ 171   2      
+ 172   2              // GDI Power Cut block Reset
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 4   
+
+ 173   2              ScalerSetBit(P0_0A_GDI_POWER_CTRL, ~_BIT0, 0x00);
+ 174   2          }
+ 175   1      }
+ 176          
+ 177          //--------------------------------------------------
+ 178          // Description  : Group Top Isolation on/off
+ 179          // Input Value  : ON --> Top Power (Low Power)
+ 180          //                OFF --> Top Power (Normal Operation)
+ 181          // Output Value : None
+ 182          //--------------------------------------------------
+ 183          void ScalerPowerGroupTopIsolation(BYTE ucOn)
+ 184          {
+ 185   1          if(ucOn == _ON)
+ 186   1          {
+ 187   2              // Top block Analog isolation on
+ 188   2              ScalerSetBit(P0_F1_VCCKOFF_CONTROL1, ~_BIT0, 0x00);
+ 189   2      
+ 190   2              // Top block Digital isolation on
+ 191   2              ScalerSetBit(P0_09_TOP_POWER_CTRL, ~_BIT1, _BIT1);
+ 192   2          }
+ 193   1          else
+ 194   1          {
+ 195   2              // Top block Digital isolation off
+ 196   2              ScalerSetBit(P0_09_TOP_POWER_CTRL, ~_BIT1, 0x00);
+ 197   2      
+ 198   2              // Top block Analog isolation off
+ 199   2              ScalerSetBit(P0_F1_VCCKOFF_CONTROL1, ~_BIT0, _BIT0);
+ 200   2          }
+ 201   1      }
+ 202          
+ 203          //--------------------------------------------------
+ 204          // Description  : Group Audio Isolation on/off
+ 205          // Input Value  : ON --> Audio Power (Low Power)
+ 206          //                OFF --> Audio Power (Normal Operation)
+ 207          // Output Value : None
+ 208          //--------------------------------------------------
+ 209          void ScalerPowerGroupAudioIsolation(BYTE ucOn)
+ 210          {
+ 211   1          if(ucOn == _ON)
+ 212   1          {
+ 213   2              // Audio block Digital isolation on
+ 214   2              ScalerSetBit(PC0_0A_AUDIO_POWER_CTRL, ~_BIT1, _BIT1);
+ 215   2          }
+ 216   1          else
+ 217   1          {
+ 218   2              // Audio block Digital isolation off
+ 219   2              ScalerSetBit(PC0_0A_AUDIO_POWER_CTRL, ~_BIT1, 0x00);
+ 220   2          }
+ 221   1      }
+ 222          
+ 223          //--------------------------------------------------
+ 224          // Description  : Group GDI & GDI PHY Power Isolation on/off
+ 225          // Input Value  : ON  --> Group GDI & GDI PHY (Low Power) ;
+ 226          //                OFF --> Group GDI & GDI PHY (Normal Operation)
+ 227          // Output Value : None
+ 228          //--------------------------------------------------
+ 229          void ScalerPowerGroupGDIIsolation(BYTE ucOn)
+ 230          {
+ 231   1          if(ucOn == _ON)
+ 232   1          {
+ 233   2              // GDI block Analog isolation on
+ 234   2              ScalerSetBit(P0_F1_VCCKOFF_CONTROL1, ~_BIT5, 0x00);
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 5   
+
+ 235   2      
+ 236   2              // GDI PHY block Analog isolation on
+ 237   2              ScalerSetBit(P0_F1_VCCKOFF_CONTROL1, ~_BIT4, 0x00);
+ 238   2      
+ 239   2      #if(_DP_POWER_OFF_HDCP_SUPPORT == _ON)
+                      if(GET_DP_DC_OFF_HPD_HIGH() == _OFF)
+              #endif
+ 242   2              {
+ 243   3                  // GDI & GDI PHY block Digital isolation on
+ 244   3                  ScalerSetBit(P0_0A_GDI_POWER_CTRL, ~_BIT1, _BIT1);
+ 245   3              }
+ 246   2      
+ 247   2              // Internal LV power switch off
+ 248   2              ScalerSetBit(PB_B5_BANDGAP_01, ~_BIT0, _BIT0);
+ 249   2          }
+ 250   1          else
+ 251   1          {
+ 252   2      #if(_DP_POWER_OFF_HDCP_SUPPORT == _ON)
+                      if(GET_DP_DC_OFF_HPD_HIGH() == _OFF)
+              #endif
+ 255   2              {
+ 256   3                  // GDI & GDI PHY block Digital isolation off
+ 257   3                  ScalerSetBit(P0_0A_GDI_POWER_CTRL, ~_BIT1, 0x00);
+ 258   3              }
+ 259   2      
+ 260   2              // GDI PHY block Analog isolation off
+ 261   2              ScalerSetBit(P0_F1_VCCKOFF_CONTROL1, ~_BIT4, _BIT4);
+ 262   2      
+ 263   2              // GDI block Analog isolation off
+ 264   2              ScalerSetBit(P0_F1_VCCKOFF_CONTROL1, ~_BIT5, _BIT5);
+ 265   2      
+ 266   2              // Internal LV power switch on
+ 267   2              ScalerSetBit(PB_B5_BANDGAP_01, ~_BIT0, _BIT0);
+ 268   2          }
+ 269   1      }
+ 270          
+ 271          //--------------------------------------------------
+ 272          // Description  : Group Top Power on/off
+ 273          // Input Value  : ON --> Group Top (Low Power)
+ 274          //                OFF --> Group Top (Normal Operation)
+ 275          // Output Value : None
+ 276          //--------------------------------------------------
+ 277          void ScalerPowerGroupTopPowerCut(BYTE ucOn)
+ 278          {
+ 279   1          if(ucOn == _ON)
+ 280   1          {
+ 281   2              // Top Power Strong power off
+ 282   2              ScalerSetBit(P0_09_TOP_POWER_CTRL, ~_BIT5, 0x00);
+ 283   2      
+ 284   2              // Top Power Weak power off
+ 285   2              ScalerSetBit(P0_09_TOP_POWER_CTRL, ~_BIT4, 0x00);
+ 286   2          }
+ 287   1          else
+ 288   1          {
+ 289   2              // Weak power on
+ 290   2              ScalerSetBit(P0_09_TOP_POWER_CTRL, ~_BIT4, _BIT4);
+ 291   2      
+ 292   2              // Wait for weak power on flag
+ 293   2              pData[0] = 50;
+ 294   2      
+ 295   2              while((ScalerGetBit(P0_09_TOP_POWER_CTRL, _BIT6) != _BIT6) && (pData[0]-- > 0))
+ 296   2              {
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 6   
+
+ 297   3                  DELAY_5US();
+ 298   3              }
+ 299   2      
+ 300   2              // Strong power on
+ 301   2              ScalerSetBit(P0_09_TOP_POWER_CTRL, ~_BIT5, _BIT5);
+ 302   2      
+ 303   2              // Wait for strong power on flag
+ 304   2              pData[0] = 50;
+ 305   2      
+ 306   2              while((ScalerGetBit(P0_09_TOP_POWER_CTRL, _BIT7) != _BIT7) && (pData[0]-- > 0))
+ 307   2              {
+ 308   3                  DELAY_5US();
+ 309   3              }
+ 310   2          }
+ 311   1      }
+ 312          
+ 313          //--------------------------------------------------
+ 314          // Description  : Group Audio Power on/off
+ 315          // Input Value  : ON --> Group B(Low Power) ; OFF --> Group B (Normal Operation)
+ 316          // Output Value : None
+ 317          //--------------------------------------------------
+ 318          void ScalerPowerGroupAudioPowerCut(BYTE ucOn)
+ 319          {
+ 320   1          if(ucOn == _ON)
+ 321   1          {
+ 322   2              // Audio Power Strong power off
+ 323   2              ScalerSetBit(PC0_0A_AUDIO_POWER_CTRL, ~_BIT5, 0x00);
+ 324   2      
+ 325   2              // Audio Power Weak power off
+ 326   2              ScalerSetBit(PC0_0A_AUDIO_POWER_CTRL, ~_BIT4, 0x00);
+ 327   2          }
+ 328   1          else
+ 329   1          {
+ 330   2              // Weak power on
+ 331   2              ScalerSetBit(PC0_0A_AUDIO_POWER_CTRL, ~_BIT4, _BIT4);
+ 332   2      
+ 333   2              // Wait for weak power on flag
+ 334   2              pData[0] = 50;
+ 335   2      
+ 336   2              while((ScalerGetBit(PC0_0A_AUDIO_POWER_CTRL, _BIT6) != _BIT6) && (pData[0]-- > 0))
+ 337   2              {
+ 338   3                  DELAY_5US();
+ 339   3              }
+ 340   2      
+ 341   2              // Strong power on
+ 342   2              ScalerSetBit(PC0_0A_AUDIO_POWER_CTRL, ~_BIT5, _BIT5);
+ 343   2      
+ 344   2              // Wait for strong power on flag
+ 345   2              pData[0] = 50;
+ 346   2      
+ 347   2              while((ScalerGetBit(PC0_0A_AUDIO_POWER_CTRL, _BIT7) != _BIT7) && (pData[0]-- > 0))
+ 348   2              {
+ 349   3                  DELAY_5US();
+ 350   3              }
+ 351   2          }
+ 352   1      }
+ 353          
+ 354          //--------------------------------------------------
+ 355          // Description  : Group GDI & GDI PHY Power on/off
+ 356          // Input Value  : ON --> Group GDI & GDI PHY Power (Low Power)
+ 357          //                OFF --> Group GDI & GDI PHY Power (Normal Operation)
+ 358          // Output Value : None
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 7   
+
+ 359          //--------------------------------------------------
+ 360          void ScalerPowerGroupGDIPowerCut(BYTE ucOn)
+ 361          {
+ 362   1          if(ucOn == _ON)
+ 363   1          {
+ 364   2      #if(_DP_POWER_OFF_HDCP_SUPPORT == _ON)
+                      if(GET_DP_DC_OFF_HPD_HIGH() == _OFF)
+              #endif
+ 367   2              {
+ 368   3                  // GDI & GDI PHY Power Strong power off
+ 369   3                  ScalerSetBit(P0_0A_GDI_POWER_CTRL, ~_BIT5, 0x00);
+ 370   3      
+ 371   3                  // GDI & GDI PHY Power Weak power off
+ 372   3                  ScalerSetBit(P0_0A_GDI_POWER_CTRL, ~_BIT4, 0x00);
+ 373   3              }
+ 374   2          }
+ 375   1          else
+ 376   1          {
+ 377   2      #if(_DP_POWER_OFF_HDCP_SUPPORT == _ON)
+                      if(GET_DP_DC_OFF_HPD_HIGH() == _OFF)
+              #endif
+ 380   2              {
+ 381   3                  // DI & GDI PHY Weak power on
+ 382   3                  ScalerSetBit(P0_0A_GDI_POWER_CTRL, ~_BIT4, _BIT4);
+ 383   3      
+ 384   3                  // DI & GDI PHY Wait for weak power on flag
+ 385   3                  pData[0] = 50;
+ 386   3      
+ 387   3                  while((ScalerGetBit(P0_0A_GDI_POWER_CTRL, _BIT6) != _BIT6) && (pData[0]-- > 0))
+ 388   3                  {
+ 389   4                      DELAY_5US();
+ 390   4                  }
+ 391   3      
+ 392   3                  // DI & GDI PHY Strong power on
+ 393   3                  ScalerSetBit(P0_0A_GDI_POWER_CTRL, ~_BIT5, _BIT5);
+ 394   3      
+ 395   3                  // DI & GDI PHY Wait for strong power on flag
+ 396   3                  pData[0] = 50;
+ 397   3      
+ 398   3                  while((ScalerGetBit(P0_0A_GDI_POWER_CTRL, _BIT7) != _BIT7) && (pData[0]-- > 0))
+ 399   3                  {
+ 400   4                      DELAY_5US();
+ 401   4                  }
+ 402   3              }
+ 403   2          }
+ 404   1      }
+ 405          
+ 406          //--------------------------------------------------
+ 407          // Description  : Recover A Group Power Cut Area.
+ 408          // Input Value  : None
+ 409          // Output Value : None
+ 410          //--------------------------------------------------
+ 411          void ScalerPowerRecoverAGroupIsolationData(void)
+ 412          {
+ 413   1          ScalerPowerRecoverTopGroupIsolationData();
+ 414   1      }
+ 415          
+ 416          //--------------------------------------------------
+ 417          // Description  : Recover B Group Power Cut Area.
+ 418          // Input Value  : None
+ 419          // Output Value : None
+ 420          //--------------------------------------------------
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 8   
+
+ 421          void ScalerPowerRecoverBGroupIsolationData(void)
+ 422          {
+ 423   1          ScalerPowerRecoverAudioGroupIsolationData();
+ 424   1      }
+ 425          
+ 426          //--------------------------------------------------
+ 427          // Description  : Recover C Group Power Cut Area.
+ 428          // Input Value  : None
+ 429          // Output Value : None
+ 430          //--------------------------------------------------
+ 431          void ScalerPowerRecoverCGroupIsolationData(void)
+ 432          {
+ 433   1      }
+ 434          
+ 435          //--------------------------------------------------
+ 436          // Description  : Recover D Group Power Cut Area.
+ 437          // Input Value  : None
+ 438          // Output Value : None
+ 439          //--------------------------------------------------
+ 440          void ScalerPowerRecoverDGroupIsolationData(void)
+ 441          {
+ 442   1          // Recover GDI Group Power Cut Area
+ 443   1          ScalerPowerRecoverGDIGroupIsolationData();
+ 444   1      }
+ 445          
+ 446          //--------------------------------------------------
+ 447          // Description  : Recover E Group Power Cut Area.
+ 448          // Input Value  : None
+ 449          // Output Value : None
+ 450          //--------------------------------------------------
+ 451          void ScalerPowerRecoverEGroupIsolationData(void)
+ 452          {
+ 453   1      }
+ 454          
+ 455          //--------------------------------------------------
+ 456          // Description  : Recover Top Power Group Power Cut Area.
+ 457          // Input Value  : None
+ 458          // Output Value : None
+ 459          //--------------------------------------------------
+ 460          void ScalerPowerRecoverTopGroupIsolationData(void)
+ 461          {
+ 462   1          //////////////////////// Pin Share Start /////////////////////////////////////
+ 463   1      
+ 464   1          PCB_OFF_REGION_GPIO_SETTING_POWER_AC_PD_PS_ON();
+ 465   1      
+ 466   1          ScalerPinsharePowerOnReset();
+ 467   1      
+ 468   1          //////////////////////// Pin Share End /////////////////////////////////////
+ 469   1      
+ 470   1          //////////////////////// LVDS + LVDSPLL and VBO block start //////////////////
+ 471   1      
+ 472   1      #if(_PANEL_STYLE == _PANEL_LVDS)
+ 473   1          // LVDS Port Power On recover
+ 474   1          ScalerDisplayLvdsInitialTable();
+ 475   1      #endif
+ 476   1      
+ 477   1          //////////////////////// LVDS + LVDSPLL and VBO block End ////////////////////
+ 478   1      
+ 479   1      
+ 480   1          //////////////////////// DPLL/MPLL/DDR PLL block start ///////////////////////
+ 481   1      
+ 482   1          // DPLL power up
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 9   
+
+ 483   1          ScalerPLLSetDPLLReset();
+ 484   1      
+ 485   1          //////////////////////// DPLL/MPLL/DDR PLL  block End ////////////////////////
+ 486   1      
+ 487   1      
+ 488   1          //////////////////////// DDR DLL + DDR Delaychain start //////////////////////
+ 489   1      
+ 490   1          //////////////////////// DDR DLL + DDR Delaychain End ////////////////////////
+ 491   1      }
+ 492          //--------------------------------------------------
+ 493          // Description  : Recover Audio Power Group Power Cut Area.
+ 494          // Input Value  : None
+ 495          // Output Value : None
+ 496          //--------------------------------------------------
+ 497          void ScalerPowerRecoverAudioGroupIsolationData(void)
+ 498          {
+ 499   1      }
+ 500          
+ 501          //--------------------------------------------------
+ 502          // Description  : Recover GDI Group Power Cut Area.
+ 503          // Input Value  : None
+ 504          // Output Value : None
+ 505          //--------------------------------------------------
+ 506          void ScalerPowerRecoverGDIGroupIsolationData(void)
+ 507          {
+ 508   1          // There is no action on RL6369 IC (For Tx Block) //C Group
+ 509   1      
+ 510   1          //////////////////////// GDI power cut block start ///////////////////////////////
+ 511   1      #if(_DP_SUPPORT == _ON)
+              
+                  // Set R0' Available HW Mode
+                  ScalerSetBit(PB_1A_HDCP_IRQ, ~(_BIT5 | _BIT4), _BIT5);
+              
+                  // Enable DP Link Integrity Enable
+                  ScalerSetBit(PB_1B_HDCP_INTGT_VRF, ~_BIT7, _BIT7);
+              
+                  // DP Mac Clock Select to Xtal Clock
+                  ScalerSetBit(PB_01_PHY_DIG_RESET_CTRL, ~_BIT6, _BIT6);
+              
+                  if(ScalerGetBit(PB_20_HDCP_DEBUG, _BIT7) == _BIT7)
+                  {
+                      // HDCP R0 Calculate
+                      ScalerSetBit(PB_63_DUMMY2, ~_BIT7, _BIT7);
+                      ScalerSetBit(PB_63_DUMMY2, ~_BIT7, 0x00);
+                  }
+              #endif
+ 529   1          //////////////////////// GDI power cut block End /////////////////////////////////
+ 530   1      
+ 531   1          //////////////////////// GDI_2(CBUS/ECBUS) power cut block start ///////////////////////////////
+ 532   1      
+ 533   1          //////////////////////// GDI_2(CBUS/ECBUS) power cut block End /////////////////////////////////
+ 534   1      
+ 535   1          //////////////////////// HDCP 2.2 start //////////////////////
+ 536   1      
+ 537   1      #if(_HDCP_2_2_SUPPORT == _ON)
+                  ScalerHdcp2Initial();
+              #endif
+ 540   1      
+ 541   1          //////////////////////// HDCP 2.2 End ////////////////////////
+ 542   1      
+ 543   1          // There is no action on RL6369 IC (For high speed port Block) //E Group
+ 544   1      }
+C51 COMPILER V8.12   RL6463_SERIES_POWER                                                   03/10/2025 13:50:48 PAGE 10  
+
+ 545          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    578    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

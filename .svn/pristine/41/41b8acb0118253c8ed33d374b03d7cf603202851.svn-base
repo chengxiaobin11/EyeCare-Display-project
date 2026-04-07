@@ -1,0 +1,123 @@
+C51 COMPILER V8.12   RL6449_SERIES_COLORDDOMAINDBAPPLY                                     03/11/2025 19:56:14 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6449_SERIES_COLORDDOMAINDBAPPLY
+OBJECT MODULE PLACED IN .\Output\RL6449_Series_ColorDDomainDBApply.obj
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Code\RL6449_Series_Color\RL6449_Series_ColorDDomainDBApply.c LARGE OPTIMIZE
+                    -(9,SPEED) INCDIR(..\..\..\Common;..\Header;.\Header;..\..\ScalerFunction\Lib\Header;..\..\ScalerFunction\Header;..\..\Sc
+                    -alerCommonFunction\Lib\Header;..\..\ScalerCommonFunction\Header;..\..\RL6449_Series_Common\Lib\Header;..\..\RL6449_Serie
+                    -s_Common\Header) DEFINE(_TRANSLATOR_SUPPORT=_OFF,_SCALER_TYPE=_RL6449_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6449_S
+                    -eries_ColorDDomainDBApply.lst) OBJECT(.\Output\RL6449_Series_ColorDDomainDBApply.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6449_Series_ColorDDomainDBApply.c
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #include "RL6449_Series_ColorLibInternalInclude.h"
+  17          
+  18          //****************************************************************************
+  19          // DEFINITIONS / MACROS
+  20          //****************************************************************************
+  21          
+  22          
+  23          //****************************************************************************
+  24          // STRUCT / TYPE / ENUM DEFINITTIONS
+  25          //****************************************************************************
+  26          
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          
+  33          //****************************************************************************
+  34          // VARIABLE DECLARATIONS
+  35          //****************************************************************************
+  36          
+  37          
+  38          //****************************************************************************
+  39          // FUNCTION DECLARATIONS
+  40          //****************************************************************************
+  41          void ScalerColorDDomainDBApply(EnumDBApply enumDBApply);
+  42          
+  43          
+  44          //****************************************************************************
+  45          // FUNCTION DEFINITIONS
+  46          //****************************************************************************
+  47          
+  48          //--------------------------------------------------
+  49          // Description  : Set D domain double buffer apply
+  50          // Input Value  : DB apply polling/ no polling/ none
+  51          // Output Value : None
+C51 COMPILER V8.12   RL6449_SERIES_COLORDDOMAINDBAPPLY                                     03/11/2025 19:56:14 PAGE 2   
+
+  52          //--------------------------------------------------
+  53          void ScalerColorDDomainDBApply(EnumDBApply enumDBApply)
+  54          {
+  55   1          if(ScalerGlobalGetIDCode() >= _RL6449_VER_D_ID_CODE)
+  56   1          {
+  57   2              if(enumDBApply != _DB_APPLY_NONE)
+  58   2              {
+  59   3                  // Check D domain status
+  60   3                  if((ScalerGetBit(P0_28_VIDEO_DISPLAY_CONTROL_REG, _BIT0) == 0x00) ||
+  61   3                     (GET_DPLL_POWER_STATUS() == _FALSE))
+  62   3                  {
+  63   4                      return;
+  64   4                  }
+  65   3              }
+  66   2      
+  67   2              switch(enumDBApply)
+  68   2              {
+  69   3                  case _DB_APPLY_NO_POLLING:
+  70   3      
+  71   3                      // Set D apply bit
+  72   3                      ScalerSetBit(P31_B0_D_DB_CTRL0, ~(_BIT6), (_BIT6));
+  73   3      
+  74   3                      break;
+  75   3      
+  76   3                  case _DB_APPLY_POLLING:
+  77   3      
+  78   3                      // Set D apply bit
+  79   3                      ScalerSetBit(P31_B0_D_DB_CTRL0, ~(_BIT6), (_BIT6));
+  80   3      
+  81   3                      if(enumDBApply == _DB_APPLY_POLLING)
+  82   3                      {
+  83   4                          // Wait D double buffer
+  84   4                          ScalerTimerPollingFlagProc(_DOUBLE_BUFFER_WAIT_TIME, P31_B0_D_DB_CTRL0, (_BIT6), 0);
+  85   4                      }
+  86   3      
+  87   3                      break;
+  88   3      
+  89   3                  default:
+  90   3      
+  91   3                      break;
+  92   3              }
+  93   2          }
+  94   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     94    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

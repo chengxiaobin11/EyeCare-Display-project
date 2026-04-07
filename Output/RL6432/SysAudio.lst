@@ -1,0 +1,1140 @@
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SYSAUDIO
+OBJECT MODULE PLACED IN .\Output\RL6432\SysAudio.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE Kernel\System\Code\SysAudio.c LARGE OPTIMIZE(9,SPEED) INCDIR(.\Output\RL643
+                    -2;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\Header;.\Kernel\Scaler\ScalerFun
+                    -ction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\Lib\Header;.\Kernel\Scaler\Scale
+                    -rCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\RL6432_Series_Common\Header;.\Ker
+                    -nel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Header;.\Kernel\User Common Function
+                    -\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\No
+                    -ne Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6432_PROJ
+                    -ECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\SysAudio.lst) OBJECT(.\Output\RL6432\SysAudio.
+                    -obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : SysAudio.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __SYSTEM_AUDIO__
+  18          
+  19          #include "SysInclude.h"
+  20          
+  21          #if(_AUDIO_SUPPORT == _ON)
+  22          
+  23          //****************************************************************************
+  24          // DEFINITIONS / MACROS
+  25          //****************************************************************************
+  26          #if(_EMBEDDED_DAC_SUPPORT == _ON)
+  27          #define _DAC_VCM_INITIAL_TIME                       SEC(0.1)
+  28          #define _DAC_VCM_CHARGE_TIME                        SEC(0.5)
+  29          #endif
+  30          
+  31          //****************************************************************************
+  32          // STRUCT / TYPE / ENUM DEFINITTIONS
+  33          //****************************************************************************
+  34          
+  35          
+  36          //****************************************************************************
+  37          // CODE TABLES
+  38          //****************************************************************************
+  39          
+  40          
+  41          //****************************************************************************
+  42          // VARIABLE DECLARATIONS
+  43          //****************************************************************************
+  44          StructAudioInfoType g_stAudioInfo;
+  45          EnumAudioSamplingFreqPacket g_enumAudioFSBackup = _AUDIO_FREQ_PACKET_NO_AUDIO;
+  46          
+  47          //****************************************************************************
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 2   
+
+  48          // FUNCTION DECLARATIONS
+  49          //****************************************************************************
+  50          void SysAudioHandler(void);
+  51          EnumAudioState SysAudioGetAudioState(void);
+  52          EnumAudioSamplingFreqPacket SysAudioGetAudioBackupFreq(void);
+  53          void SysAudioPowerProc(EnumPowerAction enumSwitch);
+  54          void SysAudioMuteProc(bit bMute);
+  55          
+  56          #if(_AUDIO_DVC_FAST_CONTROL_SUPPORT == _ON)
+              void SysAudioFastMuteProc(bit bMute);
+              #endif
+  59          
+  60          void SysAudioOutputProc(bit bEnable);
+  61          
+  62          #if(_AUDIO_DVC_FAST_CONTROL_SUPPORT == _ON)
+              void SysAudioFastOutputProc(bit bEnable);
+              #endif
+  65          
+  66          void SysAudioAnalogAudioHandler(void);
+  67          void SysAudioDigitalAudioHandler(void);
+  68          void SysAudioChangeAudioState(EnumAudioState enumAudioState);
+  69          void SysAudioInitial(void);
+  70          void SysAudioSetUserDefineAudioFrequency(void);
+  71          
+  72          #if(_DP_SUPPORT == _ON)
+  73          void SysAudioDpAudioSecDataResetProc(BYTE ucInputPort);
+  74          #endif
+  75          
+  76          #if(_AUDIO_FW_TRACKING_MODE_SUPPORT == _ON)
+              void SysAudioFwTrackingHandler(void);
+              #endif
+  79          
+  80          #if(_SLEEP_AUDIO_SUPPORT == _ON)
+              void SysAudioSleepAudioHandler(void);
+              
+              #if((_LINE_IN_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_AUDIO_INPUT == _PS_AUDIO_LIN
+             -E_IN)))
+              bit SysAudioGetSleepAudioStatusForLineIn(void);
+              #endif
+              #endif
+  87          
+  88          #if(_INTERNAL_AUDIO_TEST_SUPPORT == _ON)
+              void SysAudioInternalGenTestProc(bit bOn);
+              #endif
+  91          
+  92          #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+              void SysAudioTtsCheckPlaybackAcitveEvent(void);
+              #endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+  95          
+  96          //****************************************************************************
+  97          // FUNCTION DEFINITIONS
+  98          //****************************************************************************
+  99          
+ 100          //--------------------------------------------------
+ 101          // Description  : Audio handler. Main audio control flow
+ 102          // Input Value  : None
+ 103          // Output Value : None
+ 104          //--------------------------------------------------
+ 105          void SysAudioHandler(void)
+ 106          {
+ 107   1          SysAudioAnalogAudioHandler();
+ 108   1      
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 3   
+
+ 109   1      #if(_INTERNAL_AUDIO_TEST_SUPPORT == _ON)
+                  if(ScalerAudioGetInternalAudioGenEnable(SysSourceGetInputPort()) == _ENABLE)
+                  {
+                      return;
+                  }
+              #endif
+ 115   1      
+ 116   1      #if(_AUDIO_FW_TRACKING_MODE_SUPPORT == _ON)
+                  SysAudioFwTrackingHandler();
+              #endif
+ 119   1      
+ 120   1          SysAudioDigitalAudioHandler();
+ 121   1      
+ 122   1      #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+                  // Check TTS Event Trigger or Not
+                  SysAudioTtsCheckPlaybackAcitveEvent();
+              #endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+ 126   1      
+ 127   1          switch(GET_AUDIO_STATE())
+ 128   1          {
+ 129   2              case _AUDIO_STATUS_PREPARING:
+ 130   2      
+ 131   2                  if(GET_AUDIO_STATE_CHANGE() == _TRUE)
+ 132   2                  {
+ 133   3                      CLR_AUDIO_STATE_CHANGE();
+ 134   3                      SET_AUDIO_PLAYBACK_SEARCH_INDEX(0x0F);
+ 135   3                  }
+ 136   2      
+ 137   2                  if(UserCommonInterfaceGetAudioReadyToPlayStatus() == _TRUE)
+ 138   2                  {
+ 139   3      #if(_HDMI_SUPPORT == _ON)
+ 140   3                      if(ScalerAudioDigitalAudioSourceType() == _SOURCE_HDMI)
+ 141   3                      {
+ 142   4                          ScalerAudioHdmiI2sSpdifChannelOutputSelect(_AUDIO_SELECT_BY_CA_MODE, ScalerAudioGetDig
+             -italAudioPortMapping());
+ 143   4                      }
+ 144   3      #endif
+ 145   3      
+ 146   3                      ScalerAudioDigitalEnable(ScalerAudioGetDigitalAudioPortMapping());
+ 147   3      
+ 148   3                      SysAudioChangeAudioState(_AUDIO_STATUS_PLAYBACK);
+ 149   3      
+ 150   3                      DebugMessageAudio("Switch to Audio Playback", _AUDIO_STATUS_PLAYBACK);
+ 151   3      
+ 152   3      #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                              // RX Digital Audio Output Control
+                              ScalerAudioDigitalOutputMute(_OFF);
+                              ScalerTimerDelayXms(3);
+              #endif
+ 157   3                      // Normal Control DVC & Ext.Amp & Ext. DSP
+ 158   3                      SysAudioOutputProc(_ENABLE);
+ 159   3      
+ 160   3                      g_enumAudioFSBackup = ScalerAudioSamplingFreqDetect(SysSourceGetInputPort());
+ 161   3      
+ 162   3                      // Update User Define Frequency When No Audio
+ 163   3                      SysAudioSetUserDefineAudioFrequency();
+ 164   3      
+ 165   3                      // Set User Define Frequency When No Audio except input port
+ 166   3                      ScalerAudioSyncUserDefineFrequency();
+ 167   3                  }
+ 168   2      
+ 169   2                  break;
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 4   
+
+ 170   2      
+ 171   2      #if(_AUDIO_DVC_FAST_CONTROL_SUPPORT == _ON)
+              
+                      case _AUDIO_STATUS_PLAYBACK_CHECK:
+              
+                          if(GET_AUDIO_STATE_CHANGE() == _TRUE)
+                          {
+                              CLR_AUDIO_STATE_CHANGE();
+                              SET_AUDIO_PLAYBACK_SEARCH_INDEX(g_ucSearchIndex);
+                          }
+              
+                          if(UserCommonInterfaceGetAudioReadyToPlayStatus() == _FALSE)
+                          {
+                              if(GET_MODE_STATE() != _MODE_STATUS_ACTIVE)
+                              {
+                                  SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+              
+                                  DebugMessageAudio("Switch to Audio Preparing", _AUDIO_STATUS_PREPARING);
+              
+                                  // Normal Control DVC & Ext.Amp & Ext. DSP
+                                  SysAudioOutputProc(_DISABLE);
+              
+                                  ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+              
+              #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                                  // RX Digital Audio Output Control
+                                  ScalerTimerDelayXms(3);
+                                  ScalerAudioDigitalOutputMute(_ON);
+              #endif
+              
+              #if(_HDMI_SUPPORT == _ON)
+                                  if(ScalerAudioDigitalAudioSourceType() == _SOURCE_HDMI)
+                                  {
+                                      ScalerAudioHdmiI2sSpdifChannelOutputSelect(_AUDIO_DEFAULT_MODE, ScalerAudioGetDigi
+             -talAudioPortMapping());
+                                  }
+              #endif
+                              }
+                          }
+                          else
+                          {
+                              if(SysAudioGetAudioBackupFreq() == ScalerAudioSamplingFreqDetect(SysSourceGetInputPort()))
+                              {
+              #if(_HDMI_SUPPORT == _ON)
+                                  if(ScalerAudioDigitalAudioSourceType() == _SOURCE_HDMI)
+                                  {
+                                      ScalerAudioHdmiI2sSpdifChannelOutputSelect(_AUDIO_SELECT_BY_CA_MODE, ScalerAudioGe
+             -tDigitalAudioPortMapping());
+                                  }
+              #endif
+                                  ScalerAudioDigitalEnable(ScalerAudioGetDigitalAudioPortMapping());
+              
+                                  SysAudioChangeAudioState(_AUDIO_STATUS_PLAYBACK);
+              
+                                  DebugMessageAudio("Switch to Audio Playback", _AUDIO_STATUS_PLAYBACK);
+              
+              #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                                  // RX Digital Audio Output Control
+                                  ScalerAudioDigitalOutputMute(_OFF);
+                                  ScalerTimerDelayXms(3);
+              #endif
+              
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 5   
+
+                                  // Fast Control DVC & Ext.Amp & Ext. DSP
+                                  SysAudioFastOutputProc(_ENABLE);
+              
+                                  // Update User Define Frequency When No Audio
+                                  SysAudioSetUserDefineAudioFrequency();
+              
+                                  // Set User Define Frequency When No Audio except input port
+                                  ScalerAudioSyncUserDefineFrequency();
+                              }
+                              else
+                              {
+                                  SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+              
+                                  DebugMessageAudio("Switch to Audio Preparing", _AUDIO_STATUS_PREPARING);
+              
+                                  // Normal Control DVC & Ext.Amp & Ext. DSP
+                                  SysAudioOutputProc(_DISABLE);
+                                  ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+              
+              #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                                  ScalerTimerDelayXms(3);
+                                  // RX Digital Audio Output Control
+                                  ScalerAudioDigitalOutputMute(_ON);
+              #endif
+              
+              #if(_HDMI_SUPPORT == _ON)
+                                  if(ScalerAudioDigitalAudioSourceType() == _SOURCE_HDMI)
+                                  {
+                                      ScalerAudioHdmiI2sSpdifChannelOutputSelect(_AUDIO_DEFAULT_MODE, ScalerAudioGetDigi
+             -talAudioPortMapping());
+                                  }
+              #endif
+                              }
+                          }
+              
+                          break;
+              
+              #endif // End of #if(_AUDIO_DVC_FAST_CONTROL_SUPPORT == _ON)
+ 267   2      
+ 268   2              case _AUDIO_STATUS_PLAYBACK:
+ 269   2      
+ 270   2                  if(GET_AUDIO_STATE_CHANGE() == _TRUE)
+ 271   2                  {
+ 272   3                      CLR_AUDIO_STATE_CHANGE();
+ 273   3                      SET_AUDIO_PLAYBACK_SEARCH_INDEX(g_ucSearchIndex);
+ 274   3                  }
+ 275   2      
+ 276   2                  if(UserCommonInterfaceGetAudioReadyToPlayStatus() == _FALSE)
+ 277   2                  {
+ 278   3      #if(_AUDIO_DVC_FAST_CONTROL_SUPPORT == _ON)
+                              if(GET_MODE_STATE() == _MODE_STATUS_ACTIVE)
+                              {
+                                  SysAudioChangeAudioState(_AUDIO_STATUS_PLAYBACK_CHECK);
+                                  DebugMessageAudio("Switch to Audio PlaybackCheck", _AUDIO_STATUS_PLAYBACK_CHECK);
+              
+                                  // Fast Control DVC & Ext.Amp & Ext. DSP
+                                  SysAudioFastOutputProc(_DISABLE);
+              
+              #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                                  ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+              
+                                  ScalerTimerDelayXms(3);
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 6   
+
+                                  // RX Digital Audio Output Control
+                                  ScalerAudioDigitalOutputMute(_ON);
+              #endif
+                              }
+                              else
+              #endif
+ 297   3                      {
+ 298   4                          SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+ 299   4                          DebugMessageAudio("Switch to Audio Preparing", _AUDIO_STATUS_PREPARING);
+ 300   4      
+ 301   4                          // Normal Control DVC & Ext.Amp & Ext. DSP
+ 302   4                          SysAudioOutputProc(_DISABLE);
+ 303   4      
+ 304   4      #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                                  ScalerTimerDelayXms(3);
+                                  // RX Digital Audio Output Control
+                                  ScalerAudioDigitalOutputMute(_ON);
+              #endif
+ 309   4                      }
+ 310   3      
+ 311   3                      ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+ 312   3      
+ 313   3      #if(_HDMI_SUPPORT == _ON)
+ 314   3                      if(ScalerAudioDigitalAudioSourceType() == _SOURCE_HDMI)
+ 315   3                      {
+ 316   4                          ScalerAudioHdmiI2sSpdifChannelOutputSelect(_AUDIO_DEFAULT_MODE, ScalerAudioGetDigitalA
+             -udioPortMapping());
+ 317   4                      }
+ 318   3      #endif
+ 319   3                  }
+ 320   2      
+ 321   2                  break;
+ 322   2      
+ 323   2      #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+                      case _AUDIO_STATUS_TTS_PLAYBACK:
+              
+                          // Check if TTS fail when in playback
+                          if(ScalerAudioTtsPlaybackStableCheck() == _TRUE)
+                          {
+                              // Recover TTS
+                              ScalerAudioTtsRecoverProc();
+              
+                              // Reset TTS
+                              ScalerAudioTtsResetProc();
+              
+                              // Digital Audio Output DVC & Ext.Amp & Ext. DSP Control
+                              SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+              
+                              DebugMessageAudio("TTS Fail and Back to Audio Preparing", _AUDIO_STATUS_PREPARING);
+              
+                              // Normal Control DVC & Ext.Amp & Ext. DSP
+                              SysAudioOutputProc(_DISABLE);
+              
+                              ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+              
+              #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                              ScalerTimerDelayXms(3);
+                              // RX Digital Audio Output Control
+                              ScalerAudioDigitalOutputMute(_ON);
+              #endif
+                              // Update User Define Frequency When No Audio
+                              SysAudioSetUserDefineAudioFrequency();
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 7   
+
+              
+                              // Set User Define Frequency When No Audio except input port
+                              ScalerAudioSyncUserDefineFrequency();
+                          }
+              
+                          // Check if TTS play done
+                          if(ScalerAudioTtsGetPlayDoneStatus() == _TRUE)
+                          {
+                              // Recover TTS
+                              ScalerAudioTtsRecoverProc();
+              
+                              // Reset TTS
+                              ScalerAudioTtsResetProc();
+              
+                              // Check Previous Audio State
+                              if(UserCommonInterfaceGetAudioReadyToPlayStatus() == _TRUE)
+                              {
+                                  DebugMessageAudio("TTS End and Back to Audio Playback", _AUDIO_STATUS_PLAYBACK);
+                                  SysAudioChangeAudioState(_AUDIO_STATUS_PLAYBACK);
+                              }
+                              else
+                              {
+                                  // Digital Audio Output DVC & Ext.Amp & Ext. DSP Control
+                                  SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+              
+                                  DebugMessageAudio("TTS End and Back to Audio Preparing", _AUDIO_STATUS_PREPARING);
+              
+                                  // Normal Control DVC & Ext.Amp & Ext. DSP
+                                  SysAudioOutputProc(_DISABLE);
+              
+                                  ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+              
+              #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                                  ScalerTimerDelayXms(3);
+                                  // RX Digital Audio Output Control
+                                  ScalerAudioDigitalOutputMute(_ON);
+              #endif
+                                  // Update User Define Frequency When No Audio
+                                  SysAudioSetUserDefineAudioFrequency();
+              
+                                  // Set User Define Frequency When No Audio except input port
+                                  ScalerAudioSyncUserDefineFrequency();
+                              }
+                          }
+              
+                          break;
+              
+              #endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+ 400   2      
+ 401   2              case _AUDIO_STATUS_POWER_OFF:
+ 402   2              default:
+ 403   2                  break;
+ 404   2          }
+ 405   1      
+ 406   1      #if(_SLEEP_AUDIO_SUPPORT == _ON)
+                  SysAudioSleepAudioHandler();
+              #endif
+ 409   1      }
+ 410          
+ 411          //--------------------------------------------------
+ 412          // Description  : Get Current Audio
+ 413          // Input Value  : None
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 8   
+
+ 414          // Output Value : Node
+ 415          //--------------------------------------------------
+ 416          EnumAudioState SysAudioGetAudioState(void)
+ 417          {
+ 418   1          return GET_AUDIO_STATE();
+ 419   1      }
+ 420          
+ 421          //--------------------------------------------------
+ 422          // Description  : Get Current Audio Backup Freq
+ 423          // Input Value  : None
+ 424          // Output Value : Node
+ 425          //--------------------------------------------------
+ 426          EnumAudioSamplingFreqPacket SysAudioGetAudioBackupFreq(void)
+ 427          {
+ 428   1          return g_enumAudioFSBackup;
+ 429   1      }
+ 430          
+ 431          //--------------------------------------------------
+ 432          // Description  : Audio Power Process
+ 433          // Input Value  : None
+ 434          // Output Value : Node
+ 435          //--------------------------------------------------
+ 436          void SysAudioPowerProc(EnumPowerAction enumSwitch)
+ 437          {
+ 438   1          switch(enumSwitch)
+ 439   1          {
+ 440   2              case _POWER_ACTION_AC_ON_TO_NORMAL:
+ 441   2              case _POWER_ACTION_OFF_TO_NORMAL:
+ 442   2              case _POWER_ACTION_PS_TO_NORMAL:
+ 443   2      
+ 444   2                  // Update User Define Frequency When No Audio
+ 445   2                  SysAudioSetUserDefineAudioFrequency();
+ 446   2      
+ 447   2                  SysAudioInitial();
+ 448   2      
+ 449   2                  // Add User interface function
+ 450   2                  UserInterfaceAdjustAudioPowerProc(_POWER_STATUS_NORMAL);
+ 451   2      
+ 452   2      #if((_LINE_IN_SUPPORT == _ON) && (_HW_AUDIO_LINE_IN_TO_DIGITAL_LR_SWAP == _ON))
+                          UserInterfaceSwapExternalAudioCodecInput(ScalerAudioGetI2sOutputNeedToSwap(UserInterfaceGetAud
+             -ioSource()));
+              #endif
+ 455   2                  SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+ 456   2      
+ 457   2                  break;
+ 458   2      
+ 459   2              case _POWER_ACTION_AC_ON_TO_OFF:
+ 460   2              case _POWER_ACTION_PS_TO_OFF:
+ 461   2              case _POWER_ACTION_NORMAL_TO_OFF:
+ 462   2              case _POWER_ACTION_NORMAL_TO_FAKE_OFF:
+ 463   2      
+ 464   2                  // Normal Control DVC & Ext.Amp & Ext. DSP
+ 465   2                  SysAudioOutputProc(_DISABLE);
+ 466   2      
+ 467   2                  // Reset Digital Audio
+ 468   2                  ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+ 469   2      
+ 470   2                  // Add User interface function
+ 471   2                  UserInterfaceAdjustAudioPowerProc(_POWER_STATUS_OFF);
+ 472   2      
+ 473   2                  // Disable Audio
+ 474   2                  ScalerAudioDisable();
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 9   
+
+ 475   2      
+ 476   2                  SysAudioChangeAudioState(_AUDIO_STATUS_POWER_OFF);
+ 477   2      
+ 478   2                  break;
+ 479   2      
+ 480   2              case _POWER_ACTION_NORMAL_TO_PS:
+ 481   2      
+ 482   2                  // Normal Control DVC & Ext.Amp & Ext. DSP
+ 483   2                  SysAudioOutputProc(_DISABLE);
+ 484   2      
+ 485   2                  // Reset Digital Audio
+ 486   2                  ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+ 487   2      
+ 488   2                  // Add User interface function
+ 489   2                  UserInterfaceAdjustAudioPowerProc(_POWER_STATUS_SAVING);
+ 490   2      
+ 491   2                  // Disable Audio
+ 492   2                  ScalerAudioDisable();
+ 493   2      
+ 494   2                  SysAudioChangeAudioState(_AUDIO_STATUS_POWER_OFF);
+ 495   2      
+ 496   2                  break;
+ 497   2      
+ 498   2              default:
+ 499   2      
+ 500   2                  break;
+ 501   2          }
+ 502   1      }
+ 503          
+ 504          //--------------------------------------------------
+ 505          // Description  : Audio Mute Process
+ 506          // Input Value  : _ON => Mute On
+ 507          // Output Value : None
+ 508          //--------------------------------------------------
+ 509          void SysAudioMuteProc(bit bMute)
+ 510          {
+ 511   1              if(bMute == _ON)
+ 512   1              {
+ 513   2                      UserInterfaceAdjustAudioAmpMuteProc(_ON);
+ 514   2      
+ 515   2                      ScalerAudioMuteProc(_ON, UserInterfaceGetAudioVolume());
+ 516   2              }
+ 517   1              else
+ 518   1              {
+ 519   2                      ScalerAudioMuteProc(_OFF, UserInterfaceGetAudioVolume());
+ 520   2      
+ 521   2                      UserInterfaceAdjustAudioAmpMuteProc(_OFF);
+ 522   2              }
+ 523   1      }
+ 524          
+ 525          
+ 526          
+ 527          #if(_AUDIO_DVC_FAST_CONTROL_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Audio Fast Mute Process
+              // Input Value  : _ON => Mute On / EnumAudioState
+              // Output Value : None
+              //--------------------------------------------------
+              void SysAudioFastMuteProc(bit bMute)
+              {
+                  if(ScalerAudioDVCGetVolumeMuteStatus() == _ON)
+                  {
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 10  
+
+                      return;
+                  }
+              
+                  if(bMute == _ON)
+                  {
+                      UserInterfaceAdjustAudioAmpFastMuteProc(_ON);
+              
+                      ScalerAudioDVCVolumeFastMute(_ON, UserInterfaceGetAudioVolume());
+                  }
+                  else
+                  {
+                      ScalerAudioDVCVolumeFastMute(_OFF, UserInterfaceGetAudioVolume());
+              
+                      UserInterfaceAdjustAudioAmpFastMuteProc(_OFF);
+                  }
+              }
+              #endif
+ 554          
+ 555          //--------------------------------------------------
+ 556          // Description  : Audio Mute Process (Control DVC & Ext.Amp & Ext. DSP)
+ 557          // Input Value  : _ON => Mute On
+ 558          // Output Value : None
+ 559          //--------------------------------------------------
+ 560          void SysAudioOutputProc(bit bEnable)
+ 561          {
+ 562   1          if(bEnable == _DISABLE)
+ 563   1          {
+ 564   2              SysAudioMuteProc(_ON);
+ 565   2      
+ 566   2      #if(_AUDIO_OSD_MUTE_SEPARATE_CONTROL_SUPPORT == _ON)
+                      UserInterfaceAudioExternalCodecProc(_DISABLE);
+              #endif
+ 569   2          }
+ 570   1          else
+ 571   1          {
+ 572   2      #if(_AUDIO_OSD_MUTE_SEPARATE_CONTROL_SUPPORT == _ON)
+                      UserInterfaceAudioExternalCodecProc(_ENABLE);
+              #endif
+ 575   2      
+ 576   2              SysAudioMuteProc(_OFF);
+ 577   2          }
+ 578   1      }
+ 579          
+ 580          #if(_AUDIO_DVC_FAST_CONTROL_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Audio Mute Process (Control DVC & Ext.Amp & Ext. DSP)
+              // Input Value  : _ON => Mute On
+              // Output Value : None
+              //--------------------------------------------------
+              void SysAudioFastOutputProc(bit bEnable)
+              {
+                  if(bEnable == _DISABLE)
+                  {
+                      SysAudioFastMuteProc(_ON);
+              
+              #if(_AUDIO_OSD_MUTE_SEPARATE_CONTROL_SUPPORT == _ON)
+                      UserInterfaceAudioExternalCodecFastProc(_DISABLE);
+              #endif
+                  }
+                  else
+                  {
+              #if(_AUDIO_OSD_MUTE_SEPARATE_CONTROL_SUPPORT == _ON)
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 11  
+
+                      UserInterfaceAudioExternalCodecFastProc(_ENABLE);
+              #endif
+              
+                      SysAudioFastMuteProc(_OFF);
+                  }
+              }
+              #endif
+ 606          
+ 607          //--------------------------------------------------
+ 608          // Description  : Audio Analog Handler
+ 609          // Input Value  : None
+ 610          // Output Value : None
+ 611          //--------------------------------------------------
+ 612          void SysAudioAnalogAudioHandler(void)
+ 613          {
+ 614   1      #if(_EMBEDDED_DAC_SUPPORT == _ON)
+ 615   1      
+ 616   1          if((ScalerAudioDACGetState() != _AUDIO_DAC_OFF) && (ScalerAudioDACGetState() != _AUDIO_DAC_INITIAL) &&
+             - (ScalerAudioDACGetState() != _AUDIO_DAC_CHARGE))
+ 617   1          {
+ 618   2              // User want to change DAC Input / Output
+ 619   2              if((ScalerAudioGetAudioInputPortChanged(UserInterfaceGetAudioSource(), SysSourceGetInputPort()) ==
+             - _TRUE) ||
+ 620   2                 (ScalerAudioDACGetOutput() != UserInterfaceGetAudioDACOutput()))
+ 621   2              {
+ 622   3      #if((_SLEEP_AUDIO_SUPPORT == _ON) && (_LINE_IN_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || 
+             -(_PS_AUDIO_INPUT == _PS_AUDIO_LINE_IN)))
+                          if(SysAudioGetSleepAudioStatusForLineIn() == _FALSE)
+              #endif
+ 625   3                  {
+ 626   4                      // Normal Control DVC & Ext.Amp & Ext. DSP
+ 627   4                      SysAudioOutputProc(_DISABLE);
+ 628   4      
+ 629   4                      ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+ 630   4      
+ 631   4      #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                              ScalerTimerDelayXms(3);
+                              // RX Digital Audio Output Control
+                              ScalerAudioDigitalOutputMute(_ON);
+              #endif
+ 636   4                      SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+ 637   4                  }
+ 638   3      
+ 639   3                  if(ScalerAudioDACGetOutput() != UserInterfaceGetAudioDACOutput())
+ 640   3                  {
+ 641   4                      DebugMessageAudio("Audio Dac Switch Output", ScalerAudioDACGetOutput());
+ 642   4      
+ 643   4                      ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_AUDIO_DAC_WAIT_DEPOP_TO_NORMAL);
+ 644   4                      ScalerAudioDACNormalToDepop();
+ 645   4      
+ 646   4                      ScalerAudioDACSetVcmReady(_OFF);
+ 647   4                      ScalerAudioDACSetState(_AUDIO_DAC_CHARGE);
+ 648   4                  }
+ 649   3                  else
+ 650   3                  {
+ 651   4      #if(_LINE_IN_SUPPORT == _ON)
+                              DebugMessageAudio("Audio Switch Input", ScalerAudioGetInputSource());
+              #endif
+ 654   4      
+ 655   4      #if((_SLEEP_AUDIO_SUPPORT == _ON) && (_LINE_IN_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || 
+             -(_PS_AUDIO_INPUT == _PS_AUDIO_LINE_IN)))
+                              if(SysAudioGetSleepAudioStatusForLineIn() == _TRUE)
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 12  
+
+                              {
+                                  ScalerAudioSourceInputSwitch(UserInterfaceGetAudioSource(), SysSourceGetInputPort());
+                              }
+                              else
+              #endif
+ 662   4                      {
+ 663   5      #if((_SLEEP_AUDIO_SUPPORT == _ON) && (_DP_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_
+             -AUDIO_INPUT == _PS_AUDIO_DP)))
+                                  if((GET_SOURCE_JUDGE(g_ucSearchIndex) == _TRUE) || (GET_SOURCE_SCAN_TYPE() == _SOURCE_
+             -SWITCH_FIXED_PORT) ||
+                                     ((UserInterfaceGetAudioStandAloneStatus() == _TRUE) &&
+                                      (UserInterfaceGetAudioSource() == _DIGITAL_AUDIO) &&
+                                      (ScalerAudioGetDpStandaloneAudioStatus(SysSourceGetInputPort()) == _TRUE)))
+              #elif((_SLEEP_AUDIO_SUPPORT == _ON) && (_LINE_IN_SUPPORT == _ON) && (_PS_AUDIO_INPUT == _PS_AUDIO_LINE_IN)
+             - && (_SWITCH_TO_LINE_IN_AUDIO_IN_POWER_SAVING_MODE == _ON))
+                                  if((GET_SOURCE_JUDGE(g_ucSearchIndex) == _TRUE) || (GET_SOURCE_SCAN_TYPE() == _SOURCE_
+             -SWITCH_FIXED_PORT) ||
+                                     ((UserInterfaceGetAudioStandAloneStatus() == _TRUE) &&
+                                      (UserInterfaceGetAudioSource() == _LINE_IN_AUDIO) &&
+                                      (GET_MODE_STATE() == _MODE_STATUS_POWER_SAVING)))
+              #else
+ 674   5                          if((GET_SOURCE_JUDGE(g_ucSearchIndex) == _TRUE) || (GET_SOURCE_SCAN_TYPE() == _SOURCE_
+             -SWITCH_FIXED_PORT))
+ 675   5      #endif
+ 676   5                          {
+ 677   6                              ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_AUDIO_DAC_WAIT_DEPOP_TO_NORMAL);
+ 678   6                              ScalerAudioDACNormalToDepop();
+ 679   6      
+ 680   6                              ScalerAudioSourceInputSwitch(UserInterfaceGetAudioSource(), SysSourceGetInputPort(
+             -));
+ 681   6      
+ 682   6      #if((_LINE_IN_SUPPORT == _ON) && (_HW_AUDIO_LINE_IN_TO_DIGITAL_LR_SWAP == _ON))
+                                      UserInterfaceSwapExternalAudioCodecInput(ScalerAudioGetI2sOutputNeedToSwap(UserInt
+             -erfaceGetAudioSource()));
+              #endif
+ 685   6                          }
+ 686   5                      }
+ 687   4                  }
+ 688   3              }
+ 689   2          }
+ 690   1      
+ 691   1          switch(ScalerAudioDACGetState())
+ 692   1          {
+ 693   2              case _AUDIO_DAC_OFF:
+ 694   2      
+ 695   2                  if(ScalerAudioDACGetStateChange() == _TRUE)
+ 696   2                  {
+ 697   3                      ScalerAudioDACClrStateChange();
+ 698   3                  }
+ 699   2      
+ 700   2                  break;
+ 701   2      
+ 702   2              case _AUDIO_DAC_INITIAL:
+ 703   2      
+ 704   2                  if(ScalerAudioDACGetStateChange() == _TRUE)
+ 705   2                  {
+ 706   3                      ScalerAudioDACClrStateChange();
+ 707   3      
+ 708   3                      DebugMessageAudio("Audio Dac Initial", _AUDIO_DAC_INITIAL);
+ 709   3      
+ 710   3                      ScalerTimerActiveTimerEvent(_DAC_VCM_INITIAL_TIME, _SYSTEM_TIMER_EVENT_AUDIO_DAC_WAIT_VCM_
+             -INITIAL);
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 13  
+
+ 711   3                  }
+ 712   2      
+ 713   2                  break;
+ 714   2      
+ 715   2              case _AUDIO_DAC_CHARGE:
+ 716   2      
+ 717   2                  if(ScalerAudioDACGetStateChange() == _TRUE)
+ 718   2                  {
+ 719   3                      ScalerAudioDACClrStateChange();
+ 720   3      
+ 721   3                      DebugMessageAudio("Audio Dac Charge", _AUDIO_DAC_CHARGE);
+ 722   3      
+ 723   3                      ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_AUDIO_DAC_WAIT_DEPOP_TO_NORMAL);
+ 724   3                      ScalerTimerCancelTimerEvent(_SYSTEM_TIMER_EVENT_AUDIO_DAC_WAIT_VCM_CHARGE);
+ 725   3      
+ 726   3                      ScalerAudioDACOutputSwitch(UserInterfaceGetAudioDACOutput());
+ 727   3                      ScalerAudioDACSetVcmReady(_ON);
+ 728   3      
+ 729   3                      ScalerTimerActiveTimerEvent(_DAC_VCM_CHARGE_TIME, _SYSTEM_TIMER_EVENT_AUDIO_DAC_WAIT_VCM_C
+             -HARGE);
+ 730   3                  }
+ 731   2      
+ 732   2                  break;
+ 733   2      
+ 734   2              case _AUDIO_DAC_DEPOP:
+ 735   2      
+ 736   2                  if(ScalerAudioDACGetStateChange() == _TRUE)
+ 737   2                  {
+ 738   3                      DebugMessageAudio("Audio Dac Depop", _AUDIO_DAC_DEPOP);
+ 739   3      
+ 740   3                      if(UserInterfaceGetAudioDACKeepDepopState() == _FALSE)
+ 741   3                      {
+ 742   4                          ScalerAudioDACClrStateChange();
+ 743   4      
+ 744   4                          ScalerAudioDACOutputEnable();
+ 745   4      
+ 746   4                          ScalerTimerActiveTimerEvent(_DAC_DEPOP_TO_NORMAL_WAIT_TIME, _SYSTEM_TIMER_EVENT_AUDIO_
+             -DAC_WAIT_DEPOP_TO_NORMAL);
+ 747   4                      }
+ 748   3                  }
+ 749   2      
+ 750   2                  break;
+ 751   2      
+ 752   2              case _AUDIO_DAC_READY:
+ 753   2      
+ 754   2                  if(ScalerAudioDACGetStateChange() == _TRUE)
+ 755   2                  {
+ 756   3                      ScalerAudioDACClrStateChange();
+ 757   3      
+ 758   3                      DebugMessageAudio("Audio Dac Ready", _AUDIO_DAC_READY);
+ 759   3                  }
+ 760   2                  break;
+ 761   2      
+ 762   2              default:
+ 763   2                  break;
+ 764   2          }
+ 765   1      
+ 766   1      #else
+              
+                  // Change Audio Input Port
+                  if(ScalerAudioGetAudioInputPortChanged(UserInterfaceGetAudioSource(), SysSourceGetInputPort()) == _TRU
+             -E)
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 14  
+
+                  {
+                      // Normal Control DVC & Ext.Amp & Ext. DSP
+                      SysAudioOutputProc(_DISABLE);
+              
+                      ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+              
+              #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                      ScalerTimerDelayXms(3);
+                      // RX Digital Audio Output Mute
+                      ScalerAudioDigitalOutputMute(_ON);
+              #endif
+                      if(GET_SOURCE_JUDGE(g_ucSearchIndex) == _TRUE)
+                      {
+                          ScalerAudioSourceInputSwitch(UserInterfaceGetAudioSource(), SysSourceGetInputPort());
+              
+              #if((_LINE_IN_SUPPORT == _ON) && (_HW_AUDIO_LINE_IN_TO_DIGITAL_LR_SWAP == _ON))
+                          UserInterfaceSwapExternalAudioCodecInput(ScalerAudioGetI2sOutputNeedToSwap(UserInterfaceGetAud
+             -ioSource()));
+              #endif
+                      }
+              
+                      SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+                  }
+              
+              #endif // End of #if(_EMBEDDED_DAC_SUPPORT == _ON)
+ 794   1      }
+ 795          
+ 796          //--------------------------------------------------
+ 797          // Description  : Digital Audio Handler
+ 798          // Input Value  : None
+ 799          // Output Value : None
+ 800          //--------------------------------------------------
+ 801          void SysAudioDigitalAudioHandler(void)
+ 802          {
+ 803   1      #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _OFF)
+ 804   1          if(UserInterfaceAudioGetOutputMuteStatus() == _AUDIO_MUTE_ON)
+ 805   1          {
+ 806   2              ScalerAudioDigitalOutputMute(_ON);
+ 807   2          }
+ 808   1          else
+ 809   1          {
+ 810   2              ScalerAudioDigitalOutputMute(_OFF);
+ 811   2          }
+ 812   1      #endif
+ 813   1      
+ 814   1          ScalerAudioDigitalDetect();
+ 815   1      
+ 816   1      #if(_DIGITAL_AUDIO_OUTPUT_ADJUST_VOLUME_SUPPORT == _ON)
+                  ScalerAudioSpdifChannelStatusProc(UserInterfaceGetAudioSource(), SysSourceGetInputPort());
+              #endif
+ 819   1      }
+ 820          
+ 821          //--------------------------------------------------
+ 822          // Description  : Change Audio State
+ 823          // Input Value  : Target Audio State
+ 824          // Output Value : None
+ 825          //--------------------------------------------------
+ 826          void SysAudioChangeAudioState(EnumAudioState enumAudioState)
+ 827          {
+ 828   1          SET_AUDIO_STATE(enumAudioState);
+ 829   1          SET_AUDIO_STATE_CHANGE();
+ 830   1      }
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 15  
+
+ 831          
+ 832          //--------------------------------------------------
+ 833          // Description  : Audio Initial
+ 834          // Input Value  : None
+ 835          // Output Value : None
+ 836          //--------------------------------------------------
+ 837          void SysAudioInitial(void)
+ 838          {
+ 839   1          ScalerAudioInitial();
+ 840   1      
+ 841   1          ScalerAudioSourceInputSwitch(UserInterfaceGetAudioSource(), SysSourceGetInputPort());
+ 842   1      
+ 843   1      #if(_EMBEDDED_DAC_SUPPORT == _ON)
+ 844   1      
+ 845   1          ScalerAudioDACSetVcmReady(_ON);
+ 846   1      
+ 847   1          ScalerAudioDACSetState(_AUDIO_DAC_INITIAL);
+ 848   1      #endif
+ 849   1      }
+ 850          
+ 851          //--------------------------------------------------
+ 852          // Description  : Audio Frequency Set By User Define
+ 853          // Input Value  : None
+ 854          // Output Value : None
+ 855          //--------------------------------------------------
+ 856          void SysAudioSetUserDefineAudioFrequency(void)
+ 857          {
+ 858   1          // get freq from userinterface
+ 859   1          EnumAudioSamplingFreqType enumAudioFreq = UserCommonInterfaceAudioUpdateUserSamplingFreq();
+ 860   1      
+ 861   1          ScalerAudioSetUserDefineAudioFrequency(enumAudioFreq);
+ 862   1      }
+ 863          
+ 864          #if(_DP_SUPPORT == _ON)
+ 865          //--------------------------------------------------
+ 866          // Description  : DP Audio Secondary Data Reset Process
+ 867          // Input Value  : ucInputPort
+ 868          // Output Value : None
+ 869          //--------------------------------------------------
+ 870          void SysAudioDpAudioSecDataResetProc(BYTE ucInputPort)
+ 871          {
+ 872   1          if(ScalerAudioDPGetMuteProc(ucInputPort) == _TRUE)
+ 873   1          {
+ 874   2              // Normal Control DVC & Ext.Amp & Ext. DSP
+ 875   2              SysAudioOutputProc(_DISABLE);
+ 876   2      
+ 877   2              ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+ 878   2      
+ 879   2      #if(_DIGITAL_AUDIO_OUTPUT_MUTE_CONTROL_SUPPORT == _ON)
+                      ScalerTimerDelayXms(3);
+                      // RX Digital Audio Output Mute
+                      ScalerAudioDigitalOutputMute(_ON);
+              #endif
+ 884   2      
+ 885   2      #if(_EMBEDDED_DAC_SUPPORT == _ON)
+ 886   2              ScalerAudioDACNormalToDepop();
+ 887   2      #endif
+ 888   2      
+ 889   2              SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+ 890   2          }
+ 891   1      
+ 892   1          ScalerDpSecDataReset(ucInputPort);
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 16  
+
+ 893   1      }
+ 894          #endif
+ 895          
+ 896          #if(_AUDIO_FW_TRACKING_MODE_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Audio Fw Tracking Handler
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysAudioFwTrackingHandler(void)
+              {
+                  ScalerAudioFwTrackingHandler();
+              }
+              #endif
+ 907          
+ 908          
+ 909          #if(_SLEEP_AUDIO_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Sleep Audio Handler
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysAudioSleepAudioHandler(void)
+              {
+                  if(UserInterfaceGetAudioStandAloneStatus() == _TRUE)
+                  {
+                      if(GET_AUDIO_STATE() == _AUDIO_STATUS_PREPARING)
+                      {
+              #if((_DP_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_AUDIO_INPUT == _PS_AUDIO_DP)))
+                          if((UserInterfaceGetAudioSource() == _DIGITAL_AUDIO) &&
+                             (ScalerAudioGetDigitalAudioSource(SysSourceGetInputPort()) == _DIGITAL_AUDIO_SOURCE_DP))
+                          {
+                              SET_AUDIO_PLAYBACK_SEARCH_INDEX(g_ucSearchIndex);
+              
+                              ScalerAudioDpAudioEnable(_ENABLE, SysSourceGetInputPort());
+              
+                              DebugMessageAudio("Sleep Audio Playback Index", GET_AUDIO_PLAYBACK_SEARCH_INDEX());
+                          }
+              #endif
+              
+              #if((_LINE_IN_SUPPORT == _ON) && (_PS_AUDIO_INPUT == _PS_AUDIO_LINE_IN) && (_SWITCH_TO_LINE_IN_AUDIO_IN_PO
+             -WER_SAVING_MODE == _ON))
+                          SET_AUDIO_PLAYING_ALONE();
+              
+                          return;
+              #endif
+                      }
+                      else if(GET_AUDIO_STATE() == _AUDIO_STATUS_PLAYBACK)
+                      {
+              #if((_LINE_IN_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_AUDIO_INPUT == _PS_AUDIO_LIN
+             -E_IN)))
+                          if(UserInterfaceGetAudioSource() == _LINE_IN_AUDIO)
+                          {
+                              SET_AUDIO_PLAYING_ALONE();
+              
+                              return;
+                          }
+              #endif
+              
+              #if((_DP_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_AUDIO_INPUT == _PS_AUDIO_DP)))
+                          if((UserInterfaceGetAudioSource() == _DIGITAL_AUDIO) && (ScalerAudioGetDigitalAudioSource(SysS
+             -ourceGetInputPort()) == _DIGITAL_AUDIO_SOURCE_DP))
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 17  
+
+                          {
+                              SET_AUDIO_PLAYING_ALONE();
+              
+                              return;
+                          }
+              #endif
+                      }
+                  }
+              
+                  CLR_AUDIO_PLAYING_ALONE();
+              }
+              
+              #if((_LINE_IN_SUPPORT == _ON) && ((_PS_AUDIO_INPUT == _PS_AUDIO_BOTH) || (_PS_AUDIO_INPUT == _PS_AUDIO_LIN
+             -E_IN)))
+              //--------------------------------------------------
+              // Description  : Get Sleep Audio Changed for Line in
+              // Input Value  : None
+              // Output Value : _TRUE or _FALSE
+              //--------------------------------------------------
+              bit SysAudioGetSleepAudioStatusForLineIn(void)
+              {
+                  return ((UserInterfaceGetAudioSource() == _LINE_IN_AUDIO) && (ScalerAudioGetInputSource() == _LINE_IN_
+             -AUDIO) && (GET_AUDIO_PLAYING_ALONE() == _TRUE));
+              }
+              #endif
+              #endif
+ 976          
+ 977          #if(_INTERNAL_AUDIO_TEST_SUPPORT == _ON)
+              //--------------------------------------------------
+              // Description  : Internal Audio Gen Test Process
+              // Input Value  : _ON/ _OFF
+              // Output Value : None
+              //--------------------------------------------------
+              void SysAudioInternalGenTestProc(bit bOn)
+              {
+                  EnumSourceSearchPort enumInputPort = SysSourceGetInputPort();
+              
+                  // Normal Control DVC & Ext.Amp & Ext. DSP
+                  SysAudioOutputProc(_DISABLE);
+              
+                  if(bOn == _ON)
+                  {
+                      ScalerAudioSetInternalGenInputPort(enumInputPort);
+              
+                      ScalerAudioSetUserDefineAudioGenFrequency(UserCommonAudioUpdateUserDefineAudioGenFreq());
+              
+                      ScalerAudioDigitalReset(ScalerAudioGetDigitalAudioPortMapping());
+              
+                      ScalerAudioInternalAudioGenSwitch(_ON, enumInputPort, UserCommonAudioGetUserLeftRightChanelSelect(
+             -));
+              
+                      ScalerAudioSourceInputSwitch(_DIGITAL_AUDIO, enumInputPort);
+              
+                      ScalerAudioDigitalVolumeMute(_OFF, UserInterfaceGetAudioVolume());
+                  }
+                  else
+                  {
+                      EnumSourceSearchPort enumGenPort = ScalerAudioGetInternalGenInputPort();
+              
+                      ScalerAudioInternalAudioGenSwitch(_OFF, enumGenPort, _AUDIO_LEFT_RIGHT_CHANNEL);
+              
+                      ScalerAudioSourceInputSwitch(_DIGITAL_AUDIO, enumInputPort);
+C51 COMPILER V9.00   SYSAUDIO                                                              02/26/2026 13:41:36 PAGE 18  
+
+              
+                      ScalerAudioInternalAudioGenReset(enumGenPort);
+              
+                      SysAudioChangeAudioState(_AUDIO_STATUS_PREPARING);
+                  }
+              }
+              #endif // End of #if(_INTERNAL_AUDIO_TEST_SUPPORT == _ON)
+1018          
+1019          #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+              //--------------------------------------------------
+              // Description  : Check TTS Playback Event
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void SysAudioTtsCheckPlaybackAcitveEvent(void)
+              {
+                  // Check whether TTS Playback event happens
+                  if(ScalerAudioTtsGetPlaybackEvent() == _TRUE)
+                  {
+                      DebugMessageAudio("[TTS] Playback Event Active", 0x00);
+              
+                      // TTS Config
+                      ScalerAudioTtsPlayConfig();
+              
+                      // Clear Flag
+                      ScalerAudioTtsSetPlaybackEvent(_DISABLE);
+              
+                      // Change Audio State
+                      SysAudioChangeAudioState(_AUDIO_STATUS_TTS_PLAYBACK);
+              
+                      DebugMessageAudio("     -> Audio State swtich to TTS_Playback", 0x00);
+                  }
+              }
+              #endif // End of #if(_AUDIO_TTS_SUPPORT_TYPE == _AUDIO_TTS_EMBEDDED_TYPE)
+1045          
+1046          #endif // End of #if(_AUDIO_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    702    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      4       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       2
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,414 @@
+C51 COMPILER V9.60.0.0   USERCOMMONUSBHUBRTS5411                                           09/09/2025 18:04:38 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE USERCOMMONUSBHUBRTS5411
+OBJECT MODULE PLACED IN .\Output\RL6432\UserCommonUsbHubRts5411.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE Kernel\User Common Function\Code\UserCommonUsbHubRts5411.c LARGE OPTIMIZ
+                    -E(9,SPEED) INCDIR(.\Output\RL6432;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\System\
+                    -Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunction\
+                    -Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Header;.\Kernel\Scaler\R
+                    -L6432_Series_Common\Header;.\Kernel\Scaler\RL6432_Series_Scaler\Lib\Header;.\Kernel\Scaler\RL6432_Series_Common\Lib\Head
+                    -er;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User\RTD Series\RTD2014Osd\Header;.\U
+                    -ser\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOsd\Header;.\User\None Factory\Head
+                    -er) DEFINE(_PROJECT=_RL6432_PROJECT,_SCALER_TYPE=_RL6432_SERIES) DEBUG OBJECTEXTEND PRINT(.\Output\RL6432\UserCommonUsbH
+                    -ubRts5411.lst) TABS(2) OBJECT(.\Output\RL6432\UserCommonUsbHubRts5411.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : UserCommonUsbHubRts5411.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          
+  17          #define __USER_COMMON_USBHUB5411__
+  18          
+  19          #include "UserCommonInclude.h"
+  20          
+  21          #if(_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+              #if(_USB_HUB_RTS5411_SERIES_SUPPORT == _ON)
+              #if(_DP_TYPE_C_HUB_COMMUNICATION_SUPPORT == _ON)
+              
+              //****************************************************************************
+              // DEFINITIONS / MACROS
+              //****************************************************************************
+              #define GET_HUB_DSP_U2_INFO()                          (g_ucUsbHubU2InfoByDsp)
+              #define SET_HUB_DSP_U2_INFO(x)                         (g_ucUsbHubU2InfoByDsp = (x))
+              #define GET_HUB_DSP_U3_INFO()                          (g_ucUsbHubU3InfoByDsp)
+              #define SET_HUB_DSP_U3_INFO(x)                         (g_ucUsbHubU3InfoByDsp = (x))
+              #define GET_HUB_DSP0_INFO()                            (g_ucUsbHubDSP0RawInfo)
+              #define SET_HUB_DSP0_INFO(x)                           (g_ucUsbHubDSP0RawInfo = (x))
+              #define GET_HUB_DSP1_INFO()                            (g_ucUsbHubDSP1RawInfo)
+              #define SET_HUB_DSP1_INFO(x)                           (g_ucUsbHubDSP1RawInfo = (x))
+              #define GET_HUB_DSP2_INFO()                            (g_ucUsbHubDSP2RawInfo)
+              #define SET_HUB_DSP2_INFO(x)                           (g_ucUsbHubDSP2RawInfo = (x))
+              #define GET_HUB_DSP3_INFO()                            (g_ucUsbHubDSP3RawInfo)
+              #define SET_HUB_DSP3_INFO(x)                           (g_ucUsbHubDSP3RawInfo = (x))
+              #define GET_HUB_DSP_U2_CHANGE()                        (g_bHubDspU2Change)
+              #define SET_HUB_DSP_U2_CHANGE(x)                       (g_bHubDspU2Change = (x))
+              #define GET_HUB_DSP_U3_CHANGE()                        (g_bHubDspU3Change)
+              #define SET_HUB_DSP_U3_CHANGE(x)                       (g_bHubDspU3Change = (x))
+              
+              //****************************************************************************
+              // STRUCT / TYPE / ENUM DEFINITTIONS
+              //****************************************************************************
+C51 COMPILER V9.60.0.0   USERCOMMONUSBHUBRTS5411                                           09/09/2025 18:04:38 PAGE 2   
+
+              
+              //****************************************************************************
+              // CODE TABLES
+              //****************************************************************************
+              // Write Command
+              code StructSMBusWrSetSSMode tSMBusWrSetSSMode[1] = {{0x31, 0x01, 0x01}};
+              code StructSMBusWRDetectDSPSSMode tSMBusWDetectDspSSMode[1] = {{0x30, 0x03, 0x00, 0x00, 0x04}};
+              
+              // Read Command
+              code StructSMBusRDDetectDSPSSMode tSMBusRdDetectDspSSDevice[1] = {{0x80, 0x05, 0x50, 0x50, 0x50, 0x50}};
+              
+              //****************************************************************************
+              // VARIABLE DECLARATIONS
+              //****************************************************************************
+              BYTE g_ucUsbHubU2InfoByDsp;
+              BYTE g_ucUsbHubU3InfoByDsp;
+              BYTE g_ucUsbHubDSP0RawInfo;
+              BYTE g_ucUsbHubDSP1RawInfo;
+              BYTE g_ucUsbHubDSP2RawInfo;
+              BYTE g_ucUsbHubDSP3RawInfo;
+              bit g_bHubDspU2Change;
+              bit g_bHubDspU3Change;
+              
+              //****************************************************************************
+              // FUNCTION DECLARATIONS
+              //****************************************************************************
+              BYTE UserCommonUsbHubGetHubAddr(BYTE ucInputPort);
+              bit UserCommonUsbHubSetSSMode(BYTE ucInputPort, bit bEn);
+              EnumHubDspDetectStatus UserCommonUsbHubDetectDFPStatus(BYTE ucInputPort);
+              void UserCommonUsbHubDspU2InfoChange(void);
+              void UserCommonUsbHubDspU3InfoChange(void);
+              WORD UserCommonUsbHubSetPollingStep(BYTE ucInputPort);
+              BYTE UserCommonUsbHubGetDspInfo(EnumHubDsp enumHubDspx);
+              
+              #if(_BILLBOARD_HUB_SUPPORT == _ON)
+              void UserCommonUsbHubBillboardControl(BYTE ucInputPort, EnumBillboardCtrl enumAtion);
+              #endif
+              
+              //****************************************************************************
+              // FUNCTION DEFINITIONS
+              //****************************************************************************
+              //--------------------------------------------------
+              // Description  : Get Usb Hub Controller Slave Address
+              // Input Value  : ucInputPort --> Input Port
+              // Output Value : Slave Address
+              //--------------------------------------------------
+              BYTE UserCommonUsbHubGetHubAddr(BYTE ucInputPort)
+              {
+                  switch(ucInputPort)
+                  {
+                      case _D0_INPUT_PORT:
+                          return _D0_DP_TYPE_C_HUB_SLAVE_ADDR;
+              
+                      case _D1_INPUT_PORT:
+                          return _D1_DP_TYPE_C_HUB_SLAVE_ADDR;
+              
+                      case _D6_INPUT_PORT:
+                          return _D6_DP_TYPE_C_HUB_SLAVE_ADDR;
+              
+                      default:
+                          break;
+                  }
+C51 COMPILER V9.60.0.0   USERCOMMONUSBHUBRTS5411                                           09/09/2025 18:04:38 PAGE 3   
+
+              
+                  return _D0_DP_TYPE_C_HUB_SLAVE_ADDR;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Set 5411 into SS Mode
+              // Input Value  : None
+              // Output Value : Operation result (Fail/Success)
+              //--------------------------------------------------
+              bit UserCommonUsbHubSetSSMode(BYTE ucInputPort, bit bEn)
+              {
+                  StructSMBusWrSetSSMode stWrSSMode;
+                  BYTE ucSlaveAddr = UserCommonUsbHubGetHubAddr(ucInputPort);
+              
+                  if(UserInterfaceTypeCUsbHubDetectDFPStatusUserFlow(ucInputPort) == _TRUE)
+                  {
+                      UserInterfaceTypeCUsbHubSetSSMode(ucInputPort, bEn);
+              
+                      return _TRUE;
+                  }
+              
+                  memcpy(&stWrSSMode, &tSMBusWrSetSSMode[0], tSMBusWrSetSSMode[0].ucDataLength + 2);
+              
+                  if(bEn == _ENABLE)
+                  {
+                      // Enable SS Mode
+                      stWrSSMode.ucByte0 = 0x01;
+                  }
+                  else
+                  {
+                      // Disable SS Mode
+                      stWrSSMode.ucByte0 = 0x02;
+                  }
+              
+                  // Execute Write Command
+                  if(UserCommonTypecCommunicationWrite(ucSlaveAddr, stWrSSMode.ucCommandCode, 1, stWrSSMode.ucDataLength
+             - + 1, &stWrSSMode.ucDataLength, ucInputPort) == _FAIL)
+                  {
+                      return _FAIL;
+                  }
+              
+                  // Polling Write Command Operation Status
+                  if(UserCommonTypecCommunicationPollingPDReady(ucSlaveAddr, 100, ucInputPort) == _FAIL)
+                  {
+                      return _FAIL;
+                  }
+              
+                  return _TRUE;
+              }
+              
+              //--------------------------------------------------
+              // Description  : Detect 5411 SS Device Plug In
+              // Input Value  : ucInputPort --> Input Port
+              // Output Value : Return SS Device Info.
+              //--------------------------------------------------
+              EnumHubDspDetectStatus UserCommonUsbHubDetectDFPStatus(BYTE ucInputPort)
+              {
+                  BYTE ucSlaveAddr = UserCommonUsbHubGetHubAddr(ucInputPort);
+              
+                  if(UserInterfaceTypeCUsbHubDetectDFPStatusUserFlow(ucInputPort) == _TRUE)
+                  {
+                      return UserInterfaceTypeCUsbHubDetectDFPStatus(ucInputPort);
+C51 COMPILER V9.60.0.0   USERCOMMONUSBHUBRTS5411                                           09/09/2025 18:04:38 PAGE 4   
+
+                  }
+                  else
+                  {
+                      // Execute Write Command
+                      if(UserCommonTypecCommunicationWrite(ucSlaveAddr, tSMBusWDetectDspSSMode[0].ucCommandCode, 1, tSMB
+             -usWDetectDspSSMode[0].ucDataLength + 1, &(tSMBusWDetectDspSSMode[0].ucDataLength), ucInputPort) == _FAIL)
+                      {
+                          return _HUB_DSP_DEVICE_NO_CHANGE;
+                      }
+              
+                      // Polling Write Command Operation Status
+                      if(UserCommonTypecCommunicationPollingPDReady(ucSlaveAddr, 100, ucInputPort) == _FAIL)
+                      {
+                          return _HUB_DSP_DEVICE_NO_CHANGE;
+                      }
+              
+                      // Read Back Device Reply Data
+                      if(UserCommonTypecCommunicationRead(ucSlaveAddr, tSMBusRdDetectDspSSDevice[0].ucCommandCode, 1, tS
+             -MBusRdDetectDspSSDevice[0].ucDataLength, &(g_unSMBusRdDataPool.stRdDetectDspSSMode.ucDataLength), ucInputPort) == _FAIL)
+                      {
+                          return _HUB_DSP_DEVICE_NO_CHANGE;
+                      }
+              
+                      // Fill in Original Subcommand Code for g_unSMBusRdDataPool structure
+                      g_unSMBusRdDataPool.stRdDetectDspSSMode.ucCommandCode = tSMBusRdDetectDspSSDevice[0].ucCommandCode
+             -;
+              
+                      // Raw Data set to marco
+                      SET_HUB_DSP0_INFO(g_unSMBusRdDataPool.stRdDetectDspSSMode.ucDSP0);
+                      SET_HUB_DSP1_INFO(g_unSMBusRdDataPool.stRdDetectDspSSMode.ucDSP1);
+                      SET_HUB_DSP2_INFO(g_unSMBusRdDataPool.stRdDetectDspSSMode.ucDSP2);
+                      SET_HUB_DSP3_INFO(g_unSMBusRdDataPool.stRdDetectDspSSMode.ucDSP3);
+              
+                      UserCommonUsbHubDspU2InfoChange();
+                      UserCommonUsbHubDspU3InfoChange();
+              
+                      if((GET_HUB_DSP_U2_CHANGE() == _TRUE) || (GET_HUB_DSP_U3_CHANGE() == _TRUE))
+                      {
+                          return _HUB_DSP_DEVICE_CHANGE;
+                      }
+                      else
+                      {
+                          return _HUB_DSP_DEVICE_NO_CHANGE;
+                      }
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Check Hub DSP U3 Device Change
+              // Input Value  : stRdDetectDspSSMode --> DSP0/1/2/3 Info
+              // Output Value : Hub DSP U3 Device Change
+              //--------------------------------------------------
+              void UserCommonUsbHubDspU2InfoChange(void)
+              {
+                  BYTE ucUsb2HubInfo = 0;
+              
+                  // List U2 device is connectted in DSPx
+                  if(GET_HUB_DSP0_INFO() == 0x01)
+                  {
+                      ucUsb2HubInfo |= _BIT0;
+                  }
+              
+C51 COMPILER V9.60.0.0   USERCOMMONUSBHUBRTS5411                                           09/09/2025 18:04:38 PAGE 5   
+
+                  if(GET_HUB_DSP1_INFO() == 0x01)
+                  {
+                      ucUsb2HubInfo |= _BIT1;
+                  }
+              
+                  if(GET_HUB_DSP2_INFO() == 0x01)
+                  {
+                      ucUsb2HubInfo |= _BIT2;
+                  }
+              
+                  if(GET_HUB_DSP3_INFO() == 0x01)
+                  {
+                      ucUsb2HubInfo |= _BIT3;
+                  }
+              
+                  if(GET_HUB_DSP_U2_INFO() != ucUsb2HubInfo)
+                  {
+                      SET_HUB_DSP_U2_CHANGE(_TRUE);
+                  }
+                  else
+                  {
+                      SET_HUB_DSP_U2_CHANGE(_FALSE);
+                  }
+              
+                  // Updata U2 Hub Info
+                  SET_HUB_DSP_U2_INFO(ucUsb2HubInfo);
+              }
+              
+              //--------------------------------------------------
+              // Description  : Check Hub DSP U3 Device Change
+              // Input Value  : stRdDetectDspSSMode --> DSP0/1/2/3 Info
+              // Output Value : Hub DSP U3 Device Change
+              //--------------------------------------------------
+              void UserCommonUsbHubDspU3InfoChange(void)
+              {
+                  BYTE ucUsb3HubInfo = 0;
+              
+                  // List U3 device is connectted in DSPx
+                  if((GET_HUB_DSP0_INFO() == 0x10) || (GET_HUB_DSP0_INFO() == 0x20))
+                  {
+                      ucUsb3HubInfo |= _BIT0;
+                  }
+              
+                  if((GET_HUB_DSP1_INFO() == 0x10) || (GET_HUB_DSP1_INFO() == 0x20))
+                  {
+                      ucUsb3HubInfo |= _BIT1;
+                  }
+              
+                  if((GET_HUB_DSP2_INFO() == 0x10) || (GET_HUB_DSP2_INFO() == 0x20))
+                  {
+                      ucUsb3HubInfo |= _BIT2;
+                  }
+              
+                  if((GET_HUB_DSP3_INFO() == 0x10) || (GET_HUB_DSP3_INFO() == 0x20))
+                  {
+                      ucUsb3HubInfo |= _BIT3;
+                  }
+              
+                  if(GET_HUB_DSP_U3_INFO() != ucUsb3HubInfo)
+                  {
+                      SET_HUB_DSP_U3_CHANGE(_TRUE);
+                  }
+C51 COMPILER V9.60.0.0   USERCOMMONUSBHUBRTS5411                                           09/09/2025 18:04:38 PAGE 6   
+
+                  else
+                  {
+                      SET_HUB_DSP_U3_CHANGE(_FALSE);
+                  }
+              
+                  // Updata U3 Hub Info
+                  SET_HUB_DSP_U3_INFO(ucUsb3HubInfo);
+              }
+              //--------------------------------------------------
+              // Description  : User Set Usb Hub Polling SS Device Step
+              // Input Value  : ucInputPort --> Input Port
+              // Output Value : Usb Hub Polling Step Par.
+              //--------------------------------------------------
+              WORD UserCommonUsbHubSetPollingStep(BYTE ucInputPort)
+              {
+                  return UserInterfaceTypeCUsbHubSetPollingStep(ucInputPort);
+              }
+              
+              //--------------------------------------------------
+              // Description  : User Get Hub DSP Info
+              // Input Value  : enumHubDspx --> Hub Dsp Number
+              // Output Value : Hub DSP Info
+              //--------------------------------------------------
+              BYTE UserCommonUsbHubGetDspInfo(EnumHubDsp enumHubDspx)
+              {
+                  BYTE ucDspInfo = 0x00;
+                  enumHubDspx = enumHubDspx;
+              
+                  switch(enumHubDspx)
+                  {
+                      case _HUB_DSP0:
+              
+                          ucDspInfo = GET_HUB_DSP0_INFO();
+              
+                          break;
+              
+                      case _HUB_DSP1:
+              
+                          ucDspInfo = GET_HUB_DSP1_INFO();
+              
+                          break;
+              
+                      case _HUB_DSP2:
+              
+                          ucDspInfo = GET_HUB_DSP2_INFO();
+              
+                          break;
+              
+                      case _HUB_DSP3:
+              
+                          ucDspInfo = GET_HUB_DSP3_INFO();
+              
+                          break;
+              
+                      default:
+                          break;
+                  }
+              
+                  return ucDspInfo;
+              }
+              
+              #if(_BILLBOARD_HUB_SUPPORT == _ON)
+C51 COMPILER V9.60.0.0   USERCOMMONUSBHUBRTS5411                                           09/09/2025 18:04:38 PAGE 7   
+
+              //--------------------------------------------------
+              // Description  : For 5411 Hub to Control Billboard
+              // Input Value  : enumAtion : _TYPE_C_BB_DISABLE / _TYPE_C_BB_ENABLE
+              // Output Value : None
+              //--------------------------------------------------
+              void UserCommonUsbHubBillboardControl(BYTE ucInputPort, EnumBillboardCtrl enumAtion)
+              {
+                  // Call User Function for User to Enable / Disable Hub Billboard
+                  UserInterfaceTypeCUsbHubBillboardControl(ucInputPort, enumAtion);
+              }
+              #endif // End of #if(_BILLBOARD_HUB_SUPPORT == _ON)
+              #endif // End of #if(_DP_TYPE_C_HUB_COMMUNICATION_SUPPORT == _ON)
+              #endif // End of #if(_USB_HUB_RTS5411_SERIES_SUPPORT == _ON)
+              #endif // End of #if(_DP_TYPE_C_PORT_CTRL_SUPPORT == _ON)
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

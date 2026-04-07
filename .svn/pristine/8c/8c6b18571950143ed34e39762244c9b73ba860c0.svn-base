@@ -1,0 +1,698 @@
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE RL6463_SERIES_FRC
+OBJECT MODULE PLACED IN .\Output\RL6463\RL6463_Series_FRC.obj
+COMPILER INVOKED BY: D:\liuxh\keil3\C51\BIN\C51.EXE Kernel\Scaler\RL6463_Series_Scaler\Code\RL6463_Series_FRC.c LARGE OP
+                    -TIMIZE(9,SPEED) INCDIR(.\Output\RL6463;.\Project\Header;.\Pcb;.\Panel;.\Kernel\Device\Header;.\Kernel\Common;.\Kernel\Sy
+                    -stem\Header;.\Kernel\Scaler\ScalerFunction\Header;.\Kernel\Scaler\ScalerCommonFunction\Header;.\Kernel\Scaler\ScalerFunc
+                    -tion\Lib\Header;.\Kernel\Scaler\ScalerCommonFunction\Lib\Header;.\Kernel\Scaler\RL6463_Series_Scaler\Header;.\Kernel\Sca
+                    -ler\RL6463_Series_Scaler\Lib\Header;.\Kernel\User Common Function\Header;.\User\RTD Series\RTD2014Function\Header;.\User
+                    -\RTD Series\RTD2014Osd\Header;.\User\RTD Factory\Header;.\User\None Series\NoneFunction\Header;.\User\None Series\NoneOs
+                    -d\Header;.\User\None Factory\Header) DEFINE(_PROJECT=_RL6463_PROJECT,_SCALER_TYPE=_RL6463_SERIES) DEBUG OBJECTEXTEND PRI
+                    -NT(.\Output\RL6463\RL6463_Series_FRC.lst) OBJECT(.\Output\RL6463\RL6463_Series_FRC.obj)
+
+line level    source
+
+   1          /********************************************************************************/
+   2          /*   Copyright (c) 2021 Realtek Semiconductor Corp. All rights reserved.        */
+   3          /*                                                                              */
+   4          /*   SPDX-License-Identifier: LicenseRef-Realtek-Proprietary                    */
+   5          /*                                                                              */
+   6          /*   This software component is confidential and proprietary to Realtek         */
+   7          /*   Semiconductor Corp. Disclosure, reproduction, redistribution, in whole     */
+   8          /*   or in part, of this work and its derivatives without express permission    */
+   9          /*   is prohibited.                                                             */
+  10          /********************************************************************************/
+  11          
+  12          //----------------------------------------------------------------------------------------------------
+  13          // ID Code      : RL6463_Series_FRC.c No.0000
+  14          // Update Note  :
+  15          //----------------------------------------------------------------------------------------------------
+  16          #define __RL6463_SERIES_FRC__
+  17          
+  18          #include "ScalerFunctionInclude.h"
+  19          
+  20          //****************************************************************************
+  21          // DEFINITIONS / MACROS
+  22          //****************************************************************************
+  23          
+  24          //****************************************************************************
+  25          // STRUCT / TYPE / ENUM DEFINITTIONS
+  26          //****************************************************************************
+  27          
+  28          //****************************************************************************
+  29          // CODE TABLES
+  30          //****************************************************************************
+  31          
+  32          //****************************************************************************
+  33          // VARIABLE DECLARATIONS
+  34          //****************************************************************************
+  35          
+  36          //****************************************************************************
+  37          // FUNCTION DECLARATIONS
+  38          //****************************************************************************
+  39          #if(_HW_FRC_TYPE != _FRC_GEN_NONE)
+  40          void ScalerFRCInitial(void);
+  41          void ScalerFRCEn(BYTE ucSettingPath, bit bEn);
+  42          #endif
+  43          
+  44          #if(_FRC_SUPPORT == _ON)
+              WORD ScalerFRCSetOneFrameDVTotal(void);
+              void ScalerFRCControl(const StructSDRAMDataInfo *pstFIFOSize);
+              void ScalerFRCInputCtrl(WORD usHorSize, WORD usVerSize);
+              void ScalerFRCDisplayCtrl(WORD usHorSize, WORD usVerSize);
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 2   
+
+              void ScalerFRCOneFrameCtrl(DWORD ulIHF, DWORD ulDHF);
+              void ScalerFRCCompareIHFandDHF(void);
+              
+              void ScalerFRCWaitWriteFrameBufFinish(void);
+              
+              #if(_FREEZE_SUPPORT == _ON)
+              void ScalerFRCDisplayFreeze(bit bEn);
+              #endif
+              #endif
+  58          
+  59          void ScalerFRCSetDDomainSourceSelect(EnumDDomainSourceSelect enumSourceSelect);
+  60          
+  61          
+  62          //****************************************************************************
+  63          // FUNCTION DEFINITIONS
+  64          //****************************************************************************
+  65          #if(_HW_FRC_TYPE != _FRC_GEN_NONE)
+  66          //--------------------------------------------------
+  67          // Description  : FRC Initial
+  68          // Input Value  :
+  69          // Output Value : None
+  70          //--------------------------------------------------
+  71          void ScalerFRCInitial(void)
+  72          {
+  73   1          // Set memory FIFO MUX to FRC
+  74   1          ScalerSetBit(P3_C9_LS_FIFO_CTRL0, ~_BIT7, _BIT7);
+  75   1      
+  76   1          // Memory Control Initial
+  77   1          ScalerSetBit(P5_B7_IN1_LINE_NUM_H, ~0xF0, 0x40);
+  78   1      
+  79   1          ScalerSetByte(P5_CD_MN_LINE_NUM_H, 0x00);
+  80   1          ScalerSetByte(P5_B9_IN1_SDR_CTRL, 0x82);
+  81   1          ScalerSetByte(P5_CF_MN_DISP_CTRL, 0x05);
+  82   1          ScalerSetByte(P5_E4_IN1_ONEF_DHF_H, 0x00);
+  83   1          ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+  84   1      
+  85   1          // Wait double buffer
+  86   1          if(ScalerGlobalGetDBStatus() == _DISABLE)
+  87   1          {
+  88   2              ScalerTimerWaitForEvent(_EVENT_DVS);
+  89   2          }
+  90   1      }
+  91          
+  92          //--------------------------------------------------
+  93          // Description  : FRC function enable/disable
+  94          // Input Value  : ucSettingPath: path
+  95          // Input Value  : bEn: enable/disable
+  96          // Output Value : None
+  97          //--------------------------------------------------
+  98          void ScalerFRCEn(BYTE ucSettingPath, bit bEn)
+  99          {
+ 100   1          // FRC Capture M1
+ 101   1          if((ucSettingPath & _FRC_CAP_MAIN_1) == _FRC_CAP_MAIN_1)
+ 102   1          {
+ 103   2              if((ScalerGlobalGetDBStatus() == _DISABLE) && (ScalerGetBit(P0_10_M1_VGIP_CTRL, _BIT0) == _BIT0))
+ 104   2              {
+ 105   3                  // Wait _EVENT_IEN_STOP before FRC Capture Disable
+ 106   3                  ScalerTimerWaitForEvent(_EVENT_IEN_STOP);
+ 107   3              }
+ 108   2      
+ 109   2              if(bEn == _DISABLE)
+ 110   2              {
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 3   
+
+ 111   3                  // Disable Capture Block
+ 112   3                  ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~(_BIT7), 0x00);
+ 113   3              }
+ 114   2              else
+ 115   2              {
+ 116   3                  if(ScalerGetBit(P5_B9_IN1_SDR_CTRL, _BIT7) == 0x00)
+ 117   3                  {
+ 118   4                      // Enable Capture Block
+ 119   4                      ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~(_BIT7), _BIT7);
+ 120   4                  }
+ 121   3              }
+ 122   2          }
+ 123   1      
+ 124   1          // FRC Display M1
+ 125   1          if((ucSettingPath & _FRC_DISP_MAIN_1) == _FRC_DISP_MAIN_1)
+ 126   1          {
+ 127   2              if(bEn == _DISABLE)
+ 128   2              {
+ 129   3      #if(_AIO_MODERN_STANDBY_SUPPORT == _ON)
+                          if((GET_AIO_MODERN_STANDBY_MODE() == _TRUE) &&
+                             (ScalerGetBit(P5_CF_MN_DISP_CTRL, _BIT0) == 0x00))
+                          {
+                              return;
+                          }
+              #endif
+ 136   3      
+ 137   3                  // Disable Capture Block
+ 138   3                  ScalerSetBit(P5_CF_MN_DISP_CTRL, ~(_BIT0), 0x00);
+ 139   3              }
+ 140   2              else
+ 141   2              {
+ 142   3                  if(ScalerGetBit(P5_CF_MN_DISP_CTRL, _BIT0) == 0x00)
+ 143   3                  {
+ 144   4                      // Enable Capture block
+ 145   4                      ScalerSetBit(P5_CF_MN_DISP_CTRL, ~(_BIT0), _BIT0);
+ 146   4                  }
+ 147   3              }
+ 148   2              // Enable Display double buffer
+ 149   2              ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+ 150   2      
+ 151   2              if(ScalerGlobalGetDBStatus() == _DISABLE)
+ 152   2              {
+ 153   3                  ScalerTimerWaitForEvent(_EVENT_DVS);
+ 154   3              }
+ 155   2          }
+ 156   1      }
+ 157          #endif // End of #if(_HW_FRC_TYPE != _FRC_GEN_NONE)
+ 158          
+ 159          #if(_FRC_SUPPORT == _ON)
+              //-------------------------------------------------
+              // Description  : Calculate DVTotal for OneFrame FRC
+              // Input Value  : None
+              // Output Value : usDVTotal
+              //-------------------------------------------------
+              WORD ScalerFRCSetOneFrameDVTotal(void)
+              {
+                  DWORD ulFrameDiff = 0;
+                  DWORD ulActiveRegionDiff = 0;
+                  WORD usIHF = 0;
+                  WORD usDHF = 0;
+                  WORD usDVTotal = 0;
+              
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 4   
+
+                  if((DWORD)g_stMDomainOutputData.usVHeight * 1066 / 1000 < _PANEL_DV_TOTAL)
+                  {
+                      usDHF = (DWORD)_PANEL_MAX_FRAME_RATE * _PANEL_DV_TOTAL / 1000;
+                  }
+                  else
+                  {
+                      usDHF = (DWORD)_PANEL_MAX_FRAME_RATE * (DWORD)g_stMDomainOutputData.usVHeight * 1066 / 1000 / 1000
+             -;
+                  }
+              
+                  usIHF = (DWORD)g_stMDomainInputData.usVFreq * g_stMDomainInputData.usVTotal / 1000;
+                  ulFrameDiff = (DWORD)1000 * ((DWORD)1000 * g_stMDomainInputData.usVFreq - (DWORD)1000 * _PANEL_MAX_FRA
+             -ME_RATE) / ((DWORD)g_stMDomainInputData.usVFreq * _PANEL_MAX_FRAME_RATE);
+                  ulActiveRegionDiff = (DWORD) 1000 * ((DWORD)g_stMDomainOutputData.usVHeight * usIHF - (DWORD)g_stMDoma
+             -inInputData.usVHeight * usDHF) / ((DWORD)usIHF * usDHF);
+              
+                  if((ulFrameDiff * 100 / ulActiveRegionDiff) < 125)
+                  {
+                      usDVTotal = (DWORD)1000 * g_stMDomainOutputData.usVHeight / ((ulFrameDiff * 100 / 125) + ((DWORD)1
+             -000 * g_stMDomainInputData.usVHeight / usIHF)) * 1000 / _PANEL_MAX_FRAME_RATE;
+                  }
+                  else if((DWORD)g_stMDomainOutputData.usVHeight * 1066 / 1000 < _PANEL_DV_TOTAL)
+                  {
+                      usDVTotal = _PANEL_DV_TOTAL;
+                  }
+                  else
+                  {
+                      usDVTotal = (DWORD)g_stMDomainOutputData.usVHeight * 1066 / 1000;
+                  }
+              
+                  if(usDVTotal > _PANEL_DV_TOTAL_MAX)
+                  {
+                      usDVTotal = _PANEL_DV_TOTAL_MAX;
+                  }
+                  else if(usDVTotal < _PANEL_DV_TOTAL_MIN)
+                  {
+                      usDVTotal = _PANEL_DV_TOTAL_MIN;
+                  }
+              
+                  return usDVTotal;
+              }
+              
+              //--------------------------------------------------
+              // Description  : FRC control
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFRCControl(const StructSDRAMDataInfo *pstFIFOSize)
+              {
+                  // -----------------------
+                  // Set FRC IVS2DVSDelay
+                  // -----------------------
+                  ScalerFRCAdjustIVS2DVSDelay(pstFIFOSize->usInputVHeight);
+              
+                  // -----------------------
+                  // Consider Input Faster Or Slower
+                  // -----------------------
+                  ScalerFRCCompareIHFandDHF();
+              
+                  // -----------------------
+                  // Set Up FRC Capture
+                  // -----------------------
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 5   
+
+                  ScalerFRCInputCtrl(pstFIFOSize->usInputHWidth, pstFIFOSize->usInputVHeight);
+              
+                  // -----------------------
+                  // Set Up FRC Display
+                  // -----------------------
+                  ScalerFRCDisplayCtrl(pstFIFOSize->usInputHWidth, pstFIFOSize->usInputVHeight);
+              
+              #if(_AIO_MODERN_STANDBY_SUPPORT == _ON)
+                  if(GET_AIO_MODERN_STANDBY_MODE() == _TRUE)
+                  {
+                      // -----------------------
+                      // Enable FRC
+                      // -----------------------
+                      ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~_BIT7, _BIT7);
+                      ScalerSetBit(P5_CF_MN_DISP_CTRL, ~_BIT0, _BIT0);
+              
+                      // Enable Display double buffer
+                      ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+              
+                      // Wait _EVENT_IVS For FRC Run In Single Frame Buffer
+                      if(ScalerGlobalGetDBStatus() == _DISABLE)
+                      {
+                          ScalerTimerWaitForEvent(_EVENT_IVS);
+                          ScalerTimerWaitForEvent(_EVENT_IVS);
+                      }
+              
+                      // Enable Display double buffer
+                      ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+                  }
+                  else
+              #endif
+                  {
+                      // Wait I-domain Stable Before FRC enable
+                      if(ScalerGlobalGetDBStatus() == _DISABLE)
+                      {
+                          ScalerTimerWaitForEvent(_EVENT_IVS);
+                          ScalerTimerWaitForEvent(_EVENT_IVS);
+                          ScalerTimerWaitForEvent(_EVENT_IVS);
+                      }
+              
+                      // -----------------------
+                      // Enable FRC
+                      // -----------------------
+                      ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~_BIT7, _BIT7);
+                      ScalerSetBit(P5_CF_MN_DISP_CTRL, ~_BIT0, _BIT0);
+              
+                      // Enable Display double buffer
+                      ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+              
+                      // Wait _EVENT_IVS For FRC Run In Single Frame Buffer
+                      if(ScalerGlobalGetDBStatus() == _DISABLE)
+                      {
+                          ScalerTimerWaitForEvent(_EVENT_IVS);
+                          ScalerTimerWaitForEvent(_EVENT_IVS);
+                      }
+              
+                      // Enable Display double buffer
+                      ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+              
+                      if(ScalerGlobalGetDBStatus() == _DISABLE)
+                      {
+                          ScalerTimerWaitForEvent(_EVENT_DVS);
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 6   
+
+                      }
+                  }
+              
+                  DebugMessageFRC("FRC-H", pstFIFOSize->usInputHWidth);
+                  DebugMessageFRC("FRC-V", pstFIFOSize->usInputVHeight);
+              }
+              
+              //--------------------------------------------------
+              // Description  : IN1 FIFO Setting for FRC Mode
+              // Input Value  : ucHorSize --> Horizontal size
+              //                ucVerSize --> Vertical Size
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFRCInputCtrl(WORD usHorSize, WORD usVerSize)
+              {
+                  StructMemoryLineBlockStep stStep;
+                  DWORD ulTotalSize = 0;
+                  memset(&stStep, 0, sizeof(StructMemoryLineBlockStep));
+              
+                  // _LINE_MODE for linestep, there's no blockstep in RL6463
+                  ulTotalSize = ScalerMemoryCalculateFrameLineTotalPixel(_LINE_MODE, usHorSize, usVerSize);
+              
+                  // Set Frame mode (line mode may fail at some timing)
+                  ScalerSetBit(P5_B7_IN1_LINE_NUM_H, ~_BIT4, _BIT4);
+              
+                  stStep.ulLineStep = ScalerMemoryAddressConversion(ulTotalSize);
+              
+                  // One Frame total pixel for MEMORY (unit : 64 bits)
+                  ulTotalSize = ((DWORD)usHorSize * usVerSize * GET_MEMORY_DATA_BIT() % 64) ?
+                                (((DWORD)usHorSize * usVerSize  * GET_MEMORY_DATA_BIT() / 64) + 1) :
+                                ((DWORD)usHorSize * usVerSize  * GET_MEMORY_DATA_BIT() / 64);
+              
+                  PDATA_DWORD(0) = ScalerMemoryCalculateNumberAndRemain(ulTotalSize, _FRC_ACCESS_WRITE_LENGTH, 1);
+              
+                  // Set Capture addresss count = 0
+                  ScalerSetBit(P5_BA_IN1_MADDR_TOG_CTL, ~(_BIT3 | _BIT2), 0x00);
+              
+                  ScalerSetByte(P5_A8_IN1_WATER_LEVEL, _FRC_ACCESS_WRITE_LENGTH);
+                  ScalerSetByte(P5_A9_IN1_WR_NUM_H, pData[2]);
+                  ScalerSetByte(P5_AA_IN1_WR_NUM_L, pData[3]);
+                  ScalerSetByte(P5_AB_IN1_WR_LEN, _FRC_ACCESS_WRITE_LENGTH);
+                  ScalerSetByte(P5_AC_IN1_WR_REMAIN, pData[1]);
+                  ScalerSetByte(P5_AD_IN1_MEM_ADDR_H, (BYTE)(_FRC_R_1ST_BLOCK_STA_ADDR_H));
+                  ScalerSetByte(P5_AE_IN1_MEM_ADDR_M, HIBYTE(_FRC_R_1ST_BLOCK_STA_ADDR_M));
+                  ScalerSetByte(P5_AF_IN1_MEM_ADDR_L, LOBYTE(_FRC_R_1ST_BLOCK_STA_ADDR_M));
+                  ScalerSetByte(P5_B0_IN1_LINE_STEP_H, HIBYTE(stStep.ulLineStep));
+                  ScalerSetByte(P5_B1_IN1_LINE_STEP_L, LOBYTE(stStep.ulLineStep));
+              
+                  // Set line number
+                  ScalerSetBit(P5_B7_IN1_LINE_NUM_H, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (usVerSize >> 8) & 0x0F);
+                  ScalerSetByte(P5_B8_IN1_LINE_NUM_L, LOBYTE(usVerSize));
+              
+                  // disable freeze mode
+                  ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~(_BIT2), 0x00);
+              
+                  // Use IVS as synchronous reset
+                  ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~(_BIT1), _BIT1);
+              }
+              
+              //--------------------------------------------------
+              // Description  : MAIN FIFO Setting for FRC Mode
+              // Input Value  : usHorSize --> Horizontal size
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 7   
+
+              //                usVerSize --> Vertical Size
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFRCDisplayCtrl(WORD usHorSize, WORD usVerSize)
+              {
+                  StructMemoryLineBlockStep stStep;
+                  DWORD ulTotalSize = 0;
+                  memset(&stStep, 0, sizeof(StructMemoryLineBlockStep));
+              
+                  // _LINE_MODE for linestep, there's no blockstep in RL6463
+                  ulTotalSize = ScalerMemoryCalculateFrameLineTotalPixel(_LINE_MODE, usHorSize, usVerSize);
+              
+                  // Set Frame mode (line mode may fail at some timing)
+                  ScalerSetBit(P5_CD_MN_LINE_NUM_H, ~_BIT4, _BIT4);
+                  stStep.ulLineStep = ScalerMemoryAddressConversion(ulTotalSize);
+              
+              
+                  // One Frame total pixel for MEMORY (unit : 64 bits)
+                  ulTotalSize = ((DWORD)usHorSize * usVerSize * GET_MEMORY_DATA_BIT() % 64) ?
+                                (((DWORD)usHorSize * usVerSize * GET_MEMORY_DATA_BIT() / 64) + 1) :
+                                ((DWORD)usHorSize * usVerSize * GET_MEMORY_DATA_BIT() / 64);
+              
+                  // Set Pre-read
+                  PDATA_WORD(2) = ScalerFRCCalculatePreReadLine(usVerSize);
+                  ScalerSetByte(P5_BC_MN_PRRD_VST_H, pData[4]);
+                  ScalerSetByte(P5_BD_MN_PRRD_VST_L, pData[5]);
+              
+                  // Set Pixel number
+                  ScalerSetBit(P5_BE_MN_PXL_NUM_H, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (HIBYTE(usHorSize) & 0x0F));
+                  ScalerSetByte(P5_BF_MN_PXL_NUM_L, LOBYTE(usHorSize));
+              
+                  // Set Water Level
+                  ScalerSetByte(P5_C0_MN_WTLVL, _FRC_ACCESS_READ_LENGTH);
+              
+                  // Set Number, Length, Remain ( size = number x length +remain)
+                  PDATA_DWORD(0) = ScalerMemoryCalculateNumberAndRemain(ulTotalSize, _FRC_ACCESS_READ_LENGTH, 0);
+                  ScalerSetByte(P5_C2_MN_READ_NUM_H, pData[2]);
+                  ScalerSetByte(P5_C3_MN_READ_NUM_L, pData[3]);
+                  ScalerSetByte(P5_C4_MN_READ_LEN, _FRC_ACCESS_READ_LENGTH);
+                  ScalerSetByte(P5_C5_MN_READ_REMAIN, pData[1]);
+              
+                  // Set Read address
+                  ScalerSetByte(P5_C6_MN_READ_ADDR_H, (BYTE)(_FRC_R_1ST_BLOCK_STA_ADDR_H));
+                  ScalerSetByte(P5_C7_MN_READ_ADDR_M, HIBYTE(_FRC_R_1ST_BLOCK_STA_ADDR_M));
+                  ScalerSetByte(P5_C8_MN_READ_ADDR_L, LOBYTE(_FRC_R_1ST_BLOCK_STA_ADDR_M));
+              
+                  // Set Line step
+                  ScalerSetBit(P5_C9_MN_LINE_STEP_H, ~(_BIT5 | _BIT4 | _BIT3 | _BIT2 | _BIT1 | _BIT0), HIBYTE(stStep.ulL
+             -ineStep) & 0x3F);
+                  ScalerSetByte(P5_CA_MN_LINE_STEP_L, LOBYTE(stStep.ulLineStep));
+              
+                  // Set Line number
+                  ScalerSetBit(P5_CD_MN_LINE_NUM_H, ~(_BIT3 | _BIT2 | _BIT1 | _BIT0), (usVerSize >> 8) & 0x0F);
+                  ScalerSetByte(P5_CE_MN_LINE_NUM_L, LOBYTE(usVerSize));
+              
+                  // Use information from Capture
+                  ScalerSetBit(P5_CF_MN_DISP_CTRL, ~(_BIT2 | _BIT1), 0x00);
+              
+                  // Enable Display double buffer
+                  ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+              
+                  // Wait double buffer
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 8   
+
+                  if(ScalerGlobalGetDBStatus() == _DISABLE)
+                  {
+                      ScalerTimerWaitForEvent(_EVENT_DVS);
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Set OneFrame FRC
+              // Input Value  : IHF, DHF
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFRCOneFrameCtrl(DWORD ulIHF, DWORD ulDHF)
+              {
+                  SWORD shMargin = 0;
+                  WORD usPreRead = 0;
+                  WORD usLeadingLine = 0;
+                  WORD usFIFOVHeight = 0;
+              
+              
+                  ScalerGetDataPortByte(P0_30_FIFO_WINDOW_ADDR_PORT, _P0_31_PT_00_DISPLAY_READ_WID_BSU_H, 3, &pData[0], 
+             -_AUTOINC);
+                  // FIFO V Height
+                  usFIFOVHeight = ((((WORD)pData[0] & 0x0F) << 8) | pData[2]);
+              
+                  if(ulIHF > ulDHF)
+                  {
+                      usPreRead = g_stMDomainOutputData.usVStart - 3;
+                      shMargin = (SWORD)0 - (ulDHF * usFIFOVHeight / ulIHF - _LINE_MARGIN);
+                      ScalerSetBit(P5_CF_MN_DISP_CTRL, ~_BIT3, _BIT3);
+                  }
+                  else
+                  {
+                      // forbidden lines
+                      usPreRead = ((DWORD)g_stMDomainOutputData.usVHeight * ulDHF / ulIHF - g_stMDomainOutputData.usVHei
+             -ght);
+                      usPreRead = (usPreRead < 10) ? 10 : usPreRead;
+              
+                      if(g_stMDomainInputData.usVFreq > _PANEL_MAX_FRAME_RATE)
+                      {
+                          // input frame leading lines in display
+                          usLeadingLine = (DWORD)(g_stMDomainInputData.usVFreq - _PANEL_MAX_FRAME_RATE) * _PANEL_DV_TOTA
+             -L_MIN / g_stMDomainInputData.usVFreq;
+                      }
+                      else if(g_stMDomainInputData.usVFreq < _PANEL_MIN_FRAME_RATE)
+                      {
+                          // input frame leading lines in display
+                          usLeadingLine = (DWORD)(_PANEL_MAX_FRAME_RATE - g_stMDomainInputData.usVFreq) * _PANEL_DV_TOTA
+             -L_MIN / g_stMDomainInputData.usVFreq;
+                      }
+              
+                      if(usPreRead <= g_stMDomainOutputData.usVStart)
+                      {
+                          if((usPreRead * 15 / 10) < usLeadingLine)
+                          {
+                              if((usPreRead * 15 / 10) > g_stMDomainOutputData.usVStart)
+                              {
+                                  usPreRead = 0;
+                              }
+                              else
+                              {
+                                  usPreRead = g_stMDomainOutputData.usVStart - usPreRead * 15 / 10;
+                              }
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 9   
+
+                          }
+                          else if((usPreRead * 13 / 10) < usLeadingLine)
+                          {
+                              if((usLeadingLine - 1) > g_stMDomainOutputData.usVStart)
+                              {
+                                  usPreRead = 0;
+                              }
+                              else
+                              {
+                                  usPreRead = g_stMDomainOutputData.usVStart - (usLeadingLine - 1);
+                              }
+                          }
+                          else
+                          {
+                              if((usPreRead * 13 / 10) > g_stMDomainOutputData.usVStart)
+                              {
+                                  usPreRead = 0;
+                              }
+                              else
+                              {
+                                  usPreRead = g_stMDomainOutputData.usVStart - usPreRead * 13 / 10;
+                              }
+                          }
+              
+                          shMargin = (SWORD)0 - (g_stMDomainOutputData.usVHeight - 1 + _LINE_MARGIN);
+                      }
+                      else
+                      {
+                          usPreRead = g_stMDomainInputData.usVHeight;
+                          shMargin = ((SWORD)0 - (((ulDHF / ulIHF) - 1) * usFIFOVHeight + _LINE_MARGIN));
+                      }
+                      ScalerSetBit(P5_CF_MN_DISP_CTRL, ~_BIT3, 0x00);
+                  }
+              
+                  ScalerSetByte(P5_E4_IN1_ONEF_DHF_H, (ulDHF >> 16) | _BIT7);
+                  ScalerSetByte(P5_E8_IN1_LINE_MAGN_L, LOBYTE(shMargin));
+                  ScalerSetByte(P5_E9_IN1_ONEF_MAGN_H, (HIBYTE(shMargin) << 4) + HIBYTE(usPreRead));
+                  ScalerSetByte(P5_EA_IN1_PRRD_MAGN_L, LOBYTE(usPreRead));
+              
+                  // Write in double buffer
+                  ScalerSetBit(P5_D0_MN_SDR_STATUS, ~(_BIT4 | _BIT0), _BIT4);
+              
+                  // Disable Osd Overlay In Case of Garbage
+                  pData[0] = ScalerGetByte(P0_6C_OVERLAY_CTRL);
+              
+                  ScalerSetBit(P0_6C_OVERLAY_CTRL, ~_BIT0, 0x00);
+              
+                  // Set Frame sync
+                  ScalerSetBit(P0_28_VIDEO_DISPLAY_CONTROL_REG, ~(_BIT7 | _BIT3 | _BIT1 | _BIT0), (_BIT3 | _BIT1 | _BIT0
+             -));
+              
+                  ScalerTimerWaitForEvent(_EVENT_DEN_STOP);
+              
+                  // Set Free Run
+                  ScalerSetBit(P0_28_VIDEO_DISPLAY_CONTROL_REG, ~(_BIT7 | _BIT3 | _BIT1 | _BIT0), (_BIT7 | _BIT1 | _BIT0
+             -));
+                  ScalerSetBit(P0_6C_OVERLAY_CTRL, ~_BIT0, (pData[0] & _BIT0));
+              }
+              
+              //--------------------------------------------------
+              // Description  : Compare which one of IHF and DHF is bigger, and see if they are too similar
+              // Input Value  : ulFreq --> DCLK
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 10  
+
+              // Output Value : output is true when they are too similar
+              //--------------------------------------------------
+              void ScalerFRCCompareIHFandDHF(void)
+              {
+                  DWORD ulIHF = 0;
+                  DWORD ulDHF = 0;
+              
+                  if(g_stMDomainOutputData.usVHeight > g_stMDomainInputData.usVHeight)
+                  {
+                      // IHF'
+                      ulIHF = (DWORD)g_stMDomainInputData.usHFreq;
+                      // DHF'
+                      ulDHF = ((DWORD)GET_D_CLK_FREQ() / g_stMDomainOutputData.usHTotal * g_stMDomainInputData.usVHeight
+             - / g_stMDomainOutputData.usVHeight * 10);
+                  }
+                  else
+                  {
+                      // IHF'
+                      ulIHF = GET_MDOMAIN_IHF_IN_DDOMAIN();
+                      // DHF'
+                      ulDHF = ((DWORD)GET_D_CLK_FREQ() / g_stMDomainOutputData.usHTotal * 10);
+                  }
+              
+                  // Set FRC Style
+                  if(ulIHF > ulDHF)
+                  {
+                      // Set input fast than display
+                      ScalerSetBit(P5_CF_MN_DISP_CTRL, ~_BIT3, _BIT3);
+                  }
+                  else
+                  {
+                      // Set input slower than display
+                      ScalerSetBit(P5_CF_MN_DISP_CTRL, ~_BIT3, 0x00);
+                  }
+              
+                  // Write in double buffer
+                  ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+              
+                  if(GET_MEMORY_SELECT() == _FRAME_SYNC_MEMORY)
+                  {
+                      // Set Frame sync when FRC
+                      ScalerSetBit(P0_28_VIDEO_DISPLAY_CONTROL_REG, ~(_BIT7 | _BIT3 | _BIT1 | _BIT0), (_BIT3 | _BIT1 | _
+             -BIT0));
+                  }
+                  else
+                  {
+                      ScalerFRCOneFrameCtrl(ulIHF, ulDHF);
+                  }
+              }
+              
+              //--------------------------------------------------
+              // Description  : Wait Capture Write Memory Block Finish
+              // Input Value  : None
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFRCWaitWriteFrameBufFinish(void)
+              {
+                  return;
+              }
+              
+              #if(_FREEZE_SUPPORT == _ON)
+              //--------------------------------------------------
+C51 COMPILER V8.12   RL6463_SERIES_FRC                                                     03/10/2025 13:50:44 PAGE 11  
+
+              // Description  : FRC freeze mode
+              // Input Value  : ON --> Freeze
+              // Output Value : None
+              //--------------------------------------------------
+              void ScalerFRCDisplayFreeze(bit bEn)
+              {
+                  ScalerTimerWaitForEvent(_EVENT_IEN_STOP);
+              
+                  if(bEn == _ON)
+                  {
+                      ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~_BIT7, 0x00);
+                  }
+                  else
+                  {
+                      ScalerSetBit(P5_B9_IN1_SDR_CTRL, ~_BIT7, _BIT7);
+                  }
+              }
+              #endif // End of #if(_FREEZE_SUPPORT == _ON)
+              
+              #endif // End of #if(_FRC_SUPPORT == _ON)
+ 614          
+ 615          //--------------------------------------------------
+ 616          // Description  : D Domain Source Select
+ 617          // Input Value  :
+ 618          // Output Value : None
+ 619          //--------------------------------------------------
+ 620          void ScalerFRCSetDDomainSourceSelect(EnumDDomainSourceSelect enumSourceSelect)
+ 621          {
+ 622   1          if(enumSourceSelect == _DDOMAIN_SRC_FRAM_FRAME_SYNC_MODE)
+ 623   1          {
+ 624   2              // Set Frame sync with line buffer mode
+ 625   2              ScalerSetBit(P5_CF_MN_DISP_CTRL, ~(_BIT2 | _BIT1), _BIT2);
+ 626   2          }
+ 627   1          else
+ 628   1          {
+ 629   2              ScalerSetBit(P5_CF_MN_DISP_CTRL, ~(_BIT2 | _BIT1), 0x00);
+ 630   2          }
+ 631   1      
+ 632   1          // Enable Display double buffer
+ 633   1          ScalerSetBit(P5_D0_MN_SDR_STATUS, ~_BIT4, _BIT4);
+ 634   1      }
+ 635          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    194    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
