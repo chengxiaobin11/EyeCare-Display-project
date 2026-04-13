@@ -20,8 +20,11 @@
 #endif
 
 #elif(_D0_INPUT_PORT_TYPE == _D0_DP_PORT)
-
+#if(_PROJECT_ID==_ID_JX_2557E02_MV238FHB_NF5_QHD144_EYEPROTECT_CLASSIC_R5KEY)
+#define _EDID_D0_TYPE_SEL                               _EDID_DP_2560_1440_240HZ
+#else
 #define _EDID_D0_TYPE_SEL                               _EDID_DP_1920_1080_60HZ
+#endif
 
 #endif
 
@@ -95,6 +98,8 @@ BYTE code tEDID_TABLE_D0[] =
 #include "./EDID/EdidDp/EDID_DP_5120x2880@60_AMD.h"
 #elif(_EDID_D0_TYPE_SEL == _EDID_DP_3840_2160_120HZ_AMD)
 #include "./EDID/EdidDp/EDID_DP_3840x2160@120_AMD.h"
+#elif(_EDID_D0_TYPE_SEL == _EDID_DP_2560_1440_240HZ)
+#include "./EDID/EdidDp/EDID_DP_2560x1440@240.h"
 #endif
 };
 

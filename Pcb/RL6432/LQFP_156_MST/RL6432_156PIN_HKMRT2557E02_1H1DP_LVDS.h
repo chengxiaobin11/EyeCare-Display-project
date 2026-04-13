@@ -187,7 +187,7 @@
 #define _LVDS_SR_CONTROL                        _LVDS_SR_CONTROL_0
 #define _LVDS_PRE_EMPHASIS_CONTROL              _LVDS_PRE_EMPHASIS_0
 #define _LVDS_TERMINATION_CONTROL               _DISABLE
-#define _LVDS_VCM_USER_LEVEL                    0x1F
+#define _LVDS_VCM_USER_LEVEL                    0x1F//0x1F
 #else
 #define _LVDS_DRIV_CONTROL                      _LVDS_DRIV_CONTROL_3_5
 #define _LVDS_VCM_CONTROL                       _LVDS_VCM_NORMAL

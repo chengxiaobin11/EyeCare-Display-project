@@ -76,6 +76,7 @@
 
 #define _CSOT_SG2701B084_LVDS_FHD200HZ			0x85
 #define _CSOT_SG2381B084_LVDS_FHD240HZ			0x86
+#define _BOE_MV270QH7B00_LVDS_QHD144HZ			0x87
 
 
 //--------------------------------------------------
