@@ -78,8 +78,8 @@
 #define _PANEL_DH_WIDTH                         2560
 #define _PANEL_DH_END                           2608
 
-#define _PANEL_DH_TOTAL                         2780
-#define _PANEL_DH_TOTAL_MAX                     2800
+#define _PANEL_DH_TOTAL                         2840 //2780
+#define _PANEL_DH_TOTAL_MAX                     2900 //2800
 #define _PANEL_DH_TOTAL_MIN                     2720
 
 #define _PANEL_DV_START                         6
@@ -93,8 +93,8 @@
 #define _PANEL_DH_SYNC_WIDTH                    8
 #define _PANEL_DV_SYNC_HEIGHT                   2
 
-#define _PANEL_PIXEL_CLOCK                      250
-#define _PANEL_PIXEL_CLOCK_MAX                  610
+#define _PANEL_PIXEL_CLOCK                      400  //249
+#define _PANEL_PIXEL_CLOCK_MAX                  680  //610
 #define _PANEL_PIXEL_CLOCK_MIN                  241
 
 #define _PANEL_POWER_ON_T1                      100
