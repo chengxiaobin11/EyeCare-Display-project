@@ -504,12 +504,12 @@
 //        5: Test4b_out1, 6: Test4b_out2, 7: Test4b_out3)
 
 //KEY POWER
-#define _156PIN_PIN_74                          (0 & 0x0F) // Page 10-0x37[2:0]
+#define _156PIN_PIN_74                          (2 & 0x0F) // Page 10-0x37[2:0]
 // 0 ~ 7 (0: P8D7i<I>,    1: P8D7o<PP>,   2: P8D7o<OD>, 3: tcon[9] , 4: Test4b_out0,
 //        5: Test4b_out1, 6: Test4b_out2, 7: Test4b_out3)
 
 // HDMI HPD
-#define _156PIN_PIN_76                          (2 & 0x0F) // Page 10-0x39[2:0]
+#define _156PIN_PIN_76                          (0 & 0x0F) // Page 10-0x39[2:0]
 // 0 ~ 5 (0: P9D1i<I>, 1: P9D1o<PP>, 2: P9D1o<OD>, 3: PWM2<PP>, 4: PWM2<OD>
 //        5: TCON[3])
 
@@ -872,7 +872,7 @@ sbit bD3_CONNECT                             	= P1 ^ 0; // _156PIN_PIN_82, P1.0
 // Macro of Digital Hot Plug High/Low
 //-----------------------------------------------
 #define bD0_HPD                                 (MCU_FE1D_PORT75_PIN_REG) // _156PIN_PIN_65
-#define bD1_HPD                                 (MCU_FE29_PORT91_PIN_REG) // _156PIN_PIN_76
+#define bD1_HPD                                 (MCU_FE27_PORT87_PIN_REG) // _156PIN_PIN_74
 sbit bD3_HPD                                  	= P1 ^ 1; // _156PIN_PIN_84, P1.1
 
 #define _D0_HOT_PLUG_HIGH                       1
@@ -1199,7 +1199,7 @@ sbit bDDC1IICSDA          					          =P3^3; // _156PIN_PIN_138,
 #define PCB_ADKEY2()                            (AD_KEY2)
 
 
-#define bPower                                  (MCU_FE27_PORT87_PIN_REG)  //_156PIN_PIN_74
+#define bPower                                  (MCU_FE29_PORT91_PIN_REG)  //_156PIN_PIN_76
 #define bUpp									(MCU_FE22_PORT82_PIN_REG)  //_156PIN_PIN_70
 #define bMenu      								(MCU_FE23_PORT83_PIN_REG)  //_156PIN_PIN_69
 #define bMinus      							(MCU_FE21_PORT81_PIN_REG)  //_156PIN_PIN_68
