@@ -100,7 +100,7 @@
 #define _DEF_VGA_TIMING_KEY_2_4					_OFF		// VGA 2+4 Timing��������
 
 #define _IMD_DOMAIN_ULTRA_HIGH_SPEED_SUPPORT    _ON
-#define _OSD_KEY_FHD270_ROCKER                  _ON
+#define _OSD_KEY_FHD270_ROCKER                  _OFF
 #define _SW_IIC_SUPPORT                         _ON
 #define _MT3212_CT_SUPPORT                      _OFF
 #define _LS_PS_SUPPORT                          _ON

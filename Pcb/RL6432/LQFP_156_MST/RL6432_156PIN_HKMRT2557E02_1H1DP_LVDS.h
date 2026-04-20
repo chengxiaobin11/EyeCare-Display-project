@@ -412,7 +412,7 @@
 //        5: spdif1)
 
 // 
-#define _156PIN_PIN_51_OFF_REGION                          (2 & 0x0F) // Page 10-0x19[2:0]
+#define _156PIN_PIN_51_OFF_REGION                          (2 & 0x0F) // Page 10-0x19[2:0]  //sensor
 // 0 ~ 6 (0: P5D1i<I>, 1: P5D1o<PP>, 2: P5D1o<OD>, 3: PWM3<PP>, 4: PWM3<OD>,
 //        5: tcon[6],  6: DPTX_aux_ch_p_1)
 

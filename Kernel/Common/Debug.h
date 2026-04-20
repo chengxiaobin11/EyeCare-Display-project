@@ -22,7 +22,7 @@
 //--------------------------------------------------
 // DDC Channel Select
 //--------------------------------------------------
-#define _DEBUG_DDC_CHANNEL_SEL                      _PCB_DEBUG_DDC
+#define _DEBUG_DDC_CHANNEL_SEL                      _PCB_DEBUG_DDC    //EyeProtection for _DDC2
 
 //--------------------------------------------------
 // RTD Tool IIC Debug by UserInterface Function

@@ -7783,10 +7783,12 @@ void ScalerEyeProtectEventProc(void)
     if(GET_OSD_AI_EYE_PROTECTION_STATUS()||GET_OSD_AI_LOW_POWER_STATUS())
     {
         ret = ScalerMcuGetPSData();
+        DebugMessageSystem("distance------------------",ret);
     }
     if(GET_OSD_AI_EYE_PROTECTION_STATUS()||GET_OSD_AI_LIGHT_ADAPTIVATION_STATUS())
     {
         lum = ScalerMcuALSDataHanlder();
+        DebugMessageSystem("Auto light",lum);
     }
     #endif
     #endif

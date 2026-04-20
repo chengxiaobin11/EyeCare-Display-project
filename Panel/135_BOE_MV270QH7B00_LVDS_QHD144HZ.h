@@ -80,22 +80,22 @@
 
 #define _PANEL_DH_TOTAL                         2840 //2780
 #define _PANEL_DH_TOTAL_MAX                     2900 //2800
-#define _PANEL_DH_TOTAL_MIN                     2720
+#define _PANEL_DH_TOTAL_MIN                     2720 //2720
 
 #define _PANEL_DV_START                         6
 #define _PANEL_DV_HEIGHT                        1440
 #define _PANEL_DV_END                           1446
 
-#define _PANEL_DV_TOTAL                         1500
-#define _PANEL_DV_TOTAL_MAX                     4521
-#define _PANEL_DV_TOTAL_MIN                     1479
+#define _PANEL_DV_TOTAL                         1500 //1500
+#define _PANEL_DV_TOTAL_MAX                     4521 //4521
+#define _PANEL_DV_TOTAL_MIN                     1479 //1479
 
 #define _PANEL_DH_SYNC_WIDTH                    8
 #define _PANEL_DV_SYNC_HEIGHT                   2
 
-#define _PANEL_PIXEL_CLOCK                      400  //249
+#define _PANEL_PIXEL_CLOCK                      250  //250
 #define _PANEL_PIXEL_CLOCK_MAX                  680  //610
-#define _PANEL_PIXEL_CLOCK_MIN                  241
+#define _PANEL_PIXEL_CLOCK_MIN                  200  //200
 
 #define _PANEL_POWER_ON_T1                      100
 #define _PANEL_POWER_ON_T2                      40

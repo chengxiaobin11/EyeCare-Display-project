@@ -3559,33 +3559,37 @@ BYTE ScalerMcuGetPSData(void)//distance
 
 BYTE ScalerMcuALSDataHanlder(void)//lum
 {
-    // BYTE ALS_H[1], ALS_L[1] = 0x00;
-    // WORD ALS = 0x0000;
+    BYTE ALS_H[1] = 0x00, ALS_L[1] = 0x00;
+    WORD ALS = 0x0000;
     BYTE ret = 0;
 
-    // SET_SW_IIC_STATUS(_IIC_LS_PS);
-    // ScalerMcuIICRead(ADDR_LS_PS, 1, LS_SUB_ADDR_ALS_H, 1, &ALS_H);
-    // ScalerTimerDelayXms(5);
-    // ScalerMcuIICRead(ADDR_LS_PS, 1, LS_SUB_ADDR_ALS_L, 1, &ALS_L);
-    // ALS = (ALS_H[0] << 8) | ALS_L[0];
-
-    // if(ALS >= ALS_MAX_VAL)
-    // {
-    //    ret = ALS_MAX_BRI;
-    // }
-    // else if(ALS <= ALS_MIN_VAL)
-    // {
-    //     ret = ALS_MIN_BRI;
-    // }
-    // else if((ALS >= ALS_CEN_VAL)&&(ALS < ALS_MAX_VAL))
-    // {
-    //     ret = ALS_CEN_BRI + (((ALS - ALS_CEN_VAL)/(ALS_MAX_VAL-ALS_CEN_VAL))*(ALS_MAX_BRI-ALS_CEN_BRI));
-    // }
-    // else if((ALS < ALS_CEN_VAL)&&(ALS > ALS_MIN_VAL))
-    // {
-    //     ret = ALS_MIN_BRI + (((ALS - ALS_MIN_VAL)/(ALS_CEN_VAL-ALS_MIN_VAL))*(ALS_CEN_BRI-ALS_MIN_BRI));
-    // }
-    // DebugMessageSystem("ScalerMcuALSDataHanlder------------------",ret);
+    SET_SW_IIC_STATUS(_IIC_LS_PS);
+    ScalerMcuIICRead(ADDR_LS_PS, 1, LS_SUB_ADDR_ALS_H, 1, &ALS_H);
+    DebugMessageSystem("ALS_H0------------------",ALS_H[0]);
+    DebugMessageSystem("ALS_H1------------------",ALS_H[1]);
+    ScalerTimerDelayXms(5);
+    ScalerMcuIICRead(ADDR_LS_PS, 1, LS_SUB_ADDR_ALS_L, 1, &ALS_L);
+    DebugMessageSystem("ALS_L0------------------",ALS_L[0]);
+    DebugMessageSystem("ALS_L1------------------",ALS_L[1]);
+    ALS = (ALS_H[0] << 8) | ALS_L[0];
+    DebugMessageSystem("ALS------------------",ALS);
+    if(ALS >= ALS_MAX_VAL)
+    {
+       ret = ALS_MAX_BRI;
+    }
+    else if(ALS <= ALS_MIN_VAL)
+    {
+        ret = ALS_MIN_BRI;
+    }
+    else if((ALS >= ALS_CEN_VAL)&&(ALS < ALS_MAX_VAL))
+    {
+        ret = ALS_CEN_BRI + (((ALS - ALS_CEN_VAL)/(ALS_MAX_VAL-ALS_CEN_VAL))*(ALS_MAX_BRI-ALS_CEN_BRI));
+    }
+    else if((ALS < ALS_CEN_VAL)&&(ALS > ALS_MIN_VAL))
+    {
+        ret = ALS_MIN_BRI + (((ALS - ALS_MIN_VAL)/(ALS_CEN_VAL-ALS_MIN_VAL))*(ALS_CEN_BRI-ALS_MIN_BRI));
+    }
+    DebugMessageSystem("ScalerMcuALSDataHanlder------------------",ret);
     return ret;
 }
 #endif
