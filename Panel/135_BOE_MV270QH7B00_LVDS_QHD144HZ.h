@@ -32,7 +32,7 @@
 // Definitions for LVDS Panel Configuration
 //--------------------------------------------------
 #define _LVDS_OUTPUT_PORT                       _LVDS_4_PORT
-#define _LVDS_PANEL_SECTION                     _LVDS_PANEL_1_SECTION
+#define _LVDS_PANEL_SECTION                     _LVDS_PANEL_1_SECTION  //_LVDS_PANEL_1_SECTION
 #define _LVDS_TABLE_TYPE                        _LVDS_BIT_MAP_TABLE_1_3
 #define _LVDS_NO_VCM_LEVEL_BEFORE_DATA          _OFF
 #define _LVDS_CABLE_TYPE                        _LVDS_CABLE_TYPE_0
@@ -50,14 +50,14 @@
 //--------------------------------------------------
 // Definitions for Panel Display Color Depth
 //--------------------------------------------------
-#define _PANEL_DISP_BIT_MODE                    _PANEL_DISP_24_BIT
+#define _PANEL_DISP_BIT_MODE                    _PANEL_DISP_18_BIT
 
 //--------------------------------------------------
 // Definitions for Maximum Panel Frame Rate (Unit: 0.1 Hz)
 //--------------------------------------------------
-#define _PANEL_TYP_FRAME_RATE                   1200
+#define _PANEL_TYP_FRAME_RATE                   600
 #define _PANEL_MAX_FRAME_RATE                   1450
-#define _PANEL_MIN_FRAME_RATE                   600
+#define _PANEL_MIN_FRAME_RATE                   480
 
 //--------------------------------------------------
 // Definitions for FREESYNC Maximum Panel Frame Rate (Unit: 0.1 Hz)
@@ -66,21 +66,21 @@
 #define _PANEL_FREESYNC_MIN_FRAME_RATE          480
 
 
-
 ///////////////
 // Parameter //
 ///////////////
 
+
 //--------------------------------------------------
 // Definitions for Panel Parameter
 //--------------------------------------------------
-#define _PANEL_DH_START                         48
+#define _PANEL_DH_START                         16   //16   //48
 #define _PANEL_DH_WIDTH                         2560
-#define _PANEL_DH_END                           2608
+#define _PANEL_DH_END                           2576 //2576 //2608
 
-#define _PANEL_DH_TOTAL                         2840 //2780
-#define _PANEL_DH_TOTAL_MAX                     2900 //2800
-#define _PANEL_DH_TOTAL_MIN                     2720 //2720
+#define _PANEL_DH_TOTAL                         2656//3000 //2656 //2780
+#define _PANEL_DH_TOTAL_MAX                     2800 //2800
+#define _PANEL_DH_TOTAL_MIN                     2620 //2620 //2720
 
 #define _PANEL_DV_START                         6
 #define _PANEL_DV_HEIGHT                        1440
@@ -91,17 +91,17 @@
 #define _PANEL_DV_TOTAL_MIN                     1479 //1479
 
 #define _PANEL_DH_SYNC_WIDTH                    8
-#define _PANEL_DV_SYNC_HEIGHT                   2
-
+#define _PANEL_DV_SYNC_HEIGHT                   2   
+    
 #define _PANEL_PIXEL_CLOCK                      250  //250
 #define _PANEL_PIXEL_CLOCK_MAX                  680  //610
 #define _PANEL_PIXEL_CLOCK_MIN                  200  //200
 
-#define _PANEL_POWER_ON_T1                      100
+#define _PANEL_POWER_ON_T1                      10
 #define _PANEL_POWER_ON_T2                      40
 #define _PANEL_POWER_ON_T3                      600
 
-#define _PANEL_POWER_OFF_T4                     120
+#define _PANEL_POWER_OFF_T4                     220
 #define _PANEL_POWER_OFF_T5                     30
 #define _PANEL_POWER_OFF_T6                     1200
 

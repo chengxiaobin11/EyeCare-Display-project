@@ -294,6 +294,7 @@ void SysModeHandler(void)
                     #if(_LS_PS_SUPPORT == _ON)
                     ScalerMcuLSPsInit();
                     #endif
+									
                     #endif
                     #if _EYE_VLI_SUPPORT
                     ScalerTimerActiveTimerEvent(500, _USER_TIMER_EVENT_EVENT_EYE_PROTECT_EVENT);
